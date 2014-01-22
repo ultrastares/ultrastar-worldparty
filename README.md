@@ -1,4 +1,4 @@
-udxworldparty
+usdxworldparty
 =============
 
 UltraStar Deluxe WorldParty
