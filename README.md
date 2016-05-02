@@ -2,10 +2,10 @@ UltraStar Deluxe WorldParty 17.04
 ----------------------------
 
 --------------------------
- 1. About                   
- 2. Release Notes           
- 3. Command-Line Parameters 
- 4. Controls                
+ 1. About
+ 2. Release Notes
+ 3. Command-Line Parameters
+ 4. Controls
 ----------------------------
 
 ----------------- 
