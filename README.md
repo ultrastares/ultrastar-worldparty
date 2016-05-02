@@ -1,18 +1,5 @@
-# UltraStar Deluxe 1.3 trunk README
-```
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                   _______  _________
-            ___   /       \/         \_______
-           /   \  \      _/    /\____/       \__________
-          /   _/  /     / \______             \         \___    _____
-         /   |___/      \     \_/             /          \  \  /     \
-         \              /\                   /   |\       \  \/      /
-          \            /  \_ultrastardeluxe_/    |/       /         /
-           \______www_/                 |____________org_/          \
-                                                      /      /\      \
-                                                      \_____/  \_____/
-                                                                    
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+UltraStar Deluxe WorldParty 17.04
+----------------------------
 
  ============================
 = 1. About                   =
@@ -21,22 +8,24 @@
 = 4. Controls                =
  ============================
 
-SF.Net Page: http://sourceforge.net/projects/ultrastardx/
+----------------- ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Official Website: ; http://ultrastar-es.org ;
+----------------- ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
  ====================
  = 1. About         =
  ====================
 
-UltraStar Deluxe (USDX) is a free and open source karaoke game.  It allows
+UltraStar Deluxe WorldParty is a free and open source karaoke game.  It allows
 up to six players to sing along with music using microphones in order to
 score points, depending on the pitch of the voice and the rhythm of
 singing.
 
-UltraStar Deluxe is a fork of the original UltraStar (developed by corvus5).
+UltraStar Deluxe WorldParty is a fork of the original UltraStar deluxe
 Many features have been added like party mode, theme support and support
 for more audio and video formats.
-The improved stability and code quality of USDX enabled ports to Linux and
-Mac OS X.
+
+
 
  ====================
  = 2. Release Notes =
@@ -142,4 +131,3 @@ Songscreen
 
 
 Editor controls are described in documentation.pdf
-```
