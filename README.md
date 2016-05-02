@@ -1,20 +1,20 @@
 UltraStar Deluxe WorldParty 17.04
 ----------------------------
 
- ============================
-= 1. About                   =
-= 2. Release Notes           =
-= 3. Command-Line Parameters =
-= 4. Controls                =
- ============================
+--------------------------
+ 1. About                   
+ 2. Release Notes           
+ 3. Command-Line Parameters 
+ 4. Controls                
+----------------------------
 
 ----------------- 
 Official Website:  http://ultrastar-es.org 
 -----------------
 
- ====================
- = 1. About         =
- ====================
+--------------------
+  1. About         
+---------------------
 
 UltraStar Deluxe WorldParty is a free and open source karaoke game.  It allows
 up to six players to sing along with music using microphones in order to
@@ -27,9 +27,9 @@ for more audio and video formats.
 
 
 
- ====================
- = 2. Release Notes =
- ====================
+---------------------
+  2. Release Notes 
+---------------------
 
 - To set additional song directories change your config.ini like this:
   [Directories]
@@ -63,9 +63,9 @@ for more audio and video formats.
 - To enable benchmark run the game with -benchmark parameter
 
 
- ==============================
- = 3. Command-Line Parameters =
- ==============================
+---------------------------------
+ 3. Command-Line Parameters 
+---------------------------------
 
 Command-line parameters are passed to the game adding it to the path of a
 shortcut or starting the game within the console.
@@ -113,9 +113,9 @@ Start with a customs configuration file and score database:
 ultrastar.exe -ConfigFile C:\Ultrastar\Configs\PartyConfig.ini -ScoreFile C:\Ultrastar\Scores\PartyScores.db
 
 
- ===============
- = 4. Controls =
- ===============
+------------------
+ 4. Controls 
+------------------
 
 [J]      to open the "Search for a Song" interface
 [Cursor] to navigate through the screens.
