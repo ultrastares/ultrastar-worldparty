@@ -8,9 +8,9 @@ UltraStar Deluxe WorldParty 17.04
 = 4. Controls                =
  ============================
 
------------------ ;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Official Website: ; http://ultrastar-es.org ;
------------------ ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+----------------- 
+Official Website:  http://ultrastar-es.org 
+-----------------
 
  ====================
  = 1. About         =
