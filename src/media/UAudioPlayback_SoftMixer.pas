@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/media/UAudioPlayback_SoftMixer.pas $
- * $Id: UAudioPlayback_SoftMixer.pas 2475 2010-06-10 18:27:53Z brunzelchen $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/media/UAudioPlayback_SoftMixer.pas $
+ * $Id: UAudioPlayback_SoftMixer.pas 2945 2013-02-22 22:33:33Z k-m_schindler $
  *}
 
 unit UAudioPlayback_SoftMixer;
@@ -35,7 +35,7 @@ interface
 
 uses
   Classes,
-  sdl,
+  sdl2,
   SysUtils,
   URingBuffer,
   UMusic,
@@ -219,18 +219,23 @@ begin
   if assigned(MixerBuffer) then
     Freemem(MixerBuffer);
   ActiveStreams.Free;
+  SDL_UnlockMutex(InternalLock);
   SDL_DestroyMutex(InternalLock);
+  InternalLock:=nil;
   inherited;
 end;
 
 procedure TAudioMixerStream.Lock();
 begin
-  SDL_mutexP(InternalLock);
+  SDL_LockMutex(InternalLock);
+  //InternalLock:= SDL_CreateMutex();
 end;
 
 procedure TAudioMixerStream.Unlock();
 begin
-  SDL_mutexV(InternalLock);
+  SDL_UnlockMutex(InternalLock);
+  //SDL_DestroyMutex(InternalLock);
+  //InternalLock:=nil;
 end;
 
 function TAudioMixerStream.GetVolume(): single;
@@ -327,8 +332,11 @@ begin
   begin
     ActiveStreams.Pack();
   end;
-
-  Unlock();
+  try
+    Unlock();
+  except
+    ;
+  end;
 end;
 
 
@@ -347,7 +355,12 @@ end;
 destructor TGenericPlaybackStream.Destroy();
 begin
   Close();
-  SDL_DestroyMutex(InternalLock);
+  SDL_UnlockMutex(InternalLock);
+  if (Assigned(InternalLock)) and (InternalLock <> nil) then
+  begin
+    SDL_DestroyMutex(InternalLock);
+    InternalLock:=nil;
+  end;
   FreeAndNil(SoundEffects);
   inherited;
 end;
@@ -408,19 +421,19 @@ begin
   Stop();
 
   // Note: PerformOnClose must be called before SourceStream is invalidated
-  PerformOnClose();
+  //PerformOnClose();
   // and free data
-  Reset();
+  //Reset();
 end;
 
 procedure TGenericPlaybackStream.LockSampleBuffer();
 begin
-  SDL_mutexP(InternalLock);
+  SDL_LockMutex(InternalLock);
 end;
 
 procedure TGenericPlaybackStream.UnlockSampleBuffer();
 begin
-  SDL_mutexV(InternalLock);
+  SDL_UnlockMutex(InternalLock);
 end;
 
 function TGenericPlaybackStream.InitFormatConversion(): boolean;
@@ -1038,21 +1051,24 @@ begin
   // free data
   FreeAndNil(VoiceBuffer);
   if (BufferLock <> nil) then
+    SDL_UnlockMutex(BufferLock);
     SDL_DestroyMutex(BufferLock);
-
+    BufferLock:=nil;
   inherited Close();
 end;
 
 procedure TGenericVoiceStream.WriteData(Buffer: PByteArray; BufferSize: integer);
 begin
   // lock access to buffer
-  SDL_mutexP(BufferLock);
+  BufferLock := SDL_CreateMutex();
   try
     if (VoiceBuffer = nil) then
       Exit;
     VoiceBuffer.Write(Buffer, BufferSize);
   finally
-    SDL_mutexV(BufferLock);
+    SDL_UnlockMutex(BufferLock);
+    SDL_DestroyMutex(BufferLock);
+    BufferLock:=nil;
   end;
 end;
 
@@ -1061,21 +1077,25 @@ begin
   Result := -1;
 
   // lock access to buffer
-  SDL_mutexP(BufferLock);
+  BufferLock := SDL_CreateMutex();
   try
     if (VoiceBuffer = nil) then
       Exit;
     Result := VoiceBuffer.Read(Buffer, BufferSize);
   finally
-    SDL_mutexV(BufferLock);
+    SDL_UnlockMutex(BufferLock);
+    SDL_DestroyMutex(BufferLock);
+    BufferLock:=nil;
   end;
 end;
 
 function TGenericVoiceStream.IsEOF(): boolean;
 begin
-  SDL_mutexP(BufferLock);
+  BufferLock := SDL_CreateMutex();
   Result := (VoiceBuffer = nil);
-  SDL_mutexV(BufferLock);
+  SDL_UnlockMutex(BufferLock);
+  SDL_DestroyMutex(BufferLock);
+  BufferLock:=nil;
 end;
 
 function TGenericVoiceStream.IsError(): boolean;

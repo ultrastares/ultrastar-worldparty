@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/media/UAudioDecoder_FFmpeg.pas $
- * $Id: UAudioDecoder_FFmpeg.pas 2549 2010-06-19 16:36:25Z tobigun $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/media/UAudioDecoder_FFmpeg.pas $
+ * $Id: UAudioDecoder_FFmpeg.pas 3107 2014-11-23 00:02:56Z k-m_schindler $
  *}
 
 unit UAudioDecoder_FFmpeg;
@@ -56,7 +56,7 @@ interface
 implementation
 
 uses
-  SDL, // SDL redefines some base types -> include before SysUtils to ignore them
+  sdl2, // SDL redefines some base types -> include before SysUtils to ignore them
   Classes,
   Math,
   SysUtils,
@@ -64,7 +64,7 @@ uses
   avformat,
   avutil,
   avio,
-  mathematics, // used for av_rescale_q
+	ctypes,
   rational,
   UMusic,
   UIni,
@@ -81,7 +81,11 @@ const
 const
   // TODO: The factor 3/2 might not be necessary as we do not need extra
   // space for synchronizing as in the tutorial.
+{$IF FFMPEG_VERSION_INT >= 2000000}
+  AUDIO_BUFFER_SIZE = (192000 * 3) div 2;
+{$ELSE}
   AUDIO_BUFFER_SIZE = (AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) div 2;
+{$ENDIF}
 
 type
   TFFmpegDecodeStream = class(TAudioDecodeStream)
@@ -258,7 +262,9 @@ destructor TFFmpegDecodeStream.Destroy();
 begin
   Close();
 
+  SDL_UnlockMutex(fStateLock);
   SDL_DestroyMutex(fStateLock);
+  fStateLock:=nil;
   SDL_DestroyCond(fParserUnlockedCond);
   SDL_DestroyCond(fParserResumeCond);
   SDL_DestroyCond(fParserIdleCond);
@@ -274,6 +280,7 @@ end;
 function TFFmpegDecodeStream.Open(const Filename: IPath): boolean;
 var
   SampleFormat: TAudioSampleFormat;
+  TestFrame: TAVPacket;
   AVResult: integer;
 begin
   Result := false;
@@ -290,9 +297,16 @@ begin
   Self.fFilename := Filename;
 
   // use custom 'ufile' protocol for UTF-8 support
-  if (av_open_input_file(fFormatCtx, PAnsiChar('ufile:'+FileName.ToUTF8), nil, 0, nil) <> 0) then
+  {$IF LIBAVFORMAT_VERSION < 53001003}
+  AVResult := av_open_input_file(fFormatCtx, PAnsiChar('ufile:'+FileName.ToUTF8), nil, 0, nil);
+  {$ELSEIF LIBAVFORMAT_VERSION < 54029104}
+  AVResult := avformat_open_input(@fFormatCtx, PAnsiChar('ufile:'+FileName.ToUTF8), nil, nil);
+  {$ELSE}
+  AVResult := FFmpegCore.AVFormatOpenInput(@fFormatCtx, PAnsiChar('ufile:'+FileName.ToUTF8));
+  {$IFEND}
+  if (AVResult <> 0) then
   begin
-    Log.LogError('av_open_input_file failed: "' + Filename.ToNative + '"', 'UAudio_FFmpeg');
+    Log.LogError('Failed to open file "' + Filename.ToNative + '" ('+FFmpegCore.GetErrorString(AVResult)+')', 'UAudio_FFmpeg');
     Exit;
   end;
 
@@ -300,9 +314,18 @@ begin
   fFormatCtx^.flags := fFormatCtx^.flags or AVFMT_FLAG_GENPTS;
 
   // retrieve stream information
-  if (av_find_stream_info(fFormatCtx) < 0) then
+  //{$IF LIBAVFORMAT_VERSION >= 54006000)}
+  // av_find_stream_info is deprecated and should be replaced by av_read_frame. Untested.
+  //AVResult := av_read_frame(fFormatCtx, TestFrame);
+
+  {$IF LIBAVFORMAT_VERSION >= 53002000)}
+  AVResult := avformat_find_stream_info(fFormatCtx, nil);
+  {$ELSE}
+  AVResult := av_find_stream_info(fFormatCtx);
+  {$IFEND}
+  if (AVResult < 0) then
   begin
-    Log.LogError('av_find_stream_info failed: "' + Filename.ToNative + '"', 'UAudio_FFmpeg');
+    Log.LogError('No stream info found: "' + Filename.ToNative + '"', 'UAudio_FFmpeg');
     Close();
     Exit;
   end;
@@ -324,19 +347,22 @@ begin
 
   //Log.LogStatus('AudioStreamIndex is: '+ inttostr(ffmpegStreamID), 'UAudio_FFmpeg');
 
+{$IF LIBAVFORMAT_VERSION <= 52111000} // <= 52.111.0
   fAudioStream := fFormatCtx.streams[fAudioStreamIndex];
+{$ELSE}
+  fAudioStream := PPAVStream(PtrUInt(fFormatCtx.streams) + fAudioStreamIndex * Sizeof(pointer))^;
+{$IFEND}
   fAudioStreamPos := 0;
   fCodecCtx := fAudioStream^.codec;
 
   // TODO: should we use this or not? Should we allow 5.1 channel audio?
-  (*
+
   {$IF LIBAVCODEC_VERSION >= 51042000}
-  if (CodecCtx^.channels > 0) then
-    CodecCtx^.request_channels := Min(2, CodecCtx^.channels)
+  if (fCodecCtx^.channels > 0) then
+    fCodecCtx^.request_channels := Min(2, fCodecCtx^.channels)
   else
-    CodecCtx^.request_channels := 2;
+    fCodecCtx^.request_channels := 2;
   {$IFEND}
-  *)
 
   fCodec := avcodec_find_decoder(fCodecCtx^.codec_id);
   if (fCodec = nil) then
@@ -351,6 +377,14 @@ begin
   fCodecCtx^.debug_mv := 0;
   fCodecCtx^.debug := 0;
 
+  {$IF FFMPEG_VERSION_INT >= 1001000}
+  // request required sample format
+  // reference:
+  // http://stackoverflow.com/questions/16479662/ffmpeg-1-0-causing-audio-playback-issues
+  // without this avcodec_open2 returns AV_SAMPLE_FMT_S16P
+  fCodecCtx^.request_sample_fmt := AV_SAMPLE_FMT_S16;
+  {$IFEND}
+
   // detect bug-workarounds automatically
   fCodecCtx^.workaround_bugs := FF_BUG_AUTODETECT;
   // error resilience strategy (careful/compliant/agressive/very_aggressive)
@@ -362,7 +396,11 @@ begin
   // fail if called concurrently by different threads.
   FFmpegCore.LockAVCodec();
   try
+    {$IF LIBAVCODEC_VERSION >= 53005000}
+    AVResult := avcodec_open2(fCodecCtx, fCodec, nil);
+    {$ELSE}
     AVResult := avcodec_open(fCodecCtx, fCodec);
+    {$IFEND}
   finally
     FFmpegCore.UnlockAVCodec();
   end;
@@ -391,7 +429,7 @@ begin
   fPacketQueue := TPacketQueue.Create();
 
   // finally start the decode thread
-  fParseThread := SDL_CreateThread(@ParseThreadMain, Self);
+  fParseThread := SDL_CreateThread(@ParseThreadMain, nil, Self);
 
   Result := true;
 end;
@@ -407,16 +445,16 @@ begin
     fPacketQueue.Abort();
 
   // send quit request (to parse-thread etc)
-  SDL_mutexP(fStateLock);
+  SDL_LockMutex(fStateLock);
   fQuitRequest := true;
   SDL_CondBroadcast(fParserIdleCond);
-  SDL_mutexV(fStateLock);
+  SDL_UnlockMutex(fStateLock);
 
   // abort parse-thread
   if (fParseThread <> nil) then
   begin
     // and wait until it terminates
-    SDL_WaitThread(fParseThread, ThreadResult);
+    //SDL_WaitThread(fParseThread, PInt(ThreadResult));
     fParseThread := nil;
   end;
 
@@ -436,7 +474,13 @@ begin
   // Close the video file
   if (fFormatCtx <> nil) then
   begin
+    {$IF LIBAVFORMAT_VERSION < 53024002}
     av_close_input_file(fFormatCtx);
+    {$ELSEIF LIBAVFORMAT_VERSION < 54029104}
+    avformat_close_input(@fFormatCtx);
+    {$ELSE}
+    FFmpegCore.AVFormatCloseInput(@fFormatCtx);
+    {$IFEND}
     fFormatCtx := nil;
   end;
 
@@ -447,11 +491,17 @@ begin
 end;
 
 function TFFmpegDecodeStream.GetLength(): real;
+var
+  start_time: cint64;
 begin
-  // do not forget to consider the start_time value here
+  start_time := fFormatCtx^.start_time;
+  // AV_NOPTS_VALUE is returned if no explicit start_time is available.
+  if start_time = AV_NOPTS_VALUE then
+    start_time := 0;
+
   // there is a type size mismatch warnign because start_time and duration are cint64.
   // So, in principle there could be an overflow when doing the sum.
-  Result := (fFormatCtx^.start_time + fFormatCtx^.duration) / AV_TIME_BASE;
+  Result := (start_time + fFormatCtx^.duration) / AV_TIME_BASE;
 end;
 
 function TFFmpegDecodeStream.GetAudioFormatInfo(): TAudioFormatInfo;
@@ -461,44 +511,44 @@ end;
 
 function TFFmpegDecodeStream.IsEOF(): boolean;
 begin
-  SDL_mutexP(fStateLock);
+  SDL_LockMutex(fStateLock);
   Result := fEOFState;
-  SDL_mutexV(fStateLock);
+  SDL_UnlockMutex(fStateLock);
 end;
 
 procedure TFFmpegDecodeStream.SetEOF(State: boolean);
 begin
-  SDL_mutexP(fStateLock);
+  SDL_LockMutex(fStateLock);
   fEOFState := State;
-  SDL_mutexV(fStateLock);
+  SDL_UnlockMutex(fStateLock);
 end;
 
 function TFFmpegDecodeStream.IsError(): boolean;
 begin
-  SDL_mutexP(fStateLock);
+  SDL_LockMutex(fStateLock);
   Result := fErrorState;
-  SDL_mutexV(fStateLock);
+  SDL_UnlockMutex(fStateLock);
 end;
 
 procedure TFFmpegDecodeStream.SetError(State: boolean);
 begin
-  SDL_mutexP(fStateLock);
+  SDL_LockMutex(fStateLock);
   fErrorState := State;
-  SDL_mutexV(fStateLock);
+  SDL_UnlockMutex(fStateLock);
 end;
 
 function TFFmpegDecodeStream.IsSeeking(): boolean;
 begin
-  SDL_mutexP(fStateLock);
+  SDL_LockMutex(fStateLock);
   Result := fSeekRequest;
-  SDL_mutexV(fStateLock);
+  SDL_UnlockMutex(fStateLock);
 end;
 
 function TFFmpegDecodeStream.IsQuit(): boolean;
 begin
-  SDL_mutexP(fStateLock);
+  SDL_LockMutex(fStateLock);
   Result := fQuitRequest;
-  SDL_mutexV(fStateLock);
+  SDL_UnlockMutex(fStateLock);
 end;
 
 function TFFmpegDecodeStream.GetPosition(): real;
@@ -525,16 +575,16 @@ end;
 
 function TFFmpegDecodeStream.GetLoop(): boolean;
 begin
-  SDL_mutexP(fStateLock);
+  SDL_LockMutex(fStateLock);
   Result := fLoop;
-  SDL_mutexV(fStateLock);
+   SDL_UnlockMutex(fStateLock);
 end;
 
 procedure TFFmpegDecodeStream.SetLoop(Enabled: boolean);
 begin
-  SDL_mutexP(fStateLock);
+  SDL_LockMutex(fStateLock);
   fLoop := Enabled;
-  SDL_mutexV(fStateLock);
+   SDL_UnlockMutex(fStateLock);
 end;
 
 
@@ -544,29 +594,42 @@ end;
 
 procedure TFFmpegDecodeStream.PauseParser();
 begin
-  if (SDL_ThreadID() = fParseThread.threadid) then
+  if (fParseThread = nil) or (SDL_ThreadID() = fParseThread.threadid) then
+  begin
+    SDL_UnlockMutex(fStateLock);
     Exit;
-    
-  SDL_mutexP(fStateLock);
+  end;
+
+  SDL_LockMutex(fStateLock);
   Inc(fParserPauseRequestCount);
   while (fParserLocked) do
     SDL_CondWait(fParserUnlockedCond, fStateLock);
-  SDL_mutexV(fStateLock);
+   SDL_UnlockMutex(fStateLock);
 end;
 
 procedure TFFmpegDecodeStream.ResumeParser();
 begin
-  if (SDL_ThreadID() = fParseThread.threadid) then
-    Exit;
+  if (fParseThread = nil) or (SDL_ThreadID() = fParseThread.threadid) then
+    begin
+      SDL_UnlockMutex(fStateLock);
+      Exit;
+    end;
 
-  SDL_mutexP(fStateLock);
+  SDL_LockMutex(fStateLock);
   Dec(fParserPauseRequestCount);
   SDL_CondSignal(fParserResumeCond);
-  SDL_mutexV(fStateLock);
+   SDL_UnlockMutex(fStateLock);
 end;
 
 procedure TFFmpegDecodeStream.SetPositionIntern(Time: real; Flush: boolean; Blocking: boolean);
 begin
+  if (fParseThread = nil) then //if thread is killed but doesn't know of it yet, leave the sinking ship.
+    begin
+      SDL_UnlockMutex(fStateLock);
+      ResumeDecoder();
+      ResumeParser();
+      Exit;
+    end;
   // - Pause the parser first to prevent it from putting obsolete packages
   //   into the queue after the queue was flushed and before seeking is done.
   //   Otherwise we will hear fragments of old data, if the stream was seeked
@@ -575,7 +638,7 @@ begin
   // - Last lock the state lock because we are manipulating some shared state-vars.
   PauseParser();
   PauseDecoder();
-  SDL_mutexP(fStateLock);
+  SDL_LockMutex(fStateLock);
   try
     fEOFState := false;
     fErrorState := false;
@@ -604,7 +667,7 @@ begin
     // send a reuse signal in case the parser was stopped (e.g. because of an EOF)
     SDL_CondSignal(fParserIdleCond);
   finally
-    SDL_mutexV(fStateLock);
+     SDL_UnlockMutex(fStateLock);
     ResumeDecoder();
     ResumeParser();
   end;
@@ -612,10 +675,10 @@ begin
   // in blocking mode, wait until seeking is done
   if (Blocking) then
   begin
-    SDL_mutexP(fStateLock);
+    SDL_LockMutex(fStateLock);
     while (fSeekRequest) do
       SDL_CondWait(SeekFinishedCond, fStateLock);
-    SDL_mutexV(fStateLock);
+     SDL_UnlockMutex(fStateLock);
   end;
 end;
 
@@ -635,10 +698,10 @@ begin
   while (ParseLoop()) do
   begin
     // wait for reuse or destruction of stream
-    SDL_mutexP(fStateLock);
+    SDL_LockMutex(fStateLock);
     while (not (fSeekRequest or fQuitRequest)) do
       SDL_CondWait(fParserIdleCond, fStateLock);
-    SDL_mutexV(fStateLock);
+     SDL_UnlockMutex(fStateLock);
   end;
 end;
 
@@ -656,10 +719,16 @@ function TFFmpegDecodeStream.ParseLoop(): boolean;
 var
   Packet: TAVPacket;
   SeekTarget: int64;
+  {$IF FFMPEG_VERSION_INT < 1001000}
   ByteIOCtx: PByteIOContext;
+  {$ELSE}
+  ByteIOCtx: PAVIOContext;
+  {$ENDIF}
   ErrorCode: integer;
   StartSilence: double;       // duration of silence at start of stream
   StartSilencePtr: PDouble;  // pointer for the EMPTY status packet 
+  fileSize: integer;
+  urlError: integer;
 
   // Note: pthreads wakes threads waiting on a mutex in the order of their
   // priority and not in FIFO order. SDL does not provide any option to
@@ -669,19 +738,19 @@ var
   // instead and give priority to the threads requesting the parser to pause.
   procedure LockParser();
   begin
-    SDL_mutexP(fStateLock);
+    SDL_LockMutex(fStateLock);
     while (fParserPauseRequestCount > 0) do
       SDL_CondWait(fParserResumeCond, fStateLock);
     fParserLocked := true;
-    SDL_mutexV(fStateLock);
+     SDL_UnlockMutex(fStateLock);
   end;
 
   procedure UnlockParser();
   begin
-    SDL_mutexP(fStateLock);
+    SDL_LockMutex(fStateLock);
     fParserLocked := false;
     SDL_CondBroadcast(fParserUnlockedCond);
-    SDL_mutexV(fStateLock);
+     SDL_UnlockMutex(fStateLock);
   end;
 
 begin
@@ -722,7 +791,7 @@ begin
         // Note that the decoder does not block in the packet-queue in seeking state,
         // so locking the decoder here does not cause a dead-lock.
         PauseDecoder();
-        SDL_mutexP(fStateLock);
+        SDL_LockMutex(fStateLock);
         try
           if (ErrorCode < 0) then
           begin
@@ -767,7 +836,7 @@ begin
           fSeekRequest := false;
           SDL_CondBroadcast(SeekFinishedCond);
         finally
-          SDL_mutexV(fStateLock);
+           SDL_UnlockMutex(fStateLock);
           ResumeDecoder();
         end;
       end;
@@ -788,7 +857,11 @@ begin
         {$IFEND}
 
         // check for end-of-file (eof is not an error)
+        {$IF (LIBAVFORMAT_VERSION_MAJOR < 56)}
         if (url_feof(ByteIOCtx) <> 0) then
+        {$ELSE}
+        if (avio_feof(ByteIOCtx) <> 0) then
+        {$IFEND}
         begin
           if (GetLoop()) then
           begin
@@ -805,7 +878,12 @@ begin
         end;
 
         // check for errors
-        if (url_ferror(ByteIOCtx) <> 0) then
+        {$IF (LIBAVFORMAT_VERSION >= 52103000)}
+        urlError := ByteIOCtx^.error;
+        {$ELSE}
+        urlError := url_ferror(ByteIOCtx);
+        {$IFEND}
+        if (urlError <> 0) then
         begin
           // an error occured -> abort and wait for repositioning or termination
           fPacketQueue.PutStatus(PKT_STATUS_FLAG_ERROR, nil);
@@ -814,8 +892,12 @@ begin
 
         // url_feof() does not detect an EOF for some files
         // so we have to do it this way.
-        if ((fFormatCtx^.file_size <> 0) and
-            (ByteIOCtx^.pos >= fFormatCtx^.file_size)) then
+        {$IF (LIBAVFORMAT_VERSION >= 53009000)}
+        fileSize := avio_size(fFormatCtx^.pb);
+        {$ELSE}
+        fileSize := fFormatCtx^.file_size;
+        {$IFEND}
+        if ((fileSize <> 0) and (ByteIOCtx^.pos >= fileSize)) then
         begin
           fPacketQueue.PutStatus(PKT_STATUS_FLAG_EOF, nil);
           Exit;
@@ -844,19 +926,19 @@ end;
 
 procedure TFFmpegDecodeStream.PauseDecoder();
 begin
-  SDL_mutexP(fStateLock);
+  SDL_LockMutex(fStateLock);
   Inc(fDecoderPauseRequestCount);
   while (fDecoderLocked) do
     SDL_CondWait(fDecoderUnlockedCond, fStateLock);
-  SDL_mutexV(fStateLock);
+   SDL_UnlockMutex(fStateLock);
 end;
 
 procedure TFFmpegDecodeStream.ResumeDecoder();
 begin
-  SDL_mutexP(fStateLock);
+  SDL_LockMutex(fStateLock);
   Dec(fDecoderPauseRequestCount);
   SDL_CondSignal(fDecoderResumeCond);
-  SDL_mutexV(fStateLock);
+   SDL_UnlockMutex(fStateLock);
 end;
 
 procedure TFFmpegDecodeStream.FlushCodecBuffers();
@@ -875,7 +957,11 @@ begin
     FFmpegCore.LockAVCodec();
     try
       avcodec_close(fCodecCtx);
+      {$IF LIBAVCODEC_VERSION >= 53005000}
+      avcodec_open2(fCodecCtx, fCodec, nil);
+      {$ELSE}
       avcodec_open(fCodecCtx, fCodec);
+      {$IFEND}
     finally
       FFmpegCore.UnlockAVCodec();
     end;
@@ -888,6 +974,10 @@ var
   DataSize: integer;         // size of output data decoded by FFmpeg
   BlockQueue: boolean;
   SilenceDuration: double;
+  {$IF LIBAVCODEC_VERSION >= 57000000}
+  AVFrame: PAVFrame;
+  got_frame_ptr: integer;
+  {$IFEND}
   {$IFDEF DebugFFmpegDecode}
   TmpPos: double;
   {$ENDIF}
@@ -916,7 +1006,16 @@ begin
     begin
       DataSize := BufferSize;
 
-      {$IF LIBAVCODEC_VERSION >= 51030000} // 51.30.0
+      {$IF LIBAVCODEC_VERSION >= 57000000}
+      AVFrame := av_frame_alloc();
+      PaketDecodedSize := avcodec_decode_audio4(fCodecCtx, AVFrame,
+            @got_frame_ptr, @fAudioPaket);
+      DataSize := AVFrame.nb_samples;
+      Buffer   := PByteArray(AVFrame.data[0]);
+      {$ELSEIF LIBAVCODEC_VERSION >= 52122000} // 52.122.0
+      PaketDecodedSize := avcodec_decode_audio3(fCodecCtx, PSmallint(Buffer),
+                  DataSize, @fAudioPaket);
+      {$ELSEIF LIBAVCODEC_VERSION >= 51030000} // 51.30.0
       PaketDecodedSize := avcodec_decode_audio2(fCodecCtx, PSmallint(Buffer),
                   DataSize, fAudioPaketData, fAudioPaketSize);
       {$ELSE}
@@ -1034,19 +1133,19 @@ var
   // prioritize pause requests
   procedure LockDecoder();
   begin
-    SDL_mutexP(fStateLock);
+    SDL_LockMutex(fStateLock);
     while (fDecoderPauseRequestCount > 0) do
       SDL_CondWait(fDecoderResumeCond, fStateLock);
     fDecoderLocked := true;
-    SDL_mutexV(fStateLock);
+    SDL_UnlockMutex(fStateLock);
   end;
 
   procedure UnlockDecoder();
   begin
-    SDL_mutexP(fStateLock);
+    SDL_LockMutex(fStateLock);
     fDecoderLocked := false;
     SDL_CondBroadcast(fDecoderUnlockedCond);
-    SDL_mutexV(fStateLock);
+    SDL_UnlockMutex(fStateLock);
   end;
 
 begin
@@ -1151,7 +1250,6 @@ begin
 
   Result := Stream;
 end;
-
 
 initialization
   MediaManager.Add(TAudioDecoder_FFmpeg.Create);

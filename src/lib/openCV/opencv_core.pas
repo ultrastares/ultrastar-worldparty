@@ -1,17 +1,23 @@
 unit opencv_core;
 
 interface
-uses
-{$IFDEF WIN32}
-  Windows, Dialogs, SysUtils, opencv_types;
-{$ELSE}
-  Wintypes, WinProcs, Dialogs, SysUtils;
+
+{$IFDEF FPC}
+  {$MODE Delphi}
 {$ENDIF}
 
-//var
+uses
+  SysUtils, opencv_types,
+  {$IFDEF WIN32}
+    Windows, Dialogs;
+  {$ELSE}
+    dynlibs;
+  {$ENDIF}
 
-  // /* Creates IPL image (header and data) */
-//  cvCreateImage: function(size: CvSize; depth: integer; channels: integer ): PIplImage;cdecl;
+var
+
+///* Creates IPL image (header and data) */
+  cvCreateImage: function(size: CvSize; depth: integer; channels: integer ): PIplImage;cdecl;
 //  cvCreateMemStorage: function( block_size: integer = 0): PCvMemStorage;cdecl;
 
 ///*********************************** Adding own types ***********************************/
@@ -64,7 +70,7 @@ cvLoad:function ( filename: pAnsiChar;
 var cvReleaseImage: procedure(image: PPIplImage);cdecl;
 
 ///* Creates a copy of IPL image (widthStep may differ) */
-//var cvCloneImage: function(image:pIplImage):PIplImage;cdecl;
+var cvCloneImage: function(image:pIplImage):PIplImage;cdecl;
 
 ///* Creates new empty sequence that will reside in the specified storage */
 //var cvCreateSeq: function(seq_flags: integer; header_size: integer;
@@ -85,15 +91,16 @@ var cvReleaseImage: procedure(image: PPIplImage);cdecl;
 //var cvInvert: function( const A : PCvArr; B : PCvArr; method : integer ) : double; cdecl;
 
 //var cvAdd: procedure(src1:PIplImage; src2:PIplImage; dst:PIplImage; mask: CvArr = nil);  cdecl;
-//var cvAddS: procedure(src:PIplImage; value: CvScalar; dst:PIplImage; mask: CvArr = nil);  cdecl;
-//var cvNot: procedure(src:PIplImage; dst:PIplImage);  cdecl;
-//var cvConvertScale: procedure(src:PIplImage; dst:PIplImage; scale: double = 1; shift: double = 0);  cdecl;
-//var cvSplit: procedure(src: PIplImage; dst0, dst1, dst2, dst3: PIplImage); cdecl;
+var cvAddS: procedure(src:PIplImage; value: CvScalar; dst:PIplImage; mask: CvArr = nil);  cdecl;
+var cvNot: procedure(src:PIplImage; dst:PIplImage);  cdecl;
+var cvConvertScale: procedure(src:PIplImage; dst:PIplImage; scale: double = 1; shift: double = 0);  cdecl;
+var cvSplit: procedure(src: PIplImage; dst0, dst1, dst2, dst3: PIplImage); cdecl;
 var cvFlip: procedure(src: PIplImage; dst:PIplImage = nil; flipmode: integer = 0); cdecl;
 
 ///* Differences with actual and last image
-//var cvAbsDiff: procedure(src1:PIplImage; src2:PIplImage; dst:PIplImage);  cdecl;
+var cvAbsDiff: procedure(src1:PIplImage; src2:PIplImage; dst:PIplImage);  cdecl;
 
+var cvMerge: procedure (src0, src1, src2, src3:PIplImage; dst:PIplImage);  cdecl;
 ///* Adds new element to the end of sequence. Returns pointer to the element */
 //var cvSeqPush: function(seq:PCvSeq; element: pointer = nil): pansichar; cdecl;
 
@@ -108,7 +115,7 @@ var cvFlip: procedure(src: PIplImage; dst:PIplImage = nil; flipmode: integer = 0
 //                         is_closed: integer; color: CvScalar;  thickness: integer = 1;
 //                          line_type: integer = 8; shift: integer = 0); cdecl;
 
-//function CV_RGB( r, g, b : double ): CvScalar;
+function CV_RGB( r, g, b : double ): CvScalar;
 
 const
   CV_AA = 16;
@@ -119,7 +126,13 @@ var cvChangeSeqBlock: procedure( reader: pointer;direction:integer ); cdecl;
 implementation
 
 const
-  DLL_CXCORE='cxcore210.dll';//'opencv_core231.dll';
+  {$IF Defined(MSWINDOWS)}
+    DLL_CXCORE='cxcore210.dll';
+  {$ELSEIF Defined(DARWIN)}
+    DLL_CXCORE='libopencv_core.dylib';
+  {$ELSEIF Defined(UNIX)}
+    DLL_CXCORE='libopencv_core.so';
+  {$IFEND}
 
 var
   DLLHandle: THandle;
@@ -129,9 +142,9 @@ begin
   DLLHandle := LoadLibrary(DLL_CXCORE);
   if DLLHandle >= 32 then
   begin
-    //@cvCreateImage := GetProcAddress(DLLHandle,'cvCreateImage');
+    @cvCreateImage := GetProcAddress(DLLHandle,'cvCreateImage');
     {$IFDEF WIN32}
-    //Assert(@cvCreateImage <> nil);
+    Assert(@cvCreateImage <> nil);
     {$ENDIF}
     //
     //@cvCreateMemStorage := GetProcAddress(DLLHandle,'cvCreateMemStorage');
@@ -164,9 +177,9 @@ begin
     Assert(@cvReleaseImage <> nil);
     {$ENDIF}
     //
-    //@cvCloneImage := GetProcAddress(DLLHandle,'cvCloneImage');
+    @cvCloneImage := GetProcAddress(DLLHandle,'cvCloneImage');
     {$IFDEF WIN32}
-    //Assert(@cvCloneImage <> nil);
+    Assert(@cvCloneImage <> nil);
     {$ENDIF}
     //
     //@cvCreateSeq := GetProcAddress(DLLHandle,'cvCreateSeq');
@@ -216,9 +229,9 @@ begin
     {$ENDIF}
 
     //
-    //@cvAbsDiff := GetProcAddress(DLLHandle,'cvAbsDiff');
+    @cvAbsDiff := GetProcAddress(DLLHandle,'cvAbsDiff');
     {$IFDEF WIN32}
-    //Assert(@cvAbsDiff <> nil);
+    Assert(@cvAbsDiff <> nil);
     {$ENDIF}
 
     //
@@ -228,27 +241,27 @@ begin
     {$ENDIF}
 
     //
-    //@cvAddS := GetProcAddress(DLLHandle,'cvAddS');
+    @cvAddS := GetProcAddress(DLLHandle,'cvAddS');
     {$IFDEF WIN32}
-    //Assert(@cvAddS <> nil);
+    Assert(@cvAddS <> nil);
     {$ENDIF}
 
     //
-    //@cvNot := GetProcAddress(DLLHandle,'cvNot');
+    @cvNot := GetProcAddress(DLLHandle,'cvNot');
     {$IFDEF WIN32}
-    //Assert(@cvNot <> nil);
+    Assert(@cvNot <> nil);
     {$ENDIF}
 
     //
-    //@cvConvertScale := GetProcAddress(DLLHandle,'cvConvertScale');
+    @cvConvertScale := GetProcAddress(DLLHandle,'cvConvertScale');
     {$IFDEF WIN32}
-    //Assert(@cvConvertScale <> nil);
+    Assert(@cvConvertScale <> nil);
     {$ENDIF}
 
     //
-    //@cvSplit := GetProcAddress(DLLHandle,'cvSplit');
+    @cvSplit := GetProcAddress(DLLHandle,'cvSplit');
     {$IFDEF WIN32}
-    //Assert(@cvSplit <> nil);
+    Assert(@cvSplit <> nil);
     {$ENDIF}
 
         //
@@ -263,10 +276,15 @@ begin
     //Assert(@cvInvert <> nil);
     //{$ENDIF}
 
+    //
+    @cvMerge := GetProcAddress(DLLHandle,'cvMerge');
+    {$IFDEF WIN32}
+    Assert(@cvMerge <> nil);
+    {$ENDIF}
   end
   else
   begin
-    showmessage(format('Error: %s could not be loaded !!',[DLL_CXCORE]));
+    //showmessage(format('Error: %s could not be loaded !!',[DLL_CXCORE]));
     { Error: WINUSB.DLL could not be loaded !! }
   end;
 end;

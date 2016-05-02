@@ -34,6 +34,7 @@ interface
 {$I switches.inc}
 
 uses
+  UCommon,
   UThemes,
   UTexture,
   UMenuBackground,
@@ -59,10 +60,8 @@ const
 implementation
 uses
   USkins,
-  UCommon,
   SysUtils,
   gl,
-  glext,
   UGraphic;
 
 constructor TMenuBackgroundTexture.Create(const ThemedSettings: TThemeBackground);

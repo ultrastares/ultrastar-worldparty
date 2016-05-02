@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/media/UVideo.pas $
- * $Id: UVideo.pas 2527 2010-06-15 04:30:20Z brunzelchen $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/media/UVideo.pas $
+ * $Id: UVideo.pas 3150 2015-10-20 00:07:57Z basisbit $
  *}
 
 unit UVideo;
@@ -53,7 +53,8 @@ implementation
 uses
   SysUtils,
   Math,
-  SDL,
+  ctypes,
+  sdl2,
   avcodec,
   avformat,
   avutil,
@@ -66,6 +67,7 @@ uses
   glu,
   glext,
   textgl,
+  StrUtils,
   UMediaCore_FFmpeg,
   UCommon,
   UConfig,
@@ -80,7 +82,11 @@ uses
 const
 {$IFDEF PIXEL_FMT_BGR}
   PIXEL_FMT_OPENGL = GL_BGR;
+  {$IF FFMPEG_VERSION_INT < 1001000}
   PIXEL_FMT_FFMPEG = PIX_FMT_BGR24;
+  {$ELSE}
+  PIXEL_FMT_FFMPEG = AV_PIX_FMT_BGR24;
+  {$ENDIF}
   PIXEL_FMT_SIZE   = 3;
 
   // looks strange on linux:
@@ -90,7 +96,11 @@ const
 {$ELSE}
   // looks strange on linux:
   PIXEL_FMT_OPENGL = GL_RGB;
-  PIXEL_FMT_FFMPEG = PIX_FMT_RGB24;
+  {$IF FFMPEG_VERSION_INT < 1001000}
+  PIXEL_FMT_FFMPEG = PIX_FMT_BGR24;
+  {$ELSE}
+  PIXEL_FMT_FFMPEG = AV_PIX_FMT_BGR24;
+  {$ENDIF}
   PIXEL_FMT_SIZE   = 3;
 {$ENDIF}
 
@@ -119,7 +129,7 @@ type
     fAVFrame:     PAVFrame;
     fAVFrameRGB:  PAVFrame;
 
-    fFrameBuffer: PByte;  //**< stores a FFmpeg video frame
+    fFrameBuffer: Pcuint8;  //**< stores a FFmpeg video frame
     fFrameTex:    GLuint; //**< OpenGL texture for FrameBuffer
     fFrameTexValid: boolean; //**< if true, fFrameTex contains the current frame
     fTexWidth, fTexHeight: cardinal;
@@ -228,6 +238,7 @@ type
 
 var
   FFmpegCore: TMediaCore_FFmpeg;
+  SupportsNPOT: Boolean;
 
 
 // These are called whenever we allocate a frame buffer.
@@ -237,7 +248,11 @@ var
   pts: Pint64;
   VideoPktPts: Pint64;
 begin
+  {$IF LIBAVCODEC_VERSION >= 56000000}
+  Result := avcodec_default_get_buffer2(CodecCtx, Frame, 0);
+  {$ELSE}
   Result := avcodec_default_get_buffer(CodecCtx, Frame);
+  {$ENDIF}
   VideoPktPts := CodecCtx^.opaque;
   if (VideoPktPts <> nil) then
   begin
@@ -253,7 +268,11 @@ procedure PtsReleaseBuffer(CodecCtx: PAVCodecContext; Frame: PAVFrame); cdecl;
 begin
   if (Frame <> nil) then
     av_freep(@Frame^.opaque);
+  {$IF LIBAVCODEC_VERSION >= 57000000}
+  av_frame_unref(Frame);
+  {$ELSE}
   avcodec_default_release_buffer(CodecCtx, Frame);
+  {$ENDIF}
 end;
 
 
@@ -301,6 +320,8 @@ end;
 constructor TVideo_FFmpeg.Create;
 begin
   glGenTextures(1, PGLuint(@fFrameTex));
+  SupportsNPOT := (AnsiContainsStr(glGetString(GL_EXTENSIONS),'texture_non_power_of_two')) and not (AnsiContainsStr(glGetString(GL_EXTENSIONS), 'Radeon X16'));
+
   Reset();
 end;
 
@@ -322,15 +343,26 @@ begin
   fPboEnabled := PboSupported;
 
   // use custom 'ufile' protocol for UTF-8 support
+  {$IF LIBAVFORMAT_VERSION < 53001003}
   errnum := av_open_input_file(fFormatContext, PAnsiChar('ufile:'+FileName.ToUTF8), nil, 0, nil);
+  {$ELSEIF LIBAVFORMAT_VERSION < 54029104}
+  errnum := avformat_open_input(@fFormatContext, PAnsiChar('ufile:'+FileName.ToUTF8), nil, nil);
+  {$ELSE}
+  errnum := FFmpegCore.AVFormatOpenInput(@fFormatContext, PAnsiChar(UTF8ToAnsi(FileName.ToUTF8)));//'ufile:'+FileName.ToUTF8));
+  {$IFEND}
   if (errnum <> 0) then
   begin
-    Log.LogError('Failed to open file "'+ FileName.ToNative +'" ('+FFmpegCore.GetErrorString(errnum)+')');
+    Log.LogError('Failed to open file "'+ FileName.ToNative +'" ('+FFmpegCore.GetErrorString(errnum)+'::'+IntToStr(errnum)+')');
     Exit;
   end;
 
   // update video info
-  if (av_find_stream_info(fFormatContext) < 0) then
+  {$IF LIBAVFORMAT_VERSION >= 53002000)}
+  errnum := avformat_find_stream_info(fFormatContext, nil);
+  {$ELSE}
+  errnum := av_find_stream_info(fFormatContext);
+  {$IFEND}
+  if (errnum < 0) then
   begin
     Log.LogError('No stream info found', 'TVideoPlayback_ffmpeg.Open');
     Close();
@@ -347,7 +379,11 @@ begin
     Exit;
   end;
 
+{$IF LIBAVFORMAT_VERSION <= 52111000} // <= 52.111.0
   fStream := fFormatContext^.streams[fStreamIndex];
+{$ELSE}
+  fStream := PPAVStream(PtrUInt(fFormatContext^.streams) + fStreamIndex * Sizeof(pointer))^;
+{$IFEND}
   fCodecContext := fStream^.codec;
 
   fCodec := avcodec_find_decoder(fCodecContext^.codec_id);
@@ -367,13 +403,20 @@ begin
   // error resilience strategy (careful/compliant/agressive/very_aggressive)
   //fCodecContext^.error_resilience := FF_ER_CAREFUL; //FF_ER_COMPLIANT;
   // allow non spec compliant speedup tricks.
-  //fCodecContext^.flags2 := fCodecContext^.flags2 or CODEC_FLAG2_FAST;
+
+  //fCodecContext^.flags2 := CODEC_FLAG2_FAST;
+  if (FileName.GetExtension().ToUTF8() = '.mp4') or (FileName.GetExtension().ToUTF8() = '.mkv') then
+  fCodecContext^.flags := CODEC_FLAG_LOW_DELAY;  //ffmpeg has a bug here when playing certain avi files
 
   // Note: avcodec_open() and avcodec_close() are not thread-safe and will
   // fail if called concurrently by different threads.
   FFmpegCore.LockAVCodec();
   try
+    {$IF LIBAVCODEC_VERSION >= 53005000)}
+    errnum := avcodec_open2(fCodecContext, fCodec, nil);
+    {$ELSE}
     errnum := avcodec_open(fCodecContext, fCodec);
+    {$IFEND}
   finally
     FFmpegCore.UnlockAVCodec();
   end;
@@ -400,8 +443,13 @@ begin
   {$endif}
 
   // allocate space for decoded frame and rgb frame
+  {$IF LIBAVCODEC_VERSION >= 57000000}
+  fAVFrame := av_frame_alloc();
+  fAVFrameRGB := av_frame_alloc();
+  {$ELSE}
   fAVFrame := avcodec_alloc_frame();
   fAVFrameRGB := avcodec_alloc_frame();
+  {$ENDIF}
   fFrameBuffer := av_malloc(avpicture_get_size(PIXEL_FMT_FFMPEG,
       fCodecContext^.width, fCodecContext^.height));
 
@@ -466,8 +514,17 @@ begin
   end;
   {$ENDIF}
 
+  if (SupportsNPOT = false) then
+  begin
   fTexWidth   := Round(Power(2, Ceil(Log2(fCodecContext^.width))));
   fTexHeight  := Round(Power(2, Ceil(Log2(fCodecContext^.height))));
+  end
+  else
+  begin
+    fTexWidth   := fCodecContext^.width;
+    fTexHeight  := fCodecContext^.height;
+  end;
+
 
   if (fPboEnabled) then
   begin
@@ -522,7 +579,7 @@ begin
 
   fPboId := 0;
 
-  fAspectCorrection := acoStretch;
+  fAspectCorrection := acoCrop;
 
   fScreen := 1;
 
@@ -566,7 +623,13 @@ begin
   end;
 
   if (fFormatContext <> nil) then
+    {$IF LIBAVFORMAT_VERSION < 53024002)}
     av_close_input_file(fFormatContext);
+    {$ELSEIF LIBAVFORMAT_VERSION < 54029104}
+    avformat_close_input(@fFormatContext);
+    {$ELSE}
+    FFmpegCore.AVFormatCloseInput(@fFormatContext);
+    {$IFEND}
 
   fCodecContext  := nil;
   fFormatContext := nil;
@@ -608,10 +671,16 @@ function TVideo_FFmpeg.DecodeFrame(): boolean;
 var
   FrameFinished: Integer;
   VideoPktPts: int64;
+  {$IF FFMPEG_VERSION_INT < 1001000}
   pbIOCtx: PByteIOContext;
+  {$ELSE}
+  pbIOCtx: PAVIOContext;
+  {$ENDIF}
   errnum: integer;
   AVPacket: TAVPacket;
   pts: double;
+  fileSize: int64;
+  urlError: integer;
 begin
   Result := false;
   FrameFinished := 0;
@@ -634,14 +703,23 @@ begin
       {$IFEND}
 
       // check for end-of-file (EOF is not an error)
+      {$IF (LIBAVFORMAT_VERSION_MAJOR < 56)}
       if (url_feof(pbIOCtx) <> 0) then
+      {$ELSE}
+      if (avio_feof(pbIOCtx) <> 0) then
+      {$IFEND}
       begin
         fEOF := true;
         Exit;
       end;
 
       // check for errors
-      if (url_ferror(pbIOCtx) <> 0) then
+      {$IF (LIBAVFORMAT_VERSION >= 52103000)}
+      urlError := pbIOCtx^.error;
+      {$ELSE}
+      urlError := url_ferror(pbIOCtx);
+      {$IFEND}
+      if (urlError <> 0) then
       begin
         Log.LogError('Video decoding file error', 'TVideoPlayback_FFmpeg.DecodeFrame');
         Exit;
@@ -649,15 +727,24 @@ begin
 
       // url_feof() does not detect an EOF for some mov-files (e.g. deluxe.mov)
       // so we have to do it this way.
-      if ((fFormatContext^.file_size <> 0) and
-          (pbIOCtx^.pos >= fFormatContext^.file_size)) then
+      {$IF (LIBAVFORMAT_VERSION >= 53009000)}
+      fileSize := avio_size(fFormatContext^.pb);
+      {$ELSE}
+      fileSize := fFormatContext^.file_size;
+      {$IFEND}
+      if ((fileSize <> 0) and (pbIOCtx^.pos >= fileSize)) then
       begin
         fEOF := true;
         Exit;
       end;
+      if (errnum = -541478725) then // LIBAVFORMAT_VERSION >= 56000000 tells us if EOF reached.
+      begin
+        fEOF := true;
+        Exit
+      end;
 
       // error occured, log and exit
-      Log.LogError('Video decoding error', 'TVideoPlayback_FFmpeg.DecodeFrame');
+      Log.LogError('Video decoding error: ' + IntToStr(errnum), 'TVideoPlayback_FFmpeg.DecodeFrame');
       Exit;
     end;
 
@@ -669,8 +756,13 @@ begin
       fCodecContext^.opaque := @VideoPktPts;
 
       // decode packet
+      {$IF LIBAVFORMAT_VERSION < 52012200)}
       avcodec_decode_video(fCodecContext, fAVFrame,
           frameFinished, AVPacket.data, AVPacket.size);
+      {$ELSE}
+      avcodec_decode_video2(fCodecContext, fAVFrame,
+          frameFinished, @AVPacket);
+      {$IFEND}
 
       // reset opaque data
       fCodecContext^.opaque := nil;
@@ -829,9 +921,14 @@ begin
 
   // otherwise we convert the pixeldata from YUV to RGB
   {$IFDEF UseSWScale}
+  try
+
   errnum := sws_scale(fSwScaleContext, @fAVFrame.data, @fAVFrame.linesize,
           0, fCodecContext^.Height,
           @fAVFrameRGB.data, @fAVFrameRGB.linesize);
+  except
+    ;
+  end;
   {$ELSE}
   // img_convert from lib/ffmpeg/avcodec.pas is actually deprecated.
   // If ./configure does not find SWScale then this gives the error
@@ -1303,7 +1400,7 @@ begin
   // (AVSEEK_FLAG_BACKWARD). As this can be some seconds earlier than the
   // requested time, let the sync in GetFrame() do its job.
   SeekFlags := AVSEEK_FLAG_BACKWARD;
-  
+
   fFrameTime := Time;
   fEOF := false;
   fFrameTexValid := false;
@@ -1313,8 +1410,8 @@ begin
      Round(Time / av_q2d(fStream^.time_base)),
      SeekFlags) < 0) then
   begin
-    Log.LogError('av_seek_frame() failed', 'TVideoPlayback_ffmpeg.SetPosition');
-    Exit;
+      Log.LogError('av_seek_frame() failed', 'TVideoPlayback_ffmpeg.SetPosition');
+      Exit;
   end;
 
   avcodec_flush_buffers(fCodecContext);

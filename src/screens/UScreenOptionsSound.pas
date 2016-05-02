@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/screens/UScreenOptionsSound.pas $
- * $Id: UScreenOptionsSound.pas 2336 2010-05-03 21:53:12Z k-m_schindler $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/screens/UScreenOptionsSound.pas $
+ * $Id: UScreenOptionsSound.pas 3124 2015-08-23 03:31:49Z basisbit $
  *}
 
 unit UScreenOptionsSound;
@@ -34,7 +34,7 @@ interface
 {$I switches.inc}
 
 uses
-  SDL,
+  sdl2,
   UMenu,
   UDisplay,
   UMusic,
@@ -84,7 +84,7 @@ begin
       end;
       SDLK_RETURN:
       begin
-        if SelInteraction = 8 then
+        if SelInteraction = 6 then
         begin
           Ini.Save;
           AudioPlayback.PlaySound(SoundLib.Back);
@@ -145,12 +145,6 @@ begin
   Theme.OptionsSound.SelectBackgroundMusic.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsSound.SelectBackgroundMusic, Ini.BackgroundMusicOption, IBackgroundMusicTranslated);
 
-  // TODO: - MicBoost needs to be moved to ScreenOptionsRecord
-  Theme.OptionsSound.SelectMicBoost.showArrows := true;
-  Theme.OptionsSound.SelectMicBoost.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsSound.SelectMicBoost, Ini.MicBoost, IMicBoostTranslated);
-
-
   Theme.OptionsSound.SelectClickAssist.showArrows := true;
   Theme.OptionsSound.SelectClickAssist.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsSound.SelectClickAssist, Ini.ClickAssist, IClickAssistTranslated);
@@ -158,10 +152,6 @@ begin
   Theme.OptionsSound.SelectBeatClick.showArrows := true;
   Theme.OptionsSound.SelectBeatClick.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsSound.SelectBeatClick, Ini.BeatClick, IBeatClickTranslated);
-
-  Theme.OptionsSound.SelectThreshold.showArrows := true;
-  Theme.OptionsSound.SelectThreshold.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsSound.SelectThreshold, Ini.ThresholdIndex, IThreshold);
 
   Theme.OptionsSound.SelectSlidePreviewVolume.showArrows := true;
   Theme.OptionsSound.SelectSlidePreviewVolume.oneItemOnly := true;
@@ -173,7 +163,7 @@ begin
 
   AddButton(Theme.OptionsSound.ButtonExit);
   if (Length(Button[0].Text) = 0) then
-    AddButtonText(20, 5, Theme.Options.Description[9]);
+    AddButtonText(20, 5, Theme.Options.Description[10]);
 
   Interaction := 0;
 end;

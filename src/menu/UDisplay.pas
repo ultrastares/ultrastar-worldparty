@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/menu/UDisplay.pas $
- * $Id: UDisplay.pas 2436 2010-06-03 08:19:24Z tobigun $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/menu/UDisplay.pas $
+ * $Id: UDisplay.pas 3150 2015-10-20 00:07:57Z basisbit $
  *}
 
 unit UDisplay;
@@ -36,7 +36,7 @@ interface
 uses
   UCommon,
   Math,
-  SDL,
+  sdl2,
   gl,
   glu,
   SysUtils,
@@ -63,7 +63,6 @@ type
       TexW, TexH:    Cardinal;
  
       FPSCounter:    cardinal;
-      LastFPS:       cardinal;
       NextFPSSwap:   cardinal;
 
       OSD_LastError: string;
@@ -83,7 +82,7 @@ type
       { called by MoveCursor and OnMouseButton to update last move and start fade in }
       procedure UpdateCursorFade;
     public
-      Cursor_HiddenByScreen: boolean; // hides software cursor and deactivate auto fade in
+      Cursor_HiddenByScreen: boolean; // hides software cursor and deactivate auto fade in, must be public for access in UMenuButton
 
       NextScreen:          PMenu;
       CurrentScreen:       PMenu;
@@ -127,6 +126,8 @@ type
 
 var
   Display: TDisplay;
+  SupportsNPOT: Boolean;
+  LastFPS:       cardinal;
 
 const
   { constants for screen transition
@@ -142,6 +143,7 @@ implementation
 
 uses
   TextGL,
+  StrUtils,
   UCommandLine,
   UGraphic,
   UIni,
@@ -174,6 +176,7 @@ begin
   DoneOnShow  := false;
 
   glGenTextures(2, PGLuint(@FadeTex));
+  SupportsNPOT := (AnsiContainsStr(glGetString(GL_EXTENSIONS),'texture_non_power_of_two')) and not (AnsiContainsStr(glGetString(GL_EXTENSIONS), 'Radeon X16'));
   InitFadeTextures();
 
   // set LastError for OSD to No Error
@@ -199,9 +202,16 @@ procedure TDisplay.InitFadeTextures();
 var
   i: integer;
 begin
+  if (SupportsNPOT = false) then
+  begin
   TexW := Round(Power(2, Ceil(Log2(ScreenW div Screens))));
   TexH := Round(Power(2, Ceil(Log2(ScreenH))));
-
+  end
+  else
+  begin
+    TexW := ScreenW div Screens;
+    TexH := ScreenH;
+  end;
   for i := 0 to 1 do
   begin
     glBindTexture(GL_TEXTURE_2D, FadeTex[i]);
@@ -217,7 +227,6 @@ var
   FadeStateSquare: real;
   FadeW, FadeH:    real;
   FadeCopyW, FadeCopyH: integer;
-  currentTime:     cardinal;
   glError:         glEnum;
 
 begin
@@ -255,7 +264,7 @@ begin
       ePreDraw.CallHookChain(false);
       CurrentScreen.Draw;
 
-      // popup's
+      // popup
       if (ScreenPopupError <> nil) and ScreenPopupError.Visible then
         ScreenPopupError.Draw
       else if (ScreenPopupInfo <> nil) and ScreenPopupInfo.Visible then
@@ -431,7 +440,7 @@ var
 begin
   Cursor := 0;
 
-  if (CurrentScreen <> @ScreenSing) or (CurrentScreen <> @ScreenJukebox) or (Cursor_HiddenByScreen) then
+  if (CurrentScreen <> @ScreenSing) or (Cursor_HiddenByScreen) then
   begin // hide cursor on singscreen
     if (Ini.Mouse = 0) and (Ini.FullScreen = 0) then
       // show sdl (os) cursor in window mode even when mouse support is off
@@ -458,7 +467,7 @@ begin
       Cursor_Visible := false;
       Cursor_Fade := false;
     end
-    else if (CurrentScreen = @ScreenSing) or (CurrentScreen = @ScreenJukebox) then
+    else if (CurrentScreen = @ScreenSing) then
     begin
       // hide software cursor in singscreen
       Cursor_HiddenByScreen := true;
@@ -533,7 +542,7 @@ begin
       Cursor_LastMove := Ticks;
       Cursor_Fade := true;
     end;
-    
+
     // fading
     if Cursor_Fade then
     begin
@@ -665,7 +674,7 @@ begin
   begin
     // fill prefix to 4 digits with leading '0', e.g. '0001'
     Prefix := Format('screenshot%.4d', [Num]);
-    FileName := ScreenshotsPath.Append(Prefix + '.png');
+    FileName := ScreenshotsPath.Append(Prefix + '.jpg');
     if not FileName.Exists() then
       break;
   end;
@@ -685,9 +694,9 @@ begin
       ScreenData, ScreenW, ScreenH, 24, RowSize,
       $0000FF, $00FF00, $FF0000, 0);
 
-  //  Success := WriteJPGImage(FileName, Surface, 95);
+   Success := WriteJPGImage(FileName, Surface, 95);
   //  Success := WriteBMPImage(FileName, Surface);
-  Success := WritePNGImage(FileName, Surface);
+  //Success := WritePNGImage(FileName, Surface);
   if Success then
     ScreenPopupInfo.ShowPopup(Format(Language.Translate('SCREENSHOT_SAVED'), [FileName.GetName.ToUTF8()]))
   else
@@ -709,10 +718,10 @@ begin
   glDisable(GL_TEXTURE_2D);
   glColor4f(1, 1, 1, 0.5);
   glBegin(GL_QUADS);
-    glVertex2f(690, 44);
+    glVertex2f(690, 35);
     glVertex2f(690, 0);
     glVertex2f(800, 0);
-    glVertex2f(800, 44);
+    glVertex2f(800, 35);
   glEnd;
   glDisable(GL_BLEND);
 
@@ -739,14 +748,10 @@ begin
   SetFontPos(695, 0);
   glPrint ('FPS: ' + InttoStr(LastFPS));
 
-  // rspeed
+  // muffins
   SetFontPos(695, 13);
-  glPrint ('RSpeed: ' + InttoStr(Round(1000 * TimeMid)));
-
-  // lasterror
-  SetFontPos(695, 26);
-  glColor4f(1, 0, 0, 1);
-  glPrint (OSD_LastError);
+  glColor4f(0.8, 0.5, 0.2, 1);
+  glPrint ('Muffins!');
 
   glColor4f(1, 1, 1, 1);
 end;

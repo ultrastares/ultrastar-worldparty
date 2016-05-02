@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/UPlatformMacOSX.pas $
- * $Id: UPlatformMacOSX.pas 2664 2010-10-14 07:04:28Z k-m_schindler $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/base/UPlatformMacOSX.pas $
+ * $Id: UPlatformMacOSX.pas 3018 2013-12-06 21:48:55Z k-m_schindler $
  *}
 
 unit UPlatformMacOSX;
@@ -72,21 +72,21 @@ type
    *
    * So
    * GetGameSharedPath could return
-   *   /Library/Application Support/UltraStarDeluxe/.
+   *   /Library/Application Support/UltraStarDeluxe1.3/.
    * GetGameUserPath could return
-   *   ~/Library/Application Support/UltraStarDeluxe/.
+   *   ~/Library/Application Support/UltraStarDeluxe1.3/.
    *
-   * Right now, only $HOME/Library/Application Support/UltraStarDeluxe
+   * Right now, only $HOME/Library/Application Support/UltraStarDeluxe1.3
    * is used. So every user needs the complete set of files and folders.
    * Future versions may also use shared resources in
-   * /Library/Application Support/UltraStarDeluxe. However, this is
+   * /Library/Application Support/UltraStarDeluxe1.3. However, this is
    * not treated yet in the code outside this unit.
    *
    * USDX checks, whether GetGameUserPath exists. If not, USDX creates it.
    * The existence of needed files is then checked and if a file is missing
    * it is copied to there from within the folder Contents in the Application
    * bundle, which contains the default files. USDX should not delete files or
-   * folders in Application Support/UltraStarDeluxe automatically or without
+   * folders in Application Support/UltraStarDeluxe1.3 automatically or without
    * user confirmation.
    *
    * The log and benchmark files are stored in
@@ -94,7 +94,7 @@ type
    * 
    * Music should go into ~/Music/UltraStar Deluxe/
    *
-   * ~/Library/Application Support/UltraStarDeluxe/songs is also used.
+   * ~/Library/Application Support/UltraStarDeluxe1.3/songs is also used.
    * The idea is to remove this at some time.
    *
    *}
@@ -108,7 +108,7 @@ type
 
       {**
        * GetApplicationSupportPath returns the path to
-       * $HOME/Library/Application Support/UltraStarDeluxe.
+       * $HOME/Library/Application Support/UltraStarDeluxe1.3.
        *}
       function GetApplicationSupportPath: IPath;
 
@@ -126,7 +126,7 @@ type
       {**
        * Init simply calls @link(CreateUserFolders), which in turn scans the
        * folder UltraStarDeluxe.app/Contents for all files and
-       * folders. $HOME/Library/Application Support/UltraStarDeluxe
+       * folders. $HOME/Library/Application Support/UltraStarDeluxe1.3
        * is then checked for their presence and missing ones are copied.
        *}
       procedure Init; override;
@@ -145,14 +145,14 @@ type
 
       {**
        * GetGameSharedPath returns the path for shared resources. Currently it
-       * is also set to $HOME/Library/Application Support/UltraStarDeluxe.
+       * is also set to $HOME/Library/Application Support/UltraStarDeluxe1.3.
        * However it is not used.
        *}
       function  GetGameSharedPath: IPath; override;
 
       {**
        * GetGameUserPath returns the path for user resources. Currently it is
-       * set to $HOME/Library/Application Support/UltraStarDeluxe.
+       * set to $HOME/Library/Application Support/UltraStarDeluxe1.3.
        * This is where a user can add themes, ....
        *}
       function  GetGameUserPath:   IPath; override;
@@ -161,7 +161,13 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  MacOSAll;
+
+type
+  TLogSwitch = (On, Off);
+const
+  LogSwitch: TLogSwitch = Off;
 
 procedure TPlatformMacOSX.Init;
 begin
@@ -194,17 +200,43 @@ var
   DirectoryPath:    IPath;
   UserPath:         IPath;
   SrcFile, TgtFile: IPath;
+  mainBundle:       CFBundleRef;
+  resourcesURL:     CFURLRef;
+  bundlePath:       AnsiString;
+  success:          boolean;
+  Position:         integer;
+const
+  PATH_MAX = 500;
+
 begin
   // Get the current folder and save it in OldBaseDir for returning to it, when
   // finished.
   OldBaseDir := FileSystem.GetCurrentDir();
+  if LogSwitch = On then
+    writeln('Old base directory: ' + OldBaseDir.ToNative);
 
   // UltraStarDeluxe.app/Contents contains all the default files and folders.
-  BaseDir := OldBaseDir.Append('UltraStarDeluxe.app/Contents');
+  mainBundle := CFBundleGetMainBundle();
+  resourcesURL := CFBundleCopyResourcesDirectoryURL(mainBundle);
+  SetLength(bundlePath, PATH_MAX);
+  success := CFURLGetFileSystemRepresentation(resourcesURL, TRUE, PChar(bundlePath), PATH_MAX);
+  if not success then
+    writeln('CreateUserFolders:CFURLGetFileSystemRepresentation unexpectedly failed.');
+  CFRelease(resourcesURL);
+  if LogSwitch = On then
+    writeln('BundlePath: ', bundlePath);
+  Position := pos('UltraStarDeluxe.app', bundlePath);
+  setlength(bundlePath, Position + 19);
+  if success then
+    chdir(bundlePath);
+  BaseDir := FileSystem.GetCurrentDir();
+  BaseDir := BaseDir.Append('Contents');
   FileSystem.SetCurrentDir(BaseDir);
 
-  // Right now, only $HOME/Library/Application Support/UltraStarDeluxe is used.
+  // Right now, only $HOME/Library/Application Support/UltraStarDeluxe1.3 is used.
   UserPath := GetGameUserPath();
+  if LogSwitch = On then
+    writeln('User path: ' + UserPath.ToNative);
 
   DirectoryIsFinished := 0;
   // replace with IInterfaceList
@@ -221,6 +253,8 @@ begin
     begin
       FileInfo := Iter.Next;
       CurPath := FileInfo.Name;
+      if LogSwitch = On then
+        writeln('Current path: ' + CurPath.ToNative);
       if CurPath.IsDirectory() then
       begin
         if (not CurPath.Equals('.')) and 
@@ -239,20 +273,27 @@ begin
   for I := 0 to DirectoryList.Count-1 do
   begin
     CurPath          := DirectoryList[I] as IPath;
+    if LogSwitch = On then
+      writeln('Current path: ' + CurPath.ToNative);
     DirectoryPath    := UserPath.Append(CurPath);
+    if LogSwitch = On then
+      writeln('Directory path: ' + DirectoryPath.ToNative);
     CreatedDirectory := DirectoryPath.CreateDirectory();
     FileAttrs        := DirectoryPath.GetAttr();
     // Maybe analyse the target of the link with FpReadlink().
     // Let's assume the symlink is pointing to an existing directory.
     if (not CreatedDirectory) and (FileAttrs and faSymLink > 0) then
-      Log.LogError('Failed to create the folder "'+ DirectoryPath.ToNative +'"',
-                   'TPlatformMacOSX.CreateUserFolders');
+      writeln('Failed to create the folder "' +
+              DirectoryPath.ToNative +
+              '" in PlatformMacOSX.CreateUserFolders');
   end;
 
   // copy missing files
   for I := 0 to Filelist.Count-1 do
   begin
     CurPath := Filelist[I] as IPath;
+    if LogSwitch = On then
+      writeln('Current path: ' + CurPath.ToNative);
     SrcFile := BaseDir.Append(CurPath);
     TgtFile := UserPath.Append(CurPath);
     SrcFile.CopyFile(TgtFile, true);
@@ -267,16 +308,21 @@ begin
   // Mac applications are packaged in folders.
   // Cutting the last two folders yields the application folder.
   Result := GetExecutionDir().GetParent().GetParent();
+  if LogSwitch = On then
+    writeln('Bundle path: ' + Result.ToNative);
 end;
 
 function TPlatformMacOSX.GetHomeDir: IPath;
 begin
   Result := Path(GetEnvironmentVariable('HOME'));
+  if LogSwitch = On then
+    writeln('Home path: ' + Result.ToNative);
 end;
 
 function TPlatformMacOSX.GetApplicationSupportPath: IPath;
 begin
-  Result := GetHomeDir.Append('Library/Application Support/UltraStarDeluxe', pdAppend);
+// append the version for conflict resolution
+  Result := GetHomeDir.Append('Library/Application Support/UltraStarDeluxe1.3', pdAppend);
 end;
 
 function TPlatformMacOSX.GetLogPath: IPath;
@@ -287,6 +333,8 @@ end;
 function TPlatformMacOSX.GetMusicPath: IPath;
 begin
   Result := GetHomeDir.Append('Music/UltraStar Deluxe', pdAppend);
+  if LogSwitch = On then
+    writeln('Music path: ' + Result.ToNative);
 end;
 
 function TPlatformMacOSX.GetGameSharedPath: IPath;

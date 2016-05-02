@@ -9,7 +9,11 @@ unit BassMIDI;
 
 interface
 
-uses Windows, Bass;
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
+uses Bass;
 
 const
   // Additional config options

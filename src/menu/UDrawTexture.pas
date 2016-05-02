@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/menu/UDrawTexture.pas $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/menu/UDrawTexture.pas $
  * $Id: UDrawTexture.pas 1498 2008-11-03 14:53:17Z tobigun $
  *}
 
@@ -83,6 +83,7 @@ begin
     glEnable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 //    glBlendFunc(GL_SRC_COLOR, GL_ZERO);
+
     glBindTexture(GL_TEXTURE_2D, TexNum);
 
     x1 := x;
@@ -124,15 +125,27 @@ begin
       glTexCoord2f(TexW, 0);    glVertex3f(x4, y4, z);
     glEnd;
 }
-
+{
     glBegin(GL_QUADS);
       glTexCoord2f(TexX1*TexW, TexY1*TexH); glVertex3f(x1, y1, z);
       glTexCoord2f(TexX1*TexW, TexY2*TexH); glVertex3f(x2, y2, z);
       glTexCoord2f(TexX2*TexW, TexY2*TexH); glVertex3f(x3, y3, z);
       glTexCoord2f(TexX2*TexW, TexY1*TexH); glVertex3f(x4, y4, z);
     glEnd;
+    }
+    glBegin(GL_QUADS);
+      glTexCoord2f(TexX1*TexW, TexY1*TexH);
+      glVertex3f(x1, y1 + (y2 - (LeftScale * (y2))), z);
+      glTexCoord2f(TexX1*TexW, TexY2*TexH);
+      glVertex3f(x2, y2 - (y2 - (LeftScale * (y2))), z);
+      glTexCoord2f(TexX2*TexW, TexY2*TexH);
+      glVertex3f(x3, y3 - (y2 - (RightScale * (y2))), z);
+      glTexCoord2f(TexX2*TexW, TexY1*TexH);
+      glVertex3f(x4, y4 + (y2 - (RightScale * (y2))), z);
+    glEnd;
+
   end;
-  glDisable(GL_DEPTH_TEST); 
+  glDisable(GL_DEPTH_TEST);
   glDisable(GL_TEXTURE_2D);
 end;
 

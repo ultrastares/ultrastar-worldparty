@@ -1,12 +1,18 @@
 unit opencv_highgui;
 
 interface
-uses
-{$IFDEF WIN32}
-  Windows, Dialogs, SysUtils, opencv_types ;
-{$ELSE}
-  Wintypes, WinProcs, Dialogs, SysUtils;
+
+{$IFDEF FPC}
+  {$MODE Delphi}
 {$ENDIF}
+
+uses
+  SysUtils, opencv_types,
+  {$IFDEF WIN32}
+    Windows, Dialogs;
+  {$ELSE}
+    dynlibs;
+  {$ENDIF}
 
 
 ///****************************************************************************************\
@@ -37,10 +43,10 @@ var
   cvDestroyAllWindows: procedure ;  cdecl;
 
 ///* get native window handle (HWND in case of Win32 and Widget in case of X Window) */
-  cvGetWindowHandle: function(name:pansichar): HWND; cdecl;
+  cvGetWindowHandle: function(name:pansichar): LongInt; cdecl;
 
 ///* get name of highgui window given its native handle */
-  cvGetWindowName: function(window_handle:HWND): pansichar; cdecl;
+  cvGetWindowName: function(window_handle:LongInt): pansichar; cdecl;
 
 //typedef void (CV_CDECL *CvTrackbarCallback)(int pos);
 
@@ -312,7 +318,13 @@ implementation
 
 
 const
-  DLL_HIGHGUI='highgui210.dll';//'opencv_highgui231.dll';
+  {$IF Defined(MSWINDOWS)}
+    DLL_HIGHGUI='highgui210.dll';//'opencv_highgui231.dll';
+  {$ELSEIF Defined(DARWIN)}
+    DLL_HIGHGUI='libopencv_highgui.dylib';
+  {$ELSEIF Defined(UNIX)}
+    DLL_HIGHGUI='libopencv_highgui.so';
+  {$IFEND}
 
 var
   DLLHandle: THandle;
@@ -476,7 +488,7 @@ begin
   end
   else
   begin
-    showmessage(format('Error: %s could not be loaded !!',[DLL_HIGHGUI]));
+    //showmessage(format('Error: %s could not be loaded !!',[DLL_HIGHGUI]));
     { Error: WINUSB.DLL could not be loaded !! }
   end;
 end;

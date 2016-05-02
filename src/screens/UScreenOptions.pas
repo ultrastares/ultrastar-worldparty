@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/screens/UScreenOptions.pas $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/screens/UScreenOptions.pas $
  * $Id: UScreenOptions.pas 2649 2010-10-10 10:34:20Z tobigun $
  *}
 
@@ -34,12 +34,13 @@ interface
 {$I switches.inc}
 
 uses
-  SDL,
+  sdl2,
   SysUtils,
   UMenu,
   UDisplay,
   UMusic,
   UFiles,
+  USongs,
   UIni,
   UThemes;
 
@@ -63,6 +64,7 @@ uses
   UGraphic,
   UDatabase,
   ULanguage,
+  UWebcam,
   UUnicodeUtils;
 
 function TScreenOptions.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
@@ -151,6 +153,17 @@ begin
 
           if SelInteraction = 9 then
           begin
+            if (Songs.SongList.Count >= 1) then
+            begin
+              AudioPlayback.PlaySound(SoundLib.Start);
+              FadeTo(@ScreenOptionsJukebox);
+            end
+            else //show error message, No Songs Loaded
+              ScreenPopupError.ShowPopup(Language.Translate('ERROR_NO_SONGS'));
+          end;
+
+          if SelInteraction = 10 then
+          begin
             Ini.Save;
             AudioPlayback.PlaySound(SoundLib.Back);
             FadeTo(@ScreenMain);
@@ -208,9 +221,13 @@ begin
   if (Length(Button[8].Text)=0) then
     AddButtonText(14, 20, Theme.Options.Description[8]);
 
-  AddButton(Theme.Options.ButtonExit);
+  AddButton(Theme.Options.ButtonJukebox);
   if (Length(Button[9].Text)=0) then
     AddButtonText(14, 20, Theme.Options.Description[9]);
+
+  AddButton(Theme.Options.ButtonExit);
+  if (Length(Button[10].Text)=0) then
+    AddButtonText(14, 20, Theme.Options.Description[10]);
 
   Interaction := 0;
 end;

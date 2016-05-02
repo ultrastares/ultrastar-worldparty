@@ -34,7 +34,7 @@ interface
 {$I switches.inc}
 
 uses
-  SDL,
+  sdl2,
   SysUtils,
   UMenu,
   UDisplay,
@@ -83,6 +83,7 @@ uses
   ULanguage,
   UTexture,
   USkins,
+  USong,
   UUnicodeUtils;
 
 function TScreenPartyScore.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
@@ -202,7 +203,8 @@ begin
   inherited;
 
   // restart time
-  //ScreenSong.CurrentPartyTime := 0;
+  //if (ScreenSong.Mode = smPartyTournament) then
+  //  ScreenSong.CurrentPartyTime := 0;
 
   // indicate that round is finished
   Party.RoundPlayed;

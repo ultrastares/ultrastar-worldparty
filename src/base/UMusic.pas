@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/UMusic.pas $
- * $Id: UMusic.pas 2783 2010-12-30 21:10:46Z tobigun $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/base/UMusic.pas $
+ * $Id: UMusic.pas 3103 2014-11-22 23:21:19Z k-m_schindler $
  *}
 
 unit UMusic;
@@ -38,7 +38,8 @@ uses
   Classes,
   UTime,
   UBeatTimer,
-  UPath;
+  UPath,
+  UWebcam;
 
 type
   TNoteType = (ntFreestyle, ntNormal, ntGolden);
@@ -296,7 +297,7 @@ type
        * free the SourceStream after the Playback-Stream is closed.
        * You may use an OnClose-handler to achieve this. GetSourceStream()
        * guarantees to deliver this method's SourceStream parameter to
-       * the OnClose-handler. Freeing SourceStream at OnClose is allowed. 
+       * the OnClose-handler. Freeing SourceStream at OnClose is allowed.
        *)
       function Open(SourceStream: TAudioSourceStream): boolean; virtual; abstract;
 
@@ -909,6 +910,9 @@ begin
   // stop, close and free sounds
   SoundLib.Free;
 
+  // release webcam
+  Webcam.Free;
+
   // stop and close music stream
   if (AudioPlayback <> nil) then
     AudioPlayback.Close;
@@ -1211,8 +1215,6 @@ begin
   Self.FormatInfo := FormatInfo.Copy();
   // a voice stream is always mono, reassure the the format is correct
   Self.FormatInfo.Channels := 1;
-  //Self.FormatInfo.fSampleRate := 192000;
-  //Self.FormatInfo.fFormat := asfS32;
   Result := true;
 end;
 

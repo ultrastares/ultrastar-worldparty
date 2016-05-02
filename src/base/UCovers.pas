@@ -44,12 +44,13 @@ interface
 {$I switches.inc}
 
 uses
-  SDL,
+  sdl2,
   SQLite3,
   SQLiteTable3,
   SysUtils,
   Classes,
   UImage,
+  UThemes,
   UTexture,
   UPath;
 
@@ -64,6 +65,7 @@ type
     public
       constructor Create(ID: int64; Filename: IPath);
       function GetPreviewTexture(): TTexture;
+      function GetEmptyTexture(): TTexture;
       function GetTexture(): TTexture;
   end;
 
@@ -150,11 +152,22 @@ end;
 
 function TCover.GetPreviewTexture(): TTexture;
 begin
-  Result := Covers.LoadCover(ID);
+  Result := GetTexture();
+end;
+
+function TCover.GetEmptyTexture(): TTexture;
+begin
+  if not (Assigned(Filename)) or (Filename = nil) then Exit;
+  FillChar(Result, SizeOf(TTexture), 0);
+  Result.Name:= Filename;
 end;
 
 function TCover.GetTexture(): TTexture;
+var
+  debughelper: UTF8String;
 begin
+  if not (Assigned(Filename)) or (Filename = nil) then Exit;
+  debughelper:=Filename.ToUTF8(true);
   Result := Texture.LoadTexture(Filename);
 end;
 
@@ -268,10 +281,16 @@ begin
 end;
 
 function TCoverDatabase.FindCoverIntern(const Filename: IPath): int64;
+var FileUTF8String: UTF8String;
 begin
-  Result := DB.GetTableValue('SELECT [ID] FROM ['+COVER_TBL+'] ' +
-                             'WHERE [Filename] = ?',
-                             [Filename.ToUTF8]);
+  if Filename = nil then
+    Result := 0
+  else
+  begin
+    FileUTF8String:=Filename.ToUTF8;
+    Result := DB.GetTableValue('SELECT [ID] FROM ['+COVER_TBL+'] ' +
+                             'WHERE [Filename] = ?', [FileUTF8String]);
+  end;
 end;
 
 function TCoverDatabase.FindCover(const Filename: IPath): TCover;
@@ -315,7 +334,7 @@ begin
   FileDate := Now(); //FileDateToDateTime(FileAge(Filename));
 
   Thumbnail := CreateThumbnail(Filename, Info);
-  if (Thumbnail = nil) then
+  if not (assigned(Thumbnail)) or (Thumbnail = nil) then
     Exit;
 
   CoverData := TBlobWrapper.Create;
@@ -341,7 +360,7 @@ begin
                '([ID], [Format], [Width], [Height], [Data]) VALUES' +
                '(?, ?, ?, ?, ?)',
                [CoverID, Ord(Info.PixelFormat),
-                Thumbnail^.w, Thumbnail^.h, CoverData]);
+                Thumbnail^.w, Thumbnail^.h, 0]);
 
     Result := TCover.Create(CoverID, Filename);
   except on E: Exception do
@@ -378,9 +397,11 @@ begin
     Height   := Table.FieldAsInteger(3);
 
     Data := Table.FieldAsBlobPtr(4, DataSize);
-    if (Data <> nil) and
+
+      if (Data <> nil) and
        (PixelFmt = ipfRGB) then
     begin
+
       Result := Texture.CreateTexture(Data, Filename, Width, Height, 24)
     end
     else
@@ -390,6 +411,7 @@ begin
       Result.Name := nil;
       FillChar(Result, SizeOf(TTexture), 0);
     end;
+
   except on E: Exception do
     Log.LogError(E.Message, 'TCoverDatabase.LoadCover');
   end;
@@ -422,6 +444,7 @@ begin
   if (not assigned(Thumbnail)) then
   begin
     Log.LogError('Could not load cover: "'+ Filename.ToNative +'"', 'TCoverDatabase.AddCover');
+    //Result := CreateThumbnail(UThemes.AThemeStatic.);
     Exit;
   end;
 
@@ -451,7 +474,7 @@ begin
 
   // TODO: do not scale if image is smaller
   ScaleImage(Thumbnail, MaxSize, MaxSize);
-  
+
   Result := Thumbnail;
 end;
 

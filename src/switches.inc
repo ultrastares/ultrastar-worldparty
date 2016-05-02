@@ -54,7 +54,6 @@
   {$ENDIF}
 
   {$DEFINE HaveBASS}
-  {$DEFINE UseMIDIPort}
 {$ELSEIF Defined(DARWIN)}
   // include defines but no constants
   {$I config-darwin.inc}
@@ -97,6 +96,7 @@
 {$IFDEF HaveFFmpeg}
   {$DEFINE UseFFmpegDecoder}
   {$DEFINE UseFFmpegResample}
+  {$DEFINE FF_API_AVCODEC_RESAMPLE}
   {$DEFINE UseFFmpegVideo}
   {$IFDEF HaveSWScale}
     {$DEFINE UseSWScale}

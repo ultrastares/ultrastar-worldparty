@@ -47,6 +47,9 @@ type
   fModi_DownloadScore = function (ListMD5Song: widestring; Level: byte): widestring;
   {$IFDEF MSWINDOWS} stdcall; {$ELSE} cdecl; {$ENDIF}
 
+  fModi_VerifySong = function (MD5Song: widestring): widestring;
+  {$IFDEF MSWINDOWS} stdcall; {$ELSE} cdecl; {$ENDIF}
+
 implementation
 
 end.

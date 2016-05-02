@@ -57,6 +57,7 @@ var
   WebsitePath:      IPath;
   WebScoresPath:    IPath;
   SoundFontsPath:   IPath;
+  AvatarsPath:      IPath;
 
 function FindPath(out PathResult: IPath; const RequestedPath: IPath; NeedsWritePermission: boolean): boolean;
 procedure InitializePaths;
@@ -133,8 +134,8 @@ function FindPath(
 begin
   Result := false;
 
-  if (RequestedPath.Equals(PATH_NONE)) then
-    Exit;
+  (*if (RequestedPath.Equals(PATH_NONE)) then
+    Exit;*)
 
   // Make sure the directory exists
   if (not RequestedPath.CreateDirectory(true)) then
@@ -178,6 +179,7 @@ begin
   FindPath(ResourcesPath, SharedPath.Append('resources'), false);
   FindPath(WebsitePath,   SharedPath.Append('webs'), false);
   FindPath(SoundFontsPath, SharedPath.Append('soundfonts'), false);
+  FindPath(AvatarsPath, SharedPath.Append('avatars'), false);
 
   // Playlists are not shared as we need one directory to write too
   FindPath(PlaylistPath, UserPath.Append('playlists'), true);

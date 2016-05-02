@@ -108,7 +108,6 @@ type
 
   TPartyGame = class
   private
-    bPartyGame: boolean; //< are we playing party or standard mode
     CurRound: Integer;   //< indicates which of the elements of Rounds is played next (at the moment)
 
     bPartyStarted: Boolean;
@@ -126,6 +125,8 @@ type
 
     procedure SetRankingByScore;
   public
+    bPartyGame: boolean; //< are we playing party or standard mode
+
     //Teams: TTeamInfo;
     Rounds: array of TParty_Round;    //< holds info which modes are played in this party game (if started)
     Teams: array of TParty_TeamInfo;  //< holds info of teams playing in current round (private for easy manipulation of lua functions)
@@ -881,6 +882,13 @@ begin
   else
     ExecuteDefault := true;
 
+  //set correct playersplay
+  if (bPartyGame) then
+    PlayersPlay := Length(Teams);
+
+  if (ScreenSong.Mode = smPartyTournament) then
+    PlayersPlay := 2;
+
   // execute default function:
   if ExecuteDefault then
   begin
@@ -892,13 +900,6 @@ begin
               sing screen is shown, or it should be called
               by plugin if it wants to define a custom
               singscreen start up. }
-
-    //set correct playersplay
-    if (bPartyGame) then
-      PlayersPlay := Length(Teams);
-
-    if (ScreenSong.Mode = smPartyTournament) then
-      PlayersPlay := 2;
   end;
 end;
 

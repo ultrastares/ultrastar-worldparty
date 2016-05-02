@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/USongs.pas $
- * $Id: USongs.pas 2272 2010-04-22 00:43:55Z tobigun $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/base/USongs.pas $
+ * $Id: USongs.pas 3103 2014-11-22 23:21:19Z k-m_schindler $
  *}
 
 unit USongs;
@@ -45,6 +45,7 @@ uses
   {$IFDEF MSWINDOWS}
     Windows,
     DirWatch,
+    LazUTF8Classes,
   {$ELSE}
     {$IFNDEF DARWIN}
     syscall,
@@ -60,6 +61,7 @@ uses
   PseudoThread,
   {$ENDIF}
   UPath,
+  UPlaylist,
   USong,
   UIni,
   UCatCovers;
@@ -101,11 +103,11 @@ type
   protected
     procedure Execute; override;
   public
-    SongList: TList;          // array of songs
+    SongList: TList;            // array of songs
+
     Selected: integer;        // selected song index
     constructor Create();
     destructor  Destroy(); override;
-
 
     procedure LoadSongList;     // load all songs
     procedure FindFilesByExtension(const Dir: IPath; const Ext: IPath; Recursive: Boolean; var Files: TPathDynArray);
@@ -116,9 +118,10 @@ type
     property  Processing: boolean read fProcessing;
   end;
 
-
   TCatSongs = class
     Song:       array of TSong; // array of categories with songs
+    SongSort:   array of TSong;
+
     Selected:   integer; // selected song index
     Order:      integer; // order type (0=title)
     CatNumShow: integer; // Category Number being seen
@@ -131,6 +134,7 @@ type
     procedure ClickCategoryButton(Index: integer);          // uses ShowCategory and HideCategory when needed
     procedure ShowCategoryList;                             // Hides all Songs And Show the List of all Categorys
     function FindNextVisible(SearchFrom: integer): integer; // Find Next visible Song
+    function FindPreviousVisible(SearchFrom: integer): integer; // Find Previous visible Song
     function VisibleSongs: integer;                         // returns number of visible songs (for tabs)
     function VisibleIndex(Index: integer): integer;         // returns visible song index (skips invisible)
 
@@ -174,7 +178,7 @@ begin
   inherited Create(true);
   Self.FreeOnTerminate := true;
 
-  SongList := TList.Create();
+  SongList           := TList.Create();
 
   // FIXME: threaded loading does not work this way.
   // It will just cause crashes but nothing else at the moment.
@@ -198,6 +202,7 @@ end;
 destructor TSongs.Destroy();
 begin
   FreeAndNil(SongList);
+
   inherited;
 end;
 
@@ -308,9 +313,10 @@ end;
 
 procedure TSongs.BrowseTXTFiles(Dir: IPath);
 var
-  I: integer;
+  I, C: integer;
   Files: TPathDynArray;
   Song: TSong;
+  //CloneSong: TSong;
   Extension: IPath;
 begin
   SetLength(Files, 0);
@@ -424,6 +430,8 @@ begin
       CompareFunc := CompareByLanguage;
     sYear: // by Year
       CompareFunc := CompareByYear;
+    sDecade: // by Decade
+      CompareFunc := CompareByYear;
     else
       Log.LogCritical('Unsupported comparison', 'TSongs.Sort');
       Exit; // suppress warning
@@ -475,6 +483,15 @@ begin
         Songs.Sort(sArtist);
         Songs.Sort(sYear);
       end;
+    sDecade: begin
+        Songs.Sort(sTitle);
+        Songs.Sort(sArtist);
+        Songs.Sort(sYear);
+      end;
+    sPlaylist: begin
+        Songs.Sort(sTitle);
+        Songs.Sort(sArtist);
+      end;
   end; // case
 end;
 
@@ -488,6 +505,8 @@ var
   Order:       integer;    // number used for ordernum
   LetterTmp:   UCS4Char;
   CatNumber:   integer;    // Number of Song in Category
+  tmpCategory: UTF8String; //
+  I, J:        integer;
 
   procedure AddCategoryButton(const CategoryName: UTF8String);
   var
@@ -510,7 +529,7 @@ var
       Song[PrevCatBtnIndex].CatNumber := CatNumber;
 
     CatNumber := 0;
- end;
+  end;
 
 begin
   CatNumShow  := -1;
@@ -523,7 +542,7 @@ begin
 
   // Note: do NOT set Letter to ' ', otherwise no category-button will be
   // created for songs beginning with ' ' if songs of this category exist.
-  // TODO: trim song-properties so ' ' will not occur as first chararcter. 
+  // TODO: trim song-properties so ' ' will not occur as first chararcter.
   Letter      := 0;
 
   // clear song-list
@@ -638,14 +657,29 @@ begin
         end;
 
         sYear: begin
-          if (CompareText(CurCategory, CurSong.Year) <> 0) then
+          if CurSong.Year <> 0 then
           begin
-            CurCategory := CurSong.Year;
+            CurCategory := InttoStr(CurSong.Year);
 
             // add Category Button
-             AddCategoryButton(CurCategory);
+            AddCategoryButton(CurCategory);
            end;
          end;
+
+        sDecade: begin
+           if (CurSong.Year <> 0) then
+             tmpCategory := IntToStr(Trunc(CurSong.Year/10)*10) + '-' + IntToStr(Trunc(CurSong.Year/10)*10+9)
+           else
+             tmpCategory := 'Unknown';
+
+           if (tmpCategory <> CurCategory) then
+           begin
+             CurCategory := tmpCategory;
+
+             // add Category Button
+             AddCategoryButton(CurCategory);
+           end;
+        end;
       end; // case (Ini.Sorting)
     end; // if (Ini.Tabs = 1)
 
@@ -662,9 +696,13 @@ begin
     CurSong.CatNumber := CatNumber;
 
     if (Ini.Tabs = 0) then
-      CurSong.Visible := true
+    begin
+      CurSong.Visible := true;
+    end
     else if (Ini.Tabs = 1) then
+    begin
       CurSong.Visible := false;
+    end;
 {
     if (Ini.Tabs = 1) and (Order = 1) then
     begin
@@ -758,6 +796,7 @@ begin
 
     if (I > High(CatSongs.Song)) then
       I := Low(CatSongs.Song);
+
     if (I = SearchFrom) then // Make One Round and no song found->quit
       Break;
 
@@ -765,6 +804,28 @@ begin
       Result := I;
   end;
 end;
+
+function TCatSongs.FindPreviousVisible(SearchFrom:integer): integer;// Find previous Visible Song
+var
+  I: integer;
+begin
+  Result := -1;
+  I := SearchFrom;
+  while (Result = -1) do
+  begin
+    Dec (I);
+
+    if (I < Low(CatSongs.Song)) then
+      I := High(CatSongs.Song);
+
+    if (I = SearchFrom) then // Make One Round and no song found->quit
+      Break;
+
+    if (CatSongs.Song[I].Visible) then
+      Result := I;
+  end;
+end;
+
 // Wrong song selected when tabs on bug End
 
 (**
@@ -805,7 +866,9 @@ var
   WordArray: array of UTF8String;
 begin
 
-  FilterStr := Trim(FilterStr);
+  FilterStr := Trim(LowerCase(FilterStr));
+  FilterStr := GetStringWithNoAccents(FilterStr);
+
   if (FilterStr <> '') then
   begin
     Result := 0;
@@ -833,18 +896,18 @@ begin
       begin
         case Filter of
           fltAll:
-            TmpString := Song[I].Artist + ' ' + Song[i].Title + ' ' + Song[i].Folder;
+            TmpString := Song[I].ArtistNoAccent + ' ' + Song[i].TitleNoAccent; //+ ' ' + Song[i].Folder;
           fltTitle:
-            TmpString := Song[I].Title;
+            TmpString := Song[I].TitleNoAccent;
           fltArtist:
-            TmpString := Song[I].Artist;
+            TmpString := Song[I].ArtistNoAccent;
         end;
         Song[i].Visible := true;
         // Look for every searched word
         for J := 0 to High(WordArray) do
         begin
           Song[i].Visible := Song[i].Visible and
-                             UTF8ContainsText(TmpString, WordArray[J])
+                             UTF8ContainsStr(TmpString, WordArray[J])
         end;
         if Song[i].Visible then
           Inc(Result);

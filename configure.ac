@@ -25,6 +25,7 @@ AC_SUBST(PACKAGE_WEBSITE)
 PACKAGE_IRC="#ultrastardx at quakenet.org"
 AC_SUBST(PACKAGE_IRC)
 
+AC_CONFIG_MACRO_DIR([dists/autogen/m4])
 # Specify a source-file so autoconf can check if the source-dir exists
 AC_CONFIG_SRCDIR(src/ultrastardx.dpr)
 
@@ -112,6 +113,28 @@ AC_ARG_ENABLE(debug,
   [test $enableval = "yes" && ENABLE_DEBUG="yes"], [])
 AC_SUBST(ENABLE_DEBUG)
 
+# OSX Packaging
+AC_ARG_ENABLE(osx-fink, [AS_HELP_STRING([--enable-osx-fink], [Enable fink packaging for OSX])])
+AC_ARG_ENABLE(osx-brew, [AS_HELP_STRING([--enable-osx-brew], [Enable homebrew packaging for OSX])])
+
+if [[ x$enable_osx_fink != x -a x$enable_osx_brew != x ]]; then
+    AC_MSG_ERROR([
+!!! You can't use --enable-osx-fink with --enable-osx-brew at the same time
+])
+fi
+
+# Default (homebrew)
+USE_OSX_PACKAGING="brew"
+USE_OSX_PACKAGING_LIBDIR="/usr/local/lib"
+
+if [[ x$enable_osx_fink != x ]]; then
+    USE_OSX_PACKAGING="fink"
+    USE_OSX_PACKAGING_LIBDIR="/sw/lib"
+fi
+
+AC_SUBST(USE_OSX_PACKAGING, $USE_OSX_PACKAGING)
+AC_SUBST(USE_OSX_PACKAGING_LIBDIR, $USE_OSX_PACKAGING_LIBDIR)
+
 # -----------------------------------------
 # check for compilers
 # -----------------------------------------
@@ -165,8 +188,11 @@ else
     PKG_VERSION([libpng], [libpng >= 1.2])
 fi
 
-# find sdl
-PKG_HAVE([sdl], [sdl], yes)
+# find sdl2
+PKG_HAVE([sdl2], [sdl2], yes)
+
+# find SDL2_image
+PKG_HAVE([sdl2_image], [SDL2_image], yes)
 
 # find freetype
 PKG_HAVE([freetype], [freetype2], yes)
@@ -174,14 +200,31 @@ PKG_HAVE([freetype], [freetype2], yes)
 # find sqlite3
 PKG_HAVE([sqlite3], [sqlite3], yes)
 
-# find lua 5.1
-# (K)Ubuntu uses lua5.1.pc, Mac OS X and other 
-# linux distributions use lua.pc
-PKG_HAVE([lua], [lua5.1], no)
-lua_LIB_NAME="lua5.1"
-if [[ x$lua_HAVE = xno ]]; then
+# find lua 5.3, 5.2 or 5.11
+# (K)Ubuntu uses lua5.2.pc and lua5.1.pc, 
+# Mac OS X and other linux distributions use lua.pc
+# Archlinux aur package for 5.3 use lua5.3.pc in order
+# to make it work alongside the 5.2 version.
+PKG_HAVE([lua], [lua5.3], check)
+lua_lib_name="lua5.3"
+if [[ x$lua_HAVE = xyes ]]; then
+	PKG_VERSION([lua], [lua5.3])
+else
+	PKG_HAVE([lua], [lua5.2], check)
+	lua_lib_name="lua5.2"
+	if [[ x$lua_HAVE = xyes ]]; then
+		PKG_VERSION([lua], [lua5.2])
+	else
+		PKG_HAVE([lua], [lua5.1], check)
+		lua_lib_name="lua5.1"
+		if [[ x$lua_HAVE = xyes ]]; then
+			PKG_VERSION([lua], [lua5.1])
+		else
     PKG_HAVE([lua], [lua >= 5.1], yes)
     lua_LIB_NAME="lua"
+			PKG_VERSION([lua], [lua])
+		fi
+	fi
 fi
 AC_SUBST(lua_LIB_NAME)
 
@@ -193,7 +236,14 @@ AC_SUBST(lua_LIB_NAME)
 #   A check for version >=52.0.0 will return version 0d.51.1.2 
 #   although it is lower because pkg-config is confused by the 0d.
 # Use [mylib]_VERSION_INT for version-checking instead
-PKG_HAVE([libavcodec], [libavcodec], yes)
+PKG_HAVE([libavcodec], [libavcodec], check)
+# The following finds libavcodec.pc in its new location on Mac OS X.
+# It only takes the last from the list, assuming that this is the latest 
+# version.
+if [[ x$libavcodec_HAVE = xno -a x$FPC_PLATFORM = xdarwin ]]; then
+    PKG_CONFIG_PATH=`find $FPCDIR/lib/ffmpeg* -name libavcodec.pc | tail -n 1 | xargs dirname`:$PKG_CONFIG_PATH export PKG_CONFIG_PATH
+    PKG_HAVE([libavcodec], [libavcodec], yes)
+fi
 PKG_VERSION([libavcodec], [libavcodec])
 AC_CHECK_LIB([avcodec], [avcodec_decode_audio], [HAVE_AVCODEC_DECODE_AUDIO="yes"])
 AC_CHECK_LIB([avcodec], [avcodec_decode_audio2], [HAVE_AVCODEC_DECODE_AUDIO2="yes"])
@@ -247,6 +297,20 @@ AC_SUBST_DEFINE(HAVE_LIBPCRE, $libpcre_HAVE)
 # get libpcre library dir
 PKG_VALUE([libpcre], [LIBDIR], [variable=libdir], [$libpcre_PKG], 
           [library dir (e.g. /usr/lib, /sw/lib, ...)])
+# we need the soname of the pcre library
+if test x"$libpcre_HAVE" = xyes; then
+    old_LIBS="$LIBS"
+    LIBS="-lpcre"
+    OBJDUMP="objdump"
+    if test x$FPC_PLATFORM = xdarwin; then
+        OBJDUMP="gobjdump"
+    fi
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],
+                   [libpcre_LIBNAME=`$OBJDUMP -p "conftest$EXEEXT" | grep pcre | awk '{print $2}'` dnl '
+                    AC_SUBST([libpcre_LIBNAME],[$libpcre_LIBNAME])],
+                   [AC_MSG_ERROR([failed to link])])
+    LIBS="$old_LIBS"
+fi
 
 # find portmixer
 PKG_HAVE([portmixer], [portmixer], no)
@@ -254,7 +318,7 @@ AC_SUBST_DEFINE(HAVE_PORTMIXER, $portmixer_HAVE)
 
 # determine linker-flags
 if test x$FPC_PLATFORM = xdarwin; then
-  LDFLAGS="-macosx_version_min 10.4 -undefined dynamic_lookup -headerpad_max_install_names"
+  LDFLAGS="-macosx_version_min 10.4 -undefined dynamic_lookup -headerpad_max_install_names -L/usr/X11/lib"
 fi
 #LIBS=
 AC_SUBST(LDFLAGS)
@@ -294,5 +358,13 @@ AC_MSG_NOTICE([
 !!!
 ])
 
+if test x$FPC_PLATFORM = xdarwin; then
+    AC_MSG_NOTICE([
+!!! Special target for OSX are:
+!!! "make macosx-standalone-app" to create a standalone .app
+!!! "make macosx-dmg" to create a dmg archive with standalone .app
+!!! Selected packaging: $USE_OSX_PACKAGING with libdir $USE_OSX_PACKAGING_LIBDIR
+                   ])
+fi
 
 

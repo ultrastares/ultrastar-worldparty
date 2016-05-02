@@ -35,8 +35,7 @@ interface
 
 uses
   gl,
-  glext,
-  SDL,
+  sdl2,
   Classes,
   UTexture,
   UFont,
@@ -73,6 +72,7 @@ procedure SetFontSize(Size: real);
 procedure SetFontStyle(Style: integer);       // sets active font style (normal, bold, etc)
 procedure SetFontItalic(Enable: boolean);     // sets italic type letter (works for all fonts)
 procedure SetFontReflection(Enable:boolean;Spacing: real); // enables/disables text reflection
+procedure SetOutlineColor(R, G, B, A: GLFloat); // set outline color
 
 implementation
 
@@ -242,6 +242,7 @@ begin
   SetFontZ(0);
   SetFontItalic(False);
   SetFontReflection(False, 0);
+  SetOutlineColor(0,0,0,1);
 end;
 
 procedure SetFontPos(X, Y: real);
@@ -280,6 +281,12 @@ begin
   else
     Fonts[ActFont].Font.Style := Fonts[ActFont].Font.Style - [Reflect];
   Fonts[ActFont].Font.ReflectionSpacing := Spacing - Fonts[ActFont].Font.Descender;
+end;
+
+procedure SetOutlineColor(R, G, B, A: GLFloat);
+begin
+  if (ActFont > 1) then
+    TFTScalableOutlineFont(Fonts[ActFont].Font).SetOutlineColor(R, G, B, A);
 end;
 
 end.

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/media/UAudioPlayback_SDL.pas $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/media/UAudioPlayback_SDL.pas $
  * $Id: UAudioPlayback_SDL.pas 2475 2010-06-10 18:27:53Z brunzelchen $
  *}
 
@@ -37,7 +37,7 @@ implementation
 
 uses
   Classes,
-  sdl,
+  sdl2,
   SysUtils,
   UAudioPlayback_SoftMixer,
   UMusic,

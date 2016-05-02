@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/screens/UScreenEditConvert.pas $
+ * $URL: svn+ssh://svn.code.sf.net/p/ultrastardx/svn/trunk/src/screens/UScreenEditConvert.pas $
  * $Id: UScreenEditConvert.pas 2146 2010-02-22 18:27:15Z k-m_schindler $
  *}
 
@@ -59,7 +59,7 @@ interface
 uses
   math,
   UMenu,
-  SDL,
+  SDL2,
   {$IFDEF UseMIDIPort}
   MidiFile,
   MidiOut,

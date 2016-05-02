@@ -19,14 +19,14 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/ultrastardx.dpr $
- * $Id: ultrastardx.dpr 2475 2010-06-10 18:27:53Z brunzelchen $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/ultrastardx.dpr $
+ * $Id: ultrastardx.dpr 3131 2015-09-07 00:11:32Z basisbit $
  *}
 
 program ultrastardx;
 
 {$IFDEF MSWINDOWS}
-  {$R '..\res\ultrastardx.res' '..\res\ultrastardx.rc'}
+  //{$R '..\res\ultrastardx.res' '..\res\ultrastardx.rc'}
 {$ENDIF}
 
 {$IFDEF FPC}
@@ -47,6 +47,7 @@ program ultrastardx;
 {$ENDIF}
 
 uses
+  //heaptrc,
   {$IFDEF Unix}
   cthreads,            // THIS MUST be the first used unit in FPC if Threads are used!!
                        // (see http://wiki.lazarus.freepascal.org/Multithreaded_Application_Tutorial)
@@ -60,24 +61,25 @@ uses
   //------------------------------
   //Includes - 3rd Party Libraries
   //------------------------------
-  moduleloader           in 'lib\JEDI-SDL\SDL\Pas\moduleloader.pas',
-  gl                     in 'lib\JEDI-SDL\OpenGL\Pas\gl.pas',
-  glu                    in 'lib\JEDI-SDL\OpenGL\Pas\glu.pas',
-  glext                  in 'lib\JEDI-SDL\OpenGL\Pas\glext.pas',
-  sdl                    in 'lib\JEDI-SDL\SDL\Pas\sdl.pas',
-  sdl_image              in 'lib\JEDI-SDL\SDL_Image\Pas\sdl_image.pas',
-  sdlutils               in 'lib\JEDI-SDL\SDL\Pas\sdlutils.pas',
-  sdlstreams             in 'lib\JEDI-SDL\SDL\Pas\sdlstreams.pas',
+  sdl2                   in 'lib\SDL2\sdl2.pas',
+  SDL2_gfx               in 'lib\SDL2\SDL2_gfx.pas',
+  SDL2_image             in 'lib\SDL2\SDL2_image.pas',
+  SDL2_mixer             in 'lib\SDL2\SDL2_mixer.pas',
+  SDL2_net               in 'lib\SDL2\SDL2_net.pas',
+  SDL2_ttf               in 'lib\SDL2\SDL2_ttf.pas',
+  //hackyhack part of basisbit's OpenGL glue (based on JEDI-SDL code mainly) - this is part 1 of the OpenGL header work
+  moduleloader           in 'lib\OpenGL\moduleloader.pas',
+  gl                     in 'lib\OpenGL\gl.pas',
+  glu                    in 'lib\OpenGL\glu.pas',
+  glext                  in 'lib\OpenGL\glext.pas',
   UMediaCore_SDL         in 'media\UMediaCore_SDL.pas',
 
   zlib                   in 'lib\zlib\zlib.pas',
-  png                    in 'lib\libpng\png.pas',
   freetype               in 'lib\freetype\freetype.pas',
 
   {$IFDEF UseBass}
   bass                   in 'lib\bass\delphi\bass.pas',
   UAudioCore_Bass        in 'media\UAudioCore_Bass.pas',
-  BassMIDI               in 'lib\bassmidi\bassmidi.pas',
   {$ENDIF}
   {$IFDEF UsePortaudio}
   portaudio              in 'lib\portaudio\portaudio.pas',
@@ -88,18 +90,31 @@ uses
   {$ENDIF}
 
   {$IFDEF UseFFmpeg}
-  avcodec                in 'lib\ffmpeg\avcodec.pas',
-  avformat               in 'lib\ffmpeg\avformat.pas',
-  avutil                 in 'lib\ffmpeg\avutil.pas',
-  rational               in 'lib\ffmpeg\rational.pas',
-  opt                    in 'lib\ffmpeg\opt.pas',
-  avio                   in 'lib\ffmpeg\avio.pas',
-  mathematics            in 'lib\ffmpeg\mathematics.pas',
-  UMediaCore_FFmpeg      in 'media\UMediaCore_FFmpeg.pas',
-  {$IFDEF UseSWScale}
-  swscale                in 'lib\ffmpeg\swscale.pas',
-  {$ENDIF}
-  {$ENDIF}
+    {$IFDEF FPC} // This solution is not very elegant, but working
+      avcodec             in 'lib\' + FFMPEG_DIR + '\avcodec.pas',
+      avformat            in 'lib\' + FFMPEG_DIR + '\avformat.pas',
+      avutil              in 'lib\' + FFMPEG_DIR + '\avutil.pas',
+      rational            in 'lib\' + FFMPEG_DIR + '\rational.pas',
+      avio                in 'lib\' + FFMPEG_DIR + '\avio.pas',
+      {$IFDEF useOLD_FFMPEG}
+        mathematics       in 'lib\' + FFMPEG_DIR + '\mathematics.pas',
+        opt               in 'lib\' + FFMPEG_DIR + '\opt.pas',
+      {$ENDIF}
+      {$IFDEF UseSWScale}
+        swscale           in 'lib\' + FFMPEG_DIR + '\swscale.pas',
+      {$ENDIF}
+    {$ELSE} // speak: This is for Delphi. Change version as needed!
+      avcodec            in 'lib\ffmpeg-0.10\avcodec.pas',
+      avformat           in 'lib\ffmpeg-0.10\avformat.pas',
+      avutil             in 'lib\ffmpeg-0.10\avutil.pas',
+      rational           in 'lib\ffmpeg-0.10\rational.pas',
+      avio               in 'lib\ffmpeg-0.10\avio.pas',
+      {$IFDEF UseSWScale}
+        swscale          in 'lib\ffmpeg-0.10\swscale.pas',
+      {$ENDIF}
+    {$ENDIF}
+    UMediaCore_FFmpeg    in 'media\UMediaCore_FFmpeg.pas',
+  {$ENDIF}  // UseFFmpeg
 
   {$IFDEF UseSRCResample}
   samplerate             in 'lib\samplerate\samplerate.pas',
@@ -109,20 +124,23 @@ uses
   projectM      in 'lib\projectM\projectM.pas',
   {$ENDIF}
 
+  {$IFDEF UseMIDIPort}
+  MidiCons      in 'lib\midi\MidiCons.pas',
+
+  CircBuf       in 'lib\midi\CircBuf.pas',
+  DelphiMcb     in 'lib\midi\DelphiMcb.pas',
+  MidiDefs      in 'lib\midi\MidiDefs.pas',
+  MidiFile      in 'lib\midi\MidiFile.pas',
+  MidiOut       in 'lib\midi\MidiOut.pas',
+  MidiType      in 'lib\midi\MidiType.pas',
+  {$ENDIF}
+
   {$IFDEF MSWINDOWS}
   {$IFDEF FPC}
   // FPC compatibility file for Allocate/DeallocateHWnd
   WinAllocation in 'lib\other\WinAllocation.pas',
+  Windows,
   {$ENDIF}
-
-  midiout       in 'lib\midi\midiout.pas',
-  CIRCBUF       in 'lib\midi\CIRCBUF.PAS',
-  MidiType      in 'lib\midi\MidiType.PAS',
-  MidiDefs      in 'lib\midi\MidiDefs.PAS',
-  MidiCons      in 'lib\midi\MidiCons.PAS',
-  MidiFile      in 'lib\midi\MidiFile.PAS',
-  Delphmcb      in 'lib\midi\Delphmcb.PAS',
-
   DirWatch      in 'lib\other\DirWatch.pas',
   {$ENDIF}
 
@@ -134,19 +152,6 @@ uses
   SQLite3       in 'lib\SQLite\SQLite3.pas',
 
   pcre          in 'lib\pcre\pcre.pas',
-
-  {$IFDEF MSWINDOWS}
-  // TntUnicodeControls
-  TntSystem         in 'lib\TntUnicodeControls\TntSystem.pas',
-  TntSysUtils       in 'lib\TntUnicodeControls\TntSysUtils.pas',
-  TntWindows        in 'lib\TntUnicodeControls\TntWindows.pas',
-  TntWideStrUtils   in 'lib\TntUnicodeControls\TntWideStrUtils.pas',
-  TntClasses        in 'lib\TntUnicodeControls\TntClasses.pas',
-  TntFormatStrUtils in 'lib\TntUnicodeControls\TntFormatStrUtils.pas',
-  {$IFNDEF DELPHI_10_UP} // WideStrings for FPC and Delphi < 2006
-  TntWideStrings   in 'lib\TntUnicodeControls\TntWideStrings.pas',
-  {$ENDIF}
-  {$ENDIF}
 
   //------------------------------
   //Includes - Lua Support
@@ -224,30 +229,27 @@ uses
 
   TextGL            in 'base\TextGL.pas',
   UUnicodeUtils     in 'base\UUnicodeUtils.pas',
+  UUnicodeStringHelper in 'base\uunicodestringhelper',
   UFont             in 'base\UFont.pas',
   UTextEncoding     in 'base\UTextEncoding.pas',
 
   UPath             in 'base\UPath.pas',
   UFilesystem       in 'base\UFilesystem.pas',
 
-  USoundfont        in 'base\USoundfont.pas',
-  UWebcam           in 'base\UWebcam.pas',
-
   //------------------------------
   //Includes - Plugin Support
   //------------------------------
   UParty            in 'base\UParty.pas',            // TODO: rewrite Party Manager as Module, reomplent ability to offer party Mody by Plugin
-  UPartyTournament  in 'base\UPartyTournament.pas',
 
   //------------------------------
   //Includes - Platform
   //------------------------------
-  
+
   UPlatform         in 'base\UPlatform.pas',
 {$IF Defined(MSWINDOWS)}
   UPlatformWindows  in 'base\UPlatformWindows.pas',
 {$ELSEIF Defined(DARWIN)}
-  UPlatformMacOSX   in 'base/UPlatformMacOSX.pas',
+  UPlatformMacOSX   in 'base\UPlatformMacOSX.pas',
 {$ELSEIF Defined(UNIX)}
   UPlatformLinux    in 'base\UPlatformLinux.pas',
 {$IFEND}
@@ -305,7 +307,7 @@ uses
 
   //------------------------------
   //Includes - Screens
-  //------------------------------  
+  //------------------------------
   UScreenLoading          in 'screens\UScreenLoading.pas',
   UScreenMain             in 'screens\UScreenMain.pas',
   UScreenName             in 'screens\UScreenName.pas',
@@ -322,8 +324,6 @@ uses
   UScreenOptionsThemes    in 'screens\UScreenOptionsThemes.pas',
   UScreenOptionsRecord    in 'screens\UScreenOptionsRecord.pas',
   UScreenOptionsAdvanced  in 'screens\UScreenOptionsAdvanced.pas',
-  UScreenOptionsNetwork   in 'screens\UScreenOptionsNetwork.pas',
-  UScreenOptionsWebcam    in 'screens\UScreenOptionsWebcam.pas',
   UScreenEditSub          in 'screens\UScreenEditSub.pas',
   UScreenEdit             in 'screens\UScreenEdit.pas',
   UScreenEditConvert      in 'screens\UScreenEditConvert.pas',
@@ -345,20 +345,69 @@ uses
   UScreenPartyRounds      in 'screens\UScreenPartyRounds.pas',
   UScreenPartyWin         in 'screens\UScreenPartyWin.pas',
 
-  // Screen Party Tournament
+  UWebSDK                 in 'webSDK\UWebSDK.pas',
+  //curlobj                 in 'webSDK\cURL\src\curlobj.pas',
+
+  opencv_highgui          in 'lib\openCV\opencv_highgui.pas',
+  opencv_core             in 'lib\openCV\opencv_core.pas',
+  opencv_imgproc          in 'lib\openCV\opencv_imgproc.pas',
+  opencv_types            in 'lib\openCV\opencv_types.pas',
+
+  //BassMIDI                in 'lib\bassmidi\bassmidi.pas',
+
+  UMenuStaticList in 'menu\UMenuStaticList.pas',
+  UWebcam                 in 'base\UWebcam.pas',
+
+  UDLLManager             in 'base\UDLLManager.pas',
+
+  UPartyTournament              in 'base\UPartyTournament.pas',
   UScreenPartyTournamentRounds  in 'screens\UScreenPartyTournamentRounds.pas',
   UScreenPartyTournamentPlayer  in 'screens\UScreenPartyTournamentPlayer.pas',
   UScreenPartyTournamentOptions in 'screens\UScreenPartyTournamentOptions.pas',
   UScreenPartyTournamentWin     in 'screens\UScreenPartyTournamentWin.pas',
+  UScreenJukeboxOptions         in 'screens\UScreenJukeboxOptions.pas',
+  UScreenJukeboxPlaylist        in 'screens\UScreenJukeboxPlaylist.pas',
 
-  //Web Mod SDK
-  UDLLManager             in 'base\UDLLManager.pas',
-  UWebSDK                 in 'webSDK\UWebSDK.pas',
-  UMD5                    in 'webSDK\encrypt\UMD5.pas',
+  UScreenOptionsNetwork in 'screens\UScreenOptionsNetwork.pas',
+  UScreenOptionsWebcam  in 'screens\UScreenOptionsWebcam.pas',
+  UScreenOptionsJukebox in 'screens\UScreenOptionsJukebox.pas',
+
+  UAvatars                in 'base\UAvatars.pas',
+  UScreenAbout            in 'screens\UScreenAbout.pas',
 
   SysUtils;
+{$R ultrastardx.res}
+
+const
+  sLineBreak = {$IFDEF MSWINDOWS} AnsiString(#13#10); {$ELSE} AnsiChar(#10); {$ENDIF}
+var
+  I: Integer;
+  Report: string;
 
 begin
+  try
+  {$IFDEF MSWINDOWS}
+  {$IFDEF CONSOLE}
+    FreeConsole(); //hacky workaround to get a working GUI-only experience on windows 10 when using fpc 3.0.0 on windows
+  {$ENDIF}
+  {$ENDIF}
   Main;
+  except
+    on E : Exception do
+    begin
+      Report := 'Sorry, an error ocurred! Please report this error to the game-developers. Also check the Error.log file in the game folder.' + LineEnding +
+        'Stacktrace:' + LineEnding;
+      if E <> nil then begin
+        Report := Report + 'Exception class: ' + E.ClassName + LineEnding +
+        'Message: ' + E.Message + LineEnding;
+      end;
+      Report := Report + BackTraceStrFunc(ExceptAddr);
+      for I := 0 to ExceptFrameCount - 1 do
+        Report := Report + LineEnding + BackTraceStrFunc(ExceptFrames[I]);
+      ShowMessage(Report);
+
+      Halt;
+    end;
+  end;
 end.
 

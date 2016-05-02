@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/screens/UScreenOpen.pas $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/screens/UScreenOpen.pas $
  * $Id: UScreenOpen.pas 1939 2009-11-09 00:27:55Z s_alexander $
  *}
 
@@ -37,7 +37,7 @@ uses
   Math,
   SysUtils,
   gl,
-  SDL,
+  sdl2,
   UPath,
   UMenu,
   UMusic,
@@ -82,7 +82,6 @@ uses
   UGraphic,
   UDraw,
   UMain,
-  UScreenEditConvert,
   USkins,
   UUnicodeUtils;
 

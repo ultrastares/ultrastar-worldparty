@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/UTexture.pas $
- * $Id: UTexture.pas 2250 2010-04-19 16:12:18Z tobigun $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/base/UTexture.pas $
+ * $Id: UTexture.pas 3150 2015-10-20 00:07:57Z basisbit $
  *}
 
 unit UTexture;
@@ -35,14 +35,14 @@ interface
 
 uses
   gl,
-  glu,
+  //glu,
   glext,
   Classes,
   SysUtils,
   UCommon,
   UPath,
-  SDL,
-  SDL_Image;
+  sdl2,
+  SDL2_image;
 
 type
   PTexture = ^TTexture;
@@ -56,6 +56,8 @@ type
     ScaleW:   real; // for dynamic scalling while leaving width constant
     ScaleH:   real; // for dynamic scalling while leaving height constant
     Rot:      real; // 0 - 2*pi
+    RightScale: real; //
+    LeftScale:  real; //
     Int:      real; // intensity
     ColR:     real;
     ColG:     real;
@@ -119,7 +121,6 @@ type
       procedure AddTexture(var Tex: TTexture; Typ: TTextureType; Color: cardinal; Cache: boolean = false); overload;
       function GetTexture(const Name: IPath; Typ: TTextureType; FromCache: boolean = false): TTexture; overload;
       function GetTexture(const Name: IPath; Typ: TTextureType; Col: LongWord; FromCache: boolean = false): TTexture; overload;
-      function LoadTexture(FromRegistry: boolean; const Identifier: IPath; Typ: TTextureType; Col: LongWord): TTexture; overload;
       function LoadTexture(const Identifier: IPath; Typ: TTextureType; Col: LongWord): TTexture; overload;
       function LoadTexture(const Identifier: IPath): TTexture; overload;
       function CreateTexture(Data: PChar; const Name: IPath; Width, Height: word; BitsPerPixel: byte): TTexture;
@@ -133,7 +134,7 @@ type
 
 var
   Texture: TTextureUnit;
-
+  SupportsNPOT: Boolean;
 implementation
 
 uses
@@ -148,20 +149,20 @@ uses
 procedure AdjustPixelFormat(var TexSurface: PSDL_Surface; Typ: TTextureType);
 var
   TempSurface: PSDL_Surface;
-  NeededPixFmt: PSDL_Pixelformat;
+  NeededPixFmt: UInt32;
 begin
   if      (Typ = TEXTURE_TYPE_PLAIN) then
-    NeededPixFmt := @PixelFmt_RGB
+    NeededPixFmt := SDL_PIXELFORMAT_RGB24
   else if (Typ = TEXTURE_TYPE_TRANSPARENT) or
           (Typ = TEXTURE_TYPE_COLORIZED) then
-    NeededPixFmt := @PixelFmt_RGBA
+    NeededPixFmt := SDL_PIXELFORMAT_ABGR8888
   else
-    NeededPixFmt := @PixelFmt_RGB;
+    NeededPixFmt := SDL_PIXELFORMAT_RGB24;
 
-  if not PixelformatEquals(TexSurface^.format, NeededPixFmt) then
+  if not (TexSurface^.format.format = NeededPixFmt) then
   begin
     TempSurface := TexSurface;
-    TexSurface := SDL_ConvertSurface(TempSurface, NeededPixFmt, SDL_SWSURFACE);
+    TexSurface := SDL_ConvertSurfaceFormat(TempSurface, NeededPixFmt, 0);
     SDL_FreeSurface(TempSurface);
   end;
 end;
@@ -218,6 +219,11 @@ constructor TTextureUnit.Create;
 begin
   inherited Create;
   TextureDatabase := TTextureDatabase.Create;
+  Log.LogInfo('OpenGL vendor ' + glGetString(GL_VENDOR), 'TTextureUnit.Create');
+  Log.LogInfo('OpenGL renderer ' + glGetString(GL_RENDERER), 'TTextureUnit.Create');
+  Log.LogInfo('OpenGL version ' + glGetString(GL_VERSION), 'TTextureUnit.Create');
+  SupportsNPOT := (AnsiContainsStr(glGetString(GL_EXTENSIONS),'texture_non_power_of_two')) and not (AnsiContainsStr(glGetString(GL_EXTENSIONS), 'Radeon X16'));
+  Log.LogInfo('OpenGL TextureNPOT-support: ' + BoolToStr(SupportsNPOT), 'TTextureUnit.Create');
 end;
 
 destructor TTextureUnit.Destroy;
@@ -236,12 +242,6 @@ begin
   TextureDatabase.AddTexture(Tex, Typ, Color, Cache);
 end;
 
-function TTextureUnit.LoadTexture(FromRegistry: boolean; const Identifier: IPath; Typ: TTextureType; Col: LongWord): TTexture;
-begin
-  // FIXME: what is the FromRegistry parameter supposed to do?
-  Result := LoadTexture(Identifier, Typ, Col);
-end;
-
 function TTextureUnit.LoadTexture(const Identifier: IPath): TTexture;
 begin
   Result := LoadTexture(Identifier, TEXTURE_TYPE_PLAIN, 0);
@@ -258,7 +258,7 @@ begin
   FillChar(Result, SizeOf(Result), 0);
 
   // load texture data into memory
-  TexSurface := LoadImage(Identifier);
+  if not (Identifier = nil) then TexSurface := LoadImage(Identifier);
   if not assigned(TexSurface) then
   begin
     Log.LogError('Could not load texture: "' + Identifier.ToNative +'" with type "'+ TextureTypeToStr(Typ) +'"',
@@ -270,7 +270,7 @@ begin
   AdjustPixelFormat(TexSurface, Typ);
 
   // adjust texture size (scale down, if necessary)
-  newWidth   := TexSurface.W;
+  newWidth   := TexSurface.W;                            //basisbit ToDo make images scale in size and keep ratio?
   newHeight  := TexSurface.H;
 
   if (newWidth > Limit) then
@@ -290,11 +290,14 @@ begin
   oldWidth  := newWidth;
   oldHeight := newHeight;
 
+  {if (SupportsNPOT = false) then
+  begin}
   // make texture dimensions be powers of 2
   newWidth  := Round(Power(2, Ceil(Log2(newWidth))));
   newHeight := Round(Power(2, Ceil(Log2(newHeight))));
   if (newHeight <> oldHeight) or (newWidth <> oldWidth) then
     FitImage(TexSurface, newWidth, newHeight);
+  {end;}
 
   // at this point we have the image in memory...
   // scaled so that dimensions are powers of 2
@@ -309,6 +312,7 @@ begin
 
   glBindTexture(GL_TEXTURE_2D, ActTex);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -358,6 +362,9 @@ begin
     TexX2 := 1;
     TexY2 := 1;
 
+    RightScale := 1;
+    LeftScale := 1;
+
     Name := Identifier;
   end;
 
@@ -373,7 +380,7 @@ function TTextureUnit.GetTexture(const Name: IPath; Typ: TTextureType; Col: Long
 var
   TextureIndex: integer;
 begin
-  if (Name.IsUnset) then
+  if (Name = nil) or(Name.IsUnset) then
   begin
     // zero texture data
     FillChar(Result, SizeOf(Result), 0);
@@ -408,7 +415,7 @@ begin
 
   // load full texture
   if (TextureDatabase.Texture[TextureIndex].Texture.TexNum = 0) then
-    TextureDatabase.Texture[TextureIndex].Texture := LoadTexture(false, Name, Typ, Col);
+    TextureDatabase.Texture[TextureIndex].Texture := LoadTexture(Name, Typ, Col);
 
   // use texture
   Result := TextureDatabase.Texture[TextureIndex].Texture;
@@ -465,6 +472,9 @@ begin
   Result.TexX2 := 1;
   Result.TexY2 := 1;
 
+  Result.RightScale := 1;
+  Result.LeftScale := 1;
+
   Result.Name := Name;
 end;
 
@@ -478,7 +488,9 @@ var
   T:      integer;
   TexNum: GLuint;
 begin
+  if name = nil then Exit;
   T := TextureDatabase.FindTexture(Name, Typ, Col);
+  if T < 0 then Exit;
 
   if not FromCache then
   begin
@@ -540,8 +552,8 @@ begin
       Exit;
     end;
   end;
-  Log.LogInfo('Unknown texture type: "' + TypeStr + '". Using default texture type "'
-      + TextureTypeToStr(Default) + '"', 'UTexture.ParseTextureType');
+  //Log.LogInfo('Unknown texture type: "' + TypeStr + '". Using default texture type "'
+  //    + TextureTypeToStr(Default) + '"', 'UTexture.ParseTextureType');
   Result := Default;
 end;
 

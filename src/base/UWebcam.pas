@@ -36,8 +36,8 @@ interface
 uses
   Classes,
   UTexture,
-  opencv_core,
   opencv_highgui,
+  opencv_core,
   opencv_imgproc,
   opencv_types;
 
@@ -46,6 +46,8 @@ type
   TWebcam = class
     private
       LastTickFrame: integer;
+      LastFrame:     PIplImage;
+      RGBFrame:      PIplImage;
 
     public
       Capture: PCvCapture;
@@ -53,11 +55,15 @@ type
 
       constructor Create;
       procedure Release;
-      procedure GetWebcamFrame;
+      procedure Restart;
+      procedure GetWebcamFrame();
+      function FrameEffect(Nr_Effect: integer; Frame: PIplImage): PIplImage;
+      function FrameAdjust(Frame: PIplImage): PIplImage;
    end;
 
 var
-  Webcam:  TWebcam;
+  Webcam:    TWebcam;
+  IsEnabled: Boolean;
 
 
 implementation
@@ -65,7 +71,7 @@ implementation
 uses
   gl,
   SysUtils,
-  SDL,
+  sdl2,
   ULog,
   UIni;
 
@@ -74,38 +80,61 @@ uses
 //----------
 constructor TWebcam.Create;
 var
-  H, W, I, Count: integer;
+  H, W, I: integer;
   s: string;
 begin
   inherited;
 
-  Capture := cvCreateCameraCapture(Ini.WebCamID);
-
-  if (Capture <> nil) then
+  if (Ini.WebCamID <> 0) then
   begin
-    S := IWebcamResolution[Ini.WebcamResolution];
+    try
+      Capture := cvCreateCameraCapture(Ini.WebCamID - 1);
+      IsEnabled := true;
+    except
+      IsEnabled:=false;
+    end;
 
-    I := Pos('x', S);
-    W := StrToInt(Copy(S, 1, I-1));
-    H := StrToInt(Copy(S, I+1, 1000));
+    if (IsEnabled = true) and (Capture <> nil) then
+    begin
+      S := IWebcamResolution[Ini.WebcamResolution];
 
-    cvSetCaptureProperty(Capture, CV_CAP_PROP_FRAME_WIDTH, W);
-    cvSetCaptureProperty(Capture, CV_CAP_PROP_FRAME_HEIGHT, H);
+      I := Pos('x', S);
+      W := StrToInt(Copy(S, 1, I-1));
+      H := StrToInt(Copy(S, I+1, 1000));
+
+      cvSetCaptureProperty(Capture, CV_CAP_PROP_FRAME_WIDTH, W);
+      cvSetCaptureProperty(Capture, CV_CAP_PROP_FRAME_HEIGHT, H);
+    end;
   end;
 
 end;
 
 procedure TWebcam.Release;
 begin
-  if (Capture <> nil) then
+  try
+  if (IsEnabled = true) and (Capture <> nil) then
     cvReleaseCapture(@Capture);
+  except
+    ;
+  end;
+  IsEnabled:=false;
 end;
 
-procedure TWebcam.GetWebcamFrame;
+procedure TWebcam.Restart;
+begin
+  Release;
+  try
+    Webcam := TWebcam.Create;
+  except
+    ;
+  end;
+end;
+
+procedure TWebcam.GetWebcamFrame();
 var
   WebcamFrame: PIplImage;
 begin
-  if ((SDL_GetTicks() - LastTickFrame) >= 1000/StrToInt(IWebcamFPS[Ini.WebCamFPS])) then
+  if (IsEnabled = true) and((SDL_GetTicks() - LastTickFrame) >= 1000/StrToInt(IWebcamFPS[Ini.WebCamFPS])) then
   begin
     if (TextureCam.TexNum > 0) then
     begin
@@ -114,14 +143,19 @@ begin
     end;
 
     WebcamFrame := cvQueryFrame(Capture);
-    cvCvtColor(WebcamFrame, WebcamFrame, CV_BGR2RGB);
 
-    cvFlip(WebcamFrame, nil, 1);
+    if (Ini.WebCamFlip = 0) then
+      cvFlip(WebcamFrame, nil, 1);
+
+    WebcamFrame := FrameAdjust(WebcamFrame);
+    WebcamFrame := FrameEffect(Ini.WebCamEffect, WebcamFrame);
+
     TextureCam := Texture.CreateTexture(WebcamFrame.imageData, nil, WebcamFrame.Width, WebcamFrame.Height, WebcamFrame.depth);
 
     WebcamFrame := nil;
     cvReleaseImage(@WebcamFrame);
-    //cvReleaseImage(@ScreenSing.RGBFrame);
+    cvReleaseImage(@RGBFrame);
+
     LastTickFrame := SDL_GetTicks();
 
     // wait for a key
@@ -130,261 +164,262 @@ begin
 
 end;
 
-{
-function FrameEffect(Nr_Effect: integer; Frame: PIplImage): PIplImage;
+// 0  -> NORMAL
+// 1  -> GRAYSCALE
+// 2  -> BLACK & WHITE
+// 3  -> NEGATIVE
+// 4  -> BINARY IMAGE
+// 5  -> DILATE
+// 6  -> THRESHOLD
+// 7  -> EDGES
+// 8  -> GAUSSIAN BLUR
+// 9  -> EQUALIZED
+// 10 -> ERODE
+function TWebcam.FrameEffect(Nr_Effect: integer; Frame: PIplImage): PIplImage;
 var
   Size: CvSize;
   HalfSize: CvSize;
-  Red: integer;
-  Green: integer;
-  Blue: integer;
+  CamEffectParam: integer;
+  ImageFrame, EffectFrame, DiffFrame: PIplImage;
 begin
 
-  // default params values
-  if (ScreenSing.CamEffectParam[Nr_Effect] = -1) then
-  begin
-
-    case Nr_Effect of
-      2: ScreenSing.CamEffectParam[Nr_Effect] := 20;
-      3: ScreenSing.CamEffectParam[Nr_Effect] := 2;
-      4: ScreenSing.CamEffectParam[Nr_Effect] := 60;
-      5: ScreenSing.CamEffectParam[Nr_Effect] := 70;
-      6: ScreenSing.CamEffectParam[Nr_Effect] := 11;
-      9: ScreenSing.CamEffectParam[Nr_Effect] := 2;
-     10: ScreenSing.CamEffectParam[Nr_Effect] := 50;
-     11: ScreenSing.CamEffectParam[Nr_Effect] := 5;
-     12: ScreenSing.CamEffectParam[Nr_Effect] := 50;
-    else
-      ScreenSing.CamEffectParam[Nr_Effect] := 0;
-    end;
-
+  // params values
+  case Nr_Effect of
+    4: CamEffectParam := 20; // binary image
+    5: CamEffectParam := 2;  // dilate
+    6: CamEffectParam := 60; // threshold
+    7: CamEffectParam := 70; // edges
+    8: CamEffectParam := 11; // gaussian blur
+   10: CamEffectParam := 2; // erode
+   else
+      CamEffectParam := 0;
   end;
 
   Size  := cvSizeV(Frame.width, Frame.height);
   HalfSize  := cvSizeV(Frame.width/2, Frame.height/2);
 
-  if (ScreenSing.ImageFrame = nil) then
-    ScreenSing.ImageFrame := cvCreateImage(Size, Frame.depth, 1);
-
-  if (ScreenSing.EffectFrame = nil) then
-    ScreenSing.EffectFrame := cvCreateImage(Size, Frame.depth, 1);
-
-  if(ScreenSing.DiffFrame = nil) then
-    ScreenSing.DiffFrame := cvCreateImage (Size, Frame.depth, 1);
-
-  if(ScreenSing.RGBFrame = nil) then
-    ScreenSing.RGBFrame := cvCreateImage(Size, Frame.depth, 3);
+  ImageFrame := cvCreateImage(Size, Frame.depth, 1);
+  EffectFrame := cvCreateImage(Size, Frame.depth, 1);
+  DiffFrame := cvCreateImage (Size, Frame.depth, 1);
+  RGBFrame := cvCreateImage(Size, Frame.depth, 3);
 
   case Nr_Effect of
     1: begin // Grayscale
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Grayscale';
-
-         cvCvtColor(Frame, ScreenSing.EffectFrame, CV_BGR2GRAY);
-         cvCvtColor(ScreenSing.EffectFrame, ScreenSing.RGBFrame, CV_GRAY2RGB);
-         Result := ScreenSing.RGBFrame;
+         cvCvtColor(Frame, EffectFrame, CV_BGR2GRAY);
+         cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
+         Result := RGBFrame;
        end;
-    2: begin // Binary Image Difference
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Binary Difference';
+
+    2: begin // Black & White
+         cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY );
+         cvThreshold(ImageFrame, EffectFrame, 128, 255, CV_THRESH_OTSU);
+         cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
+         Result := RGBFrame;
+       end;
+
+    3: begin // Negative
+         cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
+         cvNot(RGBFrame, RGBFrame);
+         Result := RGBFrame;
+       end;
+
+    4: begin // Binary Image
 
          //Convert frame to gray and store in image
-         cvCvtColor(Frame, ScreenSing.ImageFrame, CV_BGR2GRAY);
-         cvEqualizeHist(ScreenSing.ImageFrame, ScreenSing.ImageFrame);
+         cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
+         cvEqualizeHist(ImageFrame, ImageFrame);
 
          //Copy Image
-         if(ScreenSing.LastFrame = nil) then
-           ScreenSing.LastFrame := cvCloneImage(ScreenSing.ImageFrame);
+         if(LastFrame = nil) then
+           LastFrame := cvCloneImage(ImageFrame);
 
          //Differences with actual and last image
-         cvAbsDiff(ScreenSing.ImageFrame, ScreenSing.LastFrame, ScreenSing.DiffFrame);
+         cvAbsDiff(ImageFrame, LastFrame, DiffFrame);
 
          //threshold image
-         cvThreshold(ScreenSing.DiffFrame, ScreenSing.EffectFrame, ScreenSing.CamEffectParam[Nr_Effect], 255, 0);
+         cvThreshold(DiffFrame, EffectFrame, CamEffectParam, 255, 0);
 
-         cvReleaseImage(@ScreenSing.LastFrame);
+         cvReleaseImage(@LastFrame);
 
          //Change datas;
-         ScreenSing.LastFrame := cvCloneImage(ScreenSing.ImageFrame);
+         LastFrame := cvCloneImage(ImageFrame);
 
-         cvCvtColor(ScreenSing.EffectFrame, ScreenSing.RGBFrame, CV_GRAY2RGB);
-         Result := ScreenSing.RGBFrame;
+         cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
+         Result := RGBFrame;
        end;
-    3: begin // Dilate
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Dilate';
 
-         cvDilate(Frame, Frame, nil, ScreenSing.CamEffectParam[Nr_Effect]);
-         cvCvtColor(Frame, ScreenSing.RGBFrame, CV_BGR2RGB);
-         Result := ScreenSing.RGBFrame;
+    5: begin // Dilate
+         cvDilate(Frame, Frame, nil, CamEffectParam);
+         cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
+         Result := RGBFrame;
        end;
-    4: begin //threshold image
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Threshold';
 
-         cvCvtColor(Frame, ScreenSing.ImageFrame, CV_BGR2GRAY);
-         cvThreshold(ScreenSing.ImageFrame, ScreenSing.EffectFrame, ScreenSing.CamEffectParam[Nr_Effect], 100, 3);
-         cvCvtColor(ScreenSing.EffectFrame, ScreenSing.RGBFrame, CV_GRAY2RGB);
-         Result := ScreenSing.RGBFrame;
+    6: begin //threshold
+         cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
+         cvThreshold(ImageFrame, EffectFrame, CamEffectParam, 100, 3);
+         cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
+         Result := RGBFrame;
        end;
-    5: begin // Edges
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Edges';
 
-         cvCvtColor(Frame, ScreenSing.ImageFrame, CV_BGR2GRAY);
-         cvCanny(ScreenSing.ImageFrame, ScreenSing.EffectFrame, ScreenSing.CamEffectParam[Nr_Effect], ScreenSing.CamEffectParam[Nr_Effect], 3);
-         cvCvtColor(ScreenSing.EffectFrame, ScreenSing.RGBFrame, CV_GRAY2RGB);
-         Result := ScreenSing.RGBFrame;
+    7: begin // Edges
+         cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
+         cvCanny(ImageFrame, EffectFrame, CamEffectParam, CamEffectParam, 3);
+         cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
+         Result := RGBFrame;
        end;
-    6: begin // Gaussian Blur
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Gaussian Blur';
 
-         if (ScreenSing.CamEffectParam[Nr_Effect] <= 0) then
-           ScreenSing.CamEffectParam[Nr_Effect] := 1;
-
-         cvSmooth(Frame, Frame, CV_BLUR, ScreenSing.CamEffectParam[Nr_Effect], ScreenSing.CamEffectParam[Nr_Effect]);
-         cvCvtColor(Frame, ScreenSing.RGBFrame, CV_BGR2RGB);
-         Result := ScreenSing.RGBFrame;
+    8: begin // Gaussian Blur
+         cvSmooth(Frame, Frame, CV_BLUR, CamEffectParam, CamEffectParam);
+         cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
+         Result := RGBFrame;
        end;
-    7: begin // Equalized
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Equalized';
 
-         cvCvtColor(Frame, ScreenSing.ImageFrame, CV_BGR2GRAY);
-         cvEqualizeHist(ScreenSing.ImageFrame, ScreenSing.EffectFrame);
-         cvCvtColor(ScreenSing.EffectFrame, ScreenSing.RGBFrame, CV_GRAY2RGB);
-         Result := ScreenSing.RGBFrame;
+    9: begin // Equalized
+         cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
+         cvEqualizeHist(ImageFrame, EffectFrame);
+         cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
+         Result := RGBFrame;
        end;
-    8: begin // Negative
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Negative';
 
-         cvCvtColor(Frame, ScreenSing.RGBFrame, CV_BGR2RGB);
-         cvNot(ScreenSing.RGBFrame, ScreenSing.RGBFrame);
-         Result := ScreenSing.RGBFrame;
+    10: begin // Erode
+         cvErode(Frame, Frame, nil, CamEffectParam);
+         cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
+         Result := RGBFrame;
        end;
-    9: begin
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Erode';
-
-         cvErode(Frame, Frame, nil, ScreenSing.CamEffectParam[Nr_Effect]);
-         cvCvtColor(Frame, ScreenSing.RGBFrame, CV_BGR2RGB);
-         Result := ScreenSing.RGBFrame;
-       end;
-    10:begin // Brightness
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Brightness';
-
-         cvAddS(Frame, CV_RGB(ScreenSing.CamEffectParam[Nr_Effect], ScreenSing.CamEffectParam[Nr_Effect], ScreenSing.CamEffectParam[Nr_Effect]), Frame);
-         cvCvtColor(Frame, ScreenSing.RGBFrame, CV_BGR2RGB);
-         Result := ScreenSing.RGBFrame;
-       end;
-    11:begin // Contrast
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Contrast';
-
-         cvConvertScale(Frame, Frame, ScreenSing.CamEffectParam[Nr_Effect]/10);
-         cvCvtColor(Frame, ScreenSing.RGBFrame, CV_BGR2RGB);
-         Result := ScreenSing.RGBFrame;
-       end;
-    12:begin // Color
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Color';
+    {
+    11:begin // Color
+         RGBFrame := cvCreateImage(Size, Frame.depth, 3);
 
          cvAddS(Frame, CV_RGB(255, 0, 0), Frame);
-         cvCvtColor(Frame, ScreenSing.RGBFrame, CV_BGR2RGB);
-         Result := ScreenSing.RGBFrame;
+         cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
+         Result := RGBFrame;
        end;
-    13:begin // Hue
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Hue';
+
+    12:begin // Value
+         ImageFrame := cvCreateImage(Size, Frame.depth, 1);
+         RGBFrame := cvCreateImage(Size, Frame.depth, 3);
 
          // Convert from Red-Green-Blue to Hue-Saturation-Value
-         cvCvtColor(Frame, ScreenSing.RGBFrame, CV_BGR2HSV );
+         cvCvtColor(Frame, RGBFrame, CV_BGR2HSV );
 
          // Split hue, saturation and value of hsv on them
-         cvSplit(ScreenSing.RGBFrame, ScreenSing.ImageFrame, nil, nil, 0);
-         cvCvtColor(ScreenSing.ImageFrame, ScreenSing.RGBFrame, CV_GRAY2RGB);
-         Result := ScreenSing.RGBFrame;
+         cvSplit(RGBFrame, nil, nil, ImageFrame, 0);
+         cvCvtColor(ImageFrame, RGBFrame, CV_GRAY2RGB);
+         Result := RGBFrame;
        end;
-    14:begin // Saturation
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Saturation';
-
-         // Convert from Red-Green-Blue to Hue-Saturation-Value
-         cvCvtColor(Frame, ScreenSing.RGBFrame, CV_BGR2HSV );
-
-         // Split hue, saturation and value of hsv on them
-         cvSplit(ScreenSing.RGBFrame, nil, ScreenSing.ImageFrame, nil, 0);
-         cvCvtColor(ScreenSing.ImageFrame, ScreenSing.RGBFrame, CV_GRAY2RGB);
-         Result := ScreenSing.RGBFrame;
-       end;
-    15:begin // Value
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Value';
-
-         // Convert from Red-Green-Blue to Hue-Saturation-Value
-         cvCvtColor(Frame, ScreenSing.RGBFrame, CV_BGR2HSV );
-
-         // Split hue, saturation and value of hsv on them
-         cvSplit(ScreenSing.RGBFrame, nil, nil, ScreenSing.ImageFrame, 0);
-         cvCvtColor(ScreenSing.ImageFrame, ScreenSing.RGBFrame, CV_GRAY2RGB);
-         Result := ScreenSing.RGBFrame;
-       end;
-    16:begin // Black & White
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'Black & White';
-
-         cvCvtColor(Frame, ScreenSing.ImageFrame, CV_BGR2GRAY );
-         cvThreshold(ScreenSing.ImageFrame, ScreenSing.EffectFrame, 128, 255, CV_THRESH_OTSU);
-         cvCvtColor(ScreenSing.EffectFrame, ScreenSing.RGBFrame, CV_GRAY2RGB);
-         Result := ScreenSing.RGBFrame;
-       end;
-    17:begin //
-         ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-         ScreenSing.Text[ScreenSing.WebcamText].Text := 'TESTE';
-
-         //ScreenSing.RGBFrame := Frame;
-         //SDL_CreateThread(@FindFaces, nil);
-         cvCvtColor(Frame, ScreenSing.RGBFrame, CV_BGR2RGB);
-         Result := ScreenSing.RGBFrame;
-       end
+       }
     else
     begin
-      ScreenSing.Statics[ScreenSing.WebcamStatic].Visible := true;
-      ScreenSing.Text[ScreenSing.WebcamText].Visible := true;
-      ScreenSing.Text[ScreenSing.WebcamText].Text := 'Normal';
-
-      cvCvtColor(Frame, ScreenSing.RGBFrame, CV_BGR2RGB);
-      Result := ScreenSing.RGBFrame;
+      //normal
+      cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
+      Result := RGBFrame;
     end;
   end;
 
-
-//  cvReleaseImage(@ScreenSing.ImageFrame);
-//  cvReleaseImage(@ScreenSing.DiffFrame);
-//  cvReleaseImage(@ScreenSing.EffectFrame);
+  cvReleaseImage(@ImageFrame);
+  cvReleaseImage(@DiffFrame);
+  cvReleaseImage(@EffectFrame);
 
 end;
-}
+
+function TWebcam.FrameAdjust(Frame: PIplImage): PIplImage;
+var
+  I, J: integer;
+  Size: CvSize;
+  HalfSize: CvSize;
+  BrightValue, SaturationValue, HueValue: integer;
+  BrightValueConvt, SaturationValueConvt, HueValueConvt: real;
+  ImageFrame, TmpFrame, HueFrame, SaturationFrame, ValueFrame: PIplImage;
+begin
+
+  Size  := cvSizeV(Frame.width, Frame.height);
+  HalfSize  := cvSizeV(Frame.width/2, Frame.height/2);
+
+  ImageFrame := cvCreateImage(Size, Frame.depth, 1);
+  TmpFrame := cvCreateImage(Size, Frame.depth, 3);
+
+  HueFrame := cvCreateImage(Size, Frame.depth, 1);
+  SaturationFrame := cvCreateImage(Size, Frame.depth, 1);
+  ValueFrame := cvCreateImage(Size, Frame.depth, 1);
+
+  BrightValue := Ini.WebcamBrightness;
+
+  // Brightness
+  if (BrightValue <> 100) then
+  begin
+    if (BrightValue > 100) then
+      BrightValueConvt := (BrightValue - 100) * 255/100
+    else
+      BrightValueConvt := -((BrightValue - 100) * -255/100);
+
+    cvAddS(Frame, CV_RGB(BrightValueConvt, BrightValueConvt, BrightValueConvt), Frame);
+  end;
+
+  SaturationValue := Ini.WebCamSaturation;
+
+  // Saturation
+  if (SaturationValue <> 100) then
+  begin
+    if (SaturationValue > 100) then
+      SaturationValueConvt := (SaturationValue - 100) * 255/100
+    else
+      SaturationValueConvt := -((SaturationValue - 100) * -255/100);
+
+    // Convert from Red-Green-Blue to Hue-Saturation-Value
+//    cvCvtColor(Frame, TmpFrame, CV_BGR2HSV );
+
+    // Split hue, saturation and value of hsv on them
+  //  cvSplit(TmpFrame, nil, ImageFrame, nil, nil);
+    //cvCvtColor(ImageFrame, Frame, CV_GRAY2RGB);
+
+    cvConvertScale(Frame, Frame, 10);
+    //     cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
+
+  end;
+
+  HueValue := Ini.WebCamHue;
+
+  // Hue
+  if (HueValue <> 180) then
+  begin
+    if (HueValue > 100) then
+      HueValueConvt := (HueValue - 100) * 255/100
+    else
+      HueValueConvt := -((HueValue - 100) * -255/100);
+
+    // Convert from Red-Green-Blue to Hue-Saturation-Value
+    cvCvtColor(Frame, TmpFrame, CV_BGR2RGB );
+
+    // Split hue, saturation and value of hsv on them
+    cvSplit(TmpFrame, HueFrame, SaturationFrame, ValueFrame, 0);
+    //cvCvtColor(ImageFrame, Frame, CV_GRAY2RGB);
+
+    cvMerge(SaturationFrame, HueFrame, ValueFrame, 0, Frame);
+
+    // convert back for displaying
+    //cvCvtColor(TmpFrame, Frame, CV_BGR2RGB);
+  end;
+
+  cvReleaseImage(@ImageFrame);
+  cvReleaseImage(@TmpFrame);
+
+  cvReleaseImage(@HueFrame);
+  cvReleaseImage(@SaturationFrame);
+  cvReleaseImage(@ValueFrame);
+
+  Result := Frame;
+
+  {    11:begin // Contrast
+         RGBFrame := cvCreateImage(Size, Frame.depth, 3);
+
+         cvConvertScale(Frame, Frame, CamEffectParam/10);
+         cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
+         Result := RGBFrame;
+       end;
+       }
+
+end;
+
 //----------
 
 end.

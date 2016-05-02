@@ -1,6 +1,11 @@
-; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; UltraStar Deluxe Installer: Main
-; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; NSIS installer script for     ;
+; Ultrastar Deluxe WorldParty   ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;      Libraries        ;
+;;;;;;;;;;;;;;;;;;;;;;;;;
 
 !include MUI2.nsh
 !include WinVer.nsh
@@ -9,60 +14,72 @@
 !include nsDialogs.nsh
 !include UAC.nsh
 
-; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; Variables
-; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;      Variables        ;
+;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Installer Paths:
+; Product Information:
+!define PRODUCT_NAME "Ultrastar Deluxe WorldParty"
+!define PRODUCT_VERSION "16.10"
+!define PRODUCT_PUBLISHER "Ultrastar España"
+!define PRODUCT_WEB_SITE "http://ultrastar-es.org"
+!define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+!define PRODUCT_UNINST_ROOT_KEY "HKLM"
 
+; Paths:
 !define path_settings ".\settings"
 !define path_languages ".\languages"
 !define path_dependencies ".\dependencies"
 !define path_images ".\dependencies\images"
 !define path_plugins ".\dependencies\plugins"
 
+; Icons
+!define MUI_ICON "install.ico"
+!define MUI_UNICON "uninstall.ico"
+
 ; MultiLanguage - Show all languages:
 !define MUI_LANGDLL_ALLLANGUAGES
 
+;Program name
+!define exe "WorldParty"
+
 !addPluginDir "${path_plugins}\"
 
-!include "${path_settings}\variables.nsh"
 !include "${path_settings}\functions.nsh"
 
-; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; Export Settings
-; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
-SetCompress Auto
+;;;;;;;;;;;;;;;;;;;;;;;;;
+; General configuration ;
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+Brandingtext "${PRODUCT_NAME} ${PRODUCT_VERSION} Installation"
+OutFile "${PRODUCT_NAME} ${PRODUCT_VERSION}.exe"
+
+InstallDir "$PROGRAMFILES\${PRODUCT_NAME}"
+InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "InstallDir"
+
+!ifdef NSIS_LZMA_COMPRESS_WHOLE
 SetCompressor lzma
-SetCompressorDictSize 32
-SetDatablockOptimize On
+!else
+SetCompressor /SOLID lzma
+!endif
 
+SetOverwrite ifnewer
 CRCCheck on
 
-XPStyle on
-
-Name "${name} ${version} ${version2}"
-Brandingtext "${name} ${version} ${version2} Installation"
-OutFile "ultrastardx-${version}-${version2}-installer-full.exe"
-
-InstallDir "$PROGRAMFILES\${name} ${version}"
-InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\UltraStar Deluxe ${version}" "InstallDir"
-
-; Windows Vista / Windows 7:
+; Windows Vista or higher:
 ; must be "user" for UAC plugin 
 RequestExecutionLevel user
 
-; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; Interface Settings
-; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-
-; Icons:
-
-!define MUI_ICON "${img_install}"
-!define MUI_UNICON "${img_uninstall}"
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; NSIS Modern User Interface configuration ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Header and Side Images:
+
+!define img_header "header.bmp" ; Header image (150x57)
+!define img_side "side.bmp" ; Side image (162x314)
 
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_BITMAP "${path_images}\${img_header}"
@@ -72,7 +89,6 @@ RequestExecutionLevel user
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "${path_images}\${img_side}"
 
 ; Abort Warnings:
-
 !define MUI_ABORTWARNING
 !define MUI_ABORTWARNING_TEXT "$(abort_install)"
 !define MUI_ABORTWARNING_CANCEL_DEFAULT
@@ -81,11 +97,10 @@ RequestExecutionLevel user
 !define MUI_UNABORTWARNING_TEXT "$(abort_uninstall)"
 !define MUI_UNABORTWARNING_CANCEL_DEFAULT
 
-; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; Pages Installation Routine Settings
-; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;             Installer Pages              ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-!define MUI_CUSTOMFUNCTION_GUIINIT bgmusic
 
 ; Welcome Page:
 
@@ -138,18 +153,18 @@ FunctionEnd
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "${license}"
-!insertmacro MUI_PAGE_COMPONENTS
+!insertmacro MUI_PAGE_LICENSE ".\dependencies\documents\license.txt"
+;!insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 
 ; Start menu page
 
 Var ICONS_GROUP
 !define MUI_STARTMENUPAGE_NODISABLE
-!define MUI_STARTMENUPAGE_DEFAULTFOLDER "${name} ${version}"
+!define MUI_STARTMENUPAGE_DEFAULTFOLDER "${PRODUCT_NAME}"
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT "${PRODUCT_UNINST_ROOT_KEY}"
 !define MUI_STARTMENUPAGE_REGISTRY_KEY "${PRODUCT_UNINST_KEY}"
-!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "${name} ${version}"
+!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "${PRODUCT_NAME}"
 !insertmacro MUI_PAGE_STARTMENU Application $ICONS_GROUP
 
 !insertmacro MUI_PAGE_INSTFILES
@@ -259,7 +274,11 @@ FunctionEnd ; Settings page End
 ; Pages UnInstallation Routine
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
+!define MUI_WELCOMEPAGE_TITLE_3LINES
 !define MUI_WELCOMEPAGE_TITLE "$(page_un_welcome_title)"
+
+!define MUI_FINISHPAGE_TITLE_3LINES
+
 !insertmacro MUI_UNPAGE_WELCOME
 !insertmacro MUI_UNPAGE_CONFIRM
 
@@ -363,10 +382,10 @@ FunctionEnd
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
 ;------------------------------------
-; MAIN COMPONENTS (Section 1)
+; MAIN COMPONENTS 
 ;------------------------------------
-
 Section $(name_section1) Section1
+
 	SectionIn RO
 	SetOutPath $INSTDIR
 	SetOverwrite try
@@ -385,7 +404,7 @@ Section $(name_section1) Section1
 	CreateDirectory "${name} ${version}"
 	CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
 	CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\$(sm_shortcut).lnk" "$INSTDIR\${exe}.exe"
-	CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\$(sm_website).lnk" "http://www.ultrastardeluxe.org/"
+	CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\$(sm_website).lnk" "http://ultrastar-es.org"
 	CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\$(sm_songs).lnk" "$INSTDIR\songs"
 	CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\$(sm_uninstall).lnk" "$INSTDIR\Uninstall.exe"
 !insertmacro MUI_STARTMENU_WRITE_END
@@ -409,21 +428,9 @@ Section $(name_section1) Section1
 
 SectionEnd
 
-;------------------------------------
-; OPTIONAL SONGS (Section 2)
-;------------------------------------
-
- !include "${path_settings}\files_opt_songs.nsh"
 
 ;------------------------------------
-; OPTIONAL THEMES (Section 3)
-;------------------------------------
-
-; No additional themes available 
-; for current version of ultrastardx
-
-;------------------------------------
-; UNINSTALL (Section 4)
+; UNINSTALL 
 ;------------------------------------
 
 Section Uninstall
@@ -439,68 +446,6 @@ Section Uninstall
 
 SectionEnd
 
-; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; Section Descriptions
-; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-
-
-!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-
-	!insertmacro MUI_DESCRIPTION_TEXT ${Section1} $(DESC_Section1)
-	!insertmacro MUI_DESCRIPTION_TEXT ${Section2} $(DESC_Section2)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1} $(DESC_Section2_sub1)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub2} $(DESC_Section2_sub2)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub3} $(DESC_Section2_sub3)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub4} $(DESC_Section2_sub4)
-;	!insertmacro MUI_DESCRIPTION_TEXT ${Section3} $(DESC_Section3) THEMES
-
-	!insertmacro MUI_DESCRIPTION_TEXT ${g2Section1} $(DESC_g2Section1)
-	!insertmacro MUI_DESCRIPTION_TEXT ${g2Section2} $(DESC_g2Section2)
-	!insertmacro MUI_DESCRIPTION_TEXT ${g2Section3} $(DESC_g2Section3)
-	!insertmacro MUI_DESCRIPTION_TEXT ${g2Section4} $(DESC_g2Section4)
-	!insertmacro MUI_DESCRIPTION_TEXT ${g2Section5} $(DESC_g2Section5)
-	!insertmacro MUI_DESCRIPTION_TEXT ${g2Section6} $(DESC_g2Section6)
-
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section1} $(DESC_s2_sub1_Section1)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section2} $(DESC_s2_sub1_Section2)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section3} $(DESC_s2_sub1_Section3)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section4} $(DESC_s2_sub1_Section4)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section5} $(DESC_s2_sub1_Section5)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section6} $(DESC_s2_sub1_Section6)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section7} $(DESC_s2_sub1_Section7)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section8} $(DESC_s2_sub1_Section8)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section9} $(DESC_s2_sub1_Section9)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section10} $(DESC_s2_sub1_Section10)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section11} $(DESC_s2_sub1_Section11)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section12} $(DESC_s2_sub1_Section12)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section13} $(DESC_s2_sub1_Section13)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section14} $(DESC_s2_sub1_Section14)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section15} $(DESC_s2_sub1_Section15)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section16} $(DESC_s2_sub1_Section16)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section17} $(DESC_s2_sub1_Section17)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section18} $(DESC_s2_sub1_Section18)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section19} $(DESC_s2_sub1_Section19)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section20} $(DESC_s2_sub1_Section20)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section21} $(DESC_s2_sub1_Section21)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section22} $(DESC_s2_sub1_Section22)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section23} $(DESC_s2_sub1_Section23)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub1_Section24} $(DESC_s2_sub1_Section24)
-
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub2_Section1} $(DESC_s2_sub2_Section1)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub2_Section2} $(DESC_s2_sub2_Section2)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub2_Section3} $(DESC_s2_sub2_Section3)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub2_Section4} $(DESC_s2_sub2_Section4)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub2_Section5} $(DESC_s2_sub2_Section5)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub2_Section6} $(DESC_s2_sub2_Section6)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub2_Section7} $(DESC_s2_sub2_Section7)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub2_Section8} $(DESC_s2_sub2_Section8)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub2_Section9} $(DESC_s2_sub2_Section9)
-
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub3_Section1} $(DESC_s2_sub3_Section1)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub3_Section2} $(DESC_s2_sub3_Section2)
-	!insertmacro MUI_DESCRIPTION_TEXT ${s2_sub3_Section3} $(DESC_s2_sub3_Section3)
-
-!insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 ; Language Support
@@ -510,6 +455,8 @@ SectionEnd
 !insertmacro MUI_LANGUAGE "German"
 !insertmacro MUI_LANGUAGE "Hungarian"
 !insertmacro MUI_LANGUAGE "Polish"
+!insertmacro MUI_LANGUAGE "Portuguese"
+!insertmacro MUI_LANGUAGE "Spanish"
 
 !insertmacro MUI_RESERVEFILE_LANGDLL
 
@@ -517,16 +464,13 @@ SectionEnd
 
 ;!addPluginDir "${path_plugins}\"
  
-Function bgmusic
-	File /oname=$PLUGINSDIR\loop.wav .\dependencies\loop.wav
-	BGImage::Sound /NOUNLOAD /LOOP $PLUGINSDIR\loop.wav
-FunctionEnd
 
 Function .onGUIEnd
 	BGImage::Sound /STOP
 FunctionEnd
 
 Function .onInit
+	 
 
 	${UAC.I.Elevate.AdminOnly}
 
@@ -575,7 +519,19 @@ done:
 	!insertmacro INSTALLOPTIONS_EXTRACT_AS ".\settings\settings-1033.ini" "Settings-1033"
 	!insertmacro INSTALLOPTIONS_EXTRACT_AS ".\settings\settings-1038.ini" "Settings-1038"
 	!insertmacro INSTALLOPTIONS_EXTRACT_AS ".\settings\settings-1045.ini" "Settings-1045"
+	!insertmacro INSTALLOPTIONS_EXTRACT_AS ".\settings\settings-1034.ini" "Settings-1034"
+	!insertmacro INSTALLOPTIONS_EXTRACT_AS ".\settings\settings-2070.ini" "Settings-2070"
 
+;--------- Splash image
+  InitPluginsDir
+  File "/oname=${path_images}\logo.bmp" "${path_images}\logo.bmp"
+
+  advsplash::show 100 700 900 -1 ${path_images}\logo
+
+  Pop $0 ; $0 has '1' if the user closed the splash screen early,
+         ; '0' if everything closed normally, and '-1' if some error occurred.
+;-----------------------	
+	
 FunctionEnd
 
 Function un.onInit
