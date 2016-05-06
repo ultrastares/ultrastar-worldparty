@@ -13,6 +13,7 @@
 !include InstallOptions.nsh
 !include nsDialogs.nsh
 !include UAC.nsh
+!include "FileFunc.nsh"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;      Variables        ;
@@ -25,6 +26,7 @@
 !define PRODUCT_WEB_SITE "http://ultrastar-es.org"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
+!define ARP "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 
 ; Paths:
 !define path_settings ".\settings"
@@ -267,6 +269,7 @@ FunctionEnd ; Settings page End
 
 UninstPage custom un.AskDelete un.DeleteAll
 
+
 Function un.AskDelete
 
 	nsDialogs::Create /NOUNLOAD 1018
@@ -412,6 +415,18 @@ Section $(name_section1) Section1
 SectionEnd
 
 
+
+ 
+ Section "Install" ; calculate the total size of the program
+ 
+ ; [...copy all files here, before GetSize...]
+ 
+ ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
+ IntFmt $0 "0x%08X" $0
+ WriteRegDWORD HKLM "${ARP}" "EstimatedSize" "$0"
+ 
+ SectionEnd
+ 
 ;------------------------------------
 ; UNINSTALL 
 ;------------------------------------
