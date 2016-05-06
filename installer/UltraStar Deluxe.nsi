@@ -7,9 +7,9 @@
 ;      Libraries        ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-!include MUI2.nsh
+!include MUI2.nsh			;Modern user interface
 !include WinVer.nsh
-!include LogicLib.nsh
+!include LogicLib.nsh		;logic operations
 !include InstallOptions.nsh
 !include nsDialogs.nsh
 !include UAC.nsh
@@ -21,7 +21,7 @@
 ; Product Information:
 !define PRODUCT_NAME "Ultrastar Deluxe WorldParty"
 !define PRODUCT_VERSION "16.10"
-!define PRODUCT_PUBLISHER "Ultrastar EspaÃ±a"
+!define PRODUCT_PUBLISHER "Ultrastar España"
 !define PRODUCT_WEB_SITE "http://ultrastar-es.org"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
@@ -38,7 +38,22 @@
 !define MUI_UNICON "uninstall.ico"
 
 ; MultiLanguage - Show all languages:
-!define MUI_LANGDLL_ALLLANGUAGES
+!define MUI_LANGDLL_ALLLANGUAGES 
+
+; Header and Side Images:
+!define MUI_HEADERIMAGE
+!define MUI_HEADERIMAGE_BITMAP "${path_images}\header.bmp"
+!define MUI_HEADERIMAGE_UNBITMAP "${path_images}\header.bmp"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "${path_images}\side.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "${path_images}\side.bmp"
+
+; Abort Warnings:
+!define MUI_ABORTWARNING
+!define MUI_ABORTWARNING_TEXT "$(abort_install)"
+!define MUI_ABORTWARNING_CANCEL_DEFAULT
+!define MUI_UNABORTWARNING
+!define MUI_UNABORTWARNING_TEXT "$(abort_uninstall)"
+!define MUI_UNABORTWARNING_CANCEL_DEFAULT
 
 ;Program name
 !define exe "WorldParty"
@@ -54,49 +69,22 @@
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 Brandingtext "${PRODUCT_NAME} ${PRODUCT_VERSION} Installation"
-OutFile "${PRODUCT_NAME} ${PRODUCT_VERSION}.exe"
+OutFile "${PRODUCT_NAME} ${PRODUCT_VERSION}.exe" 
 
-InstallDir "$PROGRAMFILES\${PRODUCT_NAME}"
-InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "InstallDir"
+InstallDir "$PROGRAMFILES\${PRODUCT_NAME}" ; Default install directory
+InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "InstallDir" 
+RequestExecutionLevel user ; ask for admin privileges in windows vista, 7,8,10 or higher
 
-!ifdef NSIS_LZMA_COMPRESS_WHOLE
-SetCompressor lzma
-!else
+SetCompress Auto
 SetCompressor /SOLID lzma
-!endif
+SetCompressorDictSize 32
+SetDatablockOptimize On
 
 SetOverwrite ifnewer
 CRCCheck on
 
-; Windows Vista or higher:
-; must be "user" for UAC plugin 
-RequestExecutionLevel user
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; NSIS Modern User Interface configuration ;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; Header and Side Images:
-
-!define img_header "header.bmp" ; Header image (150x57)
-!define img_side "side.bmp" ; Side image (162x314)
-
-!define MUI_HEADERIMAGE
-!define MUI_HEADERIMAGE_BITMAP "${path_images}\${img_header}"
-!define MUI_HEADERIMAGE_UNBITMAP "${path_images}\${img_header}"
-
-!define MUI_WELCOMEFINISHPAGE_BITMAP "${path_images}\${img_side}"
-!define MUI_UNWELCOMEFINISHPAGE_BITMAP "${path_images}\${img_side}"
-
-; Abort Warnings:
-!define MUI_ABORTWARNING
-!define MUI_ABORTWARNING_TEXT "$(abort_install)"
-!define MUI_ABORTWARNING_CANCEL_DEFAULT
-
-!define MUI_UNABORTWARNING
-!define MUI_UNABORTWARNING_TEXT "$(abort_uninstall)"
-!define MUI_UNABORTWARNING_CANCEL_DEFAULT
-
+  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;             Installer Pages              ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -112,11 +100,6 @@ RequestExecutionLevel user
 ; License Page:
 
 !define MUI_LICENSEPAGE_RADIOBUTTONS
-
-; Components Page:
-
-!define MUI_COMPONENTSPAGE_SMALLDESC
-!define MUI_COMPONENTSPAGE_TEXT_DESCRIPTION_INFO $(page_components_info)
 
 ; Finish Pages:
 
@@ -137,7 +120,7 @@ Function RunAppAsUser
 FunctionEnd
 
 !define MUI_FINISHPAGE_LINK "$(page_finish_linktxt)"
-!define MUI_FINISHPAGE_LINK_LOCATION "${homepage}"
+!define MUI_FINISHPAGE_LINK_LOCATION "${PRODUCT_WEB_SITE}"
 
 !define MUI_FINISHPAGE_SHOWREADME
 !define MUI_FINISHPAGE_SHOWREADME_TEXT $(page_finish_desktop)
@@ -152,9 +135,9 @@ FunctionEnd
 ; Pages Installation Routine
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
+
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE ".\dependencies\documents\license.txt"
-;!insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 
 ; Start menu page
@@ -168,8 +151,8 @@ Var ICONS_GROUP
 !insertmacro MUI_PAGE_STARTMENU Application $ICONS_GROUP
 
 !insertmacro MUI_PAGE_INSTFILES
-
 ; USDX Settings Page
+
 
 Page custom Settings
 
@@ -401,10 +384,10 @@ Section $(name_section1) Section1
 	SetShellVarContext all
 	SetOutPath "$INSTDIR"
 
-	CreateDirectory "${name} ${version}"
+	;CreateDirectory "$INSTDIR\${PRODUCT_NAME} ${PRODUCT_VERSION}"
 	CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
 	CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\$(sm_shortcut).lnk" "$INSTDIR\${exe}.exe"
-	CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\$(sm_website).lnk" "http://ultrastar-es.org"
+	CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\$(sm_website).lnk" "${PRODUCT_WEB_SITE}"
 	CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\$(sm_songs).lnk" "$INSTDIR\songs"
 	CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\$(sm_uninstall).lnk" "$INSTDIR\Uninstall.exe"
 !insertmacro MUI_STARTMENU_WRITE_END
@@ -416,8 +399,8 @@ Section $(name_section1) Section1
 
 	WriteUninstaller "$INSTDIR\Uninstall.exe"
 
-	WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "${name} ${version}"
-	WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\ultrastardx.exe"
+	WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+	WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\${exe}.exe"
 	WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "InstallDir" "$INSTDIR"
 	WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\Uninstall.exe"
 	WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
@@ -486,29 +469,29 @@ Function .onInit
 	MessageBox MB_OK|MB_ICONEXCLAMATION $(oninit_running)
 	Abort
 
-	ReadRegStr $R0  HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${name} ${version}" 'DisplayVersion'
+	ReadRegStr $R0  HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${PRODUCT_VERSION}" 'DisplayVersion'
 
 	${If} $R0 == $version
 		MessageBox MB_YESNO|MB_ICONEXCLAMATION \
-			"${name} $R0 $(oninit_alreadyinstalled). $\n$\n $(oninit_installagain)" \
+			"${PRODUCT_NAME} $R0 $(oninit_alreadyinstalled). $\n$\n $(oninit_installagain)" \
 			IDYES continue
 		Abort
 	${EndIf}
 
-	ReadRegStr $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${name} ${version}" 'UninstallString'
+	ReadRegStr $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${PRODUCT_VERSION}" 'UninstallString'
 	StrCmp $R1 "" done
   
 
 	${If} $R0 != $version
 		MessageBox MB_YESNO|MB_ICONEXCLAMATION \
-			"${name} $R0 $(oninit_alreadyinstalled). $\n$\n $(oninit_updateusdx) $R0 -> ${version}" \
+			"${PRODUCT_NAME} $R0 $(oninit_alreadyinstalled). $\n$\n $(oninit_updateusdx) $R0 -> ${PRODUCT_VERSION}" \
 			IDYES continue
 			Abort
 	${EndIf}
 
 
 continue:
-	ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${name} ${version}" 'UninstallString'
+	ReadRegStr $R2 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${PRODUCT_VERSION}" 'UninstallString'
 	MessageBox MB_YESNO|MB_ICONEXCLAMATION "$(oninit_uninstall)" IDNO done
 	ExecWait '"$R2" _?=$INSTDIR'
 
@@ -526,7 +509,7 @@ done:
   InitPluginsDir
   File "/oname=${path_images}\logo.bmp" "${path_images}\logo.bmp"
 
-  advsplash::show 100 700 900 -1 ${path_images}\logo
+  advsplash::show 200 700 900 -1 ${path_images}\logo
 
   Pop $0 ; $0 has '1' if the user closed the splash screen early,
          ; '0' if everything closed normally, and '-1' if some error occurred.
@@ -544,12 +527,12 @@ closeit:
 	${nsProcess::KillProcess} "USdx.exe" $R0
 	goto continue
 
-	${nsProcess::FindProcess} "ultrastardx.exe" $R0
+	${nsProcess::FindProcess} "${exe}.exe" $R0
 	StrCmp $R0 0 0 +2
 	MessageBox MB_YESNO|MB_ICONEXCLAMATION '$(oninit_closeusdx)' IDYES closeusdx IDNO end
 
 closeusdx:
-	${nsProcess::KillProcess} "ultrastardx.exe" $R0
+	${nsProcess::KillProcess} "${exe}.exe" $R0
 	goto continue
 
 end:
