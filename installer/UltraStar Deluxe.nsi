@@ -7,13 +7,12 @@
 ;      Libraries        ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-!include MUI2.nsh			;Modern user interface
-!include WinVer.nsh
-!include LogicLib.nsh		;logic operations
-!include InstallOptions.nsh
-!include nsDialogs.nsh
-!include UAC.nsh
-!include "FileFunc.nsh"
+!include MUI2.nsh			;Used for create the interface
+!include LogicLib.nsh		;Used for internal calculations
+!include InstallOptions.nsh	;Used for components selections
+!include nsDialogs.nsh		;Used for custom pages
+!include UAC.nsh			;Used for get privileges to write on disk
+!include FileFunc.nsh		;used for get size info at uninstaller
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;      Variables        ;
@@ -77,14 +76,10 @@ InstallDir "$PROGRAMFILES\${PRODUCT_NAME}" ; Default install directory
 InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "InstallDir" 
 RequestExecutionLevel user ; ask for admin privileges in windows vista, 7,8,10 or higher
 
-SetCompress Auto
-SetCompressor /SOLID lzma
-SetCompressorDictSize 32
-SetDatablockOptimize On
+SetCompressorDictSize 64 ;improves ratio compression
 
 SetOverwrite ifnewer
 CRCCheck on
-
 
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -370,14 +365,13 @@ FunctionEnd
 ;------------------------------------
 ; MAIN COMPONENTS 
 ;------------------------------------
-Section $(name_section1) Section1
+Section "Install"
 
-	SectionIn RO
+	
 	SetOutPath $INSTDIR
 	SetOverwrite try
 
 	Call DetermineUserDataDir
-	
 	!include "${path_settings}\files_main_install.nsh"
 
 	; Create Shortcuts:
@@ -395,11 +389,8 @@ Section $(name_section1) Section1
 	CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\$(sm_uninstall).lnk" "$INSTDIR\Uninstall.exe"
 !insertmacro MUI_STARTMENU_WRITE_END
 
-	; Vista Game Explorer:
-	; (removed due to incompatibility with Windows 7, needs rewrite)
 
 	; Create Uninstaller:
-
 	WriteUninstaller "$INSTDIR\Uninstall.exe"
 
 	WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "${PRODUCT_NAME} ${PRODUCT_VERSION}"
@@ -412,20 +403,13 @@ Section $(name_section1) Section1
 
 	SetOutPath "$INSTDIR"
 
+ ;-------------- calculate the total size of the program -----	
+		${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
+		IntFmt $0 "0x%08X" $0
+		WriteRegDWORD HKLM "${ARP}" "EstimatedSize" "$0"
+ 
 SectionEnd
 
-
-
- 
- Section "Install" ; calculate the total size of the program
- 
- ; [...copy all files here, before GetSize...]
- 
- ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
- IntFmt $0 "0x%08X" $0
- WriteRegDWORD HKLM "${ARP}" "EstimatedSize" "$0"
- 
- SectionEnd
  
 ;------------------------------------
 ; UNINSTALL 
@@ -439,8 +423,6 @@ Section Uninstall
 
 	DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
 
-	; Unregister from Windows Vista Game Explorer
-	; (removed due to incompatibility with Windows 7)
 
 SectionEnd
 
