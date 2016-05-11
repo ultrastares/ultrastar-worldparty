@@ -1,10 +1,4 @@
 ![WorldParty logo](https://github.com/Daniel20Ultrastar-es/usdxworldparty/blob/master/Worldparty%20logo.png)
-UltraStar Deluxe WorldParty
-----------------------------
-
------------------ 
-Official Website:  http://ultrastar-es.org 
------------------
 
 --------------------
 About Ultrastar Deluxe WorldParty
@@ -20,3 +14,6 @@ We added new features such as new selection song, avatars, themes,
 skins, font, improved camera and mouse support, thousands of new options 
 come with this new version. Check it out!
 
+----------------- 
+Official Website:  http://ultrastar-es.org 
+-----------------
