@@ -1,4 +1,0 @@
-usdxworldparty
-=============
-
-UltraStar Deluxe WorldParty
