@@ -38,6 +38,7 @@ uses
 
 type
   TScreenMode = (scmDefault, scmFullscreen, scmWindowed);
+  TSplitMode = (spmDefault, spmNoSplit, spmSplit);
 
   {**
    * Reads infos from ParamStr and set some easy interface variables
@@ -61,6 +62,7 @@ type
       NoLog:      boolean;
       ScreenMode: TScreenMode;
       Joypad:     boolean;
+      Split:      TSplitMode;
 
       // some value variables set when reading infos {-1: Not Set, others: Value}
       Depth:      integer;
@@ -81,7 +83,7 @@ type
 
 var
   Params:    TCMDParams;
-  
+
 const
   cHelp            = 'help';
   cDebug           = 'debug';
@@ -134,11 +136,12 @@ end;
  *}
 procedure TCMDParams.ResetVariables;
 begin
-  Debug       := False;
+  Debug       := false;
   Benchmark   := False;
-  NoLog       := False;
+  NoLog       := false;
   ScreenMode  := scmDefault;
   Joypad      := False;
+  Split       := spmDefault;
 
   // some value variables set when reading infos {-1: Not Set, others: Value}
   fResolution := '';
@@ -163,7 +166,7 @@ var
 begin
   PCount := ParamCount;
   //Log.LogError('ParamCount: ' + Inttostr(PCount));
-  
+
   // check all parameters
   for I := 1 to PCount do
   begin
@@ -190,6 +193,10 @@ begin
         ScreenMode  := scmWindowed
       else if (Command = 'joypad') then
         Joypad    := True
+      else if (Command = 'split') then
+        Split     := spmSplit
+      else if (Command = 'nosplit') then
+        Split     := spmNoSplit
 
       // integer variables
       else if (Command = 'depth') then
@@ -200,7 +207,7 @@ begin
           Command := ParamStr(I + 1);
 
           // check for valid value
-          // FIXME: guessing an array-index of depth is very error prone.  
+          // FIXME: guessing an array-index of depth is very error prone.
           If (Command = '16') then
             Depth := 0
           Else If (Command = '32') then

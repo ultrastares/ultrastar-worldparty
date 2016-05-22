@@ -34,6 +34,7 @@ interface
 {$I switches.inc}
 
 uses
+  UCommon,
   UThemes,
   UMenuBackground;
 
@@ -51,8 +52,7 @@ type
 
 implementation
 uses
-  gl,
-  glext,
+  dglOpenGL,
   UGraphic;
 
 constructor TMenuBackgroundColor.Create(const ThemedSettings: TThemeBackground);

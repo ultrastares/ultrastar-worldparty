@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/screens/UScreenOptionsThemes.pas $
- * $Id: UScreenOptionsThemes.pas 2525 2010-06-14 09:54:42Z whiteshark0 $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/screens/UScreenOptionsThemes.pas $
+ * $Id: UScreenOptionsThemes.pas 3133 2015-09-07 17:10:36Z basisbit $
  *}
 
 unit UScreenOptionsThemes;
@@ -34,12 +34,13 @@ interface
 {$I switches.inc}
 
 uses
-  SDL,
+  sdl2,
   UMenu,
   UDisplay,
   UMusic,
   UFiles,
   UIni,
+  UConfig,
   UThemes;
 
 type
@@ -208,7 +209,7 @@ begin
 
   AddButton(Theme.OptionsThemes.ButtonExit);
   if (Length(Button[0].Text)=0) then
-    AddButtonText(20, 5, Theme.Options.Description[9]);
+    AddButtonText(20, 5, Theme.Options.Description[10]);
 
 end;
 
@@ -252,8 +253,8 @@ begin
     (ActualColor <> Ini.Color) then
   begin
     UGraphic.UnLoadScreens();
-    UGraphic.LoadScreens(true);
-    //Ini.Load;
+    UGraphic.LoadScreens(USDXVersionStr);
+    Ini.Load;
   end;
 end;
 

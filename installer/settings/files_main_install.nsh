@@ -25,18 +25,28 @@ IfFileExists $INSTDIR\sqlite3.dll 0 +2
 Delete "$INSTDIR\sqlite3.dll"
 IfFileExists $INSTDIR\webs\ultrastares.dll 0 +2
 Delete "$INSTDIR\webs\ultrastares.dll"
+IfFileExists $INSTDIR\cv210.dll 0 +2
+Delete "$INSTDIR\cv210.dll"
+IfFileExists $INSTDIR\cxcore210.dll 0 +2
+Delete "$INSTDIR\cxcore210.dll"
+IfFileExists $INSTDIR\highgui210.dll 0 +2
+Delete "$INSTDIR\highgui210.dll"
+IfFileExists $INSTDIR\avatar.db 0 +2
+Delete "$INSTDIR\avatar.db"
 
 RMDir /r "$INSTDIR\Themes"
 RMDir /r "$INSTDIR\Skins"
 RMDir /r "$INSTDIR\Plugins"
 RMDir /r "$INSTDIR\Languages"
-RMDir /r "$INSTDIR\webs"
+RMDir /r "$INSTDIR\Webs"
+RMDir /r "$INSTDIR\Avatars"
 
 ; Create Directories:
 
 CreateDirectory $INSTDIR\plugins
 CreateDirectory $INSTDIR\covers
 CreateDirectory $INSTDIR\songs
+CreateDirectory $INSTDIR\avatars
 
 ${If} $UseAppData == true
 
@@ -59,28 +69,28 @@ ${EndIf}
 
 SetOutPath "$INSTDIR"
 
+File /r /x .svn /x .gitignore ..\game\avatars
 File /r /x .svn /x .gitignore ..\game\covers
-File /r /x .svn /x .gitignore ..\game\themes
-File /r /x .svn /x .gitignore ..\game\languages
-File /r /x .svn /x .gitignore ..\game\sounds
 File /r /x .svn /x .gitignore ..\game\fonts
+File /r /x .svn /x .gitignore ..\game\languages
+File /r /x .svn /x .gitignore ..\game\plugins
 File /r /x .svn /x .gitignore ..\game\resources
+File /r /x .svn /x .gitignore ..\game\sounds
+File /r /x .svn /x .gitignore ..\game\themes
 File /r /x .svn /x .gitignore ..\game\visuals
 File /r /x .svn /x .gitignore ..\game\webs
-File /r /x .svn /x .gitignore ..\game\soundfonts
+
 
 ; Root dir:
 
 File .\dependencies\dll\*.dll
 
 File ..\ChangeLog.txt
-File ..\ChangeLog.GERMAN.txt
-File ..\game\LuaCommands.odt
 File ..\README.txt
 File .\dependencies\documents\license.txt
 File .\dependencies\documents\documentation.pdf
 
-File "..\${exe}.exe"
+File "..\game\${exe}.exe"
 
 ; Covers dir:
 
@@ -93,7 +103,3 @@ File "..\${exe}.exe"
 
 ; Plugins dir:
 
-SetOutPath "$INSTDIR\plugins\"
-File "..\game\plugins\*.*"
-
-SetOutPath "$INSTDIR"

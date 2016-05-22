@@ -49,6 +49,7 @@ type
       P_Login:           fModi_Login;
       P_EncryptPassword: fModi_EncryptPassword;
       P_DownloadScore:   fModi_DownloadScore;
+      P_VerifySong:      fModi_VerifySong;
 
     public
       Websites: array of TWebsiteInfo;
@@ -70,7 +71,7 @@ type
       function  WebsiteLogin (var LoginInfo: TLoginInfo): byte;
       function  WebsiteEncryptPassword (var LoginInfo: TLoginInfo): string;
       function  WebsiteDownloadScore (List_MD5Song: widestring; Level: byte): string;
-
+      function  WebsiteVerifySong (MD5Song: widestring): string;
   end;
 
 var
@@ -187,9 +188,10 @@ begin
     @P_SendScore := GetProcAddress (hLibW, 'SendScore');
     @P_EncryptScore := GetProcAddress (hLibW, 'EncryptScore');
     @P_EncryptPassword := GetProcAddress (hLibW, 'EncryptPassword');
+    @P_VerifySong := GetProcAddress (hLibW, 'VerifySong');
     @P_DownloadScore := GetProcAddress (hLibW, 'DownloadScore');
 
-    if (@P_EncryptScore <> nil) and (@P_SendScore <> nil) and (@P_Login <> nil) and (@P_EncryptPassword <> nil) and (@P_EncryptPassword <> nil) and (@P_DownloadScore <> nil) then
+    if (@P_EncryptScore <> nil) and (@P_SendScore <> nil) and (@P_Login <> nil) and (@P_EncryptPassword <> nil) and (@P_VerifySong <> nil) and (@P_DownloadScore <> nil) then
     begin
       SelectedW := @Websites[No];
       Result := true;
@@ -214,6 +216,7 @@ begin
   @P_EncryptScore    := nil;
   @P_EncryptPassword := nil;
   @P_DownloadScore   := nil;
+  @P_VerifySong      := nil;
 end;
 
 function TDLLMan.WebsiteSendScore (var SendInfo: TSendInfo): byte;
@@ -254,6 +257,14 @@ function TDLLMan.WebsiteDownloadScore (List_MD5Song: widestring; Level: byte): s
 begin
   if (@P_DownloadScore <> nil) then
     Result := P_DownloadScore (List_MD5Song, Level)
+  else
+    Result := '';
+end;
+
+function TDLLMan.WebsiteVerifySong (MD5Song: widestring): string;
+begin
+  if (@P_VerifySong <> nil) then
+    Result := P_VerifySong (MD5Song)
   else
     Result := '';
 end;

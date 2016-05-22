@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/screens/UScreenMain.pas $
- * $Id: UScreenMain.pas 2651 2010-10-10 10:46:28Z tobigun $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/screens/UScreenMain.pas $
+ * $Id: UScreenMain.pas 3128 2015-08-28 01:45:23Z basisbit $
  *}
 
 unit UScreenMain;
@@ -35,17 +35,19 @@ interface
 
 uses
   ULog,
-  Windows,
-  UMD5,
+  MD5,
   UMenu,
-  SDL,
+  sdl2,
   UDisplay,
   UMusic,
   UFiles,
+  USong,
+  UScreenSong,
   SysUtils,
   UThemes;
 
 type
+
   TScreenMain = class(TMenu)
   private
     { ticks when the user interacted, used to start credits
@@ -68,7 +70,7 @@ type
 
 const
   { start credits after 60 seconds w/o interaction }
-  TicksUntilCredits = 60 * 1000;
+  TicksUntilCredits = 5 * 60 * 1000;
 
 implementation
 
@@ -78,7 +80,6 @@ uses
   UIni,
   UTexture,
   USongs,
-  Textgl,
   ULanguage,
   UParty,
   UScreenCredits,
@@ -107,11 +108,8 @@ begin
         Exit;
       end;
       Ord('C'): begin
-        if (SDL_ModState = KMOD_LALT) then
-        begin
-          FadeTo(@ScreenCredits, SoundLib.Start);
-          Exit;
-        end;
+         FadeTo(@ScreenCredits, SoundLib.Start);
+         Exit;
       end;
       Ord('M'): begin
         if (Ini.Players >= 1) and (Party.ModesAvailable) then
@@ -142,6 +140,9 @@ begin
 
       SDLK_RETURN:
       begin
+        // reset
+        Party.bPartyGame := false;
+
         //Solo
         if (Interaction = 0) then
         begin
@@ -153,7 +154,7 @@ begin
               PlayersPlay := 6;
 
             if Ini.OnSongClick = sSelectPlayer then
-              FadeTo(@ScreenLevel)
+              FadeTo(@ScreenSong)
             else
             begin
               ScreenName.Goto_SingScreen := false;
@@ -164,25 +165,38 @@ begin
             ScreenPopupError.ShowPopup(Language.Translate('ERROR_NO_SONGS'));
         end;
 
-        //Multi
+        //Party
         if Interaction = 1 then
         begin
           if (Songs.SongList.Count >= 1) then
           begin
+            Party.bPartyGame := true;
+
             FadeTo(@ScreenPartyOptions, SoundLib.Start);
           end
           else //show error message, No Songs Loaded
             ScreenPopupError.ShowPopup(Language.Translate('ERROR_NO_SONGS'));
         end;
 
-        //Stats
+        //Jukebox
         if Interaction = 2 then
+        begin
+          if (Songs.SongList.Count >= 1) then
+          begin
+            FadeTo(@ScreenJukeboxPlaylist, SoundLib.Start);
+          end
+          else //show error message, No Songs Loaded
+            ScreenPopupError.ShowPopup(Language.Translate('ERROR_NO_SONGS'));
+        end;
+
+        //Stats
+        if Interaction = 3 then
         begin
           FadeTo(@ScreenStatMain, SoundLib.Start);
         end;
 
         //Editor
-        if Interaction = 3 then
+        if Interaction = 4 then
         begin
           {$IFDEF UseMIDIPort}
           FadeTo(@ScreenEdit, SoundLib.Start);
@@ -192,13 +206,19 @@ begin
         end;
 
         //Options
-        if Interaction = 4 then
+        if Interaction = 5 then
         begin
           FadeTo(@ScreenOptions, SoundLib.Start);
         end;
 
+        //About
+        if Interaction = 6 then
+        begin
+          FadeTo(@ScreenAbout, SoundLib.Start);
+        end;
+
         //Exit
-        if Interaction = 5 then
+        if Interaction = 7 then
         begin
           Result := false;
         end;
@@ -249,9 +269,11 @@ begin
 
   AddButton(Theme.Main.ButtonSolo);
   AddButton(Theme.Main.ButtonMulti);
+  AddButton(Theme.Main.ButtonJukebox);
   AddButton(Theme.Main.ButtonStat);
   AddButton(Theme.Main.ButtonEditor);
   AddButton(Theme.Main.ButtonOptions);
+  AddButton(Theme.Main.ButtonAbout);
   AddButton(Theme.Main.ButtonExit);
 
   Interaction := 0;
@@ -263,6 +285,8 @@ begin
 
   SoundLib.StartBgMusic;
 
+  ScreenSong.Mode := smNormal;
+
  {**
   * Clean up TPartyGame here
   * at the moment there is no better place for this
@@ -271,7 +295,6 @@ begin
 
   { reset user interaction timer }
   UserInteractionTicks := SDL_GetTicks;
-
 end;
 
 function TScreenMain.Draw: boolean;

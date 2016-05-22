@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/UTime.pas $
- * $Id: UTime.pas 2273 2010-04-22 01:04:24Z tobigun $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/base/UTime.pas $
+ * $Id: UTime.pas 3103 2014-11-22 23:21:19Z k-m_schindler $
  *}
 
 unit UTime;
@@ -79,7 +79,7 @@ var
 implementation
 
 uses
-  sdl,
+  sdl2,
   UCommon;
   
 const

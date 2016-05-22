@@ -157,6 +157,9 @@ type
       function GetTotalEntrys(Typ: TStatType): cardinal;
       function GetStatReset: TDateTime;
       function FormatDate(time_stamp: integer): UTF8String;
+
+      procedure SaveSongOptions(Song: TSong; Options: TSongOptions);
+      function GetSongOptions(Song: TSong): TSongOptions;
   end;
 
 var
@@ -256,7 +259,18 @@ begin
                       '[Artist] TEXT NOT NULL, ' +
                       '[Title] TEXT NOT NULL, ' +
                       '[TimesPlayed] INTEGER NOT NULL, ' +
-                      '[Rating] INTEGER NULL' +
+                      '[Rating] INTEGER NULL, ' +
+                      '[VideoRatioAspect] INTEGER NULL, ' +
+                      '[VideoWidth] INTEGER NULL, ' +
+                      '[VideoHeight] INTEGER NULL, ' +
+                      '[LyricPosition] INTEGER NULL, ' +
+                      '[LyricAlpha] INTEGER NULL, ' +
+                      '[LyricSingFillColor] TEXT NULL, ' +
+                      '[LyricActualFillColor] TEXT NULL, ' +
+                      '[LyricNextFillColor] TEXT NULL, ' +
+                      '[LyricSingOutlineColor] TEXT NULL, ' +
+                      '[LyricActualOutlineColor] TEXT NULL, ' +
+                      '[LyricNextOutlineColor] TEXT NULL' +
                     ');');
 
     ScoreDB.ExecSQL('CREATE TABLE IF NOT EXISTS [' + cUS_Webs + '] (' +
@@ -290,6 +304,24 @@ begin
                       '[AutoScoreHard] INTEGER NOT NULL' +
                     ');');
 
+    //add column for options jukebox
+    if not ScoreDB.ContainsColumn(cUS_Songs, 'VideoRatioAspect') then
+    begin
+      Log.LogInfo('adding columns to "' + cUS_Songs + ' for jukebox options"', 'TDataBaseSystem.Init');
+
+      ScoreDB.ExecSQL('ALTER TABLE ' + cUS_Songs + ' ADD COLUMN [VideoRatioAspect] INTEGER NULL');
+      ScoreDB.ExecSQL('ALTER TABLE ' + cUS_Songs + ' ADD COLUMN [VideoWidth] INTEGER NULL');
+      ScoreDB.ExecSQL('ALTER TABLE ' + cUS_Songs + ' ADD COLUMN [VideoHeight] INTEGER NULL');
+      ScoreDB.ExecSQL('ALTER TABLE ' + cUS_Songs + ' ADD COLUMN [LyricPosition] INTEGER NULL');
+      ScoreDB.ExecSQL('ALTER TABLE ' + cUS_Songs + ' ADD COLUMN [LyricAlpha] INTEGER NULL');
+      ScoreDB.ExecSQL('ALTER TABLE ' + cUS_Songs + ' ADD COLUMN [LyricSingFillColor] TEXT NULL');
+      ScoreDB.ExecSQL('ALTER TABLE ' + cUS_Songs + ' ADD COLUMN [LyricActualFillColor] TEXT NULL');
+      ScoreDB.ExecSQL('ALTER TABLE ' + cUS_Songs + ' ADD COLUMN [LyricNextFillColor] TEXT NULL');
+      ScoreDB.ExecSQL('ALTER TABLE ' + cUS_Songs + ' ADD COLUMN [LyricSingOutlineColor] TEXT NULL');
+      ScoreDB.ExecSQL('ALTER TABLE ' + cUS_Songs + ' ADD COLUMN [LyricActualOutlineColor] TEXT NULL');
+      ScoreDB.ExecSQL('ALTER TABLE ' + cUS_Songs + ' ADD COLUMN [LyricNextOutlineColor] TEXT NULL');
+    end;
+    
     //add column date to cUS-Scores
     if not ScoreDB.ContainsColumn(cUS_Scores, 'Date') then
     begin
@@ -317,8 +349,10 @@ begin
   except
     on E: Exception do
     begin
-      Log.LogError(E.Message, 'TDataBaseSystem.Init');
+      Log.LogError(E.Message, 'TDataBaseSystem.Init');;
       FreeAndNil(ScoreDB);
+      DeleteFile(Filename.ToNative());
+      Log.LogCritical(E.Message, 'TDataBaseSystem.Init');
     end;
   end;
 
@@ -504,14 +538,17 @@ begin
       begin
         //filter player
         PlayerListed:=false;
-        if (Length(Song.Score[Difficulty])>0) then
+        if (Ini.TopScores = 1) then
         begin
-          for I := 0 to Length(Song.Score[Difficulty]) - 1 do
+          if (Length(Song.Score[Difficulty])>0) then
           begin
-            if (Song.Score[Difficulty, I].Name = TableData.FieldByName['Player']) then
+            for I := 0 to Length(Song.Score[Difficulty]) - 1 do
             begin
-              PlayerListed:=true;
-              break;
+              if (Song.Score[Difficulty, I].Name = TableData.FieldByName['Player']) then
+              begin
+                PlayerListed:=true;
+                break;
+              end;
             end;
           end;
         end;
@@ -1025,6 +1062,8 @@ var
   TableData: TSQLiteTable;
 begin
 
+  Max_Score := 0;
+
   if not Assigned(ScoreDB) then
     Exit;
 
@@ -1059,6 +1098,7 @@ var
   Media_Score, SongID: integer;
   TableData: TSQLiteTable;
 begin
+  Media_Score := 0;
 
   if not Assigned(ScoreDB) then
     Exit;
@@ -1132,6 +1172,8 @@ var
   TableData: TSQLiteTable;
 begin
 
+  Max_Score := 0;
+
   if not Assigned(ScoreDB) then
     Exit;
 
@@ -1167,6 +1209,8 @@ var
   Media_Score, ID: integer;
   TableData: TSQLiteTable;
 begin
+
+  Media_Score := 0;
 
   if not Assigned(ScoreDB) then
     Exit;
@@ -1239,6 +1283,8 @@ var
   ID: integer;
   TableData: TSQLiteTable;
 begin
+
+  Score := 0;
 
   if not Assigned(ScoreDB) then
     Exit;
@@ -1459,6 +1505,75 @@ end;
 procedure TDataBaseSystem.SetVersion(Version: integer);
 begin
   ScoreDB.ExecSQL(Format('PRAGMA user_version = %d', [Version]));
+end;
+
+(**
+ * SaveSongOptions to DB
+ *)
+procedure TDataBaseSystem.SaveSongOptions(Song: TSong; Options: TSongOptions);
+begin
+
+  AddSong(Song);
+
+  ScoreDB.ExecSQL(
+          'UPDATE [' + cUS_Songs + '] ' +
+          'SET [VideoRatioAspect] = ?, ' +
+          '[VideoWidth] = ?, ' +
+          '[VideoHeight] = ?, ' +
+          '[LyricPosition] = ?, ' +
+          '[LyricAlpha] = ?, ' +
+          '[LyricSingFillColor] = ?, ' +
+          '[LyricActualFillColor] = ?, ' +
+          '[LyricNextFillColor] = ?, ' +
+          '[LyricSingOutlineColor] = ?, ' +
+          '[LyricActualOutlineColor] = ?, ' +
+          '[LyricNextOutlineColor] = ? ' +
+          'WHERE [Artist] = ? AND [Title] = ?;',
+          [Options.VideoRatioAspect, Options.VideoWidth, Options.VideoHeight,
+          Options.LyricPosition, Options.LyricAlpha,
+          Options.LyricSingFillColor, Options.LyricActualFillColor, Options.LyricNextFillColor,
+          Options.LyricSingOutlineColor, Options.LyricActualOutlineColor, Options.LyricNextOutlineColor,
+          Song.Artist, Song.Title]);
+
+  end;
+
+function TDataBaseSystem.GetSongOptions(Song: TSong): TSongOptions;
+var
+  TableData: TSQLiteUniTable;
+  SongOptions: TSongOptions;
+begin
+  Result := nil;
+
+  if not Assigned(ScoreDB) then
+    Exit;
+
+  // Execute query
+  try
+    TableData := ScoreDB.GetUniTable('SELECT VideoRatioAspect, VideoWidth, VideoHeight, LyricPosition, LyricAlpha, ' +
+                                            'LyricSingFillColor, LyricActualFillColor, LyricNextFillColor,' +
+                                            'LyricSingOutlineColor, LyricActualOutlineColor, LyricNextOutlineColor ' +
+                                     'FROM [' + cUS_Songs + '] ' +
+                                     'WHERE [Artist] = ? AND [Title] = ?',
+                                     [Song.Artist, Song.Title]);
+  except
+    on E: Exception do
+    begin
+      Log.LogError(E.Message, 'TDataBaseSystem.GetSongOptions');
+      Exit;
+    end;
+  end;
+
+  if (TableData.EOF = false) then
+  begin
+    SongOptions := TSongOptions.Create(TableData.FieldAsInteger(0), TableData.FieldAsInteger(1), TableData.FieldAsInteger(2), TableData.FieldAsInteger(3), TableData.FieldAsInteger(4),
+      TableData.FieldAsString(5), TableData.FieldAsString(6), TableData.FieldAsString(7), TableData.FieldAsString(8), TableData.FieldAsString(9), TableData.FieldAsString(10));
+
+    Result := SongOptions;
+  end
+  else
+    Result := nil;
+
+  TableData.Free;
 end;
 
 end.

@@ -36,17 +36,17 @@ interface
 uses
   SysUtils,
   Classes,
-  SDL,
-  URecord,
-  UTime,
+  sdl2,
+  dglOpenGL,
   UDisplay,
   UIni,
   ULog,
   ULyrics,
+  URecord,
   UScreenSing,
   UScreenJukebox,
   USong,
-  gl;
+  UTime;
 
 type
   PPLayerNote = ^TPlayerNote;
@@ -134,7 +134,7 @@ procedure NewBeatClick(Screen: TScreenSing);  // executed when on then new beat 
 procedure NewBeatDetect(Screen: TScreenSing); // executed when on then new beat for detection
 procedure NewNote(CP: integer; Screen: TScreenSing);       // detect note
 function  GetMidBeat(Time: real): real;
-function  GetTimeFromBeat(Beat: integer): real;
+function  GetTimeFromBeat(Beat: integer; SelfSong: TSong = nil): real;
 
 procedure SingJukebox(Screen: TScreenJukebox);
 
@@ -143,24 +143,23 @@ implementation
 uses
   Math,
   StrUtils,
-  USongs,
-  UJoystick,
-  UCommandLine,
-  ULanguage,
-  //SDL_ttf,
-  USkins,
-  UCovers,
   UCatCovers,
-  UDataBase,
-  UMusic,
-  UPlaylist,
-  UParty,
-  UConfig,
+  UCommandLine,
   UCommon,
+  UConfig,
+  UCovers,
+  UDataBase,
   UGraphic,
   UGraphicClasses,
+  UJoystick,
+  ULanguage,
+  UMusic,
+  UParty,
   UPathUtils,
   UPlatform,
+  UPlaylist,
+  USkins,
+  USongs,
   UThemes;
 
 function GetTimeForBeats(BPM, Beats: real): real;
@@ -210,6 +209,7 @@ var
   CurBeat: real;
   CurBPM:  integer;
 begin
+  try
   // static BPM
   if Length(CurrentSong.BPM) = 1 then
   begin
@@ -233,42 +233,52 @@ begin
   begin
     Result := 0;
   end;
+  except
+    on E : Exception do
+    Result :=0;
+  end;
 end;
 
-function GetTimeFromBeat(Beat: integer): real;
+function GetTimeFromBeat(Beat: integer; SelfSong: TSong = nil): real;
 var
   CurBPM: integer;
+  Song: TSong;
 begin
+
+  if (SelfSong <> nil) then
+    Song := SelfSong
+  else
+    Song := CurrentSong;
 
   Result := 0;
 
   // static BPM
-  if Length(CurrentSong.BPM) = 1 then
+  if Length(Song.BPM) = 1 then
   begin
-    Result := CurrentSong.GAP / 1000 + Beat * 60 / CurrentSong.BPM[0].BPM;
+    Result := Song.GAP / 1000 + Beat * 60 / Song.BPM[0].BPM;
   end
   // variable BPM
-  else if Length(CurrentSong.BPM) > 1 then
+  else if Length(Song.BPM) > 1 then
   begin
-    Result := CurrentSong.GAP / 1000;
+    Result := Song.GAP / 1000;
     CurBPM := 0;
-    while (CurBPM <= High(CurrentSong.BPM)) and
-          (Beat > CurrentSong.BPM[CurBPM].StartBeat) do
+    while (CurBPM <= High(Song.BPM)) and
+          (Beat > Song.BPM[CurBPM].StartBeat) do
     begin
-      if (CurBPM < High(CurrentSong.BPM)) and
-         (Beat >= CurrentSong.BPM[CurBPM+1].StartBeat) then
+      if (CurBPM < High(Song.BPM)) and
+         (Beat >= Song.BPM[CurBPM+1].StartBeat) then
       begin
         // full range
-        Result := Result + (60 / CurrentSong.BPM[CurBPM].BPM) *
-                           (CurrentSong.BPM[CurBPM+1].StartBeat - CurrentSong.BPM[CurBPM].StartBeat);
+        Result := Result + (60 / Song.BPM[CurBPM].BPM) *
+                           (Song.BPM[CurBPM+1].StartBeat - Song.BPM[CurBPM].StartBeat);
       end;
 
-      if (CurBPM = High(CurrentSong.BPM)) or
-         (Beat < CurrentSong.BPM[CurBPM+1].StartBeat) then
+      if (CurBPM = High(Song.BPM)) or
+         (Beat < Song.BPM[CurBPM+1].StartBeat) then
       begin
         // in the middle
-        Result := Result + (60 / CurrentSong.BPM[CurBPM].BPM) *
-                           (Beat - CurrentSong.BPM[CurBPM].StartBeat);
+        Result := Result + (60 / Song.BPM[CurBPM].BPM) *
+                           (Beat - Song.BPM[CurBPM].StartBeat);
       end;
       Inc(CurBPM);
     end;
@@ -319,9 +329,8 @@ begin
     // clean player note if there is a new line
     // (optimization on halfbeat time)
     if Lines[CP].Current <> LyricsState.OldLine then
-    begin
       NewSentence(CP, Screen);
-    end;
+
   end; // for CountGr
 
   // make some operations on clicks
@@ -394,6 +403,7 @@ begin
 
     for Count := 0 to Lines[0].Line[Lines[0].Current].HighNote do
     begin
+      //basisbit todo
       if (Lines[0].Line[Lines[0].Current].Note[Count].Start = LyricsState.CurrentBeatC) then
       begin
         // click assist
@@ -430,7 +440,7 @@ begin
   // non-corrupt txts that start immediatly after the prev.
   // line ends
   MaxCP := 0;
-  if (CurrentSong.isDuet) then
+  if (CurrentSong.isDuet) and (PlayersPlay <> 1) then
     MaxCP := 1;
 
   if (assigned(Screen)) then
@@ -463,7 +473,6 @@ var
   LineFragmentIndex:   integer;
   CurrentLineFragment: PLineFragment;
   PlayerIndex:         integer;
-  //Index:               integer;
   CurrentSound:        TCaptureBuffer;
   CurrentPlayer:       PPlayer;
   LastPlayerNote:      PPlayerNote;
@@ -544,9 +553,6 @@ begin
         // TODO: do we need this?
         //LyricsState.Tone := LyricsState.Tone + Round(Random(3)) - 1;
 
-        // HACK
-        //CurrentSound.ToneValid := true;
-
         // add note if possible
         if (CurrentSound.ToneValid and NoteAvailable) then
         begin
@@ -570,12 +576,13 @@ begin
               // half size notes patch
               NoteHit := false;
               ActualTone := CurrentSound.Tone;
-              Range := 2 - Ini.Difficulty;
+              if (ScreenSong.Mode = smNormal) then
+                Range := 2 - Ini.PlayerLevel[PlayerIndex]
+              else
+                Range := 2 - Ini.Difficulty;
 
               // check if the player hit the correct tone within the tolerated range
-              // HACK
               if (Abs(CurrentLineFragment.Tone - CurrentSound.Tone) <= Range) then
-              //if (1=1) then
               begin
                 // adjust the players tone to the correct one
                 // TODO: do we need to do this?

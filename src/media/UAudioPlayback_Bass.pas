@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/media/UAudioPlayback_Bass.pas $
- * $Id: UAudioPlayback_Bass.pas 2774 2010-12-27 11:57:53Z tobigun $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/media/UAudioPlayback_Bass.pas $
+ * $Id: UAudioPlayback_Bass.pas 3141 2015-10-11 22:15:05Z basisbit $
  *}
 
 unit UAudioPlayback_Bass;
@@ -44,7 +44,7 @@ uses
   UAudioPlaybackBase,
   UAudioCore_Bass,
   ULog,
-  sdl,
+  sdl2,
   bass,
   SysUtils;
 
@@ -172,8 +172,6 @@ var
   SourceFormatInfo: TAudioFormatInfo;
   FrameSize: integer;
   PadFrame: PByteArray;
-  //Info: BASS_INFO;
-  //Latency: double;
 begin
   Result := -1;
 
@@ -342,7 +340,7 @@ end;
 
 procedure TBassPlaybackStream.Fade(Time: real; TargetVolume: single);
 begin
-  // start fade-in: slide from fadeStart- to fadeEnd-volume in FadeTime
+  // start fade-in: slide from fadeStart- to fadeEnd-volume in FadeInTime
   BASS_ChannelSlideAttribute(Handle, BASS_ATTRIB_VOL, TargetVolume, Trunc(Time * 1000));
 end;
 
@@ -365,12 +363,12 @@ begin
 end;
 
 function TBassPlaybackStream.GetLatency(): double;
+var
+  Info: BASS_INFO;
 begin
-  // TODO: should we consider output latency for synching (needs BASS_DEVICE_LATENCY)?
-  //if (BASS_GetInfo(Info)) then
-  //  Latency := Info.latency / 1000
-  //else
-  //  Latency := 0;
+  if (BASS_GetInfo(Info)) then
+    Result := Info.latency / 1000
+  else
   Result := 0; 
 end;
 
@@ -573,9 +571,7 @@ begin
     Result := nil;
 end;
 
-
 { TBassVoiceStream }
-
 function TBassVoiceStream.Open(ChannelMap: integer; FormatInfo: TAudioFormatInfo): boolean;
 var
   Flags: DWORD;
@@ -601,7 +597,7 @@ begin
   if ((ChannelMap and CHANNELMAP_RIGHT) <> 0) then
     Flags := Flags or BASS_SPEAKER_FRONTRIGHT;
   *)
-  
+
   // create the channel
   Handle := BASS_StreamCreate(Round(FormatInfo.SampleRate * (1-InputStretch)),
       1, Flags, STREAMPROC_PUSH, nil);
@@ -706,7 +702,7 @@ begin
 
   //Log.BenchmarkStart(4);
   //Log.LogStatus('Initializing Playback Subsystem', 'Music Initialize');
-
+  BASS_SetConfig(BASS_CONFIG_DEV_DEFAULT, 1);
   // TODO: use BASS_DEVICE_LATENCY to determine the latency
   if not BASS_Init(-1, 44100, 0, 0, nil) then
   begin
@@ -759,7 +755,12 @@ begin
 end;
 
 function TAudioPlayback_Bass.GetLatency(): double;
+var
+  Info: BASS_INFO;
 begin
+  if (BASS_GetInfo(Info)) then
+    Result := Info.latency / 1000
+  else
   Result := 0;
 end;
 

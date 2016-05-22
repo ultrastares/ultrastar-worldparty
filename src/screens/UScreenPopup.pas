@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/screens/UScreenPopup.pas $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/screens/UScreenPopup.pas $
  * $Id: UScreenPopup.pas 1939 2009-11-09 00:27:55Z s_alexander $
  *}
 
@@ -34,14 +34,14 @@ interface
 {$I switches.inc}
 
 uses
-  SDL,
+  sdl2,
   SysUtils,
   UDataBase,
   UDLLManager,
   ULog,
   UMenu,
   UMusic,
-  UMD5,
+  md5,
   USkins,
   USongs,
   UScreenSong,
@@ -203,7 +203,7 @@ var
 implementation
 
 uses
-  gl,
+  dglOpenGL,
   UGraphic,
   UMain,
   UIni,
@@ -423,6 +423,9 @@ begin
   AddButton(Theme.InsertUserPopup.Button2);
   if (Length(Button[3].Text) = 0) then
     AddButtonText(14, 20, 'Cancel');
+
+  Button[0].Text[0].Writable := true;
+  Button[1].Text[0].Writable := true;
 
   Interaction := 0;
 end;

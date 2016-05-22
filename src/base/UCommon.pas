@@ -1,4 +1,4 @@
-{* UltraStar Deluxe - Karaoke Game
+﻿{* UltraStar Deluxe - Karaoke Game
  *
  * UltraStar Deluxe is the legal property of its developers, whose names
  * are too numerous to list here. Please refer to the COPYRIGHT
@@ -28,6 +28,7 @@ unit UCommon;
 interface
 
 {$IFDEF FPC}
+{$codepage UTF8}
   {$MODE Delphi}
 {$ENDIF}
 
@@ -64,6 +65,21 @@ const
 
  function SplitString(const Str: string; MaxCount: integer = 0; Separators: TSysCharSet = SepWhitespace): TStringDynArray;
 
+ function GetStringWithNoAccents(str: String):String;
+
+type
+  TRGB = record
+    R: single;
+    G: single;
+    B: single;
+  end;
+
+  TRGBA = record
+    R, G, B, A: double;
+  end;
+
+function RGBToHex(R, G, B: integer):string;
+function HexToRGB(Hex: string): TRGB;
 
 type
   TMessageType = (mtInfo, mtError);
@@ -101,7 +117,7 @@ uses
   {$IFDEF Delphi}
   Dialogs,
   {$ENDIF}
-  sdl,
+  sdl2,
   UFilesystem,
   UMain,
   UUnicodeUtils;
@@ -166,6 +182,41 @@ begin
   // last component
   if (Start > 0) then
     AddSplit(Start, Length(Str)+1);
+end;
+
+const
+  Accents: array [0..42] of String = ('ç', 'á', 'é', 'í', 'ó', 'ú', 'ý', 'à', 'è', 'ì', 'ò', 'ù', 'ã', 'õ', 'ñ', 'ä', 'ë', 'ï', 'ö', 'ü', 'ÿ', 'â', 'ê', 'î', 'ô', 'û', 'ą', 'ć', 'ł', 'ś', 'ź', '!', '¡', '"', '&', '(', ')', '?', '¿', ',', '.', ':', ';');
+  NoAccents: array [0..42] of String = ('c', 'a', 'e', 'i', 'o', 'u', 'y', 'a', 'e', 'i', 'o', 'u', 'a', 'o', 'n', 'a', 'e', 'i', 'o', 'u', 'y', 'a', 'e', 'i', 'o', 'u', 'a', 'c', 'l', 's', 'z', '', '', '', '', '', '', '', '', '', '', '', '');
+
+function GetStringWithNoAccents(str: String):String;
+var
+  i: integer;
+  tmp: string;
+begin
+  tmp := str;//Utf8ToAnsi(str);
+
+  for i := 0 to High(Accents) do
+  begin
+    str := StringReplace(str, Accents[i], NoAccents[i], [rfReplaceAll, rfIgnoreCase]);
+  end;
+
+  Result := str;
+end;
+
+function RGBToHex(R, G, B: integer): string;
+begin
+  Result := IntToHex(R, 2) + IntToHex(G, 2) + IntToHex(B, 2);
+end;
+
+function HexToRGB(Hex: string): TRGB;
+var
+  Col: TRGB;
+begin
+  Col.R := StrToInt('$'+Copy(Hex, 1, 2));
+  Col.G := StrToInt('$'+Copy(Hex, 3, 2));
+  Col.B := StrToInt('$'+Copy(Hex, 5, 2));
+
+  Result := Col;
 end;
 
 // data used by the ...Locale() functions

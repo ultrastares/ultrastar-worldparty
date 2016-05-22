@@ -36,7 +36,7 @@ interface
 uses
   UTexture,
   ULog,
-  SDL;
+  SDL2;
 
 const
   DelayBetweenFrames : cardinal = 60;
@@ -71,8 +71,7 @@ type
 		      cFrame         : integer;
 		      cRecArrayIndex : integer;
 		      cStarType      : TParticleType;
-		      Player         : cardinal
-          );
+		      Player         : cardinal);
    destructor Destroy(); override;
    procedure Draw;
    procedure LiveOn;
@@ -128,7 +127,7 @@ implementation
 uses
   SysUtils,
   Math,
-  gl,
+  dglOpenGL,
   UCommon,
   UDrawTexture,
   UGraphic,
@@ -144,8 +143,7 @@ constructor TParticle.Create(cX, cY         : real;
 			     cFrame         : integer;
 			     cRecArrayIndex : integer;
 			     cStarType      : TParticleType;
-			     Player         : cardinal
-           );
+			     Player         : cardinal);
 begin
   inherited Create;
   // in this constructor we set all initial values for our particle
@@ -467,7 +465,7 @@ var
   P : integer; // P as seen on TV as Positionman
 begin
 
-  //AKI
+  //AKI BUG
 
   //Spawn a random amount of stars within the given coordinates
   //RandomRange(0,14) <- this one starts at a random  frame, 16 is our last frame - would be senseless to start a particle with 16, cause it would be dead at the next frame
@@ -526,7 +524,7 @@ end;
 procedure TEffectManager.SentenceChange(CP: integer);
 var
   c: cardinal;
-  i, p: integer;
+  p: integer;
 begin
 
   c := 0;
@@ -545,7 +543,6 @@ begin
     if not CurrentSong.isDuet or ((c mod 2) = CP)  then
       TwinkleArray[c] := 0; // reset GoldenNoteHit memory
   end;
- 
 end;
 
 procedure TeffectManager.GoldenNoteTwinkle(Top, Bottom, Right: real; Player: integer);
@@ -668,7 +665,7 @@ procedure TEffectManager.SpawnPerfectLineTwinkle();
 var
   P, I, Life: cardinal;
   Left, Right, Top, Bottom: cardinal;
-  cScreen: integer;
+  cScreen, Nstars: integer;
 begin
 // calculation of coordinates done with hardcoded values like in UDraw.pas
 // might need to be adjusted if drawing of SingScreen is modified
@@ -682,10 +679,43 @@ begin
     Left := 30;
   end;
   Right := 770;
+
   // spawn effect for every player with a perfect line
   for P := 0 to PlayersPlay-1 do
     if Player[P].LastSentencePerfect then
     begin
+      // 3 and 6 players in 1 screen
+      if (Ini.Screens = 0) then
+      begin
+        if (PlayersPlay = 4) then
+        begin
+          if (P <= 1) then
+          begin
+            Left := 30;
+            Right := 385;
+          end
+          else
+          begin
+            Left := 415;
+            Right := 770;
+          end;
+        end;
+
+        if (PlayersPlay = 6) then
+        begin
+          if (P <= 2) then
+          begin
+            Left := 30;
+            Right := 385;
+          end
+          else
+          begin
+            Left := 415;
+            Right := 770;
+          end;
+        end;
+      end;
+
       // calculate area where notes of this player are drawn
       case PlayersPlay of
         1: begin
@@ -706,7 +736,13 @@ begin
                end;
                case P of
                  0,1: cScreen := 1;
-                 else cScreen := 2;
+                 else
+                 begin
+                   if (Ini.Screens = 1) then
+                     cScreen := 2
+                   else
+                     cScreen := 1;
+                 end;
                end;
              end;
         3,6: begin
@@ -726,12 +762,23 @@ begin
                end;
                case P of
                  0,1,2: cScreen := 1;
-                 else cScreen := 2;
+                 else
+                 begin
+                   if (Ini.Screens = 1) then
+                     cScreen := 2
+                   else
+                     cScreen := 1;
+                 end;
                end;
              end;
       end;
+
       // spawn Sparkling Stars inside calculated coordinates
-      for I := 0 to 80 do
+      Nstars := 80;
+      if (Ini.Screens = 0) and (PlayersPlay > 3) then
+        Nstars := 40;
+
+      for I := 0 to Nstars do
       begin
         Life := RandomRange(8,16);
         Spawn(RandomRange(Left,Right), RandomRange(Top,Bottom), cScreen, Life, 16-Life, -1, PerfectLineTwinkle, P);

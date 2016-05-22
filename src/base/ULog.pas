@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/ULog.pas $
- * $Id: ULog.pas 2781 2010-12-29 14:41:27Z tobigun $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/base/ULog.pas $
+ * $Id: ULog.pas 3117 2015-08-15 01:23:56Z basisbit $
  *}
 
 unit ULog;
@@ -100,6 +100,8 @@ type
 
     procedure SetLogLevel(Level: integer);
     function GetLogLevel(): integer;
+    procedure SetLogFileLevel(Level: integer);
+    function GetLogFileLevel(): integer;
 
     procedure LogMsg(const Text: string; Level: integer); overload;
     procedure LogMsg(const Msg, Context: string; Level: integer); overload; {$IFDEF HasInline}inline;{$ENDIF}
@@ -311,13 +313,21 @@ begin
   Result := LogLevel;
 end;
 
+procedure TLog.SetLogFileLevel(Level: integer);
+begin
+  LogFileLevel := Level;
+end;
+
+function TLog.GetLogFileLevel(): integer;
+begin
+  Result := LogFileLevel;
+end;
+
 procedure TLog.LogMsg(const Text: string; Level: integer);
 var
   LogMsg: string;
 begin
-  // TODO: what if (LogFileLevel < LogLevel)? Log to file without printing to
-  //  console or do not log at all? At the moment nothing is logged.
-  if (Level <= LogLevel) then
+  if ((Level <= LogLevel) or (Level <= LogFileLevel)) then
   begin
     if (Level <= LOG_LEVEL_CRITICAL_MAX) then
       LogMsg := 'CRITICAL: ' + Text

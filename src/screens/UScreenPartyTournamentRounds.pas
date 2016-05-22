@@ -34,10 +34,11 @@ interface
 {$I switches.inc}
 
 uses
-  SDL,
-  gl,
+  sdl2,
+  dglOpenGL,
   TextGL,
   SysUtils,
+  UCommon,
   UIni,
   UMenu,
   UDisplay,

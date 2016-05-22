@@ -127,11 +127,11 @@ const
   (*
    * Current version of UltraStar Deluxe
    *)
-  USDX_VERSION_MAJOR   = 11;
-  USDX_VERSION_MINOR   = 10;
-  USDX_VERSION_RELEASE = 19;
-  USDX_VERSION_STATE   = '';
-  USDX_STRING = 'UltraStar Deluxe WorldParty';
+  USDX_VERSION_MAJOR   = 1;
+  USDX_VERSION_MINOR   = 3;
+  USDX_VERSION_RELEASE = 0;
+  USDX_VERSION_STATE   = 'beta';
+  USDX_STRING = 'UltraStar Deluxe';
 
   (*
    * FPC version numbers are already defined as built-in macros:
@@ -215,16 +215,18 @@ function USDXShortVersionStr(): string;
 begin
   Result :=
     USDX_STRING +
-    IfThen(USDX_VERSION_STATE <> '', ' ' + USDX_VERSION_STATE);
+    IfThen(USDX_VERSION_STATE <> '', ' '+USDX_VERSION_STATE);
 end;
 
 function USDXVersionStr(): string;
 begin
   Result :=
-    USDX_STRING + ' ' +
+    USDX_STRING + ' V ' +
     IntToStr(USDX_VERSION_MAJOR) + '.' +
-    IntToStr(USDX_VERSION_MINOR) + IfThen(USDX_VERSION_RELEASE <> 0, '.' + IntToStr(USDX_VERSION_RELEASE)) +
-    IfThen(USDX_VERSION_STATE <> '', '' + USDX_VERSION_STATE);
+    IntToStr(USDX_VERSION_MINOR) + '.' +
+    IntToStr(USDX_VERSION_RELEASE) +
+    IfThen(USDX_VERSION_STATE <> '', ' '+USDX_VERSION_STATE) +
+    ' Build';
 end;
 
 end.

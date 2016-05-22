@@ -79,6 +79,8 @@ type
 
   TVisualizerOption      = (voOff, voWhenNoVideo, voOn);
   TBackgroundMusicOption = (bmoOff, bmoOn);
+  TSongMenuMode = ( smRoulette, smChessboard, smCarousel, smSlotMachine, smSlide, smList, smMosaic);
+
   TIni = class
     private
       function ExtractKeyIndex(const Key, Prefix, Suffix: string): integer;
@@ -93,14 +95,18 @@ type
 
       procedure LoadPaths(IniFile: TCustomIniFile);
       procedure LoadScreenModes(IniFile: TCustomIniFile);
+      procedure LoadWebcamSettings(IniFile: TCustomIniFile);
 
     public
       // Players or Teams colors
       SingColor:      array [0..5] of integer;
-
+      
       Name:           array[0..15] of UTF8String;
       PlayerColor:    array[0..5] of integer;
       TeamColor:      array[0..2] of integer;
+
+      PlayerAvatar:   array[0..5] of UTF8String;
+      PlayerLevel:    array[0..5] of integer;
 
       // Templates for Names Mod
       NameTeam:       array[0..2] of UTF8String;
@@ -113,6 +119,7 @@ type
       Players:        integer;
       Difficulty:     integer;
       Language:       integer;
+      SongMenu:       integer;
       Tabs:           integer;
       TabsAtStartup:  integer; //Tabs at Startup fix
       Sorting:        integer;
@@ -121,7 +128,10 @@ type
       Debug:          integer;
 
       // Graphics
+      MaxFramerate:   byte;
+      MaxFramerateGet: byte;
       Screens:        integer;
+      Split:          integer;
       Resolution:     integer;
       Depth:          integer;
       VisualizerOption: integer;
@@ -129,8 +139,9 @@ type
       TextureSize:    integer;
       SingWindow:     integer;
       Oscilloscope:   integer;
-      Spectrum:       integer;
-      Spectrograph:   integer;
+      // not used
+      //Spectrum:       integer;
+      //Spectrograph:   integer;
       MovieSize:      integer;
       VideoPreview:   integer;
       VideoEnabled:   integer;
@@ -173,15 +184,72 @@ type
       OnSongClick:    integer;
       LineBonus:      integer;
       PartyPopup:     integer;
+      SingScores:     integer;
+      TopScores:      integer;
+      SingTimebarMode:       integer;
+      JukeboxTimebarMode:    integer;
 
       // Controller
       Joypad:         integer;
       Mouse:          integer;
 
       // WebCam
-      WebCamID:      integer;
+      WebCamID:         integer;
       WebcamResolution: integer;
-      WebCamFPS:     integer;
+      WebCamFPS:        integer;
+      WebCamFlip:       integer;
+      WebCamBrightness: integer;
+      WebCamSaturation: integer;
+      WebCamHue:        integer;
+      WebCamEffect:     integer;
+
+      // Jukebox
+      JukeboxSongMenu: integer;
+
+      JukeboxFont:     integer;
+      JukeboxEffect:   integer;
+      JukeboxAlpha:    integer;
+
+      JukeboxLine:      integer;
+      JukeboxProperty:  integer;
+
+      // Jukebox Lyric Fill Color
+      JukeboxSingLineColor:   integer;
+      JukeboxActualLineColor: integer;
+      JukeboxNextLineColor:   integer;
+
+      JukeboxSingLineOutlineColor:   integer;
+      JukeboxActualLineOutlineColor: integer;
+      JukeboxNextLineOutlineColor:   integer;
+
+      CurrentJukeboxSingLineOutlineColor:   integer;
+      CurrentJukeboxActualLineOutlineColor: integer;
+      CurrentJukeboxNextLineOutlineColor:   integer;
+
+      JukeboxSingLineOtherColorR: integer;
+      JukeboxSingLineOtherColorG: integer;
+      JukeboxSingLineOtherColorB: integer;
+
+      JukeboxActualLineOtherColorR: integer;
+      JukeboxActualLineOtherColorG: integer;
+      JukeboxActualLineOtherColorB: integer;
+
+      JukeboxNextLineOtherColorR: integer;
+      JukeboxNextLineOtherColorG: integer;
+      JukeboxNextLineOtherColorB: integer;
+
+      JukeboxSingLineOtherOColorR: integer;
+      JukeboxSingLineOtherOColorG: integer;
+      JukeboxSingLineOtherOColorB: integer;
+
+      JukeboxActualLineOtherOColorR: integer;
+      JukeboxActualLineOtherOColorG: integer;
+      JukeboxActualLineOtherOColorB: integer;
+
+      JukeboxNextLineOtherOColorR: integer;
+      JukeboxNextLineOtherOColorG: integer;
+      JukeboxNextLineOtherOColorB: integer;
+
 
       // default encoding for texts (lyrics, song-name, ...)
       DefaultEncoding: TEncoding;
@@ -191,11 +259,17 @@ type
       procedure SaveNames;
       procedure SaveLevel;
       procedure SavePlayerColors;
+      procedure SavePlayerAvatars;
+      procedure SavePlayerLevels;
       procedure SaveTeamColors;
       procedure SaveShowWebScore;
+      procedure SaveJukeboxSongMenu;
 
       procedure SaveSoundFont(Name: string);
       procedure SaveWebcamSettings();
+      procedure SaveNumberOfPlayers;
+      procedure SaveSingTimebarMode;
+      procedure SaveJukeboxTimebarMode;
 
   end;
 
@@ -218,16 +292,21 @@ const
   ITabs:        array[0..1] of UTF8String = ('Off', 'On');
 
 const
-  ISorting:     array[0..7] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year');
+  //ISorting:      array[0..9] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade', 'Playlist');
+  ISorting:      array[0..8] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade');
+  ISongMenuMode: array[0..6] of UTF8String = ('Roulette', 'Chessboard', 'Carousel', 'Slot Machine', 'Slide', 'List', 'Mosaic');
+
 type
-  TSortingType = (sEdition, sGenre, sLanguage, sFolder, sTitle, sArtist, sArtist2, sYear);
+  TSortingType = (sEdition, sGenre, sLanguage, sFolder, sTitle, sArtist, sArtist2, sYear, sDecade, sPlaylist);
 
 const
   IShowScores:       array[0..2] of UTF8String  = ('Off', 'When exists', 'On');
 
   IDebug:            array[0..1] of UTF8String  = ('Off', 'On');
 
+  IMaxFramerate:     array[0..11] of UTF8String  = ('10', '20', '30', '40', '50', '60', '70', '80', '90', '100', '150', '200');
   IScreens:          array[0..1] of UTF8String  = ('1', '2');
+  ISplit:            array[0..1] of UTF8String  = ('Off', 'On');
   IFullScreen:       array[0..1] of UTF8String  = ('Off', 'On');
   IDepth:            array[0..1] of UTF8String  = ('16 bit', '32 bit');
   IVisualizer:       array[0..2] of UTF8String  = ('Off', 'WhenNoVideo','On');
@@ -278,7 +357,31 @@ const
 
   ILyricsFont:    array[0..2] of UTF8String = ('Plain', 'OLine1', 'OLine2');
   ILyricsEffect:  array[0..4] of UTF8String = ('Simple', 'Zoom', 'Slide', 'Ball', 'Shift');
+  ILyricsAlpha:   array[0..20] of UTF8String = ('0.00', '0.05', '0.10', '0.15', '0.20', '0.25', '0.30', '0.35', '0.40', '0.45', '0.50',
+                                                '0.55', '0.60', '0.65', '0.70', '0.75', '0.80', '0.85', '0.90', '0.95', '1.00');
+  ILyricsAlphaVals: array[0..20] of single = (0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50,
+                                              0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 1.00);
+
   INoteLines:     array[0..1] of UTF8String = ('Off', 'On');
+
+  //for lyric colors
+  ILine:             array[0..2] of UTF8String = ('Sing', 'Actual', 'Next');
+  IAttribute:        array[0..1] of UTF8String = ('Fill', 'Outline');
+  ISingLineColor:    array[0..20] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
+  IActualLineColor:  array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
+  INextLineColor:    array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
+  //outline
+  ISingLineOColor:    array[0..2] of UTF8String = ('Black', 'White', 'Other');
+  IActualLineOColor:  array[0..2] of UTF8String = ('Black', 'White', 'Other');
+  INextLineOColor:    array[0..2] of UTF8String = ('Black', 'White', 'Other');
+
+  IHexSingColor: array[0..20] of UTF8String = ('0096FF', '3FBF3F', 'FF3FC0', 'DC0000', 'B43FE6', 'FF9000', 'FFFF00', 'C07F1F', '000000', '00FFE6', 'FF7F66',
+                                                '99FF66', 'CCCCFF', 'FFE6CC', '339999', '9900CC', '336699', 'FF99FF', '8A5C2E', 'FFCC33', '');
+  //IHexColor:     array[0..9] of UTF8String = ('0096FF', '3FBF3F', 'FF3FC0', 'DC0000', 'B43FE6', 'FF9000', 'FFFF00', 'C07F1F', '000000', '');
+  IHexGrayColor: array[0..9] of UTF8String = ('000000', '202020', '404040', '606060', '808080', 'A0A0A0', 'C0C0C0', 'D6D6D6', 'FFFFFF', '');
+  IHexOColor:    array[0..2] of UTF8String = ('000000', 'FFFFFF', '');
+
+  IJukeboxSongMenu: array[0..1] of UTF8String = ('Off', 'On');
 
   IColor:         array[0..8] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Brown', 'Black');
 
@@ -287,6 +390,8 @@ const
   IEffectSing:    array[0..1] of UTF8String = ('Off', 'On');
   IScreenFade:    array[0..1] of UTF8String = ('Off', 'On');
   IAskbeforeDel:  array[0..1] of UTF8String = ('Off', 'On');
+  ISingScores:    array[0..1] of UTF8String = ('Off', 'On');
+  ITopScores:    array[0..1] of UTF8String = ('All', 'Player');
   IOnSongClick:   array[0..2] of UTF8String = ('Sing', 'Select Players', 'Open Menu');
   sStartSing = 0;
   sSelectPlayer = 1;
@@ -298,13 +403,17 @@ const
   IJoypad:        array[0..1] of UTF8String = ('Off', 'On');
   IMouse:         array[0..2] of UTF8String = ('Off', 'Hardware Cursor', 'Software Cursor');
 
+  ISingTimebarMode:    array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
+  IJukeboxTimebarMode: array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
+
   // Recording options
   IChannelPlayer: array[0..6] of UTF8String = ('Off', '1', '2', '3', '4', '5', '6');
   IMicBoost:      array[0..3] of UTF8String = ('Off', '+6dB', '+12dB', '+18dB');
 
   // Webcam
   IWebcamResolution: array[0..5] of UTF8String = ('160x120', '176x144', '320x240', '352x288', '640x480', '800x600');
-  IWebcamFPS: array[0..8] of UTF8String = ('10', '12', '15', '18', '20', '22', '25', '28', '30');
+  IWebcamFPS:        array[0..8] of UTF8String = ('10', '12', '15', '18', '20', '22', '25', '28', '30');
+  IWebcamFlip:       array[0..1] of UTF8String = ('Off', 'On');
 
 {*
  * Translated options
@@ -313,10 +422,14 @@ const
 var
   ILanguageTranslated:         array of UTF8String;
 
+
   IDifficultyTranslated:       array[0..2] of UTF8String  = ('Easy', 'Medium', 'Hard');
   ITabsTranslated:             array[0..1] of UTF8String  = ('Off', 'On');
 
-  ISortingTranslated:          array[0..7] of UTF8String  = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year');
+  ISongMenuTranslated:         array[0..6] of UTF8String  = ('Roulette', 'Chessboard', 'Carousel', 'Slot Machine', 'Slide', 'List', 'Mosaic');
+
+  //ISortingTranslated:          array[0..9] of UTF8String  = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade', 'Playlist');
+  ISortingTranslated:          array[0..8] of UTF8String  = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade');
 
   IShowScoresTranslated:       array[0..2] of UTF8String  = ('Off', 'WhenExists', 'On');
 
@@ -357,8 +470,19 @@ var
   ILyricsFontTranslated:       array[0..2] of UTF8String = ('Plain', 'OLine1', 'OLine2');
   ILyricsEffectTranslated:     array[0..4] of UTF8String = ('Simple', 'Zoom', 'Slide', 'Ball', 'Shift');
   INoteLinesTranslated:        array[0..1] of UTF8String = ('Off', 'On');
-
   IColorTranslated:            array[0..8] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Brown', 'Black');
+  IPlayerColorTranslated:      array[0..15] of UTF8String = ('Blue', 'Red', 'Green', 'Yellow', 'Orange', 'Pink',  'Violet', 'Brown', 'Gray', 'Dark Blue', 'Sky', 'Cyan', 'Flame', 'Orchid', 'Harlequin', 'Lime');
+
+  //for lyric colors
+  ILineTranslated:             array[0..2] of UTF8String = ('Sing', 'Actual', 'Next');
+  IPropertyTranslated:         array[0..1] of UTF8String = ('Fill', 'Outline');
+
+  ISingLineColorTranslated:    array[0..20] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
+  IActualLineColorTranslated:  array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
+  INextLineColorTranslated:    array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
+  ISingLineOColorTranslated:   array[0..2] of UTF8String = ('Black', 'White', 'Other');
+  IActualLineOColorTranslated: array[0..2] of UTF8String = ('Black', 'White', 'Other');
+  INextLineOColorTranslated:   array[0..2] of UTF8String = ('Black', 'White', 'Other');
 
   // Advanced
   ILoadAnimationTranslated:    array[0..1] of UTF8String = ('Off', 'On');
@@ -368,9 +492,14 @@ var
   IOnSongClickTranslated:      array[0..2] of UTF8String = ('Sing', 'Select Players', 'Open Menu');
   ILineBonusTranslated:        array[0..1] of UTF8String = ('Off', 'On');
   IPartyPopupTranslated:       array[0..1] of UTF8String = ('Off', 'On');
+  ISingScoresTranslated:       array[0..1] of UTF8String = ('Off', 'On');
+  ITopScoresTranslated:        array[0..1] of UTF8String = ('All', 'Player');
 
   IJoypadTranslated:           array[0..1] of UTF8String = ('Off', 'On');
   IMouseTranslated:            array[0..2] of UTF8String = ('Off', 'Hardware Cursor', 'Software Cursor');
+
+  ISingTimebarModeTranslated:      array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
+  IJukeboxTimebarModeTranslated:      array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
 
   // Recording options
   IChannelPlayerTranslated:    array[0..6] of UTF8String = ('Off', '1', '2', '3', '4', '5', '6');
@@ -384,11 +513,26 @@ var
   IAutoScoreMediumTranslated: array of UTF8String;
   IAutoScoreHardTranslated:   array of UTF8String;
 
+  // Webcam
+  IWebcamFlipTranslated:      array[0..1] of UTF8String = ('Off', 'On');
+  IWebcamBrightness: array [0..200] of UTF8String;
+  IWebcamSaturation: array [0..200] of UTF8String;
+  IWebcamHue:        array [0..360] of UTF8String;
+  IWebcamEffectTranslated:     array [0..10] of UTF8String;
+
+  // Name
+  IPlayerTranslated:      array[0..5] of UTF8String = ('Player 1', 'Player 2', 'Player 3', 'Player 4', 'Player 5', 'Player 6');
+
+  IRed:       array[0..255] of UTF8String;
+  IGreen:     array[0..255] of UTF8String;
+  IBlue:      array[0..255] of UTF8String;
+
+
 implementation
 
 uses
   StrUtils,
-  SDL,
+  sdl2,
   UCommandLine,
   UDataBase,
   UDllManager,
@@ -430,6 +574,14 @@ begin
   ITabsTranslated[0]                  := ULanguage.Language.Translate('OPTION_VALUE_OFF');
   ITabsTranslated[1]                  := ULanguage.Language.Translate('OPTION_VALUE_ON');
 
+  ISongMenuTranslated[0]              := ULanguage.Language.Translate('OPTION_VALUE_ROULETTE');
+  ISongMenuTranslated[1]              := ULanguage.Language.Translate('OPTION_VALUE_CHESSBOARD');
+  ISongMenuTranslated[2]              := ULanguage.Language.Translate('OPTION_VALUE_CAROUSEL');
+  ISongMenuTranslated[3]              := ULanguage.Language.Translate('OPTION_VALUE_SLOTMACHINE');
+  ISongMenuTranslated[4]              := ULanguage.Language.Translate('OPTION_VALUE_SLIDE');
+  ISongMenuTranslated[5]              := ULanguage.Language.Translate('OPTION_VALUE_LIST');
+  ISongMenuTranslated[6]              := ULanguage.Language.Translate('OPTION_VALUE_MOSAIC');
+
   ISortingTranslated[0]               := ULanguage.Language.Translate('OPTION_VALUE_EDITION');
   ISortingTranslated[1]               := ULanguage.Language.Translate('OPTION_VALUE_GENRE');
   ISortingTranslated[2]               := ULanguage.Language.Translate('OPTION_VALUE_LANGUAGE');
@@ -438,6 +590,8 @@ begin
   ISortingTranslated[5]               := ULanguage.Language.Translate('OPTION_VALUE_ARTIST');
   ISortingTranslated[6]               := ULanguage.Language.Translate('OPTION_VALUE_ARTIST2');
   ISortingTranslated[7]               := ULanguage.Language.Translate('OPTION_VALUE_YEAR');
+  ISortingTranslated[8]               := ULanguage.Language.Translate('OPTION_VALUE_DECADE');
+  //ISortingTranslated[9]               := ULanguage.Language.Translate('OPTION_VALUE_PLAYLIST');
 
   IShowScoresTranslated[0]            := ULanguage.Language.Translate('OPTION_VALUE_OFF');
   IShowScoresTranslated[1]            := ULanguage.Language.Translate('OPTION_VALUE_WHENEXIST');
@@ -507,15 +661,102 @@ begin
   INoteLinesTranslated[0]             := ULanguage.Language.Translate('OPTION_VALUE_OFF');
   INoteLinesTranslated[1]             := ULanguage.Language.Translate('OPTION_VALUE_ON');
 
-  IColorTranslated[0]                 := ULanguage.Language.Translate('OPTION_VALUE_BLUE');
-  IColorTranslated[1]                 := ULanguage.Language.Translate('OPTION_VALUE_GREEN');
-  IColorTranslated[2]                 := ULanguage.Language.Translate('OPTION_VALUE_PINK');
-  IColorTranslated[3]                 := ULanguage.Language.Translate('OPTION_VALUE_RED');
-  IColorTranslated[4]                 := ULanguage.Language.Translate('OPTION_VALUE_VIOLET');
-  IColorTranslated[5]                 := ULanguage.Language.Translate('OPTION_VALUE_ORANGE');
-  IColorTranslated[6]                 := ULanguage.Language.Translate('OPTION_VALUE_YELLOW');
-  IColorTranslated[7]                 := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
-  IColorTranslated[8]                 := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
+  for I := 0 to 255 do
+  begin
+    IRed[I]   := IntToStr(I);
+    IGreen[I] := IntToStr(I);
+    IBlue[I]  := IntToStr(I);
+  end;
+
+  ILineTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_TO_SING');
+  ILineTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_ACTUAL');
+  ILineTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_NEXT');
+
+  IPropertyTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_FILL');
+  IPropertyTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_OUTLINE');
+
+  ISingLineColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLUE');
+  ISingLineColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_GREEN');
+  ISingLineColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_PINK');
+  ISingLineColorTranslated[3] := ULanguage.Language.Translate('OPTION_VALUE_RED');
+  ISingLineColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_VIOLET');
+  ISingLineColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_ORANGE');
+  ISingLineColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_YELLOW');
+  ISingLineColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
+  ISingLineColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
+  ISingLineColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_TURQUOISE');
+  ISingLineColorTranslated[10] := ULanguage.Language.Translate('OPTION_VALUE_SALMON');
+  ISingLineColorTranslated[11] := ULanguage.Language.Translate('OPTION_VALUE_GREENYELLOW');
+  ISingLineColorTranslated[12] := ULanguage.Language.Translate('OPTION_VALUE_LAVENDER');
+  ISingLineColorTranslated[13] := ULanguage.Language.Translate('OPTION_VALUE_BEIGE');
+  ISingLineColorTranslated[14] := ULanguage.Language.Translate('OPTION_VALUE_TEAL');
+  ISingLineColorTranslated[15] := ULanguage.Language.Translate('OPTION_VALUE_ORCHID');
+  ISingLineColorTranslated[16] := ULanguage.Language.Translate('OPTION_VALUE_STEELBLUE');
+  ISingLineColorTranslated[17] := ULanguage.Language.Translate('OPTION_VALUE_PLUM');
+  ISingLineColorTranslated[18] := ULanguage.Language.Translate('OPTION_VALUE_CHOCOLATE');
+  ISingLineColorTranslated[19] := ULanguage.Language.Translate('OPTION_VALUE_GOLD');
+  ISingLineColorTranslated[20] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
+
+  IActualLineColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
+  IActualLineColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +3';
+  IActualLineColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +2';
+  IActualLineColorTranslated[3] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +1';
+  IActualLineColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_GRAY');
+  IActualLineColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -1';
+  IActualLineColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -2';
+  IActualLineColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -3';
+  IActualLineColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_WHITE');
+  IActualLineColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
+
+  INextLineColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
+  INextLineColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +3';
+  INextLineColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +2';
+  INextLineColorTranslated[3] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +1';
+  INextLineColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_GRAY');
+  INextLineColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -1';
+  INextLineColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -2';
+  INextLineColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -3';
+  INextLineColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_WHITE');
+  INextLineColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
+
+  ISingLineOColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
+  ISingLineOColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_WHITE');
+  ISingLineOColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
+
+  IActualLineOColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
+  IActualLineOColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_WHITE');
+  IActualLineOColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
+
+  INextLineOColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
+  INextLineOColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_WHITE');
+  INextLineOColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
+
+  IColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLUE');
+  IColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_GREEN');
+  IColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_PINK');
+  IColorTranslated[3] := ULanguage.Language.Translate('OPTION_VALUE_RED');
+  IColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_VIOLET');
+  IColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_ORANGE');
+  IColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_YELLOW');
+  IColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
+  IColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
+
+  IPlayerColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLUE');
+  IPlayerColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_RED');
+  IPlayerColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_GREEN');
+  IPlayerColorTranslated[3] := ULanguage.Language.Translate('OPTION_VALUE_YELLOW');
+  IPlayerColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_ORANGE');
+  IPlayerColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_PINK');
+  IPlayerColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_VIOLET');
+  IPlayerColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
+  IPlayerColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_GRAY');
+  IPlayerColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_DARKBLUE');
+  IPlayerColorTranslated[10] := ULanguage.Language.Translate('OPTION_VALUE_SKY');
+  IPlayerColorTranslated[11] := ULanguage.Language.Translate('OPTION_VALUE_CYAN');
+  IPlayerColorTranslated[12] := ULanguage.Language.Translate('OPTION_VALUE_FLAME');
+  IPlayerColorTranslated[13] := ULanguage.Language.Translate('OPTION_VALUE_ORCHID');
+  IPlayerColorTranslated[14] := ULanguage.Language.Translate('OPTION_VALUE_HARLEQUIN');
+  IPlayerColorTranslated[15] := ULanguage.Language.Translate('OPTION_VALUE_GREENYELLOW');
 
   // Advanced
   ILoadAnimationTranslated[0]         := ULanguage.Language.Translate('OPTION_VALUE_OFF');
@@ -540,12 +781,26 @@ begin
   IPartyPopupTranslated[0]            := ULanguage.Language.Translate('OPTION_VALUE_OFF');
   IPartyPopupTranslated[1]            := ULanguage.Language.Translate('OPTION_VALUE_ON');
 
+  ISingScoresTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_OFF');
+  ISingScoresTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_ON');
+
+  ITopScoresTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_ALL');
+  ITopScoresTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_PLAYER');
+
   IJoypadTranslated[0]                := ULanguage.Language.Translate('OPTION_VALUE_OFF');
   IJoypadTranslated[1]                := ULanguage.Language.Translate('OPTION_VALUE_ON');
 
   IMouseTranslated[0]                 := ULanguage.Language.Translate('OPTION_VALUE_OFF');
   IMouseTranslated[1]                 := ULanguage.Language.Translate('OPTION_VALUE_HARDWARE_CURSOR');
   IMouseTranslated[2]                 := ULanguage.Language.Translate('OPTION_VALUE_SOFTWARE_CURSOR');
+
+  ISingTimebarModeTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_CURRENT');
+  ISingTimebarModeTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_REMAINING');
+  ISingTimebarModeTranslated[2]          := ULanguage.Language.Translate('OPTION_VALUE_TOTAL');
+
+  IJukeboxTimebarModeTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_CURRENT');
+  IJukeboxTimebarModeTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_REMAINING');
+  IJukeboxTimebarModeTranslated[2]          := ULanguage.Language.Translate('OPTION_VALUE_TOTAL');
 
   IAudioOutputBufferSizeTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_AUTO');
   IAudioOutputBufferSizeTranslated[1] := '256';
@@ -618,6 +873,22 @@ begin
   IAutoPlayerTranslated[5]         := ULanguage.Language.Translate('OPTION_PLAYER_6');
   IAutoPlayerTranslated[6]         := ULanguage.Language.Translate('OPTION_ALL_PLAYERS');
 
+  // Webcam
+  IWebcamFlipTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_OFF');
+  IWebcamFlipTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_ON');
+
+  IWebcamEffectTranslated[0] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_NORMAL');
+  IWebcamEffectTranslated[1] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_GRAYSCALE');
+  IWebcamEffectTranslated[2] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_BLACK_WHITE');
+  IWebcamEffectTranslated[3] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_NEGATIVE');
+  IWebcamEffectTranslated[4] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_BINARY_IMAGE');
+  IWebcamEffectTranslated[5] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_DILATE');
+  IWebcamEffectTranslated[6] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_THRESHOLD');
+  IWebcamEffectTranslated[7] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_EDGES');
+  IWebcamEffectTranslated[8] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_GAUSSIAN_BLUR');
+  IWebcamEffectTranslated[9] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_EQUALIZED');
+  IWebcamEffectTranslated[10] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_ERODE');
+
   SetLength(IAutoScoreEasyTranslated, 10000);
   SetLength(IAutoScoreMediumTranslated, 10000);
   SetLength(IAutoScoreHardTranslated, 10000);
@@ -635,6 +906,35 @@ begin
     IAutoScoreMediumTranslated[I] := '+' + Zeros + IntToStr(I);
     IAutoScoreHardTranslated[I]   := '+' + Zeros + IntToStr(I);
   end;
+
+end;
+
+procedure TIni.LoadWebcamSettings(IniFile: TCustomIniFile);
+var
+  I: integer;
+begin
+  for I:= 100 downto 1 do
+  begin
+    IWebcamBrightness[100 - I]   := '-' + IntToStr(I);
+    IWebcamSaturation[100 - I]   := '-' + IntToStr(I);
+  end;
+
+  IWebcamBrightness[100]   := '0';
+  IWebcamSaturation[100]   := '0';
+
+  for I:= 1 to 100 do
+  begin
+    IWebcamBrightness[I + 100]   := '+' + IntToStr(I);
+    IWebcamSaturation[I + 100]   := '+' + IntToStr(I);
+  end;
+
+  for I:= 180 downto 1 do
+    IWebcamHue[180 - I]   := '-' + IntToStr(I);
+
+  IWebcamHue[180]   := '0';
+
+  for I:= 1 to 180 do
+    IWebcamHue[I + 180]   := '+' + IntToStr(I);
 
 end;
 
@@ -855,11 +1155,16 @@ procedure TIni.LoadScreenModes(IniFile: TCustomIniFile);
   end;
 
 var
-  Modes: PPSDL_Rect;
+  Modes: PSDL_Rect;
   I:     integer;
 begin
+  MaxFramerate:= GetArrayIndex(IMaxFramerate, IniFile.ReadString('Graphics', 'MaxFramerate', '60'));
+  MaxFramerateGet:= StrToInt(IMaxFramerate[MaxFramerate]);
   // Screens
   Screens := GetArrayIndex(IScreens, IniFile.ReadString('Graphics', 'Screens', IScreens[0]));
+
+  // Split mode
+  Split := GetArrayIndex(ISplit, IniFile.ReadString('Graphics', 'Split', ISplit[0]));
 
   // FullScreen
   FullScreen := GetArrayIndex(IFullScreen, IniFile.ReadString('Graphics', 'FullScreen', 'On'));
@@ -870,7 +1175,8 @@ begin
   // Check if there are any modes available
   // TODO: we should seperate windowed and fullscreen modes. Otherwise it is not
   // possible to select a reasonable fullscreen mode when in windowed mode
-  if IFullScreen[FullScreen] = 'On' then
+  //basisbit todo implement sdl2 feature to get video modes here
+  {if IFullScreen[FullScreen] = 'On' then
     Modes  := SDL_ListModes(nil, SDL_OPENGL or SDL_FULLSCREEN)
   else
     Modes  := SDL_ListModes(nil, SDL_OPENGL or SDL_RESIZABLE) ;
@@ -879,8 +1185,8 @@ begin
   begin
     Log.LogStatus( 'No resolutions Found' , 'Video');
   end
-  else if (Modes = PPSDL_Rect(-1)) then
-  begin
+  else if (Modes = PSDL_Rect(-1)) then
+  begin}
     // Fallback to some standard resolutions
     SetLength(IResolution, 18);
     IResolution[0] := '640x480';
@@ -909,7 +1215,7 @@ begin
       IResolution[High(IResolution)] := IniFile.ReadString('Graphics', 'Resolution', '800x600');
       Resolution := High(IResolution);
     end;
-  end
+  {end
   else
   begin
     while assigned( Modes^ ) do //this should solve the biggest wine problem | THANKS Linnex (11.11.07)
@@ -934,7 +1240,7 @@ begin
       if Resolution = -1 then
         Resolution := 0;
     end;
-  end;
+  end;}
 
   // if no modes were set, then failback to 800x600
   // as per http://sourceforge.net/forum/message.php?msg_id=4544965
@@ -960,6 +1266,8 @@ var
   IniFile: TMemIniFile;
   I:       integer;
   IShowWebScore: array of UTF8String;
+  HexColor: string;
+  Col: TRGB;
 begin
   GamePath := Platform.GetGameUserPath;
 
@@ -974,12 +1282,20 @@ begin
   IniFile := TMemIniFile.Create(FileName.ToNative);
 
   // Name
-  for I := 0 to 15 do
+  for I := 0 to 11 do
     Name[I] := IniFile.ReadString('Name', 'P'+IntToStr(I+1), 'Player'+IntToStr(I+1));
 
   // Color Player
   for I := 0 to 5 do
     PlayerColor[I] := IniFile.ReadInteger('PlayerColor', 'P'+IntToStr(I+1), I + 1);
+
+  // Avatar Player
+  for I := 0 to 5 do
+    PlayerAvatar[I] := IniFile.ReadString('PlayerAvatar', 'P'+IntToStr(I+1), '');
+
+  // Level Player
+  for I := 0 to 5 do
+    PlayerLevel[I] := IniFile.ReadInteger('PlayerLevel', 'P'+IntToStr(I+1), 0);
 
   // Color Team
   for I := 0 to 2 do
@@ -999,6 +1315,9 @@ begin
 
   // Language
   Language := GetArrayIndex(ILanguage, IniFile.ReadString('Game', 'Language', 'English'));
+
+  // SongMenu
+  SongMenu := GetArrayIndex(ISongMenuMode, IniFile.ReadString('Game', 'SongMenu', ISongMenuMode[Ord(smRoulette)]));
 
   // Tabs
   Tabs := GetArrayIndex(ITabs, IniFile.ReadString('Game', 'Tabs', ITabs[0]));
@@ -1037,6 +1356,8 @@ begin
 
   LoadScreenModes(IniFile);
 
+  LoadWebcamSettings(IniFile);
+
   // TextureSize (aka CachedCoverSize)
   TextureSize := GetArrayIndex(ITextureSize, IniFile.ReadString('Graphics', 'TextureSize', '256'));
 
@@ -1047,10 +1368,10 @@ begin
   Oscilloscope := GetArrayIndex(IOscilloscope, IniFile.ReadString('Graphics', 'Oscilloscope', IOscilloscope[0]));
 
   // Spectrum
-  Spectrum := GetArrayIndex(ISpectrum, IniFile.ReadString('Graphics', 'Spectrum', 'Off'));
+  //Spectrum := GetArrayIndex(ISpectrum, IniFile.ReadString('Graphics', 'Spectrum', 'Off'));
 
   // Spectrograph
-  Spectrograph := GetArrayIndex(ISpectrograph, IniFile.ReadString('Graphics', 'Spectrograph', 'Off'));
+  //Spectrograph := GetArrayIndex(ISpectrograph, IniFile.ReadString('Graphics', 'Spectrograph', 'Off'));
 
   // MovieSize
   MovieSize := GetArrayIndex(IMovieSize, IniFile.ReadString('Graphics', 'MovieSize', IMovieSize[2]));
@@ -1134,6 +1455,12 @@ begin
   // PartyPopup
   PartyPopup := GetArrayIndex(IPartyPopup, IniFile.ReadString('Advanced', 'PartyPopup', 'On'));
 
+  // SingScores
+  SingScores := GetArrayIndex(ISingScores, IniFile.ReadString('Advanced', 'SingScores', 'On'));
+
+  // TopScores
+  TopScores := GetArrayIndex(ITopScores, IniFile.ReadString('Advanced', 'TopScores', 'All'));
+
   // SyncTo
   SyncTo := GetArrayIndex(ISyncTo, IniFile.ReadString('Advanced', 'SyncTo', ISyncTo[Ord(stMusic)]));
 
@@ -1143,10 +1470,117 @@ begin
   // Mouse
   Mouse := GetArrayIndex(IMouse, IniFile.ReadString('Controller',    'Mouse',   IMouse[2]));
 
+  // SingTimebarMode
+  SingTimebarMode := GetArrayIndex(ISingTimebarMode, IniFile.ReadString('Advanced', 'SingTimebarMode', 'Remaining'));
+
+  // JukeboxTimebarMode
+  JukeboxTimebarMode := GetArrayIndex(IJukeboxTimebarMode, IniFile.ReadString('Advanced', 'JukeboxTimebarMode', 'Current'));
+
   // WebCam
   WebCamID := IniFile.ReadInteger('Webcam', 'ID', 0);
-  WebCamResolution := GetArrayIndex(IWebcamResolution, IniFile.ReadString('Webcam', 'Resolution', IWebcamResolution[2]));
+  WebCamResolution := GetArrayIndex(IWebcamResolution, IniFile.ReadString('Webcam', 'Resolution', '320x240'));
+  if (WebCamResolution = -1) then
+    WebcamResolution := 2;
   WebCamFPS := GetArrayIndex(IWebcamFPS, IniFile.ReadString('Webcam', 'FPS', IWebcamFPS[4]));
+  WebCamFlip := GetArrayIndex(IWebcamFlipTranslated, IniFile.ReadString('Webcam', 'Flip', 'On'));
+  WebCamBrightness := GetArrayIndex(IWebcamBrightness, IniFile.ReadString('Webcam', 'Brightness', '0'));
+  WebCamSaturation := GetArrayIndex(IWebcamSaturation, IniFile.ReadString('Webcam', 'Saturation', '0'));
+  WebCamHue := GetArrayIndex(IWebcamHue, IniFile.ReadString('Webcam', 'Hue', '0'));
+  WebCamEffect := IniFile.ReadInteger('Webcam', 'Effect', 0);
+
+  // Jukebox
+  JukeboxFont := GetArrayIndex(ILyricsFont, IniFile.ReadString('Jukebox', 'LyricsFont', ILyricsFont[2]));
+  JukeboxEffect := GetArrayIndex(ILyricsEffect, IniFile.ReadString('Jukebox', 'LyricsEffect', ILyricsEffect[1]));
+  JukeboxAlpha := GetArrayIndex(ILyricsAlpha, IniFile.ReadString('Jukebox', 'LyricsAlpha', ILyricsAlpha[20]));
+
+  JukeboxSongMenu := GetArrayIndex(IJukeboxSongMenu, IniFile.ReadString('Jukebox', 'SongMenu', 'On'));
+
+
+  JukeboxSingLineColor := GetArrayIndex(IHexSingColor, IniFile.ReadString('Jukebox', 'SingLineColor', IHexSingColor[0]));
+
+  // other color
+  if (JukeboxSingLineColor = -1) then
+  begin
+    JukeboxSingLineColor := High(IHexSingColor);
+
+    HexColor := IniFile.ReadString('Jukebox', 'SingLineColor', IHexSingColor[0]);
+    Col := HexToRGB(HexColor);
+
+    Ini.JukeboxSingLineOtherColorR := Round(Col.R);
+    Ini.JukeboxSingLineOtherColorG := Round(Col.G);
+    Ini.JukeboxSingLineOtherColorB := Round(Col.B);
+  end;
+
+  JukeboxActualLineColor := GetArrayIndex(IHexGrayColor, IniFile.ReadString('Jukebox', 'ActualLineColor', IHexGrayColor[5]));
+
+  // other color
+  if (JukeboxActualLineColor = -1) then
+  begin
+    JukeboxActualLineColor := High(IHexGrayColor);
+
+    HexColor := IniFile.ReadString('Jukebox', 'ActualLineColor', IHexGrayColor[5]);
+    Col := HexToRGB(HexColor);
+
+    Ini.JukeboxActualLineOtherColorR := Round(Col.R);
+    Ini.JukeboxActualLineOtherColorG := Round(Col.G);
+    Ini.JukeboxActualLineOtherColorB := Round(Col.B);
+  end;
+
+  JukeboxNextLineColor := GetArrayIndex(IHexGrayColor, IniFile.ReadString('Jukebox', 'NextLineColor', IHexGrayColor[3]));
+  // other color
+  if (JukeboxNextLineColor = -1) then
+  begin
+    JukeboxNextLineColor := High(IHexGrayColor);
+
+    HexColor := IniFile.ReadString('Jukebox', 'NextLineColor', IHexGrayColor[3]);
+    Col := HexToRGB(HexColor);
+
+    Ini.JukeboxNextLineOtherColorR := Round(Col.R);
+    Ini.JukeboxNextLineOtherColorG := Round(Col.G);
+    Ini.JukeboxNextLineOtherColorB := Round(Col.B);
+  end;
+
+  JukeboxSingLineOutlineColor := GetArrayIndex(IHexOColor, IniFile.ReadString('Jukebox', 'SingLineOColor', IHexOColor[0]));
+  // other color
+  if (JukeboxSingLineOutlineColor = -1) then
+  begin
+    JukeboxSingLineOutlineColor := High(IHexOColor);
+
+    HexColor := IniFile.ReadString('Jukebox', 'SingLineOColor', IHexOColor[0]);
+    Col := HexToRGB(HexColor);
+
+    Ini.JukeboxSingLineOtherOColorR := Round(Col.R);
+    Ini.JukeboxSingLineOtherOColorG := Round(Col.G);
+    Ini.JukeboxSingLineOtherOColorB := Round(Col.B);
+  end;
+
+  JukeboxActualLineOutlineColor := GetArrayIndex(IHexOColor, IniFile.ReadString('Jukebox', 'ActualLineOColor', IHexOColor[0]));
+  // other color
+  if (JukeboxActualLineOutlineColor = -1) then
+  begin
+    JukeboxActualLineOutlineColor := High(IHexOColor);
+
+    HexColor := IniFile.ReadString('Jukebox', 'ActualLineOColor', IHexOColor[0]);
+    Col := HexToRGB(HexColor);
+
+    Ini.JukeboxActualLineOtherOColorR := Round(Col.R);
+    Ini.JukeboxActualLineOtherOColorG := Round(Col.G);
+    Ini.JukeboxActualLineOtherOColorB := Round(Col.B);
+  end;
+
+  JukeboxNextLineOutlineColor := GetArrayIndex(IHexOColor, IniFile.ReadString('Jukebox', 'NextLineOColor', IHexOColor[0]));
+  // other color
+  if (JukeboxNextLineOutlineColor = -1) then
+  begin
+    JukeboxNextLineOutlineColor := High(IHexOColor);
+
+    HexColor := IniFile.ReadString('Jukebox', 'NextLineOColor', IHexOColor[0]);
+    Col := HexToRGB(HexColor);
+
+    Ini.JukeboxNextLineOtherOColorR := Round(Col.R);
+    Ini.JukeboxNextLineOtherOColorG := Round(Col.G);
+    Ini.JukeboxNextLineOtherOColorB := Round(Col.B);
+  end;
 
   LoadPaths(IniFile);
 
@@ -1158,6 +1592,9 @@ end;
 procedure TIni.Save;
 var
   IniFile: TIniFile;
+  HexColor: string;
+  I: integer;
+  C: TRGB;
 begin
   if (Filename.IsFile and Filename.IsReadOnly) then
   begin
@@ -1179,6 +1616,9 @@ begin
   // Tabs
   IniFile.WriteString('Game', 'Tabs', ITabs[Tabs]);
 
+  // SongMenu
+  IniFile.WriteString('Game', 'SongMenu', ISongMenuMode[Ord(SongMenu)]);
+
   // Sorting
   IniFile.WriteString('Game', 'Sorting', ISorting[Sorting]);
 
@@ -1188,8 +1628,14 @@ begin
   // Debug
   IniFile.WriteString('Game', 'Debug', IDebug[Debug]);
 
+  // MaxFramerate
+  IniFile.WriteString('Graphics', 'MaxFramerate', IMaxFramerate[MaxFramerate]);
+
   // Screens
   IniFile.WriteString('Graphics', 'Screens', IScreens[Screens]);
+
+  // Split
+  IniFile.WriteString('Graphics', 'Split', ISplit[Split]);
 
   // FullScreen
   IniFile.WriteString('Graphics', 'FullScreen', IFullScreen[FullScreen]);
@@ -1213,10 +1659,10 @@ begin
   IniFile.WriteString('Graphics', 'Oscilloscope', IOscilloscope[Oscilloscope]);
 
   // Spectrum
-  IniFile.WriteString('Graphics', 'Spectrum', ISpectrum[Spectrum]);
+  //IniFile.WriteString('Graphics', 'Spectrum', ISpectrum[Spectrum]);
 
   // Spectrograph
-  IniFile.WriteString('Graphics', 'Spectrograph', ISpectrograph[Spectrograph]);
+  //IniFile.WriteString('Graphics', 'Spectrograph', ISpectrograph[Spectrograph]);
 
   // Movie Size
   IniFile.WriteString('Graphics', 'MovieSize', IMovieSize[MovieSize]);
@@ -1295,6 +1741,12 @@ begin
   //Party Popup
   IniFile.WriteString('Advanced', 'PartyPopup', IPartyPopup[PartyPopup]);
 
+  //SingScores
+  IniFile.WriteString('Advanced', 'SingScores', ISingScores[SingScores]);
+
+  //TopScores
+  IniFile.WriteString('Advanced', 'TopScores', ITopScores[TopScores]);
+
   //SyncTo
   IniFile.WriteString('Advanced', 'SyncTo', ISyncTo[SyncTo]);
 
@@ -1304,6 +1756,12 @@ begin
   // Mouse
   IniFile.WriteString('Controller', 'Mouse', IMouse[Mouse]);
 
+  // SingTimebarMode
+  IniFile.WriteString('Advanced', 'SingTimebarMode', ISingTimebarMode[SingTimebarMode]);
+
+  // JukeboxTimebarMode
+  IniFile.WriteString('Advanced', 'JukeboxTimebarMode', IJukeboxTimebarMode[JukeboxTimebarMode]);
+
   // Directories (add a template if section is missing)
   // Note: Value must be ' ' and not '', otherwise no key is generated on Linux
   if (not IniFile.SectionExists('Directories')) then
@@ -1311,6 +1769,71 @@ begin
 
   if (not IniFile.ValueExists('Directories', 'WebScoresDir')) then
     IniFile.WriteString('Directories', 'WebScoresDir', ' ');
+
+  // Jukebox
+  IniFile.WriteString('Jukebox', 'LyricsFont', ILyricsFont[JukeboxFont]);
+  IniFile.WriteString('Jukebox', 'LyricsEffect', ILyricsEffect[JukeboxEffect]);
+  IniFile.WriteString('Jukebox', 'LyricsAlpha', ILyricsAlpha[JukeboxAlpha]);
+
+  if (JukeboxSingLineColor <> High(ISingLineColor)) then
+  begin
+    C := GetLyricColor(JukeboxSingLineColor);
+    HexColor := RGBToHex(Round(C.R * 255), Round(C.G * 255), Round(C.B * 255));
+  end
+  else
+    HexColor := RGBToHex(JukeboxSingLineOtherColorR, JukeboxSingLineOtherColorG, JukeboxSingLineOtherColorB);
+
+  IniFile.WriteString('Jukebox', 'SingLineColor', HexColor);
+
+  if (JukeboxActualLineColor <> High(IActualLineColor)) then
+  begin
+    C := GetLyricGrayColor(JukeboxActualLineColor);
+    HexColor := RGBToHex(Round(C.R * 255), Round(C.G * 255), Round(C.B * 255));
+  end
+  else
+    HexColor := RGBToHex(JukeboxActualLineOtherColorR, JukeboxActualLineOtherColorG, JukeboxActualLineOtherColorB);
+
+  IniFile.WriteString('Jukebox', 'ActualLineColor', HexColor);
+
+  if (JukeboxNextLineColor <> High(INextLineColor)) then
+  begin
+    C := GetLyricGrayColor(JukeboxNextLineColor);
+    HexColor := RGBToHex(Round(C.R * 255), Round(C.G * 255), Round(C.B * 255));
+  end
+  else
+    HexColor := RGBToHex(JukeboxNextLineOtherColorR, JukeboxNextLineOtherColorG, JukeboxNextLineOtherColorB);
+
+  IniFile.WriteString('Jukebox', 'NextLineColor', HexColor);
+
+  if (JukeboxSingLineOutlineColor <> High(ISingLineOColor)) then
+  begin
+    C := GetLyricOutlineColor(JukeboxSingLineOutlineColor);
+    HexColor := RGBToHex(Round(C.R * 255), Round(C.G * 255), Round(C.B * 255));
+  end
+  else
+    HexColor := RGBToHex(JukeboxSingLineOtherOColorR, JukeboxSingLineOtherOColorG, JukeboxSingLineOtherOColorB);
+
+  IniFile.WriteString('Jukebox', 'SingLineOColor', HexColor);
+
+  if (JukeboxActualLineOutlineColor <> High(IActualLineOColor)) then
+  begin
+    C := GetLyricOutlineColor(JukeboxActualLineOutlineColor);
+    HexColor := RGBToHex(Round(C.R * 255), Round(C.G * 255), Round(C.B * 255));
+  end
+  else
+    HexColor := RGBToHex(JukeboxActualLineOtherOColorR, JukeboxActualLineOtherOColorG, JukeboxActualLineOtherOColorB);
+
+  IniFile.WriteString('Jukebox', 'ActualLineOColor', HexColor);
+
+  if (JukeboxNextLineOutlineColor <> High(INextLineOColor)) then
+  begin
+    C := GetLyricOutlineColor(JukeboxNextLineOutlineColor);
+    HexColor := RGBToHex(Round(C.R * 255), Round(C.G * 255), Round(C.B * 255));
+  end
+  else
+    HexColor := RGBToHex(JukeboxNextLineOtherOColorR, JukeboxNextLineOtherOColorG, JukeboxNextLineOtherOColorB);
+
+  IniFile.WriteString('Jukebox', 'NextLineOColor', HexColor);
 
   IniFile.Free;
 end;
@@ -1351,6 +1874,21 @@ begin
   end;
 end;
 
+procedure TIni.SaveJukeboxSongMenu;
+var
+  IniFile: TIniFile;
+begin
+  if not Filename.IsReadOnly() then
+  begin
+    IniFile := TIniFile.Create(Filename.ToNative);
+
+    IniFile.WriteString('Jukebox', 'SongMenu', IJukeboxSongMenu[JukeboxSongMenu]);
+
+    IniFile.Free;
+  end;
+end;
+
+
 procedure TIni.SaveShowWebScore;
 var
   IniFile: TIniFile;
@@ -1366,8 +1904,10 @@ begin
   end;
 end;
 
-procedure TIni.SavePlayerColors;
-var
+
+procedure TIni.SavePlayerColors;
+
+var
   IniFile: TIniFile;
   I: integer;
 begin
@@ -1378,6 +1918,39 @@ begin
     //Colors for Names Mod
     for I := 1 to 6 do
       IniFile.WriteString('PlayerColor', 'P' + IntToStr(I), IntToStr(PlayerColor[I-1]));
+
+    IniFile.Free;
+  end;
+end;
+
+procedure TIni.SavePlayerAvatars;
+var
+  IniFile: TIniFile;
+  I: integer;
+begin
+  if not Filename.IsReadOnly() then
+  begin
+    IniFile := TIniFile.Create(Filename.ToNative);
+
+    //Colors for Names Mod
+    for I := 1 to 6 do
+      IniFile.WriteString('PlayerAvatar', 'P' + IntToStr(I), PlayerAvatar[I-1]);
+
+    IniFile.Free;
+  end;
+end;
+
+procedure TIni.SavePlayerLevels;
+var
+  IniFile: TIniFile;
+  I: integer;
+begin
+  if not Filename.IsReadOnly() then
+  begin
+    IniFile := TIniFile.Create(Filename.ToNative);
+
+    for I := 1 to 6 do
+      IniFile.WriteInteger('PlayerLevel', 'P' + IntToStr(I), PlayerLevel[I-1]);
 
     IniFile.Free;
   end;
@@ -1426,11 +1999,65 @@ begin
     // WebCam
     IniFile.WriteInteger('Webcam', 'ID', WebCamID);
     IniFile.WriteString('Webcam', 'Resolution', IWebcamResolution[WebcamResolution]);
-    IniFile.WriteInteger('Webcam', 'FPS', WebCamFPS);
+    IniFile.WriteInteger('Webcam', 'FPS', StrToInt(IWebcamFPS[WebCamFPS]));
+
+    IniFile.WriteString('Webcam', 'Flip', IWebcamFlip[WebcamFlip]);
+    IniFile.WriteString('Webcam', 'Brightness', IWebcamBrightness[WebcamBrightness]);
+    IniFile.WriteString('Webcam', 'Saturation', IWebcamSaturation[WebcamSaturation]);
+    IniFile.WriteString('Webcam', 'Hue', IWebcamHue[WebcamHue]);
+    IniFile.WriteInteger('Webcam', 'Effect', WebcamEffect);
 
     IniFile.Free;
   end;
 
+end;
+
+procedure TIni.SaveNumberOfPlayers;
+var
+  IniFile: TIniFile;
+  I: integer;
+begin
+  if not Filename.IsReadOnly() then
+  begin
+    IniFile := TIniFile.Create(Filename.ToNative);
+
+    // Players
+    IniFile.WriteString('Game', 'Players', IPlayers[Players]);
+
+    IniFile.Free;
+  end;
+end;
+
+procedure TIni.SaveSingTimebarMode;
+var
+  IniFile: TIniFile;
+  I: integer;
+begin
+  if not Filename.IsReadOnly() then
+  begin
+    IniFile := TIniFile.Create(Filename.ToNative);
+
+    // Players
+    IniFile.WriteString('Advanced', 'SingTimebarMode', ISingTimebarMode[SingTimebarMode]);
+
+    IniFile.Free;
+  end;
+end;
+
+procedure TIni.SaveJukeboxTimebarMode;
+var
+  IniFile: TIniFile;
+  I: integer;
+begin
+  if not Filename.IsReadOnly() then
+  begin
+    IniFile := TIniFile.Create(Filename.ToNative);
+
+    // Players
+    IniFile.WriteString('Advanced', 'JukeboxTimebarMode', IJukeboxTimebarMode[JukeboxTimebarMode]);
+
+    IniFile.Free;
+  end;
 end;
 
 end.

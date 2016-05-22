@@ -34,8 +34,9 @@ interface
 {$I switches.inc}
 
 uses
-  SDL,
+  sdl2,
   SysUtils,
+  UCommon,
   UMenu,
   UDisplay,
   UMusic,

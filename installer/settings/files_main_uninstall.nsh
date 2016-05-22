@@ -25,6 +25,7 @@
  RMDir /r "$INSTDIR\sounds"
  RMDir /r "$INSTDIR\webs"
  RMDir /r "$INSTDIR\soundfonts"
+ RMDir /r "$INSTDIR\avatars"
 
 ; Delete remaining files
  Delete "$INSTDIR\ScoreConverter.exe"
@@ -42,6 +43,7 @@
  Delete "$INSTDIR\Error.log"
  Delete "$INSTDIR\Benchmark.log"
  Delete "$INSTDIR\cover.db"
+ Delete "$INSTDIR\avatar.db"
 
  Delete "$INSTDIR\avcodec-52.dll"
  Delete "$INSTDIR\avformat-52.dll"
@@ -72,7 +74,9 @@
  Delete "$INSTDIR\libeay32.dll"
  Delete "$INSTDIR\libidn-11.dll"
  Delete "$INSTDIR\libssl32.dll"
- 
+ Delete "$INSTDIR\cv210.dll"
+ Delete "$INSTDIR\cxcore210.dll"
+ Delete "$INSTDIR\highgui210.dll"
 
  StrCpy $0 "$INSTDIR\songs"
  Call un.DeleteIfEmpty 
@@ -93,7 +97,8 @@
  Delete "$APPDATA\ultrastardx\Error.log"
  Delete "$APPDATA\ultrastardx\Benchmark.log"
  Delete "$APPDATA\ultrastardx\cover.db"
-
+ Delete "$APPDATA\ultrastardx\avatar.db"
+ 
  StrCpy $0 "$APPDATA\ultrastardx\covers"
  Call un.DeleteIfEmpty
 

@@ -106,6 +106,12 @@ const
   {$MESSAGE Error 'Linked version of libavcodec is not yet supported!'}
 {$IFEND}
 
+{$IFNDEF FPC}
+type
+  // defines for Delphi
+  size_t = cardinal;
+{$ENDIF}
+
 const
   AV_NOPTS_VALUE: cint64  = $8000000000000000;
   AV_TIME_BASE            = 1000000;
@@ -526,17 +532,17 @@ type
  * all in native endian
  *}
 type
-  TSampleFormat = (
-    SAMPLE_FMT_NONE = -1,
-    SAMPLE_FMT_U8,              ///< unsigned 8 bits
-    SAMPLE_FMT_S16,             ///< signed 16 bits
-    SAMPLE_FMT_S32,             ///< signed 32 bits
-    SAMPLE_FMT_FLT,             ///< float
-    SAMPLE_FMT_DBL,             ///< double
-    SAMPLE_FMT_NB               ///< Number of sample formats. DO NOT USE if dynamically linking to libavcodec
+  TAVSampleFormat = (
+    AV_SAMPLE_FMT_NONE = -1,
+    AV_SAMPLE_FMT_U8,              ///< unsigned 8 bits
+    AV_SAMPLE_FMT_S16,             ///< signed 16 bits
+    AV_SAMPLE_FMT_S32,             ///< signed 32 bits
+    AV_SAMPLE_FMT_FLT,             ///< float
+    AV_SAMPLE_FMT_DBL,             ///< double
+    AV_SAMPLE_FMT_NB               ///< Number of sample formats. DO NOT USE if dynamically linking to libavcodec
   );
-  _TSampleFormatArray = array [0 .. MaxInt div SizeOf(TSampleFormat)-1] of TSampleFormat;
-  PSampleFormatArray = ^_TSampleFormatArray;
+  TAVSampleFormatArray = array [0 .. MaxInt div SizeOf(TAVSampleFormat)-1] of TAVSampleFormat;
+  PAVSampleFormatArray = ^TAVSampleFormatArray;
 
 const
   {* Audio channel masks *}
@@ -1286,7 +1292,7 @@ type
        or AVFormatContext, which begin with an AVClass.
        Needed because av_log is in libavcodec and has no visibility
        of AVIn/OutputFormat *)
-    item_name: function(): PAnsiChar; cdecl;
+    item_name: function(ctx: pointer): PAnsiChar; cdecl;
     option: PAVOption;
 
 {$IF LIBAVUTIL_VERSION >= 50015000} // 50.15.0
@@ -1686,7 +1692,7 @@ type
      * - encoding: Set by user.
      * - decoding: Set by libavcodec.
      *)
-    sample_fmt: TSampleFormat;  ///< sample format
+    sample_fmt: TAVSampleFormat;  ///< sample format
 
     (* The following data should not be initialized. *)
     (**
@@ -3143,7 +3149,7 @@ type
     supported_samplerates: {const} PCint;      ///< array of supported audio samplerates, or NULL if unknown, array is terminated by 0
     {$IFEND}
     {$IF LIBAVCODEC_VERSION >= 51062000} // 51.62.0
-    sample_fmts: {const} PSampleFormatArray;   ///< array of supported sample formats, or NULL if unknown, array is terminated by -1
+    sample_fmts: {const} PAVSampleFormatArray;   ///< array of supported sample formats, or NULL if unknown, array is terminated by -1
     {$IFEND}
     {$IF LIBAVCODEC_VERSION >= 52002000} // 52.2.0
     channel_layouts: {const} PCint64;          ///< array of support channel layouts, or NULL if unknown. array is terminated by 0
@@ -3542,7 +3548,7 @@ procedure avpicture_free (picture: PAVPicture);
  * @param height the height of the image in pixels
  * @return size of the image data in bytes
  *)
-function avpicture_fill (picture: PAVPicture; ptr: pointer;
+function avpicture_fill (picture: PAVPicture; ptr: pcuint8;
                  pix_fmt: TAVPixelFormat; width: cint; height: cint): cint;
   cdecl; external av__codec;
 
@@ -4343,7 +4349,7 @@ function av_get_bits_per_sample(codec_id: TCodecID): cint;
  * @param[in] sample_fmt the sample format
  * @return Number of bits per sample or zero if unknown for the given sample format.
  *)
-function av_get_bits_per_sample_format(sample_fmt: TSampleFormat): cint;
+function av_get_bits_per_sample_format(sample_fmt: TAVSampleFormat): cint;
   cdecl; external av__codec;
 {$IFEND}
 

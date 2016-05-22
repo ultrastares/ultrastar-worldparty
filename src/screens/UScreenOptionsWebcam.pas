@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/screens/UScreenOptionsAdvanced.pas $
- * $Id: UScreenOptionsAdvanced.pas 2338 2010-05-03 21:58:30Z k-m_schindler $
+ * $URL:  $
+ * $Id: $
  *}
 
 unit UScreenOptionsWebcam;
@@ -34,7 +34,7 @@ interface
 {$I switches.inc}
 
 uses
-  SDL,
+  sdl2,
   UMenu,
   UDisplay,
   UMusic,
@@ -45,20 +45,31 @@ uses
 type
   TScreenOptionsWebcam = class(TMenu)
     private
-      FrameX, FrameY, FrameW, FrameH: integer;
+      PreVisualization: boolean;
+
+      ID: integer;
+      Resolution: integer;
+      FPS: integer;
+      Flip: integer;
+      Brightness: integer;
+      Saturation: integer;
+      Hue: integer;
+      Effect: integer;
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure OnShow; override;
       function Draw: boolean; override;
       procedure DrawWebCamFrame;
+      procedure ChangeElementAlpha;
   end;
 
 implementation
 
 uses
-  gl,
+  dglOpenGL,
   UGraphic,
+  ULanguage,
   UUnicodeUtils,
   UWebcam,
   SysUtils;
@@ -72,6 +83,7 @@ begin
     case UCS4UpperCase(CharCode) of
       Ord('Q'):
         begin
+          if (PreVisualization) then Webcam.Release;
           Result := false;
           Exit;
         end;
@@ -82,17 +94,49 @@ begin
       SDLK_ESCAPE,
       SDLK_BACKSPACE :
         begin
+          if (PreVisualization) then Webcam.Release;
           //Ini.Save;
           AudioPlayback.PlaySound(SoundLib.Back);
           FadeTo(@ScreenOptions);
+          Ini.SaveWebcamSettings;
         end;
       SDLK_RETURN:
         begin
-          if SelInteraction = 3 then
+          if SelInteraction = 8 then
           begin
-            //Ini.Save;
+            PreVisualization := not PreVisualization;
+
+            if (PreVisualization) then
+            begin
+              Ini.SaveWebcamSettings;
+              Webcam.Restart;
+
+              if (Webcam.Capture = nil) then
+              begin
+                PreVisualization := false;
+                ScreenPopupError.ShowPopup(Language.Translate('SING_OPTIONS_WEBCAM_NO_WEBCAM'))
+              end
+            end
+            else
+            begin
+               Webcam.Release;
+               PreVisualization := false;
+            end;
+
+            ChangeElementAlpha;
+
+            if (PreVisualization) then
+              Button[0].Text[0].Text := Language.Translate('SING_OPTIONS_WEBCAM_DISABLE_PREVIEW')
+            else
+              Button[0].Text[0].Text := Language.Translate('SING_OPTIONS_WEBCAM_ENABLE_PREVIEW');
+          end;
+
+          if SelInteraction = 9 then
+          begin
             AudioPlayback.PlaySound(SoundLib.Back);
             FadeTo(@ScreenOptions);
+            Ini.SaveWebcamSettings;
+            if (PreVisualization) then Webcam.Release;
           end;
         end;
       SDLK_DOWN:
@@ -101,19 +145,34 @@ begin
         InteractPrev;
       SDLK_RIGHT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 2) then
+          if (SelInteraction >= 0) and (SelInteraction <= 7) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractInc;
           end;
-        end;
+
+          if (PreVisualization) then
+            Ini.SaveWebcamSettings;
+
+          // refresh webcam config
+          if (SelInteraction = 0) or (SelInteraction = 1) and (PreVisualization) then
+            Webcam.Restart;
+
+      end;
       SDLK_LEFT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 2) then
+          if (SelInteraction >= 0) and (SelInteraction <= 7) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractDec;
           end;
+
+          if (PreVisualization) then
+            Ini.SaveWebcamSettings;
+
+          // refresh webcam config
+          if (SelInteraction = 0) or (SelInteraction = 1) and (PreVisualization) then
+            Webcam.Restart;
         end;
     end;
   end;
@@ -121,54 +180,156 @@ end;
 
 constructor TScreenOptionsWebcam.Create;
 var
-  WebcamsIDs: array[0..1] of UTF8String;
+  WebcamsIDs: array[0..2] of UTF8String;
   SelectWebcam: integer;
 begin
   inherited Create;
 
   LoadFromTheme(Theme.OptionsWebcam);
 
-  WebcamsIDs[0] := '0';
-  WebcamsIDs[1] := '1';
+  WebcamsIDs[0] := Language.Translate('OPTION_VALUE_OFF');
+  WebcamsIDs[1] := '0';
+  WebcamsIDs[2] := '1';
 
   Theme.OptionsWebcam.SelectWebcam.showArrows := true;
   Theme.OptionsWebcam.SelectWebcam.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsWebcam.SelectWebcam, Ini.WebCamID, WebcamsIDs);
+  ID := AddSelectSlide(Theme.OptionsWebcam.SelectWebcam, Ini.WebCamID, WebcamsIDs);
 
   Theme.OptionsWebcam.SelectResolution.showArrows := true;
   Theme.OptionsWebcam.SelectResolution.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsWebcam.SelectResolution, Ini.WebcamResolution, IWebcamResolution);
+  Resolution := AddSelectSlide(Theme.OptionsWebcam.SelectResolution, Ini.WebcamResolution, IWebcamResolution);
 
   Theme.OptionsWebcam.SelectFPS.showArrows := true;
   Theme.OptionsWebcam.SelectFPS.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsWebcam.SelectFPS, Ini.WebCamFPS, IWebcamFPS);
+  FPS := AddSelectSlide(Theme.OptionsWebcam.SelectFPS, Ini.WebCamFPS, IWebcamFPS);
+
+  Theme.OptionsWebcam.SelectFlip.showArrows := true;
+  Theme.OptionsWebcam.SelectFlip.oneItemOnly := true;
+  Flip := AddSelectSlide(Theme.OptionsWebcam.SelectFlip, Ini.WebCamFlip, IWebcamFlipTranslated);
+
+  Theme.OptionsWebcam.SelectBrightness.showArrows := true;
+  Theme.OptionsWebcam.SelectBrightness.oneItemOnly := true;
+  Brightness := AddSelectSlide(Theme.OptionsWebcam.SelectBrightness, Ini.WebCamBrightness, IWebcamBrightness);
+
+  Theme.OptionsWebcam.SelectSaturation.showArrows := true;
+  Theme.OptionsWebcam.SelectSaturation.oneItemOnly := true;
+  Saturation := AddSelectSlide(Theme.OptionsWebcam.SelectSaturation, Ini.WebCamSaturation, IWebcamSaturation);
+
+  Theme.OptionsWebcam.SelectHue.showArrows := true;
+  Theme.OptionsWebcam.SelectHue.oneItemOnly := true;
+  Hue := AddSelectSlide(Theme.OptionsWebcam.SelectHue, Ini.WebCamHue, IWebcamHue);
+
+  Theme.OptionsWebcam.SelectEffect.showArrows := true;
+  Theme.OptionsWebcam.SelectEffect.oneItemOnly := true;
+  Effect := AddSelectSlide(Theme.OptionsWebcam.SelectEffect, Ini.WebCamEffect, IWebcamEffectTranslated);
+
+  AddButton(Theme.OptionsWebcam.ButtonPreVisualization);
 
   AddButton(Theme.OptionsWebcam.ButtonExit);
-  if (Length(Button[0].Text)=0) then
-    AddButtonText(20, 5, Theme.Options.Description[9]);
-
-  FrameX := Theme.OptionsWebcam.Frame.X;
-  FrameY := Theme.OptionsWebcam.Frame.Y;
-  FrameW := Theme.OptionsWebcam.Frame.W;
-  FrameH := Theme.OptionsWebcam.Frame.H;
+  if (Length(Button[1].Text)=0) then
+    AddButtonText(20, 5, Theme.Options.Description[10]);
 
   Interaction := 0;
+
+  // new tests
+  Ini.WebCamSaturation := 100;
+  Ini.WebCamHue := 180;
+  Ini.WebCamEffect := 0;
+  {
+  SelectsS[Saturation].Visible := false;
+  SelectsS[Hue].Visible := false;
+  SelectsS[Effect].Visible := false;
+  }
 end;
 
 procedure TScreenOptionsWebcam.OnShow;
 begin
   inherited;
 
+  PreVisualization := false;
+
+  ChangeElementAlpha;
+
+  Button[0].Text[0].Text := Language.Translate('SING_OPTIONS_WEBCAM_ENABLE_PREVIEW');
+
   Interaction := 0;
 end;
 
 function TScreenOptionsWebcam.Draw: boolean;
+var
+  I: integer;
+  Alpha: real;
 begin
-  DrawBG;
 
-  DrawWebCamFrame;
+  if (PreVisualization) and (SelectsS[ID].SelectOptInt > 0) then
+  begin
+    try
+
+     DrawWebCamFrame;
+    except
+      ;
+    end;
+
+
+    if (PreVisualization) then
+      Alpha := 0.5
+    else
+      Alpha := 1;
+
+    for I := 0 to High(SelectsS) do
+    begin
+      SelectsS[I].Tex_SelectS_ArrowL.Alpha := Alpha;
+      SelectsS[I].Tex_SelectS_ArrowR.Alpha := Alpha;
+    end;
+
+  end
+  else
+    DrawBG;
 
   DrawFG;
+end;
+
+procedure TScreenOptionsWebcam.ChangeElementAlpha;
+var
+  I, J: integer;
+  Alpha: real;
+begin
+
+  if (PreVisualization) then
+    Alpha := 0.5
+  else
+    Alpha := 1;
+
+  for I := 0 to High(Text) do
+    Text[I].Alpha := Alpha;
+
+  for I := 0 to High(Statics) do
+    Statics[I].Texture.Alpha := Alpha;
+
+  for I := 0 to High(Button) do
+  begin
+    Button[I].Texture.Alpha := Alpha;
+
+    for J := 0 to High(Button[I].Text) do
+      Button[I].Text[J].Alpha := Alpha;
+  end;
+
+  for I := 0 to High(SelectsS) do
+  begin
+    SelectsS[I].Texture.Alpha := Alpha;
+    SelectsS[I].TextureSBG.Alpha := Alpha;
+
+    SelectsS[I].Tex_SelectS_ArrowL.Alpha := Alpha;
+    SelectsS[I].Tex_SelectS_ArrowR.Alpha := Alpha;
+
+    SelectsS[I].Text.Alpha := Alpha;
+
+    for J := 0 to High(SelectsS[I].TextOpt) do
+      SelectsS[I].TextOpt[J].Alpha := Alpha;
+
+  end;
+
+
 end;
 
 procedure TScreenOptionsWebcam.DrawWebCamFrame;
@@ -186,27 +347,14 @@ begin
     glEnable(GL_BLEND);
     glBegin(GL_QUADS);
 
-    // WITHOUT FLIP
-    {
-    glTexCoord2f(0, 0);
-    glVertex2f(800,  0);
-    glTexCoord2f(0, ScreenSing.TextureCam.TexH);
-    glVertex2f(800,  600);
-    glTexCoord2f( ScreenSing.TextureCam.TexW, ScreenSing.TextureCam.TexH);
-    glVertex2f(0, 600);
-    glTexCoord2f( ScreenSing.TextureCam.TexW, 0);
-    glVertex2f(0, 0);
-    }
-
-    // WITH FLIP
-    glTexCoord2f(0, 0);
-    glVertex2f(FrameX, FrameY);
-    glTexCoord2f(0,  Webcam.TextureCam.TexH);
-    glVertex2f(FrameX,  FrameY + FrameH);
-    glTexCoord2f( Webcam.TextureCam.TexW,  Webcam.TextureCam.TexH);
-    glVertex2f(FrameX + FrameW, FrameY + FrameH);
-    glTexCoord2f( Webcam.TextureCam.TexW, 0);
-    glVertex2f(FrameX + FrameW, FrameY);
+      glTexCoord2f(0, 0);
+      glVertex2f(800,  0);
+      glTexCoord2f(0, Webcam.TextureCam.TexH);
+      glVertex2f(800,  600);
+      glTexCoord2f( Webcam.TextureCam.TexW, Webcam.TextureCam.TexH);
+      glVertex2f(0, 600);
+      glTexCoord2f( Webcam.TextureCam.TexW, 0);
+      glVertex2f(0, 0);
 
     glEnd;
     glDisable(GL_TEXTURE_2D);
@@ -218,8 +366,5 @@ begin
   end;
 
 end;
-
-
-
 
 end.

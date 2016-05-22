@@ -35,11 +35,13 @@ interface
 
 uses
   UMenu,
-  SDL,
+  sdl2,
+  UCommon,
   UDisplay,
   UMusic,
   UFiles,
   SysUtils,
+  ULog,
   UThemes;
 
 type
@@ -51,7 +53,8 @@ type
       SelectRound: array [0..6] of cardinal;
 
       RoundCount: integer;
-      Round: array [0..97] of integer;
+      Round: array [0..6] of integer;
+      RoundMode: array [0..98] of integer;
 
       IModeNames: array of UTF8String;
       IModeIDs: array of integer;
@@ -79,7 +82,7 @@ uses
   USong,
   UPlaylist,
   USongs,
-  UUnicodeUtils;
+  UUnicodeUtils, UMenuSelectSlide;
 
 procedure TScreenPartyRounds.InteractNext;
 var
@@ -92,7 +95,10 @@ begin
 
     // update slides
     for I := 0 to high(Theme.PartyRounds.SelectRound) do
+    begin
       SelectsS[SelectRound[I]].Text.Text := Format(Language.Translate('PARTY_SELECTMODE'), [(Actual + I + 1)]);
+      SelectsS[SelectRound[I]].SetSelectOpt(RoundMode[Actual + I]);
+    end;
 
   end
   else
@@ -111,7 +117,10 @@ begin
 
     // update slides
     for I := 0 to high(Theme.PartyRounds.SelectRound) do
+    begin
       SelectsS[SelectRound[I]].Text.Text := Format(Language.Translate('PARTY_SELECTMODE'), [(Actual + I + 1)]);
+      SelectsS[SelectRound[I]].SetSelectOpt(RoundMode[Actual + I]);
+    end;
 
   end
   else
@@ -138,7 +147,7 @@ begin
   SetLength(GameRounds, RoundCount + 2);
 
   for I := 0 to High(GameRounds) do
-    GameRounds[I] := IModeIds[Round[I]];
+    GameRounds[I] := IModeIds[RoundMode[I]];
 
   // start party game
   if (Party.StartGame(GameRounds)) then
@@ -188,7 +197,9 @@ begin
           InteractInc;
 
           if Interaction = 0 then
-            UpdateInterface;
+            UpdateInterface
+          else
+            RoundMode[Actual + Interaction - 1] := Round[Interaction - 1];
         end;
       SDLK_LEFT:
         begin
@@ -196,7 +207,9 @@ begin
           InteractDec;
 
           if Interaction = 0 then
-            UpdateInterface;
+            UpdateInterface
+          else
+            RoundMode[Actual + Interaction - 1] := Round[Interaction - 1];
         end;
     end;
   end;
@@ -224,35 +237,50 @@ begin
   IModeNames[0] := '---';
   for I := 0 to high(Theme.PartyRounds.SelectRound) do
   begin
-    Round[I] := 0;
     Theme.PartyRounds.SelectRound[I].oneItemOnly := true;
     Theme.PartyRounds.SelectRound[I].showArrows := true;
     SelectRound[I] := AddSelectSlide(Theme.PartyRounds.SelectRound[I], Round[I], IModeNames);
     SelectsS[SelectRound[I]].Text.Text := Format(Language.Translate('PARTY_SELECTMODE'), [(I + 1)]);
   end;
 
+  for I := 0 to High(RoundMode) do
+    RoundMode[I] := 0;
 
   Interaction := 0;
+  Actual := 0;
 end;
 
 procedure TScreenPartyRounds.OnShow;
   var
     ModeList: AParty_ModeList;
-    I: integer;
+    temp: TParty_RoundList;
+    I, J: integer;
 begin
   inherited;
-
-  Actual := 0;
-  Interaction := 0;
 
   // check if there are loaded modes
   if Party.ModesAvailable then
   begin
     UpdateInterface;
-    
+
     ModeList := Party.GetAvailableModes;
     SetLength(IModeNames, Length(ModeList));
     SetLength(IModeIds, Length(ModeList));
+
+    // sort
+    for I := Length(ModeList) - 1 downto 1 do
+    begin
+      for J := 2 to i do
+      begin
+        If UTF8CompareText(ModeList[J - 1].Name, ModeList[J].Name) > 0 then
+        begin
+          temp := ModeList[J - 1];
+          ModeList[J - 1] := ModeList[J];
+          ModeList[J] := temp;
+        end;
+      end;
+    end;
+
     for I := 0 to High(ModeList) do
     begin
       IModeNames[I] := ModeList[I].Name;

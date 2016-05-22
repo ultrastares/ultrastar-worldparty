@@ -35,7 +35,7 @@ interface
 
 uses
   UMenu,
-  SDL,
+  sdl2,
   UDisplay,
   UMusic,
   UFiles,
@@ -150,7 +150,7 @@ begin
 
   AddButton(Theme.OptionsGraphics.ButtonExit);
   if (Length(Button[0].Text)=0) then
-    AddButtonText(20, 5, Theme.Options.Description[9]);
+    AddButtonText(20, 5, Theme.Options.Description[10]);
 
 end;
 

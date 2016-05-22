@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/screens/UScreenLoading.pas $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/screens/UScreenLoading.pas $
  * $Id: UScreenLoading.pas 1939 2009-11-09 00:27:55Z s_alexander $
  *}
 
@@ -35,10 +35,10 @@ interface
 
 uses
   UMenu,
-  SDL,
+  sdl2,
   SysUtils,
   UThemes,
-  gl;
+  dglOpenGL;
 
 type
   TScreenLoading = class(TMenu)
@@ -49,7 +49,6 @@ type
       constructor Create; override;
       procedure OnShow; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
-//      function Draw: boolean; override;
   end;
 
 implementation

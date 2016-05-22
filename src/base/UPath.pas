@@ -29,6 +29,7 @@ unit UPath;
   {$MODE Delphi}
 {$ENDIF}
 
+{$H+}
 {$I switches.inc}
 
 interface
@@ -38,10 +39,13 @@ uses
   Classes,
   IniFiles,
   {$IFDEF MSWINDOWS}
-  TntClasses,
+  LazFileUtils,
+  LazUTF8,
+  LazUTF8Classes,
   {$ENDIF}
   UConfig,
-  UUnicodeUtils;
+  UUnicodeStringHelper,
+  SDL2;
 
 type
   IPath = interface;
@@ -81,11 +85,11 @@ type
   {**
    * TBinaryFileStream (inherited from THandleStream)
    *}
-  {$IFDEF MSWINDOWS}
-  TBinaryFileStream = class(TTntFileStream)
-  {$ELSE}
+  //{$IFDEF MSWINDOWS}
+  //TBinaryFileStream = class(TTntFileStream)
+  //{$ELSE}
   TBinaryFileStream = class(TFileStream)
-  {$ENDIF}
+  //{$ENDIF}
   public
     {**
      * @seealso TFileStream.Create for valid Mode parameters
@@ -561,9 +565,9 @@ type
 
 function Path(const PathName: RawByteString; DelimOption: TPathDelimOption): IPath;
 begin
-  if (IsUTF8String(PathName)) then
+  if (IsUTF8StringH(PathName)) then
     Result := TPathImpl.Create(PathName, DelimOption)
-  else if (IsNativeUTF8()) then
+  else if (IsNativeUTF8H()) then
     Result := PATH_NONE
   else
     Result := TPathImpl.Create(AnsiToUtf8(PathName), DelimOption);
@@ -664,9 +668,9 @@ end;
 
 function TPathImpl.ToNative(): RawByteString;
 begin
-  if (IsNativeUTF8()) then
+  if (IsNativeUTF8H()) then
     Result := fName
-  else
+  else //basisbit hackyhack
     Result := Utf8ToAnsi(fName);
 end;
 
@@ -813,15 +817,28 @@ begin
 end;
 
 function TPathImpl.Equals(const Other: IPath; IgnoreCase: boolean): boolean;
+{$IFNDEF UNIX}
 var
   SelfPath, OtherPath: UTF8String;
+{$ENDIF}
 begin
+{$IFDEF UNIX}
+  (*
+    It looks like the code converts correctly to UTF-8 for all input data.
+    Therefore, just use those (byte) strings to perform the comparision.
+    NOTE: This is broken for UTF-8 strings, because file system and singstar
+    files might not be normalized. However, the previous code (see below in
+    ELSE ifdef) doesn't handle that either. So it should be fine.
+  *)
+  Result := CompareStr(Self.ToNative(), Other.ToNative()) = 0;
+{$ELSE}
   SelfPath := Self.GetAbsolutePath().RemovePathDelim().ToUTF8();
   OtherPath := Other.GetAbsolutePath().RemovePathDelim().ToUTF8();
   if (FileSystem.IsCaseSensitive() and not IgnoreCase) then
     Result := (CompareStr(SelfPath, OtherPath) = 0)
   else
     Result := (CompareText(SelfPath, OtherPath) = 0);
+{$ENDIF}
 end;
 
 function TPathImpl.Equals(const Other: RawByteString; IgnoreCase: boolean): boolean;
@@ -1014,7 +1031,7 @@ function TPathImpl.IsFile(): boolean;
 begin
   // note the different specifications of FileExists() on Win32 <> Unix
   {$IFDEF MSWINDOWS}
-  Result := FileSystem.FileExists(Self);
+  Result:= FileSystem.FileExists(Self);
   {$ELSE}
   Result := Exists() and not IsDirectory();
   {$ENDIF}
@@ -1098,7 +1115,10 @@ end;
 constructor TBinaryFileStream.Create(const FileName: IPath; Mode: word);
 begin
 {$IFDEF MSWINDOWS}
-  inherited Create(FileName.ToWide(), Mode);
+if FileExistsUTF8(FileName.ToUTF8()) or (Mode = fmCreate) then
+  inherited Create(Utf8ToAnsi(FileName.ToUTF8()), Mode)
+else
+  raise EInOutError.Create('File does not exist and Open-action is read, not create: ' + FileName.ToNative() + ' in UPath.TBinaryFileStream.Create');
 {$ELSE}
   inherited Create(FileName.ToNative(), Mode);
 {$ENDIF}
@@ -1146,9 +1166,10 @@ begin
   fStream := TMemoryStream.Create();
 
   // load data to memory in read mode
-  if ((Mode and 3) in [fmOpenRead, fmOpenReadWrite]) then
+  if (((Mode and 3) in [fmOpenRead, fmOpenReadWrite]) and (Mode <> fmCreate)) then
   begin
     FileStream := TBinaryFileStream.Create(Filename, fmOpenRead);
+
     try
       fStream.LoadFromStream(FileStream);
     finally
@@ -1169,7 +1190,7 @@ var
   SaveMode: word;
 begin
   // save changes in write mode (= not read-only mode)
-  if ((fMode and 3) <> fmOpenRead) then
+  if (((fMode and 3) <> fmOpenRead) or (fMode = fmCreate)) then
   begin
     if (fMode = fmCreate) then
       SaveMode := fmCreate

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/media/UVisualizer.pas $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/media/UVisualizer.pas $
  * $Id: UVisualizer.pas 2665 2010-10-14 08:00:23Z k-m_schindler $
  *}
 
@@ -63,14 +63,10 @@ interface
 {.$DEFINE UseTexture}
 
 uses
-  SDL,
+  sdl2,
   UGraphicClasses,
-  textgl,
   math,
-  gl,
-  {$IFDEF UseTexture}
-  glu,
-  {$ENDIF}
+  dglOpenGL,
   SysUtils,
   UIni,
   projectM,

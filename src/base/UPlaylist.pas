@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/UPlaylist.pas $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/base/UPlaylist.pas $
  * $Id: UPlaylist.pas 2199 2010-03-14 20:56:20Z brunzelchen $
  *}
 
@@ -35,6 +35,7 @@ interface
 
 uses
   Classes,
+  UIni,
   USong,
   UPath,
   UPathUtils;
@@ -320,7 +321,7 @@ begin
   ScreenSong.SelectNext;
   ScreenSong.FixSelected;
 
-  // Play correct Music
+  //Play correct Music
   //ScreenSong.ChangeMusic;
 
 end;
@@ -394,7 +395,7 @@ begin
   //-> Display Songs
   if (CatSongs.CatNumShow = -3) and (Index = CurPlaylist) then
   begin
-    ScreenSong.UnLoadDetailedCover;
+    ScreenSong.UnloadCover(ScreenSong.Interaction);
     ScreenSong.HideCatTL;
     CatSongs.SetFilter('', fltAll);
     ScreenSong.Interaction := 0;

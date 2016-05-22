@@ -19,8 +19,8 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/screens/UScreenOptionsAdvanced.pas $
- * $Id: UScreenOptionsNetwork.pas 2243 2010-03-16 19:25:13Z zup3r_vock $
+ * $URL:  $
+ * $Id: $
  *}
 
 unit UScreenOptionsNetwork;
@@ -34,8 +34,8 @@ interface
 {$I switches.inc}
 
 uses
-  SDL,
-  curlobj,
+  sdl2,
+  //curlobj,
   UMenu,
   UDataBase,
   UDisplay,
@@ -66,6 +66,8 @@ type
     NewUser_Username: UTF8String;
     EncryptPassword: UTF8String;
 
+    InsertButton: integer;
+    
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -272,13 +274,28 @@ begin
             AudioPlayback.PlaySound(SoundLib.Back);
             FadeTo(@ScreenOptions);
           end;
+
+          if (SelInteraction = 9) then
+            ScreenPopupInsertUser.ShowPopup(Format(Language.Translate('MSG_INSERT_USER_TITLE'), [DataBase.NetworkUser[CurrentWebsiteIndex].Website]), Language.Translate('MSG_INSERT_USER_DESC'), OnNewUser, nil);
         end;
       SDLK_DOWN:
-        InteractNext;
+        begin
+          if (SelInteraction = 8) then
+            Interaction := 0
+          else
+            InteractNext;
+        end;
       SDLK_UP :
-        InteractPrev;
+        begin
+          if (SelInteraction = 0) then
+            Interaction := 8
+          else
+            InteractPrev;
+        end;
       SDLK_RIGHT:
         begin
+          if (SelInteraction = 8) then
+            Interaction := 9;
 
           if (SelInteraction >= 0) and (SelInteraction < 5) then
           begin
@@ -331,6 +348,8 @@ begin
         end;
       SDLK_LEFT:
         begin
+          if (SelInteraction = 9) then
+            Interaction := 8;
 
           if (SelInteraction >= 0) and (SelInteraction < 5) then
           begin
@@ -469,10 +488,11 @@ begin
 
     AddButton(Theme.OptionsNetwork.ButtonExit);
     if (Length(Button[0].Text)=0) then
-      AddButtonText(20, 5, Theme.Options.Description[9]);
+      AddButtonText(20, 5, Theme.Options.Description[10]);
+
+    InsertButton := AddButton(Theme.OptionsNetwork.ButtonInsert);
 
     Interaction := 0;
-
   end;
 end;
 

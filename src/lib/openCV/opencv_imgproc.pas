@@ -1,12 +1,18 @@
 unit opencv_imgproc;
 
 interface
-uses
-{$IFDEF WIN32}
-  Windows, Dialogs, SysUtils, opencv_types;
-{$ELSE}
-  Wintypes, WinProcs, Dialogs, SysUtils;
+
+{$IFDEF FPC}
+  {$MODE Delphi}
 {$ENDIF}
+
+uses
+  SysUtils, opencv_types,
+  {$IFDEF WIN32}
+    Windows, Dialogs;
+  {$ELSE}
+    dynlibs;
+  {$ENDIF}
 
 ///****************************************************************************************\
 //*                                    Image Processing                                    *
@@ -270,16 +276,6 @@ var cvFindContours:function(image:pointer{PCvArr}; storage: PCvMemStorage;
                             offset: CvPoint  {CV_DEFAULT(cvPoint(0,0))} ) :integer; cdecl;
 
 
-function cvFindContours_(image:pointer{PCvArr};
-                            storage: PCvMemStorage;
-                            first_contour:PPCvSeq;
-                            header_size: integer {= sizeof(CvContour)};
-                            mode: integer{=CV_RETR_LIST};
-                            method: integer{=CV_CHAIN_APPROX_SIMPLE};
-                            offset: CvPoint  {CV_DEFAULT(cvPoint(0,0))} ) :integer; cdecl; external 'libcv200' name 'cvFindContours';
-
-
-
 
 ///****************************************************************************************\
 //*                            Contour Processing and Shape Analysis                       *
@@ -325,7 +321,13 @@ var cvCheckContourConvexity: function(contour: PCvArr):integer;cdecl;
 implementation
 
 const
-  DLL_CV='cv210.dll'; //'opencv_imgproc231.dll';
+  {$IF Defined(MSWINDOWS)}
+    DLL_CV='cv210.dll';
+  {$ELSEIF Defined(DARWIN)}
+    DLL_CV='libopencv_imgproc.dylib';
+  {$ELSEIF Defined(UNIX)}
+    DLL_CV='libopencv_imgproc.so';
+  {$IFEND}
 
 var
   DLLHandle: THandle;
@@ -361,9 +363,9 @@ begin
     {$ENDIF}
     //
 
-    //@cvSmooth := GetProcAddress(DLLHandle,'cvSmooth');
+    @cvSmooth := GetProcAddress(DLLHandle,'cvSmooth');
     {$IFDEF WIN32}
-    //Assert(@cvSmooth <> nil);
+    Assert(@cvSmooth <> nil);
     {$ENDIF}
     //
     //@cvCopyMakeBorder := GetProcAddress(DLLHandle,'cvCopyMakeBorder');
@@ -383,9 +385,9 @@ begin
     Assert(@cvCvtColor <> nil);
     {$ENDIF}
     //
-    //@cvEqualizeHist := GetProcAddress(DLLHandle,'cvEqualizeHist');
+    @cvEqualizeHist := GetProcAddress(DLLHandle,'cvEqualizeHist');
     {$IFDEF WIN32}
-    //Assert(@cvEqualizeHist <> nil);
+    Assert(@cvEqualizeHist <> nil);
     {$ENDIF}
     //
     //@cvResize := GetProcAddress(DLLHandle,'cvResize');
@@ -408,20 +410,20 @@ begin
     //Assert(@cvPyrUp <> nil);
     {$ENDIF}
     //
-    //@cvCanny := GetProcAddress(DLLHandle,'cvCanny');
+    @cvCanny := GetProcAddress(DLLHandle,'cvCanny');
     {$IFDEF WIN32}
-    //Assert(@cvCanny <> nil);
+    Assert(@cvCanny <> nil);
     {$ENDIF}
 
     //
-    //@cvDilate := GetProcAddress(DLLHandle,'cvDilate');
+    @cvDilate := GetProcAddress(DLLHandle,'cvDilate');
     {$IFDEF WIN32}
-    //Assert(@cvDilate <> nil);
+    Assert(@cvDilate <> nil);
     {$ENDIF}
     //
-    //@cvThreshold := GetProcAddress(DLLHandle,'cvThreshold');
+    @cvThreshold := GetProcAddress(DLLHandle,'cvThreshold');
     {$IFDEF WIN32}
-    //Assert(@cvThreshold <> nil);
+    Assert(@cvThreshold <> nil);
     {$ENDIF}
 
     //
@@ -451,10 +453,10 @@ begin
    {$ENDIF}
 
     //
-    //@cvErode := GetProcAddress(DLLHandle,'cvErode');
+    @cvErode := GetProcAddress(DLLHandle,'cvErode');
     {$IFDEF WIN32}
-    //Assert(@cvErode <> nil);
-   {$ENDIF}
+    Assert(@cvErode <> nil);
+    {$ENDIF}
 
     //
     //@cvSobel := GetProcAddress(DLLHandle,'cvSobel');
@@ -471,7 +473,7 @@ begin
   end
   else
   begin
-    showmessage(format('Error: %s could not be loaded !!',[DLL_CV]));
+    //showmessage(format('Error: %s could not be loaded !!',[DLL_CV]));
   end;
 end;
 
@@ -480,7 +482,7 @@ begin
   try
   result := cvArcLength(contour,CV_WHOLE_SEQ,1);
   except
-    showmessage('aaaaaa1');
+    //showmessage('aaaaaa1');
 
   end;
 end;

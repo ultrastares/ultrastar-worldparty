@@ -34,11 +34,13 @@ interface
 {$I switches.inc}
 
 uses
+  UCommon,
   UMenu,
   ULog,
-  SDL,
+  sdl2,
   UDisplay,
   UMusic,
+  UNote,
   UFiles,
   SysUtils,
   UScreenSing,
@@ -79,6 +81,7 @@ type
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure OnShow; override;
+      
       procedure SetAnimationProgress(Progress: real); override;
       function NoRepeatColors(ColorP:integer; Interaction:integer; Pos:integer):integer;
       procedure TeamColorButton(K: integer; Interact: integer);
@@ -92,6 +95,7 @@ const
 implementation
 
 uses
+  UAvatars,
   UGraphic,
   UMain,
   UIni,
@@ -137,8 +141,9 @@ begin
 end;
 
 procedure TScreenPartyPlayer.UpdateParty;
-  var
+var
     I, J: integer;
+    Col: TRGB;
 begin
 
   {//Save PlayerNames
@@ -156,15 +161,24 @@ begin
 
   for I := 0 to CountTeams + 1 do
   begin
-    Ini.TeamColor[I] := Num[I];
-
     Ini.SingColor[I] := Num[I];
-
+    Ini.TeamColor[I] := Num[I];
+    
     Party.AddTeam(Button[I * 5].Text[0].Text);
 
     for J := 0 to CountPlayer[I] do
       Party.AddPlayer(I, Button[I * 5 + 1 + J].Text[0].Text);
+
+    // no avatar on Party
+    AvatarPlayerTextures[I + 1] := NoAvatarTexture[I + 1];
+
+    Col := GetPlayerColor(Num[I]);
+
+    AvatarPlayerTextures[I + 1].ColR := Col.R;
+    AvatarPlayerTextures[I + 1].ColG := Col.G;
+    AvatarPlayerTextures[I + 1].ColB := Col.B;
   end;
+
 
   // MOD Colors
   Ini.SaveTeamColors;
@@ -178,6 +192,10 @@ begin
   freeandnil(ScreenPartyNewRound);
   freeandnil(ScreenPartyWin);
   freeandnil(ScreenPartyScore);
+
+  Party.bPartyGame := true;
+  PlayersPlay := Length(Party.Teams);
+
   ScreenSing := TScreenSing.Create;
   ScreenPartyNewRound := TScreenPartyNewRound.Create;
   ScreenPartyWin := TScreenPartyWin.Create;
@@ -452,6 +470,8 @@ begin
 end;
 
 constructor TScreenPartyPlayer.Create;
+var
+  ButtonID: integer;
 begin
   inherited Create;
 
@@ -462,34 +482,63 @@ begin
   SelectTeams     := AddSelectSlide(Theme.PartyPlayer.SelectTeams, CountTeams, ITeams);
 
   Team1Name := AddButton(Theme.PartyPlayer.Team1Name);
+  Button[Team1Name].Text[0].Writable := true;
+
   Theme.PartyPlayer.SelectPlayers1.oneItemOnly := true;
   Theme.PartyPlayer.SelectPlayers1.showArrows := true;
   SelectPlayers[0]  := AddSelectSlide(Theme.PartyPlayer.SelectPlayers1, CountPlayer[0], IPlayers);
 
-  AddButton(Theme.PartyPlayer.Player1Name);
-  AddButton(Theme.PartyPlayer.Player2Name);
-  AddButton(Theme.PartyPlayer.Player3Name);
-  AddButton(Theme.PartyPlayer.Player4Name);
+  ButtonID := AddButton(Theme.PartyPlayer.Player1Name);
+  Button[ButtonID].Text[0].Writable := true;
+
+  ButtonID := AddButton(Theme.PartyPlayer.Player2Name);
+  Button[ButtonID].Text[0].Writable := true;
+
+  ButtonID := AddButton(Theme.PartyPlayer.Player3Name);
+  Button[ButtonID].Text[0].Writable := true;
+
+  ButtonID := AddButton(Theme.PartyPlayer.Player4Name);
+  Button[ButtonID].Text[0].Writable := true;
 
   Team2Name := AddButton(Theme.PartyPlayer.Team2Name);
+  Button[Team2Name].Text[0].Writable := true;
+
   Theme.PartyPlayer.SelectPlayers2.oneItemOnly := true;
   Theme.PartyPlayer.SelectPlayers2.showArrows := true;
   SelectPlayers[1]  := AddSelectSlide(Theme.PartyPlayer.SelectPlayers2, CountPlayer[1], IPlayers);
 
-  AddButton(Theme.PartyPlayer.Player5Name);
-  AddButton(Theme.PartyPlayer.Player6Name);
-  AddButton(Theme.PartyPlayer.Player7Name);
-  AddButton(Theme.PartyPlayer.Player8Name);
+  ButtonID := AddButton(Theme.PartyPlayer.Player5Name);
+  Button[ButtonID].Text[0].Writable := true;
+
+  ButtonID := AddButton(Theme.PartyPlayer.Player6Name);
+  Button[ButtonID].Text[0].Writable := true;
+
+  ButtonID := AddButton(Theme.PartyPlayer.Player7Name);
+  Button[ButtonID].Text[0].Writable := true;
+
+  ButtonID := AddButton(Theme.PartyPlayer.Player8Name);
+  Button[ButtonID].Text[0].Writable := true;
 
   Team3Name := AddButton(Theme.PartyPlayer.Team3Name);
+  Button[Team3Name].Text[0].Writable := true;
+
   Theme.PartyPlayer.SelectPlayers3.oneItemOnly := true;
   Theme.PartyPlayer.SelectPlayers3.showArrows := true;
   SelectPlayers[2]  := AddSelectSlide(Theme.PartyPlayer.SelectPlayers3, CountPlayer[2], IPlayers);
 
-  AddButton(Theme.PartyPlayer.Player9Name);
-  AddButton(Theme.PartyPlayer.Player10Name);
-  AddButton(Theme.PartyPlayer.Player11Name);
-  AddButton(Theme.PartyPlayer.Player12Name);
+  ButtonID := AddButton(Theme.PartyPlayer.Player9Name);
+  Button[ButtonID].Text[0].Writable := true;
+
+  ButtonID := AddButton(Theme.PartyPlayer.Player10Name);
+  Button[ButtonID].Text[0].Writable := true;
+
+  ButtonID := AddButton(Theme.PartyPlayer.Player11Name);
+  Button[ButtonID].Text[0].Writable := true;
+
+  ButtonID := AddButton(Theme.PartyPlayer.Player12Name);
+  Button[ButtonID].Text[0].Writable := true;
+
+  Button[Team2Name].Text[0].Selected  := true;
 
   Interaction := 0;
 

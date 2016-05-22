@@ -34,6 +34,7 @@ interface
 {$I switches.inc}
 
 uses
+  UCommon,
   UThemes,
   UTexture,
   UMenuBackground,
@@ -64,11 +65,9 @@ const
 
 implementation
 uses
-  sdl,
-  gl,
-  glext,
+  sdl2,
+  dglOpenGL,
   USkins,
-  UCommon,
   UGraphic;
 
 constructor TMenuBackgroundFade.Create(const ThemedSettings: TThemeBackground);
@@ -90,8 +89,8 @@ begin
   else
     UseTexture := false;
 
-  if (not UseTexture) then
-    FreeandNil(Tex);
+  {if (not UseTexture) then
+    FreeInstance(Tex); //BasisBit ToDo}
 end;
 
 destructor  TMenuBackgroundFade.Destroy;

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/screens/UScreenOptionsGame.pas $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/screens/UScreenOptionsGame.pas $
  * $Id: UScreenOptionsGame.pas 2203 2010-03-16 19:25:13Z brunzelchen $
  *}
 
@@ -34,7 +34,7 @@ interface
 {$I switches.inc}
 
 uses
-  SDL,
+  sdl2,
   UMenu,
   ULog,
   UDisplay,
@@ -42,6 +42,7 @@ uses
   UFiles,
   UIni,
   UThemes,
+  UScreensong,
   USongs;
 
 type
@@ -51,6 +52,8 @@ type
 
     public
       ActualLanguage:  Integer;
+      ActualSongMenu: Integer;
+
       old_Tabs, old_Sorting: integer;
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -92,7 +95,7 @@ begin
         end;
       SDLK_RETURN:
         begin
-          if SelInteraction = 7 then
+          if SelInteraction = 6 then
           begin
             ReloadScreens;
             AudioPlayback.PlaySound(SoundLib.Back);
@@ -106,7 +109,7 @@ begin
         InteractPrev;
       SDLK_RIGHT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 6) then
+          if (SelInteraction >= 0) and (SelInteraction <= 5) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractInc;
@@ -114,7 +117,7 @@ begin
         end;
       SDLK_LEFT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 6) then
+          if (SelInteraction >= 0) and (SelInteraction <= 5) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractDec;
@@ -134,17 +137,13 @@ begin
   old_Sorting := Ini.Sorting;
   old_Tabs    := Ini.Tabs;
 
-  Theme.OptionsGame.SelectPlayers.showArrows  := true;
-  Theme.OptionsGame.SelectPlayers.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGame.SelectPlayers,    Ini.Players,    IPlayers);
-
-  Theme.OptionsGame.SelectDifficulty.showArrows  := true;
-  Theme.OptionsGame.SelectDifficulty.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGame.SelectDifficulty, Ini.Difficulty, IDifficultyTranslated);
-
   Theme.OptionsGame.SelectLanguage.showArrows  := true;
   Theme.OptionsGame.SelectLanguage.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGame.SelectLanguage,   Ini.Language,   ILanguageTranslated);
+  AddSelectSlide(Theme.OptionsGame.SelectLanguage,   Ini.Language,  ILanguageTranslated);
+
+  Theme.OptionsGame.SelectSongMenu.showArrows  := true;
+  Theme.OptionsGame.SelectSongMenu.oneItemOnly := true;
+  AddSelectSlide(Theme.OptionsGame.SelectSongMenu,    Ini.SongMenu, ISongMenuTranslated);
 
   Theme.OptionsGame.SelectTabs.showArrows  := true;
   Theme.OptionsGame.SelectTabs.oneItemOnly := true;
@@ -164,14 +163,14 @@ begin
 
   AddButton(Theme.OptionsGame.ButtonExit);
   if (Length(Button[0].Text) = 0) then
-    AddButtonText(20, 5, Theme.Options.Description[9]);
+    AddButtonText(20, 5, Theme.Options.Description[10]);
 
 end;
 
 //Refresh Songs Patch
 procedure TScreenOptionsGame.RefreshSongs;
 begin
-  if (ini.Sorting <> old_Sorting) or (ini.Tabs <> old_Tabs) then
+  if (Ini.Sorting <> old_Sorting) or (Ini.Tabs <> old_Tabs) then
     ScreenSong.Refresh;
 end;
 
@@ -180,19 +179,27 @@ begin
   inherited;
 
   ActualLanguage := Ini.Language;
+  ActualSongMenu := Ini.SongMenu;
 
-//  Interaction := 0;
+  Interaction := 0;
 end;
 
 procedure TScreenOptionsGame.ReloadScreens;
 begin
+
+  if(ActualSongMenu <> Ini.SongMenu) then
+  begin
+    Theme.ThemeSongLoad;
+
+    ScreenSong.Free;
+    ScreenSong := TScreenSong.Create;
+  end;
+
   // Reload all screens, after Language changed
   if(ActualLanguage <> Ini.Language) then
   begin
-
-  {
+     {
     //Language.ChangeLanguage(ILanguage[Ini.Language]);
-
     Ini.Save;
 
     Language.Free;
@@ -200,17 +207,18 @@ begin
 
     Ini.Free;
     Ini := TIni.Create;
-    Ini.Load;
-
-    //Language.ChangeLanguage('Inglês');
-    UGraphic.UnLoadScreens();
+    //Ini.Load;
 
     Theme.Free;
     Theme := TTheme.Create;
 
+    Menu.Free;
+    Menu := TMenu.Create;
+
+    //Language.ChangeLanguage('Inglês');
+    UGraphic.UnLoadScreens();
     UGraphic.LoadScreens(true);
-  }
-  
+    }
   end;
 end;
 

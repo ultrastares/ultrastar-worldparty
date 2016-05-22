@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/URecord.pas $
+ * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/base/URecord.pas $
  * $Id: URecord.pas 2814 2011-04-06 23:31:15Z k-m_schindler $
  *}
 
@@ -36,7 +36,7 @@ interface
 uses
   Classes,
   Math,
-  sdl,
+  sdl2,
   SysUtils,
   UCommon,
   UMusic,
@@ -261,18 +261,20 @@ begin
   FreeAndNil(LogBuffer);
   FreeAndNil(fVoiceStream);
   FreeAndNil(fAudioFormat);
+  SDL_UnlockMutex(fAnalysisBufferLock);
   SDL_DestroyMutex(fAnalysisBufferLock);
+  fAnalysisBufferLock:=nil;
   inherited;
 end;
 
 procedure TCaptureBuffer.LockAnalysisBuffer();
 begin
-  SDL_mutexP(fAnalysisBufferLock);
+  SDL_LockMutex(fAnalysisBufferLock);
 end;
 
 procedure TCaptureBuffer.UnlockAnalysisBuffer();
 begin
-  SDL_mutexV(fAnalysisBufferLock);
+  SDL_UnlockMutex(fAnalysisBufferLock);
 end;
 
 procedure TCaptureBuffer.Clear;

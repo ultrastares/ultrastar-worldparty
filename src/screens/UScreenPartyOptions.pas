@@ -35,7 +35,7 @@ interface
 
 uses
   UMenu,
-  SDL,
+  sdl2,
   UDisplay,
   UMusic,
   UNote,
@@ -64,6 +64,7 @@ type
 
       procedure FillLevel;
       procedure FillPlaylist;
+      procedure FillPlaylistJukebox;
       procedure SetPlaylists;
       procedure SetPlaylist2;
     public
@@ -76,7 +77,6 @@ type
       procedure InitFree;
       procedure InitChallenge;
       procedure InitTournament;
-      procedure InitJukebox;
   end;
 
 implementation
@@ -119,10 +119,11 @@ begin
       SDLK_RETURN:
         begin
           // restart time
-          //ScreenSong.CurrentPartyTime := 0;
+          //if (ScreenSong.Mode = smPartyTournament) then
+          //  ScreenSong.CurrentPartyTime := 0;
 
           //Don'T start when Playlist is Selected and there are no Playlists
-          if (Playlist = 2) and (Length(PlaylistMan.Playlists) = 0) then
+          if (Playlist = 3) and (Length(PlaylistMan.Playlists) = 0) then
             Exit;
 
           //Save Difficulty
@@ -134,9 +135,7 @@ begin
             1: InitFree;
             2: InitChallenge;
             3: InitTournament;
-            4: InitJukebox;
           end;
-
 
         end;
       // Up and Down could be done at the same time,
@@ -220,10 +219,21 @@ begin
   Theme.PartyOptions.SelectPlayList2.showArrows := true;
   SelectPlayList2 := AddSelectSlide(Theme.PartyOptions.SelectPlayList2, PlayList2, IPlaylist2);
 
+  FillLevel;
+
   Interaction := 0;
 end;
 
 procedure TScreenPartyOptions.FillPlaylist;
+begin
+  SetLength(IPlaylist, 3);
+
+  IPlaylist[0] := Language.Translate('PARTY_PLAYLIST_ALL');
+  IPlaylist[1] := Language.Translate('PARTY_PLAYLIST_CATEGORY');
+  IPlaylist[2] := Language.Translate('PARTY_PLAYLIST_PLAYLIST');
+end;
+
+procedure TScreenPartyOptions.FillPlaylistJukebox;
 begin
   SetLength(IPlaylist, 3);
 
@@ -247,8 +257,6 @@ var
 begin
   if (Mode = 1) or (Mode = 2) or (Mode = 3) then
   begin
-    FillLevel;
-
     SetLength(IPlaylist, 1);
     IPlaylist[0] := '---';
 
@@ -264,18 +272,10 @@ begin
   end
   else
   begin
-   if (Mode = 4) then
-    begin
-      SetLength(ILevel, 1);
-      ILevel[0] := '---';
-      Level     := 0;
-    end
-    else
-      FillLevel;
-
     UpdateSelectSlideOptions(Theme.PartyOptions.SelectLevel, SelectLevel, ILevel, Level);
 
     FillPlaylist;
+
     UpdateSelectSlideOptions(Theme.PartyOptions.SelectPlayList, SelectPlayList, IPlaylist, Playlist);
 
     SetPlaylist2;
@@ -323,6 +323,11 @@ begin
           SetLength(IPlaylist2, 1);
           IPlaylist2[0] := 'No Playlists found';
         end;
+      end;
+    3:
+      begin
+        SetLength(IPlaylist2, 1);
+        IPlaylist2[0] := '---';
       end;
   end;
 
@@ -412,57 +417,6 @@ begin
   ScreenSong.Mode := smPartyTournament;
   AudioPlayback.PlaySound(SoundLib.Start);
   FadeTo(@ScreenPartyTournamentPlayer);
-end;
-
-procedure TScreenPartyOptions.InitJukebox;
-var
-  I, J: integer;
-begin
-  ScreenSong.Mode := smPartyJukebox;
-  AudioPlayback.PlaySound(SoundLib.Start);
-
-  SetLength(ScreenJukebox.JukeboxSongsList, 0);
-  SetLength(ScreenJukebox.JukeboxVisibleSongs, 0);
-
-  if PlayList = 0 then
-  begin
-    for I := 0 to High(CatSongs.Song) do
-    begin
-      if not (CatSongs.Song[I].Main) then
-        ScreenJukebox.AddSongToJukeboxList(I);
-    end;
-  end;
-
-  if Playlist = 1 then
-  begin
-    J := -1;
-    for I := 0 to high(CatSongs.Song) do
-    begin
-      if CatSongs.Song[I].Main then
-        Inc(J);
-
-      if J = Playlist2 then
-      begin
-        ScreenJukebox.AddSongToJukeboxList(I);
-      end;
-    end;
-  end;
-
-  if Playlist = 2 then
-  begin
-    for I := 0 to High(PlaylistMan.PlayLists[Playlist2].Items) do
-    begin
-      ScreenJukebox.AddSongToJukeboxList(PlaylistMan.PlayLists[Playlist2].Items[I].SongID);
-    end;
-  end;
-
-  ScreenJukebox.ActualInteraction := 0;
-  ScreenJukebox.CurrentSongList := 0;
-  ScreenJukebox.ListMin := 0;
-  ScreenJukebox.Interaction := 0;
-  ScreenJukebox.CurrentSongID := ScreenJukebox.JukeboxVisibleSongs[ScreenJukebox.CurrentSongList];
-
-  FadeTo(@ScreenJukebox);
 end;
 
 procedure TScreenPartyOptions.SetAnimationProgress(Progress: real);

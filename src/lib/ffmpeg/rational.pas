@@ -62,7 +62,8 @@ type
  * Compare two rationals.
  * @param a first rational
  * @param b second rational
- * @return 0 if a==b, 1 if a>b and -1 if a<b
+ * @return 0 if a==b, 1 if a>b, -1 if a<b, and INT_MIN if one of the
+ * values is of the form 0/0
  *)
 function av_cmp_q(a: TAVRational; b: TAVRational): cint; {$IFDEF HasInline}inline;{$ENDIF}
 
@@ -124,6 +125,8 @@ function av_sub_q(b: TAVRational; c: TAVRational): TAVRational;
 
 (**
  * Convert a double precision floating point number to a rational.
+ * inf is expressed as {1,0} or {-1,0} depending on the sign.
+ *
  * @param d double to convert
  * @param max the maximum allowed numerator and denominator
  * @return (AVRational) d
@@ -131,7 +134,6 @@ function av_sub_q(b: TAVRational; c: TAVRational): TAVRational;
 function av_d2q(d: cdouble; max: cint): TAVRational;
   cdecl; external av__util; {av_const}
 
-{$IF LIBAVUTIL_VERSION >= 49011000} // 49.11.0
 (**
  * @return 1 if q1 is nearer to q than q2, -1 if q2 is nearer
  * than q1, 0 if they have the same distance.
@@ -146,11 +148,10 @@ function av_nearer_q(q, q1, q2: TAVRational): cint;
  *)
 function av_find_nearest_q_idx(q: TAVRational; q_list: {const} PAVRationalArray): cint;
   cdecl; external av__util;
-{$IFEND}
 
 implementation
 
-function av_cmp_q (a: TAVRational; b: TAVRational): cint;
+function av_cmp_q (a: TAVRational; b: TAVRational): cint; {$IFDEF HasInline}inline;{$ENDIF}
 var
   tmp: cint64;
 begin
@@ -159,10 +160,27 @@ begin
   if (tmp <> 0) then
     Result := (tmp shr 63) or 1
   else
+    Result := 0;
+
+{ C original:
+    if(tmp) return ((tmp ^ a.den ^ b.den)>>63)|1;
+    else if(b.den && a.den) return 0;
+    else if(a.num && b.num) return (a.num>>31) - (b.num>>31);
+    else                    return INT_MIN;
+}
+{
+  if tmp <> 0 then
+    Result := ((tmp xor a.den xor b.den) >> 63) or 1
+  else if (b.den and a.den) <> 0 then
     Result := 0
+  else if (a.num and b.num) <> 0 then
+    Result := (a.num >> 31) - (b.num >> 31)
+  else
+    Result := low(cint);
+}
 end;
 
-function av_q2d(a: TAVRational): cdouble;
+function av_q2d(a: TAVRational): cdouble; {$IFDEF HasInline}inline;{$ENDIF}
 begin
   Result := a.num / a.den;
 end;
