@@ -69,29 +69,28 @@ ${EndIf}
 
 SetOutPath "$INSTDIR"
 
+File /r /x .svn /x .gitignore ..\game\avatars
 File /r /x .svn /x .gitignore ..\game\covers
-File /r /x .svn /x .gitignore ..\game\themes
-File /r /x .svn /x .gitignore ..\game\languages
-File /r /x .svn /x .gitignore ..\game\sounds
 File /r /x .svn /x .gitignore ..\game\fonts
+File /r /x .svn /x .gitignore ..\game\languages
+File /r /x .svn /x .gitignore ..\game\plugins
 File /r /x .svn /x .gitignore ..\game\resources
+File /r /x .svn /x .gitignore ..\game\sounds
+File /r /x .svn /x .gitignore ..\game\themes
 File /r /x .svn /x .gitignore ..\game\visuals
 File /r /x .svn /x .gitignore ..\game\webs
-File /r /x .svn /x .gitignore ..\game\soundfonts
-File /r /x .svn /x .gitignore ..\game\avatars
+
 
 ; Root dir:
 
 File .\dependencies\dll\*.dll
 
 File ..\ChangeLog.txt
-File ..\ChangeLog.GERMAN.txt
-File ..\game\LuaCommands.odt
 File ..\README.txt
 File .\dependencies\documents\license.txt
 File .\dependencies\documents\documentation.pdf
 
-File "..\${exe}.exe"
+File "..\game\${exe}.exe"
 
 ; Covers dir:
 
@@ -104,7 +103,3 @@ File "..\${exe}.exe"
 
 ; Plugins dir:
 
-SetOutPath "$INSTDIR\plugins\"
-File "..\game\plugins\*.*"
-
-SetOutPath "$INSTDIR"

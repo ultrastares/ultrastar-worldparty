@@ -1,47 +1,35 @@
-# UltraStar Deluxe 1.3 trunk README
+UltraStar Deluxe WorldParty 17.04
+----------------------------
 [![Build Status](https://travis-ci.org/UltraStar-Deluxe/USDX.svg?branch=master)](https://travis-ci.org/UltraStar-Deluxe/USDX)
-```
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                   _______  _________
-            ___   /       \/         \_______
-           /   \  \      _/    /\____/       \__________
-          /   _/  /     / \______             \         \___    _____
-         /   |___/      \     \_/             /          \  \  /     \
-         \              /\                   /   |\       \  \/      /
-          \            /  \_ultrastardeluxe_/    |/       /         /
-           \______www_/                 |____________org_/          \
-                                                      /      /\      \
-                                                      \_____/  \_____/
-                                                                    
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+--------------------------
+ 1. About
+ 2. Release Notes
+ 3. Command-Line Parameters
+ 4. Controls
+----------------------------
 
- ============================
-= 1. About                   =
-= 2. Release Notes           =
-= 3. Command-Line Parameters =
-= 4. Controls                =
- ============================
+----------------- 
+Official Website:  http://ultrastar-es.org 
+-----------------
 
-SF.Net Page: http://sourceforge.net/projects/ultrastardx/
+--------------------
+  1. About         
+---------------------
 
- ====================
- = 1. About         =
- ====================
-
-UltraStar Deluxe (USDX) is a free and open source karaoke game.  It allows
+UltraStar Deluxe WorldParty is a free and open source karaoke game.  It allows
 up to six players to sing along with music using microphones in order to
 score points, depending on the pitch of the voice and the rhythm of
 singing.
 
-UltraStar Deluxe is a fork of the original UltraStar (developed by corvus5).
+UltraStar Deluxe WorldParty is a fork of the original UltraStar deluxe
 Many features have been added like party mode, theme support and support
 for more audio and video formats.
-The improved stability and code quality of USDX enabled ports to Linux and
-Mac OS X.
 
- ====================
- = 2. Release Notes =
- ====================
+
+
+---------------------
+  2. Release Notes 
+---------------------
 
 - To set additional song directories change your config.ini like this:
   [Directories]
@@ -75,9 +63,9 @@ Mac OS X.
 - To enable benchmark run the game with -benchmark parameter
 
 
- ==============================
- = 3. Command-Line Parameters =
- ==============================
+---------------------------------
+ 3. Command-Line Parameters 
+---------------------------------
 
 Command-line parameters are passed to the game adding it to the path of a
 shortcut or starting the game within the console.
@@ -125,9 +113,9 @@ Start with a customs configuration file and score database:
 ultrastar.exe -ConfigFile C:\Ultrastar\Configs\PartyConfig.ini -ScoreFile C:\Ultrastar\Scores\PartyScores.db
 
 
- ===============
- = 4. Controls =
- ===============
+------------------
+ 4. Controls 
+------------------
 
 [J]      to open the "Search for a Song" interface
 [Cursor] to navigate through the screens.
@@ -143,4 +131,3 @@ Songscreen
 
 
 Editor controls are described in documentation.pdf
-```
