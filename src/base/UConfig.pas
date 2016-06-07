@@ -125,13 +125,13 @@ const
   VERSION_RELEASE = 1;
 
   (*
-   * Current version of UltraStar Deluxe
+   * Current version of UltraStar Deluxe WorldParty
    *)
-  USDX_VERSION_MAJOR   = 1;
-  USDX_VERSION_MINOR   = 3;
+  USDX_VERSION_MAJOR   = 16;
+  USDX_VERSION_MINOR   = 6;
   USDX_VERSION_RELEASE = 0;
-  USDX_VERSION_STATE   = 'beta';
-  USDX_STRING = 'UltraStar Deluxe';
+  USDX_VERSION_STATE   = 'RC';
+  USDX_STRING = 'UltraStar Deluxe WorldParty';
 
   (*
    * FPC version numbers are already defined as built-in macros:
