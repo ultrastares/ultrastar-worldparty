@@ -130,7 +130,7 @@ const
   USDX_VERSION_MAJOR   = 16;
   USDX_VERSION_MINOR   = 6;
   USDX_VERSION_RELEASE = 0;
-  USDX_VERSION_STATE   = 'RC';
+  USDX_VERSION_STATE   = 'RC1';
   USDX_STRING = 'UltraStar Deluxe WorldParty';
 
   (*
@@ -221,12 +221,10 @@ end;
 function USDXVersionStr(): string;
 begin
   Result :=
-    USDX_STRING + ' V ' +
+    USDX_STRING + ' ' +
     IntToStr(USDX_VERSION_MAJOR) + '.' +
-    IntToStr(USDX_VERSION_MINOR) + '.' +
-    IntToStr(USDX_VERSION_RELEASE) +
-    IfThen(USDX_VERSION_STATE <> '', ' '+USDX_VERSION_STATE) +
-    ' Build';
+    IntToStr(USDX_VERSION_MINOR) +
+    IfThen(USDX_VERSION_STATE <> '', ' '+USDX_VERSION_STATE)
 end;
 
 end.
