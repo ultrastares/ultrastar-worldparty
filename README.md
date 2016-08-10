@@ -1,4 +1,4 @@
-UltraStar Deluxe WorldParty [![Build Status](https://travis-ci.org/UltraStar-Deluxe/USDX.svg?branch=master)](https://travis-ci.org/UltraStar-Deluxe/USDX)
+UltraStar Deluxe WorldParty 
 ----------------------------
 
 
