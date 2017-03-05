@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/base/UPlatformWindows.pas $
- * $Id: UPlatformWindows.pas 2344 2010-05-08 15:02:05Z tobigun $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UPlatformWindows;
@@ -37,6 +34,7 @@ interface
 {$WARN SYMBOL_PLATFORM OFF}
 
 uses
+  Windows,
   Classes,
   UPlatform,
   UPath;
@@ -57,12 +55,14 @@ type
       function GetGameUserPath: IPath; override;
   end;
 
+  function GetConsoleWindow: THandle; stdcall; external kernel32 name 'GetConsoleWindow';
+  function HasConsole: Boolean;
+
 implementation
 
 uses
   SysUtils,
   ShlObj,
-  Windows,
   UConfig;
 
 procedure TPlatformWindows.Init;
@@ -142,7 +142,7 @@ end;
  *     - XP: USDX was installed to %ProgramFiles% and the user is not an admin.
  *     - USDX is started from CD
  *   - Behavior:
- *     - The config files are in a separate folder (e.g. %APPDATA%\ultrastardx)
+ *     - The config files are in a separate folder (e.g. %APPDATA%\WorldParty)
  *
  * On windows, resources (themes, language-files)
  * reside in the directory of the executable in any case
@@ -203,7 +203,12 @@ begin
   if UseLocalDirs then
     Result := GetExecutionDir()
   else
-    Result := GetSpecialPath(CSIDL_APPDATA).Append('ultrastardx', pdAppend);
+    Result := GetSpecialPath(CSIDL_APPDATA).Append('WorldParty', pdAppend);
+end;
+
+function HasConsole: Boolean;
+begin
+  Result := GetConsoleWindow <> 0;
 end;
 
 end.

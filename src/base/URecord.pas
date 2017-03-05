@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/base/URecord.pas $
- * $Id: URecord.pas 2814 2011-04-06 23:31:15Z k-m_schindler $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit URecord;
@@ -548,7 +545,7 @@ var
   i: integer;
 begin
   inherited;
-  SetLength(Sound, 6 {max players});//Ini.Players+1);
+  SetLength(Sound, UIni.IMaxPlayerCount);
   for i := 0 to High(Sound) do
     Sound[i] := TCaptureBuffer.Create;
 end;
@@ -637,12 +634,10 @@ begin
 end;
 
 function TAudioInputProcessor.ValidateSettings: integer;
-const
-  MAX_PLAYER_COUNT = 6; // FIXME: there should be a global variable for this
 var
   I, J: integer;
   PlayerID: integer;
-  PlayerMap: array [0 .. MAX_PLAYER_COUNT - 1] of boolean;
+  PlayerMap: array [0 .. UIni.IMaxPlayerCount - 1] of boolean;
   InputDevice: TAudioInputDevice;
   InputDeviceCfg: PInputDeviceConfig;
 begin

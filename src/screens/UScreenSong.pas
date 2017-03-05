@@ -1,27 +1,25 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/screens/UScreenSong.pas $
- * $Id: UScreenSong.pas 3152 2015-10-27 01:23:15Z basisbit $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
+
 
 unit UScreenSong;
 
@@ -205,7 +203,7 @@ type
       Static6PlayersDuetSingerP5: cardinal;
       Static6PlayersDuetSingerP6: cardinal;
 
-      ColPlayer:  array[0..5] of TRGB;
+      ColPlayer:  array[0..UIni.IMaxPlayerCount-1] of TRGB;
 
       //CurrentPartyTime: cardinal;
       //PartyTime: cardinal;
@@ -326,6 +324,7 @@ uses
   UMain,
   UMenuButton,
   UNote,
+  UAudioPlaybackBase,
   UParty,
   UPlaylist,
   UScreenSongMenu,
@@ -520,7 +519,7 @@ begin
     //Only Change Cat when not in Playlist or Search Mode
     if (CatSongs.CatNumShow > -2) then
     begin
-      if (TSongMenuMode(Ini.SongMenu) <> smChessboard) and (TSongMenuMode(Ini.SongMenu) <> smMosaic) then
+      if (TSongMenuMode(Ini.SongMenu) <> smChessboard) and (TSongMenuMode(Ini.SongMenu) <> smMosaic) and (TSongMenuMode(Ini.SongMenu) <> smSlotMachine) then
       begin
         //Cat Change Hack
         if Ini.TabsAtStartup = 1 then
@@ -558,12 +557,12 @@ begin
         SetScrollRefresh;
       end;
 
-      ResetScrollList;
+   //   ResetScrollList;
 
     end
     else
     begin
-      if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic]) then
+      if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smSlotMachine]) then
       begin
         // chessboard change row
         SelectNextRow;
@@ -579,12 +578,12 @@ var
 begin
   CloseMessage();
 
-  if (FreeListMode) and not (TSongMenuMode(Ini.SongMenu) in [smList]) then
+  if (FreeListMode and not (TSongMenuMode(Ini.SongMenu) in [smList])) then
   begin
     //Only Change Cat when not in Playlist or Search Mode
     if (CatSongs.CatNumShow > -2) then
     begin
-      if (TSongMenuMode(Ini.SongMenu) <> smChessboard) and (TSongMenuMode(Ini.SongMenu) <> smMosaic) then
+      if (TSongMenuMode(Ini.SongMenu) <> smChessboard) and (TSongMenuMode(Ini.SongMenu) <> smMosaic) and (TSongMenuMode(Ini.SongMenu) <> smSlotMachine) then
       begin
         //Cat Change Hack
         if Ini.TabsAtStartup = 1 then
@@ -624,16 +623,17 @@ begin
         SetScrollRefresh;
       end;
 
-      ResetScrollList;
+   //   ResetScrollList;
 
     end
     else
     begin
-      if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic]) then
+      if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smSlotMachine, smList]) then
       begin
         // chessboard change row
         SelectPrevRow;
         SetScrollRefresh;
+		
       end;
     end;
   end;
@@ -678,6 +678,10 @@ begin
     //Jump to Artist/Titel
     if ((SDL_ModState and KMOD_LALT <> 0) and (FreeListMode)) then
     begin
+	if(PressedKey > 1114111) then
+      begin
+        Exit;
+      end;
       UpperLetter := UCS4UpperCase(PressedKey);
 
       if (PressedKey in ([SDLK_a..SDLK_z, SDLK_0..SDLK_9])) then
@@ -732,6 +736,49 @@ begin
       end;
 
       Exit;
+    end
+    else if (((PressedKey = SDLK_PAGEUP) or (PressedKey = SDLK_PAGEDOWN)) and (FreeListMode)) then
+    begin
+      I2 := Length(CatSongs.Song);
+      //get first letter of artist of currently selected song
+      UpperLetter := UCS4UpperCase(UTF8ToUCS4String(CatSongs.Song[(Interaction) mod I2].Artist)[0]);
+      if (PressedKey = SDLK_PAGEDOWN) then
+      begin
+        for I := 1 to High(CatSongs.Song) do
+        begin
+          if (CatSongs.Song[(I + Interaction) mod I2].Visible) then
+          begin
+            TempStr := CatSongs.Song[(I + Interaction) mod I2].Artist;
+            if (Length(TempStr) > 0) and
+               (UCS4UpperCase(UTF8ToUCS4String(TempStr)[0]) <> UpperLetter) then
+            begin
+              SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2, VS);
+              AudioPlayback.PlaySound(SoundLib.Change);
+              SetScrollRefresh;
+              Exit;
+            end;
+          end;
+        end;
+      end
+      else if (PressedKey = SDLK_PAGEUP) then
+      begin
+        for I := High(CatSongs.Song) downto 1 do
+        begin
+          if (CatSongs.Song[(I + Interaction) mod I2].Visible) then
+          begin
+            TempStr := CatSongs.Song[(I + Interaction) mod I2].Artist;
+            if (Length(TempStr) > 0) and
+               (UCS4UpperCase(UTF8ToUCS4String(TempStr)[0]) <> UpperLetter) then
+            begin
+              SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2, VS);
+              AudioPlayback.PlaySound(SoundLib.Change);
+              SetScrollRefresh;
+              Exit;
+            end;
+          end;
+        end;
+      end;
+      Exit;
     end;
 
     // **********************
@@ -751,8 +798,12 @@ begin
 
       Ord('K'):
         begin
-          //AudioPlayback.AddSoundEffect();
-          //Exit;
+          UAudioPlaybackBase.ToggleVoiceRemoval();
+          StopVideoPreview();
+          StopMusicPreview();
+          StartMusicPreview();
+          StartVideoPreview();
+          Exit;
         end;
 
       Ord('F'):
@@ -859,23 +910,23 @@ begin
 
       Ord('S'):
         begin
-          if (SDL_ModState = KMOD_LSHIFT) and not MakeMedley and
+          if not (SDL_ModState = KMOD_LSHIFT) and (CatSongs.Song[Interaction].Medley.Source>=msTag)
+            and not MakeMedley and (Mode = smNormal) then
+            StartMedley(0, msTag)
+          else if not MakeMedley and
             (CatSongs.Song[Interaction].Medley.Source>=msCalculated) and
             (Mode = smNormal)then
-            StartMedley(0, msCalculated)
-          else if (CatSongs.Song[Interaction].Medley.Source>=msTag) and not MakeMedley and
-            (Mode = smNormal) then
-            StartMedley(0, msTag);
+			StartMedley(0, msCalculated);
         end;
 
       Ord('D'):
         begin
-          if (Mode = smNormal) and (SDL_ModState = KMOD_LSHIFT) and not MakeMedley and
+          if not (SDL_ModState = KMOD_LSHIFT) and (Mode = smNormal) and
+            (Length(getVisibleMedleyArr(msTag)) > 0) and not MakeMedley then
+            StartMedley(5, msTag)
+          else if (Mode = smNormal) and not MakeMedley and
             (length(getVisibleMedleyArr(msCalculated))>0) then
-            StartMedley(5, msCalculated)
-          else if (Mode = smNormal) and (Length(getVisibleMedleyArr(msTag)) > 0)
-            and not MakeMedley then
-            StartMedley(5, msTag);
+            StartMedley(5, msCalculated);
         end;
 
       Ord('R'):
@@ -1006,7 +1057,7 @@ begin
                   break;
               end;
 
-              if not(TSongMenuMode(Ini.SongMenu) in [smChessboard, smCarousel, smSlide, smList, smMosaic]) then
+              if not(TSongMenuMode(Ini.SongMenu) in [smChessboard, smCarousel, smSlide, smList, smMosaic, smSlotMachine]) then
               begin
                 if (I <= 1) then
                   Interaction := High(CatSongs.Song)
@@ -1091,7 +1142,7 @@ begin
             CheckFadeTo(@ScreenMain,'MSG_END_PARTY');
           end;
 
-          if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smList]) then
+          if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smList, smSlotMachine]) then
             SetScrollRefresh;
 
         end;
@@ -1321,6 +1372,7 @@ begin
     case TSongMenuMode(Ini.SongMenu) of
       smChessboard: Result := ParseMouseChessboard(MouseButton, BtnDown, X, Y);
       smMosaic: Result := ParseMouseChessboard(MouseButton, BtnDown, X, Y);
+	  smSlotMachine: Result := ParseMouseChessboard(MouseButton, BtnDown, X, Y);
       else
         Result := ParseMouseRoulette(MouseButton, BtnDown, X, Y);
     end;
@@ -1340,12 +1392,12 @@ begin
     if RightMbESC and (MouseButton = SDL_BUTTON_RIGHT) then
       Result:=ParseInput(SDLK_ESCAPE, 0, true)
 
-    {//song scrolling with mousewheel
+    //song scrolling with mousewheel
     else if (MouseButton = SDL_BUTTON_WHEELDOWN) then
       ParseInput(SDLK_DOWN, 0, true)
 
     else if (MouseButton = SDL_BUTTON_WHEELUP) then
-      ParseInput(SDLK_UP, 0, true)}
+      ParseInput(SDLK_UP, 0, true)
 
     else
     begin
@@ -1404,12 +1456,12 @@ begin
     if RightMbESC and (MouseButton = SDL_BUTTON_RIGHT) then
       Result:=ParseInput(SDLK_ESCAPE, 0, true)
 
-    {//song scrolling with mousewheel
+    //song scrolling with mousewheel
     else if (MouseButton = SDL_BUTTON_WHEELDOWN) then
       ParseInput(SDLK_RIGHT, 0, true)
 
     else if (MouseButton = SDL_BUTTON_WHEELUP) then
-      ParseInput(SDLK_LEFT, 0, true)}
+      ParseInput(SDLK_LEFT, 0, true)
 
     //LMB anywhere starts
     else if (MouseButton = SDL_BUTTON_LEFT) then
@@ -2231,7 +2283,7 @@ begin
       Text[TextNumber].Text := IntToStr(CatSongs.VisibleIndex(Interaction)+1) + '/' + IntToStr(VS)
     else if (Ini.TabsAtStartup = 1) then
     begin
-      Text[TextNumber].Text := IntToStr(CatSongs.Song[Interaction].CatNumber);
+      Text[TextNumber].Text := IntToStr(CatSongs.Song[Interaction].CatNumber)+ '/' + IntToStr(VS);
       if not Interaction = 0 then Text[TextNumber].Text := Text[TextNumber].Text + '/' + IntToStr(CatSongs.Song[Interaction - CatSongs.Song[Interaction].CatNumber].CatNumber);
     end
     else
@@ -3638,14 +3690,16 @@ begin
   begin
     PreviewOpened := Interaction;
 
-    if Song.PreviewStart > 0 then
+    // preview start is either calculated (by finding the chorus) or pre-set, use it
+    if ((Song.PreviewStart > 0.0) or Song.HasPreview) and InRange(Song.PreviewStart, 0.0, AudioPlayback.Length) then
       PreviewPos := Song.PreviewStart
     else
+    begin // otherwise, fallback to simple preview calculation
       PreviewPos := AudioPlayback.Length / 4;
+      // fix for invalid music file lengths
+      if (PreviewPos > 120.0) then PreviewPos := 60.0;
+    end;
 
-    // fix for invalid music file lengths
-    if (PreviewPos > 120.0) then
-      PreviewPos := 60.0;
     AudioPlayback.Position := PreviewPos;
   
     // set preview volume

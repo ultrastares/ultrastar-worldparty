@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/UCommandLine.pas $
- * $Id: UCommandLine.pas 1939 2009-11-09 00:27:55Z s_alexander $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UCommandLine;
@@ -76,6 +73,8 @@ type
       // pseudo integer values
       property Language:      integer read GetLanguage;
       property Resolution:    integer read GetResolution;
+
+      property CustomResolution:    string read fResolution;
 
       // some procedures for reading infos
       constructor Create;
@@ -295,7 +294,7 @@ begin
   Log.LogInfo('Depth: ' + Inttostr(Depth));
 
   Log.LogInfo('Resolution: ' + Inttostr(Resolution));
-  Log.LogInfo('Resolution: ' + Inttostr(Language));
+  Log.LogInfo('Language: ' + Inttostr(Language));
 
   Log.LogInfo('sResolution: ' + sResolution);
   Log.LogInfo('sLanguage: ' + sLanguage);
@@ -311,42 +310,16 @@ end;
 // GetLanguage - Get Language ID from saved String Information
 //-------------
 function TCMDParams.GetLanguage: integer;
-{var
-  I: integer;
-}
 begin
-  Result := -1;
-{*  JB - 12sep07 to remove uINI dependency
-
-  //Search for Language
-  For I := 0 to high(ILanguage) do
-    if (LowerCase(ILanguage[I]) = sLanguage) then
-    begin
-      Result := I;
-      Break;
-    end;
-*}
+  Result := StrToIntDef(fLanguage, -1);
 end;
 
 //-------------
 // GetResolution - Get Resolution ID from saved String Information
 //-------------
 function TCMDParams.GetResolution: integer;
-{var
-  I: integer;
-}
 begin
-  Result := -1;
-{*  JB - 12sep07 to remove uINI dependency
-
-  //Search for Resolution
-  For I := 0 to high(IResolution) do
-    if (LowerCase(IResolution[I]) = sResolution) then
-    begin
-      Result := I;
-      Break;
-    end;
-*}
+  Result := StrToIntDef(fResolution, -1);
 end;
 
 end.

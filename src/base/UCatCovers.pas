@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/UCatCovers.pas $
- * $Id: UCatCovers.pas 2276 2010-04-22 11:07:24Z whiteshark0 $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UCatCovers;
@@ -109,7 +106,7 @@ begin
 
       for I := 0 to List.Count - 1 do
       begin
-        CatCover := Path(Ini.ReadString(ISorting[Ord(SortType)], List.Strings[I], 'NoCover.jpg'));
+        CatCover := Path(Ini.ReadString(ISorting[Ord(SortType)], List.Strings[I], '.\Common\NoCover.jpg'));
         Add(SortType, List.Strings[I], CoversPath.Append(CatCover));
       end;
     end;
@@ -125,7 +122,8 @@ begin
     FileInfo := Iter.Next;
 
     //Add Cover if it doesn't exist for every Section
-    Filename := CoversPath.Append(FileInfo.Name);
+    Filename := CoversPath.Append(FileInfo.Name); 
+
     Name := FileInfo.Name.SetExtension('').ToUTF8;
 
     for SortType := Low(TSortingType) to High(TSortingType) do
@@ -135,9 +133,10 @@ begin
         UTF8Delete(TmpName, UTF8Pos('Title', TmpName), 5)
       else if (SortType = sArtist) and (UTF8Pos('Artist', TmpName) <> 0) then
         UTF8Delete(TmpName, UTF8Pos('Artist', TmpName), 6);
-
+		
       if not CoverExists(SortType, TmpName) then
         Add(SortType, TmpName, Filename);
+		
     end;
   end;
 end;
@@ -162,7 +161,7 @@ var
   UpperName: UTF8String;
 begin
   Result := False;
-  UpperName := UTF8Uppercase(Name); //Case Insensitiv
+  UpperName := UTF8Uppercase(Name); //Case Insensitive
 
   for I := 0 to high(cNames[Sorting]) do
   begin
@@ -198,7 +197,7 @@ begin
   begin
     for I := 0 to CoverPaths.Count-1 do
     begin
-      NoCoverPath := (CoverPaths[I] as IPath).Append('NoCover.jpg');
+      NoCoverPath := (CoverPaths[I] as IPath).Append('.\Common\NoCover.jpg');
       if (NoCoverPath.IsFile) then
       begin
         Result := NoCoverPath;

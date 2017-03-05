@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/media/UMediaCore_FFmpeg.pas $
- * $Id: UMediaCore_FFmpeg.pas 3103 2014-11-22 23:21:19Z k-m_schindler $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UMediaCore_FFmpeg;
@@ -93,6 +90,7 @@ type
       function FindStreamIDs(FormatCtx: PAVFormatContext; out FirstVideoStream, FirstAudioStream: integer ): boolean;
       function FindAudioStreamIndex(FormatCtx: PAVFormatContext): integer;
       function ConvertFFmpegToAudioFormat(FFmpegFormat: TAVSampleFormat; out Format: TAudioSampleFormat): boolean;
+      class function ConvertAudioFormatToFFmpeg(Format: TAudioSampleFormat; out FFmpegFormat: TAVSampleFormat): boolean;
       procedure LockAVCodec();
       procedure UnlockAVCodec();
       function AVFormatOpenInput(ps: PPAVFormatContext; filename: {const} PAnsiChar): Integer;
@@ -223,7 +221,6 @@ end;
 
 destructor TMediaCore_FFmpeg.Destroy();
 begin
-  SDL_UnlockMutex(AVCodecLock);
   SDL_DestroyMutex(AVCodecLock);
   AVCodecLock:=nil;
   inherited;
@@ -361,6 +358,19 @@ begin
     AV_SAMPLE_FMT_FLT: Format := asfFloat;
     AV_SAMPLE_FMT_DBL: Format := asfDouble;
     else               Result := false;
+    end;
+end;
+
+class function TMediaCore_FFmpeg.ConvertAudioFormatToFFmpeg(Format: TAudioSampleFormat; out FFmpegFormat: TAVSampleFormat): boolean;
+begin
+  Result := true;
+  case Format of
+    asfU8:     FFmpegFormat := AV_SAMPLE_FMT_U8;
+    asfS16:    FFmpegFormat := AV_SAMPLE_FMT_S16;
+    asfS32:    FFmpegFormat := AV_SAMPLE_FMT_S32;
+    asfFloat:  FFmpegFormat := AV_SAMPLE_FMT_FLT;
+    asfDouble: FFmpegFormat := AV_SAMPLE_FMT_DBL;
+    else       Result := false;
     end;
 end;
 
@@ -557,7 +567,6 @@ end;
 destructor TPacketQueue.Destroy();
 begin
   Flush();
-  SDL_UnlockMutex(Mutex);
   SDL_DestroyMutex(Mutex);
   Mutex:=nil;
   SDL_DestroyCond(Condition);

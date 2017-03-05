@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/UMain.pas $
- * $Id: UMain.pas 2631 2010-09-05 15:26:08Z tobigun $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UMain;
@@ -65,6 +62,7 @@ procedure MainThreadExec(Proc: TMainThreadExecProc; Data: Pointer);
 implementation
 
 uses
+  math,
   dglOpenGL,
   UCommandLine,
   UCommon,
@@ -138,6 +136,7 @@ begin
 
     // initialize SDL
     // without SDL_INIT_TIMER SDL_GetTicks() might return strange values
+    SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, '1');
     SDL_Init(SDL_INIT_VIDEO or SDL_INIT_TIMER);
     //SDL_EnableUnicode(1);  //not necessary in SDL2 any more
 
@@ -207,8 +206,7 @@ begin
     // Joypad
     if (Ini.Joypad = 1) or (Params.Joypad) then
     begin
-      Log.LogStatus('Initialize Joystick', 'Initialization');
-      Joy := TJoy.Create;
+      InitializeJoystick;
     end;
     
     // Webcam
@@ -247,7 +245,7 @@ begin
           [BadPlayer]));
       Display.CurrentScreen^.FadeTo( @ScreenOptionsRecord );
     end;
-
+    
     //------------------------------
     // Start Mainloop
     //------------------------------
@@ -266,10 +264,16 @@ begin
     // or at least use the corresponding Free methods
 
     Log.LogStatus('Closing DB file', 'Finalization');
-    DataBase.Destroy();
+    if (DataBase <> nil) then
+    begin
+         DataBase.Destroy();
+    end;
+
 
     Log.LogStatus('Finalize Media', 'Finalization');
     FinalizeMedia();
+
+    FinalizeJoyStick;
 
     Log.LogStatus('Uninitialize 3D', 'Finalization');
     Finalize3D();
@@ -303,11 +307,7 @@ begin
     begin
       TicksBeforeFrame := SDL_GetTicks;
 
-      // joypad
-      if (Ini.Joypad = 1) or (Params.Joypad) then
-        Joy.Update;
-
-      // keyboard events
+      // keyboard/mouse/joystick events
       CheckEvents;
 
       // display
@@ -330,7 +330,7 @@ begin
         J := J+1;
         if J > 1 then
         begin
-          Report := 'Sorry, an error ocurred! Please report this error to the game-developers. Also check the Error.log file in the game folder.' + LineEnding +
+          Report := 'Sorry, an error ocurred! Please report this error to http://ultrastar-es.org/foro Also check the Error.log file in the game folder.' + LineEnding +
             'Stacktrace:' + LineEnding;
           if E <> nil then begin
             Report := Report + 'Exception class: ' + E.ClassName + LineEnding +
@@ -370,14 +370,18 @@ end;
 procedure CheckEvents;
 var
   Event:     TSDL_event;
+  SimEvent:  TSDL_event;
   KeyCharUnicode: UCS4Char;
   s1: UTF8String;
   mouseDown: boolean;
   mouseBtn:  integer;
+  mouseX, mouseY: PInt;
   KeepGoing: boolean;
+  SuppressKey: boolean;
+  UpdateMouse: boolean;
 begin
-  KeyCharUnicode:=0;
   KeepGoing := true;
+  SuppressKey := false;
   while (SDL_PollEvent(@Event) <> 0) do
   begin
     case Event.type_ of
@@ -388,10 +392,11 @@ begin
         Display.CheckOK := true;
       end;
 
-      SDL_MOUSEMOTION, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP:
+      SDL_MOUSEMOTION, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_MOUSEWHEEL:
       begin
         if (Ini.Mouse > 0) then
         begin
+          UpdateMouse := true;
           case Event.type_ of
             SDL_MOUSEBUTTONDOWN:
             begin
@@ -417,10 +422,30 @@ begin
                 mouseDown := false;
               mouseBtn  := 0;
             end;
+            SDL_MOUSEWHEEL:
+            begin
+              UpdateMouse := false;
+              mouseDown   := (Event.wheel.y <> 0);
+              mouseBtn    := SDL_BUTTON_WHEELDOWN;
+              if (Event.wheel.y > 0) then mouseBtn := SDL_BUTTON_WHEELUP;
+
+              // some menu buttons require proper mouse location for trying to
+              // react to mouse wheel navigation simulation (see UMenu.ParseMouse)
+              SDL_GetMouseState(@mouseX, @mouseY);
+              Event.button.x := longint(mouseX);
+              Event.button.y := longint(mouseY);
+            end;
           end;
 
-          Display.MoveCursor(Event.button.X * 800 * Screens / ScreenW,
-                             Event.button.Y * 600 / ScreenH);
+          if UpdateMouse then
+          begin
+            // used to update mouse coords and allow the relative mouse emulated by joystick axis motion
+            if assigned(Joy) then Joy.OnMouseMove(EnsureRange(Event.button.X, 0, 799),
+                                                  EnsureRange(Event.button.Y, 0,599));
+
+            Display.MoveCursor(Event.button.X * 800 * Screens / ScreenW,
+                               Event.button.Y * 600 / ScreenH);
+          end;
 
           if not Assigned(Display.NextScreen) then
           begin //drop input when changing screens
@@ -438,7 +463,7 @@ begin
               KeepGoing := ScreenPopupScoreDownload.ParseMouse(mouseBtn, mouseDown, Event.button.x, Event.button.y)
             else
             begin
-              KeepGoing := Display.CurrentScreen^.ParseMouse(mouseBtn, mouseDown, Event.button.x, Event.button.y);
+              KeepGoing := Display.ParseMouse(mouseBtn, mouseDown, Event.button.x, Event.button.y);
 
               // if screen wants to exit
               if not KeepGoing then
@@ -449,31 +474,10 @@ begin
       end;
       SDL_WINDOWEVENT://SDL_WINDOWEVENT_RESIZED:
       begin
-        if Event.window.event = SDL_WINDOWEVENT_RESIZED then
-        begin
-          ScreenW := Event.window.data1; //width
-          ScreenH := Event.window.data2; //hight
-          // Note: do NOT call SDL_SetVideoMode on Windows and MacOSX here.
-          // This would create a new OpenGL render-context and all texture data
-          // would be invalidated.
-          // On Linux the mode MUST be reset, otherwise graphics will be corrupted.
-          // Update: It seems to work now without creating a new OpenGL context. At least
-          // with Win7 and SDL 1.2.14. Maybe it generally works now with SDL 1.2.14 and we
-          // can switch it on for windows.
-          // Important: Unless SDL_SetVideoMode() is called (it is not on Windows), Screen.w
-          // and Screen.h are not valid after a resize and still contain the old size. Use
-          // ScreenW and ScreenH instead.
-          //////
-          if boolean( Ini.FullScreen ) then
-          begin
-          Screen.W := ScreenW;
-          Screen.H := ScreenH;
-          end
-          else
-            SDL_SetWindowSize(screen,ScreenW, ScreenH);
-            {screen := SDL_CreateWindow('UltraStar Deluxe loading...',SDL_WINDOWPOS_UNDEFINED,
-                   SDL_WINDOWPOS_UNDEFINED, ScreenW, ScreenH, SDL_WINDOW_OPENGL or SDL_WINDOW_RESIZABLE);}
-        end;
+        case Event.window.event of
+          SDL_WINDOWEVENT_MOVED: OnWindowMoved(Event.window.data1, Event.window.data2);
+          SDL_WINDOWEVENT_RESIZED: OnWindowResized(Event.window.data1, Event.window.data2);
+        end
       end;
       SDL_KEYDOWN, SDL_TEXTINPUT:
         begin
@@ -487,45 +491,39 @@ begin
           //if (Event.key.keysym.unicode in [1 .. 26]) then
           //  Event.key.keysym.unicode := Ord('A') + Event.key.keysym.unicode - 1;
 
+          // toggle in-game console if allowed
+          if boolean(Ini.Debug) and ((Event.key.keysym.sym = SInt32('~')) or (Event.key.keysym.sym = SDLK_CARET)) then
+          begin
+            Display.ToggleConsole;
+          end;
+
+          if Event.key.keysym.sym = SDLK_RETURN then
+          begin
+            if (SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT) = KMOD_LALT) then
+            begin
+              if SwitchVideoMode(Mode_Fullscreen) = Mode_Fullscreen then Ini.FullScreen := 1
+              else Ini.FullScreen := 0;
+              Ini.Save();
+
+              Break;
+            end;
+          end;
+
           // remap the "keypad enter" key to the "standard enter" key
-          if (Event.key.keysym.sym = SDLK_KP_ENTER) then
-            Event.key.keysym.sym := SDLK_RETURN;
+          if (Event.key.keysym.sym = SDLK_KP_ENTER) then Event.key.keysym.sym := SDLK_RETURN;
 
           if not Assigned(Display.NextScreen) then
           begin //drop input when changing screens
-            { to-do : F11 was used for fullscreen toggle, too here
-                      but we also use the key in screenname and some other
-                      screens. It is droped although fullscreen toggle doesn't
-                      even work on windows.
-                      should we add (Event.key.keysym.sym = SDLK_F11) here
-                      anyway? }
+            KeyCharUnicode:=0;
+            if (Event.type_ = SDL_TEXTINPUT) and (Event.text.text <> '') then
             try
-              s1:=Event.text.text;
               KeyCharUnicode:=UnicodeStringToUCS4String(UnicodeString(UTF8String(Event.text.text)))[0];
               //KeyCharUnicode:=UnicodeStringToUCS4String(UnicodeString(Event.key.keysym.unicode))[1];//Event.text.text)[0];
             except
             end;
-            if (Event.key.keysym.sym = SDLK_F11) then // toggle full screen
-            begin
-              Ini.FullScreen := integer( not boolean( Ini.FullScreen ) );
 
-              if boolean( Ini.FullScreen ) then
-              begin
-                SDL_SetWindowFullscreen(screen, SDL_WINDOW_FULLSCREEN_DESKTOP or SDL_WINDOW_RESIZABLE);
-                //SDL_SetVideoMode(ScreenW, ScreenH, (Ini.Depth+1) * 16, SDL_OPENGL or SDL_FULLSCREEN);
-              end
-              else
-              begin
-                SDL_SetWindowFullscreen(screen, SDL_WINDOW_RESIZABLE);
-                //SDL_SetVideoMode(ScreenW, ScreenH, (Ini.Depth+1) * 16, SDL_OPENGL or SDL_RESIZABLE);
-              end;
-              Ini.Save();
-              //Display.SetCursor;
-
-              //glViewPort(0, 0, ScreenW, ScreenH);
-            end
             // if print is pressed -> make screenshot and save to screenshot path
-            else if (Event.key.keysym.sym = SDLK_SYSREQ) or (Event.key.keysym.sym = SDLK_PRINTSCREEN) then
+            if (Event.key.keysym.sym = SDLK_SYSREQ) or (Event.key.keysym.sym = SDLK_PRINTSCREEN) then
               Display.SaveScreenShot
             // if there is a visible popup then let it handle input instead of underlying screen
             // shoud be done in a way to be sure the topmost popup has preference (maybe error, then check)
@@ -541,7 +539,7 @@ begin
               KeepGoing := ScreenPopupSendScore.ParseInput(Event.key.keysym.sym, KeyCharUnicode, true)
             else if (ScreenPopupScoreDownload <> nil) and (ScreenPopupScoreDownload.Visible) then
               KeepGoing := ScreenPopupScoreDownload.ParseInput(Event.key.keysym.sym, KeyCharUnicode, true)
-            else
+            else if (Display.ShouldHandleInput(Event.key.keysym.sym, KeyCharUnicode, true, SuppressKey)) then
             begin
               // check if screen wants to exit
               KeepGoing := Display.ParseInput(Event.key.keysym.sym, KeyCharUnicode, true);
@@ -551,23 +549,60 @@ begin
                 DoQuit;
 
             end;
+
+            if (not SuppressKey and (Event.key.keysym.sym = SDLK_F11)) then // toggle full screen
+            begin
+              if (CurrentWindowMode <> Mode_Fullscreen) then // only switch borderless fullscreen in windowed mode
+              begin
+                if SwitchVideoMode(Mode_Borderless) = Mode_Borderless then
+                begin
+                  Ini.FullScreen := 2;
+                end
+                else
+                begin
+                  Ini.FullScreen := 0;
+                end;
+                Ini.Save();
+              end;
+
+              //Display.SetCursor;
+
+              //glViewPort(0, 0, ScreenW, ScreenH);
+            end;
           end;
         end;
-      SDL_JOYAXISMOTION:
+      SDL_CONTROLLERDEVICEADDED, SDL_CONTROLLERDEVICEREMOVED,
+      SDL_CONTROLLERBUTTONDOWN, SDL_CONTROLLERBUTTONUP, SDL_CONTROLLERAXISMOTION,
+      SDL_JOYAXISMOTION, SDL_JOYBALLMOTION, SDL_JOYBUTTONDOWN, SDL_JOYBUTTONUP,
+      SDL_JOYDEVICEADDED, SDL_JOYDEVICEREMOVED, SDL_JOYHATMOTION:
         begin
-          // not implemented
-        end;
-      SDL_JOYBUTTONDOWN:
-        begin
-          // not implemented
+          OnJoystickPollEvent(Event);
         end;
       MAINTHREAD_EXEC_EVENT:
         with Event.user do
         begin
           TMainThreadExecProc(data1)(data2);
         end;
+
+      otherwise
+      begin
+        ;
+      end;
     end; // case
   end; // while
+
+  if Display.NeedsCursorUpdate() then
+  begin
+
+
+    // push a generated event onto the queue in order to simulate a mouse movement
+    // the next tick will poll the motion event and handle it just like a real input
+    SDL_GetMouseState(@mouseX, @mouseY);
+    SimEvent.user.type_ := SDL_MOUSEMOTION;
+    SimEvent.button.x := longint(mouseX);
+    SimEvent.button.y := longint(mouseY);
+    SDL_PushEvent(@SimEvent);
+  end;
 end;
 
 procedure MainThreadExec(Proc: TMainThreadExecProc; Data: Pointer);

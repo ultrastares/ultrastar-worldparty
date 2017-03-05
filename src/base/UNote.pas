@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL$
- * $Id$
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UNote;
@@ -43,7 +40,7 @@ uses
   ULog,
   ULyrics,
   URecord,
-  UScreenSing,
+  UScreenSingController,
   UScreenJukebox,
   USong,
   UTime;
@@ -128,11 +125,11 @@ const
   MAX_SONG_SCORE = 10000;     // max. achievable points per song
   MAX_SONG_LINE_BONUS = 1000; // max. achievable line bonus per song
 
-procedure Sing(Screen: TScreenSing);
-procedure NewSentence(CP: integer; Screen: TScreenSing);
-procedure NewBeatClick(Screen: TScreenSing);  // executed when on then new beat for click
-procedure NewBeatDetect(Screen: TScreenSing); // executed when on then new beat for detection
-procedure NewNote(CP: integer; Screen: TScreenSing);       // detect note
+procedure Sing(Screen: TScreenSingController);
+procedure NewSentence(CP: integer; Screen: TScreenSingController);
+procedure NewBeatClick(Screen: TScreenSingController);  // executed when on then new beat for click
+procedure NewBeatDetect(Screen: TScreenSingController); // executed when on then new beat for detection
+procedure NewNote(CP: integer; Screen: TScreenSingController);       // detect note
 function  GetMidBeat(Time: real): real;
 function  GetTimeFromBeat(Beat: integer; SelfSong: TSong = nil): real;
 
@@ -298,7 +295,7 @@ begin
   end;
 end;
 
-procedure Sing(Screen: TScreenSing);
+procedure Sing(Screen: TScreenSingController);
 var
   Count:   integer;
   CountGr: integer;
@@ -369,7 +366,7 @@ begin
   Screen.onSentenceChange(Lines[0].Current);
 end;
 
-procedure NewSentence(CP: integer; Screen: TScreenSing);
+procedure NewSentence(CP: integer; Screen: TScreenSingController);
 var
   I: integer;
 begin
@@ -423,7 +420,7 @@ begin
   end;
 end;
 
-procedure NewBeatDetect(Screen: TScreenSing);
+procedure NewBeatDetect(Screen: TScreenSingController);
   var
     MaxCP, CP, SentenceEnd: integer;
     I, J: cardinal;
@@ -468,7 +465,7 @@ begin
   end;
 end;
 
-procedure NewNote(CP: integer; Screen: TScreenSing);
+procedure NewNote(CP: integer; Screen: TScreenSingController);
 var
   LineFragmentIndex:   integer;
   CurrentLineFragment: PLineFragment;
@@ -541,7 +538,7 @@ begin
         CurrentSound := AudioInputProcessor.Sound[PlayerIndex];
 
         // at the beginning of the song there is no previous note
-        if (Length(CurrentPlayer.Note) > 0) then
+        if (Length(CurrentPlayer.Note) > 0) and (CurrentPlayer.HighNote > -1) then
           LastPlayerNote := @CurrentPlayer.Note[CurrentPlayer.HighNote]
         else
           LastPlayerNote := nil;

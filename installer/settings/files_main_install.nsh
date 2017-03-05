@@ -17,6 +17,8 @@ IfFileExists $INSTDIR\avutil-49.dll 0 +2
 Delete "$INSTDIR\avutil-49.dll"
 IfFileExists $INSTDIR\bass.dll 0 +2
 Delete "$INSTDIR\bass.dll"
+IfFileExists $INSTDIR\bass_fx.dll 0 +2
+Delete "$INSTDIR\bass_fx.dll"
 IfFileExists $INSTDIR\bassmidi.dll 0 +2
 Delete "$INSTDIR\bassmidi.dll"
 IfFileExists $INSTDIR\SDL.dll 0 +2
@@ -69,37 +71,44 @@ ${EndIf}
 
 SetOutPath "$INSTDIR"
 
-File /r /x .svn /x .gitignore ..\game\avatars
 File /r /x .svn /x .gitignore ..\game\covers
-File /r /x .svn /x .gitignore ..\game\fonts
-File /r /x .svn /x .gitignore ..\game\languages
-File /r /x .svn /x .gitignore ..\game\plugins
-File /r /x .svn /x .gitignore ..\game\resources
-File /r /x .svn /x .gitignore ..\game\sounds
 File /r /x .svn /x .gitignore ..\game\themes
+File /r /x .svn /x .gitignore ..\game\languages
+File /r /x .svn /x .gitignore ..\game\sounds
+File /r /x .svn /x .gitignore ..\game\fonts
+File /r /x .svn /x .gitignore ..\game\resources
 File /r /x .svn /x .gitignore ..\game\visuals
 File /r /x .svn /x .gitignore ..\game\webs
-
+File /r /x .svn /x .gitignore ..\game\soundfonts
+File /r /x .svn /x .gitignore ..\game\avatars
+File /r /x .svn /x .gitignore ..\game\licenses
 
 ; Root dir:
 
 File .\dependencies\dll\*.dll
 
-File ..\ChangeLog.txt
-File ..\README.txt
+;File ..\ChangeLog.txt
+File ..\game\LuaCommands.odt
+File ..\game\Readme.txt
+File ..\README.md
 File .\dependencies\documents\license.txt
+File .\dependencies\documents\thirdparty\*
 File .\dependencies\documents\documentation.pdf
 
-File "..\game\${exe}.exe"
+File ..\game\WorldParty.exe
 
 ; Covers dir:
 
-;SetOutPath "$INSTDIR\covers"
+SetOutPath "$INSTDIR\covers"
 
-;IfFileExists $INSTDIR\covers\covers.ini +2 0
-;File ..\game\covers\covers.ini
-;File ..\game\covers\NoCover.jpg
-;File "..\game\covers\*.*"
+IfFileExists $INSTDIR\covers\covers.ini +2 0
+File ..\game\covers\covers.ini
+File ..\game\covers\NoCover.jpg
+File "..\game\covers\*.*"
 
 ; Plugins dir:
 
+SetOutPath "$INSTDIR\plugins\"
+File "..\game\plugins\*.*"
+
+SetOutPath "$INSTDIR"

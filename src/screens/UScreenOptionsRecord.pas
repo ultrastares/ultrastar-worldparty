@@ -1,27 +1,25 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/screens/UScreenOptionsRecord.pas $
- * $Id: UScreenOptionsRecord.pas 3068 2014-01-01 19:17:11Z k-m_schindler $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
+
 
 unit UScreenOptionsRecord;
 
@@ -70,6 +68,7 @@ type
       // indices for widget-updates
       SelectInputSourceID:   integer;
       SelectSlideChannelID: array of integer;
+      SelectThresholdID: integer;
 
       // interaction IDs
       ExitButtonIID: integer;
@@ -161,6 +160,7 @@ begin
             Ini.ThresholdIndex := (Ini.ThresholdIndex + Length(IThresholdVals) - 1) mod Length(IThresholdVals)
           else
             Ini.ThresholdIndex := (Ini.ThresholdIndex + 1) mod Length(IThresholdVals);
+          UpdateSelectSlideOptions(Theme.OptionsRecord.SelectThreshold, SelectThresholdID, IThreshold, Ini.ThresholdIndex);
         end;
     end;
 
@@ -341,7 +341,7 @@ begin
 
     Theme.OptionsRecord.SelectThreshold.showArrows := true; //basisbit TODO
     Theme.OptionsRecord.SelectThreshold.oneItemOnly := true;
-    AddSelectSlide(Theme.OptionsRecord.SelectThreshold, Ini.ThresholdIndex, IThreshold);
+    SelectThresholdID := AddSelectSlide(Theme.OptionsRecord.SelectThreshold, Ini.ThresholdIndex, IThreshold);
 
     Theme.OptionsRecord.SelectMicBoost.showArrows := true;
     Theme.OptionsRecord.SelectMicBoost.oneItemOnly := true;
@@ -352,7 +352,7 @@ begin
   // add Exit-button
   AddButton(Theme.OptionsRecord.ButtonExit);
   if (Length(Button[0].Text) = 0) then
-    AddButtonText(20, 5, Theme.Options.Description[10]);
+    AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
   // store InteractionID
   if (Length(AudioInputProcessor.DeviceList) > 0) then
     ExitButtonIID := MaxChannelCount + 4

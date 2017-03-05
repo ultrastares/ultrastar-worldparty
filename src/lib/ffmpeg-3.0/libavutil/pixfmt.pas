@@ -174,12 +174,6 @@ type
     AV_PIX_FMT_YUV422P9LE, ///< planar YUV 4:2:2, 18bpp, (1 Cr & Cb sample per 2x1 Y samples), little-endian
     AV_PIX_FMT_VDA_VLD,    ///< hardware decoding through VDA
 
-{$IFDEF AV_PIX_FMT_ABI_GIT_MASTER}
-    AV_PIX_FMT_RGBA64BE,  ///< packed RGBA 16:16:16:16, 64bpp, 16R, 16G, 16B, 16A, the 2-byte value for each R/G/B/A component is stored as big-endian
-    AV_PIX_FMT_RGBA64LE,  ///< packed RGBA 16:16:16:16, 64bpp, 16R, 16G, 16B, 16A, the 2-byte value for each R/G/B/A component is stored as little-endian
-    AV_PIX_FMT_BGRA64BE,  ///< packed RGBA 16:16:16:16, 64bpp, 16B, 16G, 16R, 16A, the 2-byte value for each R/G/B/A component is stored as big-endian
-    AV_PIX_FMT_BGRA64LE,  ///< packed RGBA 16:16:16:16, 64bpp, 16B, 16G, 16R, 16A, the 2-byte value for each R/G/B/A component is stored as little-endian
-{$ENDIF}
     AV_PIX_FMT_GBRP,      ///< planar GBR 4:4:4 24bpp
     AV_PIX_FMT_GBRP9BE,   ///< planar GBR 4:4:4 27bpp, big-endian
     AV_PIX_FMT_GBRP9LE,   ///< planar GBR 4:4:4 27bpp, little-endian
@@ -187,15 +181,8 @@ type
     AV_PIX_FMT_GBRP10LE,  ///< planar GBR 4:4:4 30bpp, little-endian
     AV_PIX_FMT_GBRP16BE,  ///< planar GBR 4:4:4 48bpp, big-endian
     AV_PIX_FMT_GBRP16LE,  ///< planar GBR 4:4:4 48bpp, little-endian
-
-    (**
-     * duplicated pixel formats for compatibility with libav.
-     * FFmpeg supports these formats since May 8 2012 and Jan 28 2012 (commits f9ca1ac7 and 143a5c55)
-     * Libav added them Oct 12 2012 with incompatible values (commit 6d5600e85)
-     *)
-    AV_PIX_FMT_YUVA422P_LIBAV,  ///< planar YUV 4:2:2 24bpp, (1 Cr & Cb sample per 2x1 Y & A samples)
-    AV_PIX_FMT_YUVA444P_LIBAV,  ///< planar YUV 4:4:4 32bpp, (1 Cr & Cb sample per 1x1 Y & A samples)
-
+    AV_PIX_FMT_YUVA422P,  ///< planar YUV 4:2:2 24bpp, (1 Cr & Cb sample per 2x1 Y & A samples)
+    AV_PIX_FMT_YUVA444P,  ///< planar YUV 4:4:4 32bpp, (1 Cr & Cb sample per 1x1 Y & A samples)
     AV_PIX_FMT_YUVA420P9BE,  ///< planar YUV 4:2:0 22.5bpp, (1 Cr & Cb sample per 2x2 Y & A samples), big-endian
     AV_PIX_FMT_YUVA420P9LE,  ///< planar YUV 4:2:0 22.5bpp, (1 Cr & Cb sample per 2x2 Y & A samples), little-endian
     AV_PIX_FMT_YUVA422P9BE,  ///< planar YUV 4:2:2 27bpp, (1 Cr & Cb sample per 2x1 Y & A samples), big-endian
@@ -223,16 +210,10 @@ type
     AV_PIX_FMT_NV20LE,       ///< interleaved chroma YUV 4:2:2, 20bpp, (1 Cr & Cb sample per 2x1 Y samples), little-endian
     AV_PIX_FMT_NV20BE,       ///< interleaved chroma YUV 4:2:2, 20bpp, (1 Cr & Cb sample per 2x1 Y samples), big-endian
 
-    (**
-     * duplicated pixel formats for compatibility with libav.
-     * FFmpeg supports these formats since Sat Sep 24 06:01:45 2011 +0200 (commits 9569a3c9f41387a8c7d1ce97d8693520477a66c3)
-     * also see Fri Nov 25 01:38:21 2011 +0100 92afb431621c79155fcb7171d26f137eb1bee028
-     * Libav added them Sun Mar 16 23:05:47 2014 +0100 with incompatible values (commit 1481d24c3a0abf81e1d7a514547bd5305232be30)
-     *)
-    AV_PIX_FMT_RGBA64BE_LIBAV,     ///< packed RGBA 16:16:16:16, 64bpp, 16R, 16G, 16B, 16A, the 2-byte value for each R/G/B/A component is stored as big-endian
-    AV_PIX_FMT_RGBA64LE_LIBAV,     ///< packed RGBA 16:16:16:16, 64bpp, 16R, 16G, 16B, 16A, the 2-byte value for each R/G/B/A component is stored as little-endian
-    AV_PIX_FMT_BGRA64BE_LIBAV,     ///< packed RGBA 16:16:16:16, 64bpp, 16B, 16G, 16R, 16A, the 2-byte value for each R/G/B/A component is stored as big-endian
-    AV_PIX_FMT_BGRA64LE_LIBAV,     ///< packed RGBA 16:16:16:16, 64bpp, 16B, 16G, 16R, 16A, the 2-byte value for each R/G/B/A component is stored as little-endian
+    AV_PIX_FMT_RGBA64BE,     ///< packed RGBA 16:16:16:16, 64bpp, 16R, 16G, 16B, 16A, the 2-byte value for each R/G/B/A component is stored as big-endian
+    AV_PIX_FMT_RGBA64LE,     ///< packed RGBA 16:16:16:16, 64bpp, 16R, 16G, 16B, 16A, the 2-byte value for each R/G/B/A component is stored as little-endian
+    AV_PIX_FMT_BGRA64BE,     ///< packed RGBA 16:16:16:16, 64bpp, 16B, 16G, 16R, 16A, the 2-byte value for each R/G/B/A component is stored as big-endian
+    AV_PIX_FMT_BGRA64LE,     ///< packed RGBA 16:16:16:16, 64bpp, 16B, 16G, 16R, 16A, the 2-byte value for each R/G/B/A component is stored as little-endian
 
     AV_PIX_FMT_YVYU422,   ///< packed YUV 4:2:2, 16bpp, Y0 Cr Y1 Cb
 
@@ -241,14 +222,9 @@ type
     AV_PIX_FMT_YA16BE,       ///< 16bit gray, 16bit alpha (big-endian)
     AV_PIX_FMT_YA16LE,       ///< 16bit gray, 16bit alpha (little-endian)
 
-    (**
-     * duplicated pixel formats for compatibility with libav.
-     * FFmpeg supports these formats since May 3 2013 (commit e6d4e687558d08187e7a415a7725e4b1a416f782)
-     * Libav added them Jan 14 2015 with incompatible values (commit 0e6c7dfa650e8b0497bfa7a06394b7a462ddc33a)
-     *)
-    AV_PIX_FMT_GBRAP_LIBAV,        ///< planar GBRA 4:4:4:4 32bpp
-    AV_PIX_FMT_GBRAP16BE_LIBAV,    ///< planar GBRA 4:4:4:4 64bpp, big-endian
-    AV_PIX_FMT_GBRAP16LE_LIBAV,    ///< planar GBRA 4:4:4:4 64bpp, little-endian
+    AV_PIX_FMT_GBRAP,        ///< planar GBRA 4:4:4:4 32bpp
+    AV_PIX_FMT_GBRAP16BE,    ///< planar GBRA 4:4:4:4 64bpp, big-endian
+    AV_PIX_FMT_GBRAP16LE,    ///< planar GBRA 4:4:4:4 64bpp, little-endian
     (**
      *  HW acceleration through QSV, data[3] contains a pointer to the
      *  mfxFrameSurface1 structure.
@@ -262,18 +238,10 @@ type
 
     AV_PIX_FMT_D3D11VA_VLD,  ///< HW decoding through Direct3D11, Picture.data[3] contains a ID3D11VideoDecoderOutputView pointer
 
-{$IFNDEF AV_PIX_FMT_ABI_GIT_MASTER}
-    AV_PIX_FMT_RGBA64BE = $123,  ///< packed RGBA 16:16:16:16, 64bpp, 16R, 16G, 16B, 16A, the 2-byte value for each R/G/B/A component is stored as big-endian
-    AV_PIX_FMT_RGBA64LE,  ///< packed RGBA 16:16:16:16, 64bpp, 16R, 16G, 16B, 16A, the 2-byte value for each R/G/B/A component is stored as little-endian
-    AV_PIX_FMT_BGRA64BE,  ///< packed RGBA 16:16:16:16, 64bpp, 16B, 16G, 16R, 16A, the 2-byte value for each R/G/B/A component is stored as big-endian
-    AV_PIX_FMT_BGRA64LE,  ///< packed RGBA 16:16:16:16, 64bpp, 16B, 16G, 16R, 16A, the 2-byte value for each R/G/B/A component is stored as little-endian
-{$ENDIF}
     AV_PIX_FMT_0RGB = $123 + 4,///< packed RGB 8:8:8, 32bpp, XRGBXRGB...   X=unused/undefined
     AV_PIX_FMT_RGB0,           ///< packed RGB 8:8:8, 32bpp, RGBXRGBX...   X=unused/undefined
     AV_PIX_FMT_0BGR,           ///< packed BGR 8:8:8, 32bpp, XBGRXBGR...   X=unused/undefined
     AV_PIX_FMT_BGR0,           ///< packed BGR 8:8:8, 32bpp, BGRXBGRX...   X=unused/undefined
-    AV_PIX_FMT_YUVA444P,  ///< planar YUV 4:4:4 32bpp, (1 Cr & Cb sample per 1x1 Y & A samples)
-    AV_PIX_FMT_YUVA422P,  ///< planar YUV 4:2:2 24bpp, (1 Cr & Cb sample per 2x1 Y & A samples)
 
     AV_PIX_FMT_YUV420P12BE, ///< planar YUV 4:2:0,18bpp, (1 Cr & Cb sample per 2x2 Y samples), big-endian
     AV_PIX_FMT_YUV420P12LE, ///< planar YUV 4:2:0,18bpp, (1 Cr & Cb sample per 2x2 Y samples), little-endian
@@ -291,9 +259,6 @@ type
     AV_PIX_FMT_GBRP12LE,    ///< planar GBR 4:4:4 36bpp, little-endian
     AV_PIX_FMT_GBRP14BE,    ///< planar GBR 4:4:4 42bpp, big-endian
     AV_PIX_FMT_GBRP14LE,    ///< planar GBR 4:4:4 42bpp, little-endian
-    AV_PIX_FMT_GBRAP,       ///< planar GBRA 4:4:4:4 32bpp
-    AV_PIX_FMT_GBRAP16BE,   ///< planar GBRA 4:4:4:4 64bpp, big-endian
-    AV_PIX_FMT_GBRAP16LE,   ///< planar GBRA 4:4:4:4 64bpp, little-endian
     AV_PIX_FMT_YUVJ411P,    ///< planar YUV 4:1:1, 12bpp, (1 Cr & Cb sample per 4x1 Y samples) full scale (JPEG), deprecated in favor of AV_PIX_FMT_YUV411P and setting color_range
 
     AV_PIX_FMT_BAYER_BGGR8,    ///< bayer, BGBG..(odd line), GRGR..(even line), 8-bit samples */
@@ -320,21 +285,11 @@ type
 
     AV_PIX_FMT_VIDEOTOOLBOX, ///< hardware decoding through Videotoolbox
 
+    AV_PIX_FMT_P010LE,       ///< like NV12, with 10bpp per component, data in the high bits, zeros in the low bits, little-endian
+    AV_PIX_FMT_P010BE,       ///< like NV12, with 10bpp per component, data in the high bits, zeros in the low bits, big-endian
+
     AV_PIX_FMT_NB        ///< number of pixel formats, DO NOT USE THIS if you want to link with shared libav* because the number of formats might differ between versions
   );
-
-{$IFDEF AV_HAVE_INCOMPATIBLE_LIBAV_ABI}
-const
-    AV_PIX_FMT_YUVA422P  = AV_PIX_FMT_YUVA422P_LIBAV;
-    AV_PIX_FMT_YUVA444P  = AV_PIX_FMT_YUVA444P_LIBAV;
-    AV_PIX_FMT_RGBA64BE  = AV_PIX_FMT_RGBA64BE_LIBAV;
-    AV_PIX_FMT_RGBA64LE  = AV_PIX_FMT_RGBA64LE_LIBAV;
-    AV_PIX_FMT_BGRA64BE  = AV_PIX_FMT_BGRA64BE_LIBAV;
-    AV_PIX_FMT_BGRA64LE  = AV_PIX_FMT_BGRA64LE_LIBAV;
-    AV_PIX_FMT_GBRAP     = AV_PIX_FMT_GBRAP_LIBAV;
-    AV_PIX_FMT_GBRAP16BE = AV_PIX_FMT_GBRAP16BE_LIBAV;
-    AV_PIX_FMT_GBRAP16LE = AV_PIX_FMT_GBRAP16LE_LIBAV;
-{$ENDIF}
 
 const
     AV_PIX_FMT_Y400A = AV_PIX_FMT_YA8; ///< alias for AV_PIX_FMT_YA8
@@ -472,56 +427,6 @@ const
     AV_PIX_FMT_AYUV64     = AV_PIX_FMT_AYUV64LE;
 {$ENDIF}
 
-{$IFDEF FF_API_PIX_FMT}
-type
-  TPixelFormat = TAVPixelFormat;
-
-const
-  PIX_FMT_Y400A  = AV_PIX_FMT_Y400A;
-  PIX_FMT_GBR24P = AV_PIX_FMT_GBR24P;
-
-  PIX_FMT_RGB32   = AV_PIX_FMT_RGB32;
-  PIX_FMT_RGB32_1 = AV_PIX_FMT_RGB32_1;
-  PIX_FMT_BGR32   = AV_PIX_FMT_BGR32;
-  PIX_FMT_BGR32_1 = AV_PIX_FMT_BGR32_1;
-  PIX_FMT_0RGB32  = AV_PIX_FMT_0RGB32;
-  PIX_FMT_0BGR32  = AV_PIX_FMT_0BGR32;
-
-  PIX_FMT_GRAY16 = AV_PIX_FMT_GRAY16;
-  PIX_FMT_RGB48  = AV_PIX_FMT_RGB48;
-  PIX_FMT_RGB565 = AV_PIX_FMT_RGB565;
-  PIX_FMT_RGB555 = AV_PIX_FMT_RGB555;
-  PIX_FMT_RGB444 = AV_PIX_FMT_RGB444;
-  PIX_FMT_BGR48  = AV_PIX_FMT_BGR48;
-  PIX_FMT_BGR565 = AV_PIX_FMT_BGR565;
-  PIX_FMT_BGR555 = AV_PIX_FMT_BGR555;
-  PIX_FMT_BGR444 = AV_PIX_FMT_BGR444;
-
-  PIX_FMT_YUV420P9  = AV_PIX_FMT_YUV420P9;
-  PIX_FMT_YUV422P9  = AV_PIX_FMT_YUV422P9;
-  PIX_FMT_YUV444P9  = AV_PIX_FMT_YUV444P9;
-  PIX_FMT_YUV420P10 = AV_PIX_FMT_YUV420P10;
-  PIX_FMT_YUV422P10 = AV_PIX_FMT_YUV422P10;
-  PIX_FMT_YUV444P10 = AV_PIX_FMT_YUV444P10;
-  PIX_FMT_YUV420P12 = AV_PIX_FMT_YUV420P12;
-  PIX_FMT_YUV422P12 = AV_PIX_FMT_YUV422P12;
-  PIX_FMT_YUV444P12 = AV_PIX_FMT_YUV444P12;
-  PIX_FMT_YUV420P14 = AV_PIX_FMT_YUV420P14;
-  PIX_FMT_YUV422P14 = AV_PIX_FMT_YUV422P14;
-  PIX_FMT_YUV444P14 = AV_PIX_FMT_YUV444P14;
-  PIX_FMT_YUV420P16 = AV_PIX_FMT_YUV420P16;
-  PIX_FMT_YUV422P16 = AV_PIX_FMT_YUV422P16;
-  PIX_FMT_YUV444P16 = AV_PIX_FMT_YUV444P16;
-
-  PIX_FMT_RGBA64 = AV_PIX_FMT_RGBA64;
-  PIX_FMT_BGRA64 = AV_PIX_FMT_BGRA64;
-  PIX_FMT_GBRP9  = AV_PIX_FMT_GBRP9;
-  PIX_FMT_GBRP10 = AV_PIX_FMT_GBRP10;
-  PIX_FMT_GBRP12 = AV_PIX_FMT_GBRP12;
-  PIX_FMT_GBRP14 = AV_PIX_FMT_GBRP14;
-  PIX_FMT_GBRP16 = AV_PIX_FMT_GBRP16;
-{$ENDIF}
-
 type
 (**
   * Chromaticity coordinates of the source primaries.
@@ -537,6 +442,7 @@ type
     AVCOL_PRI_SMPTE240M   = 7, ///< functionally identical to above
     AVCOL_PRI_FILM        = 8, ///< colour filters using Illuminant C
     AVCOL_PRI_BT2020      = 9, ///< ITU-R BT2020
+    AVCOL_PRI_SMPTEST428_1= 10,///< SMPTE ST 428-1 (CIE 1931 XYZ)
     AVCOL_PRI_NB               ///< Not part of ABI
   );
 
@@ -560,6 +466,8 @@ type
     AVCOL_TRC_IEC61966_2_1 = 13, ///< IEC 61966-2-1 (sRGB or sYCC)
     AVCOL_TRC_BT2020_10    = 14, ///< ITU-R BT2020 for 10 bit system
     AVCOL_TRC_BT2020_12    = 15, ///< ITU-R BT2020 for 12 bit system
+    AVCOL_TRC_SMPTEST2084  = 16, ///< SMPTE ST 2084 for 10, 12, 14 and 16 bit systems
+    AVCOL_TRC_SMPTEST428_1 = 17, ///< SMPTE ST 428-1
     AVCOL_TRC_NB                 ///< Not part of ABI
   );
 

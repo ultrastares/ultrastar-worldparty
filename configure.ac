@@ -1,5 +1,5 @@
 #
-# ultrastardx configure.ac script
+# worldparty configure.ac script
 #
 # by UltraStar Deluxe Team
 #
@@ -15,19 +15,16 @@
 AC_PREREQ(2.61)
 
 # Init autoconf
-AC_INIT([ultrastardx], 
-        [1.1], 
-        [http://sourceforge.net/tracker/?group_id=191560&atid=937872])
+AC_INIT([WorldParty],
+        m4_esyscmd_s([cat VERSION]),
+        [https://github.com/ultrastares/usdxworldparty/])
 # specify the website here
-PACKAGE_WEBSITE="http://www.ultrastardeluxe.org/"
+PACKAGE_WEBSITE="http://ultrastar-es.org/"
 AC_SUBST(PACKAGE_WEBSITE)
-# specify the IRC-channel here
-PACKAGE_IRC="#ultrastardx at quakenet.org"
-AC_SUBST(PACKAGE_IRC)
 
 AC_CONFIG_MACRO_DIR([dists/autogen/m4])
 # Specify a source-file so autoconf can check if the source-dir exists
-AC_CONFIG_SRCDIR(src/ultrastardx.dpr)
+AC_CONFIG_SRCDIR(src/WorldParty.dpr)
 
 # Set the path to install-sh
 AC_CONFIG_AUX_DIR(dists/autogen)
@@ -102,7 +99,7 @@ if [[ x$enable_global != x -o x$enable_local != x ]]; then
 
 !!! NOTE: --enable-global and --enable-local are deprecated:
 !!! - global build: just type "make" and "make install"
-!!! - local  build: just type "make" and start "game/ultrastardx"
+!!! - local  build: just type "make" and start "game/WorldParty"
 ])
    sleep 2
 fi
@@ -142,8 +139,17 @@ AC_SUBST(USE_OSX_PACKAGING_LIBDIR, $USE_OSX_PACKAGING_LIBDIR)
 AC_CANONICAL_HOST
 
 # find and test the freepascal compiler
-# sets PFLAGS, FPC_VERSION, FPC_DEBUG, etc.
+# sets PFLAGS, FPC_
+, FPC_DEBUG, etc.
 AC_PROG_FPC
+
+if [[ "$FPC_VERSION_MAJOR" -lt 3 ]]; then
+   AC_MSG_ERROR([
+!!! fpc (the free Pascal compiler) is required in at least
+!!! version 3.0.0, but only version $FPC_VERSION was found.
+!!! Please install a newer fpc version.
+]) 
+fi
 
 # find and test the C compiler (for C-libs and wrappers)
 AC_PROG_CC
@@ -206,17 +212,17 @@ PKG_HAVE([sqlite3], [sqlite3], yes)
 # Archlinux aur package for 5.3 use lua5.3.pc in order
 # to make it work alongside the 5.2 version.
 PKG_HAVE([lua], [lua5.3], check)
-lua_lib_name="lua5.3"
+lua_LIB_NAME="lua5.3"
 if [[ x$lua_HAVE = xyes ]]; then
 	PKG_VERSION([lua], [lua5.3])
 else
 	PKG_HAVE([lua], [lua5.2], check)
-	lua_lib_name="lua5.2"
+	lua_LIB_NAME="lua5.2"
 	if [[ x$lua_HAVE = xyes ]]; then
 		PKG_VERSION([lua], [lua5.2])
 	else
 		PKG_HAVE([lua], [lua5.1], check)
-		lua_lib_name="lua5.1"
+		lua_LIB_NAME="lua5.1"
 		if [[ x$lua_HAVE = xyes ]]; then
 			PKG_VERSION([lua], [lua5.1])
 		else
@@ -263,6 +269,10 @@ AC_SUBST_DEFINE(HAVE_FFMPEG, $ffmpeg_HAVE)
 PKG_HAVE([libswscale], [libswscale], no)
 PKG_VERSION([libswscale], [libswscale])
 AC_SUBST_DEFINE(HAVE_SWSCALE, $libswscale_HAVE)
+
+PKG_HAVE([libswresample], [libswresample], no)
+PKG_VERSION([libswresample], [libswresample])
+AC_SUBST_DEFINE(HAVE_SWRESAMPLE, $libswresample_HAVE)
 
 
 # find projectM version
@@ -353,8 +363,6 @@ AC_MSG_NOTICE([
 !!!
 !!! In case you find a bug send a bugreport to:
 !!!   $PACKAGE_BUGREPORT
-!!! You might as well ask for help at the IRC-Channel
-!!!   $PACKAGE_IRC
 !!!
 ])
 

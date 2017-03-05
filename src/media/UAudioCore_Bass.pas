@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/media/UAudioCore_Bass.pas $
- * $Id: UAudioCore_Bass.pas 2475 2010-06-10 18:27:53Z brunzelchen $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UAudioCore_Bass;
@@ -37,7 +34,8 @@ uses
   Classes,
   SysUtils,
   UMusic,
-  bass;     // (Note: DWORD is defined here)
+  BASS,     // (Note: DWORD is defined here)
+  BASS_FX;
 
 type
   TAudioCore_Bass = class
@@ -63,6 +61,7 @@ const
   // BASS 2.4.2 is not ABI compatible with older versions
   // as (BASS_RECORDINFO.driver was removed)
   BASS_MIN_REQUIRED_VERSION = $02040201;
+  BASS_FX_MIN_REQUIRED_VERSION = $02040201;
 
 var
   Instance: TAudioCore_Bass;
@@ -87,7 +86,7 @@ begin
   Version[1] := (VersionHex shr 16) and $FF;
   Version[2] := (VersionHex shr 8) and $FF;
   Version[3] := (VersionHex shr 0) and $FF;
-  Result := Format('%x.%x.%x.%x', [Version[0], Version[1], Version[2], Version[3]]);
+  Result := Format('%d.%d.%d.%d', [Version[0], Version[1], Version[2], Version[3]]);
 end;
 
 function TAudioCore_Bass.CheckVersion(): boolean;
@@ -96,6 +95,13 @@ begin
   if (not Result) then
   begin
     Log.LogWarn('Could not init BASS audio library. ''bass.dll'' version is ' + DecodeVersion(BASS_GetVersion()) + ' but ' + DecodeVersion(BASS_MIN_REQUIRED_VERSION) + ' or higher is required.',
+        'TAudioCore_Bass.CheckVersion');
+  end;
+
+  Result := BASS_FX_GetVersion() >= BASS_FX_MIN_REQUIRED_VERSION;
+  if (not Result) then
+  begin
+    Log.LogWarn('Could not init BASS_FX audio library. ''bass_fx.dll'' version is ' + DecodeVersion(BASS_FX_GetVersion()) + ' but ' + DecodeVersion(BASS_FX_MIN_REQUIRED_VERSION) + ' or higher is required.',
         'TAudioCore_Bass.CheckVersion');
   end;
 end;

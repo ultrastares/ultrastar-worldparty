@@ -1,26 +1,23 @@
-﻿{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/UCommon.pas $
- * $Id: UCommon.pas 2241 2010-04-15 17:57:15Z whiteshark0 $
+﻿{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UCommon;
@@ -39,17 +36,22 @@ uses
   Classes,
   {$IFDEF MSWINDOWS}
   Windows,
+  UPlatformWindows,
   {$ENDIF}
   UConfig,
   ULog,
   UPath;
 
 type
+  TIntegerDynArray = array of integer;
   TStringDynArray = array of string;
   TUTF8StringDynArray = array of UTF8String;
 
 const
   SepWhitespace = [#9, #10, #13, ' ']; // tab, lf, cr, space
+
+  SDL_BUTTON_WHEELUP = 1001; // emulated MouseButton ID for mouse wheel up. @Note some high number to prevent conflict. @see sdl_mouse.inc
+  SDL_BUTTON_WHEELDOWN = 1002; // emulated MouseButton ID for mouse wheel down. @Note some high number to prevent conflict. @see sdl_mouse.inc
 
 {**
  * Splits a string into pieces separated by Separators.
@@ -61,11 +63,15 @@ const
  *   SplitString(' split  me now ', 0) -> ['split', 'me', 'now']
  *   SplitString(' split  me now ', 1) -> ['split', 'me now']
  *}
- function StringInArray(const Value: string; Strings: array of string): Boolean;
+function SplitString(const Str: string; MaxCount: integer = 0; Separators: TSysCharSet = SepWhitespace; RemoveEmpty: boolean = true): TStringDynArray;
 
- function SplitString(const Str: string; MaxCount: integer = 0; Separators: TSysCharSet = SepWhitespace): TStringDynArray;
+function StringInArray(const Value: string; Strings: array of string): Boolean;
 
- function GetStringWithNoAccents(str: String):String;
+function StringDeleteFromArray(var InArray: TIntegerDynArray; const InIndex: integer): Boolean; overload;
+function StringDeleteFromArray(var InStrings: TStringDynArray; const InIndex: integer): Boolean; overload;
+function StringDeleteFromArray(var InStrings: TUTF8StringDynArray; const InIndex: integer): Boolean; overload;
+
+function GetStringWithNoAccents(str: String):String;
 
 type
   TRGB = record
@@ -107,8 +113,13 @@ procedure MergeSort(List: TList; CompareFunc: TListSortCompare);
 function GetAlignedMem(Size: cardinal; Alignment: integer): pointer;
 procedure FreeAlignedMem(P: pointer);
 
-function GetArrayIndex(const SearchArray: array of UTF8String; Value: string; CaseInsensitiv: boolean = false): integer;
+function Equals(A, B: string; CaseSensitive: boolean = false): Boolean; overload;
 
+function GetArrayIndex(const SearchArray: array of UTF8String; Value: string; CaseInsensitiv: boolean = false): integer; overload;
+function GetArrayIndex(const SearchArray: array of integer; Value: integer): integer; overload;
+
+function ParseResolutionString(const ResolutionString: string; out x, y: integer): boolean;
+function BuildResolutionString(x,y: integer): string;
 
 implementation
 
@@ -131,57 +142,83 @@ begin
   Result := False;
 end;
 
-function SplitString(const Str: string; MaxCount: integer; Separators: TSysCharSet): TStringDynArray;
+function StringDeleteFromArray(var InArray: TIntegerDynArray; const InIndex: integer): Boolean;
+begin
+  Result := false;
+  if (InIndex >= 0) and (InIndex < Length(InArray)) then
+  begin
+    Result := true;
+    Move(InArray[InIndex + 1], InArray[InIndex], SizeOf(InArray[0]) * (Length(InArray) - InIndex - 1));
+    SetLength(InArray, Length(InArray) - 1);
+  end;
+end;
 
-  {*
-   * Adds Str[StartPos..Endpos-1] to the result array.
-   *}
+function StringDeleteFromArray(var InStrings: TStringDynArray; const InIndex: integer): Boolean;
+var
+  i: integer;
+begin
+  Result := false;
+  if (InIndex >= 0) and (InIndex < Length(InStrings)) then
+  begin
+    Result := true;
+    for i := High(InStrings) downto InIndex+1 do
+    begin
+      InStrings[i-1] := InStrings[i];
+    end;
+    SetLength(InStrings, Length(InStrings) - 1);
+  end;
+end;
+
+function StringDeleteFromArray(var InStrings: TUTF8StringDynArray; const InIndex: integer): Boolean;
+var
+  i: integer;
+begin
+  Result := false;
+  if (InIndex >= 0) and (InIndex < Length(InStrings)) then
+  begin
+    Result := true;
+    for i := High(InStrings) downto InIndex+1 do
+    begin
+      InStrings[i-1] := InStrings[i];
+    end;
+    SetLength(InStrings, Length(InStrings) - 1);
+  end;
+end;
+
+function SplitString(const Str: string; MaxCount: integer; Separators: TSysCharSet; RemoveEmpty: boolean): TStringDynArray;
+
+  // Adds Str[StartPos..Endpos-1] to the result array.
   procedure AddSplit(StartPos, EndPos: integer);
   begin
-    SetLength(Result, Length(Result)+1);
-    Result[High(Result)] := Copy(Str, StartPos, EndPos-StartPos);
+    if (not RemoveEmpty) or (EndPos > StartPos) then
+    begin
+      SetLength(Result, Length(Result)+1);
+      Result[High(Result)] := Copy(Str, StartPos, EndPos-StartPos);
+    end;
   end;
 
 var
-  I: integer;
+  I, Count: integer;
   Start: integer;
-  Last: integer;
 begin
   Start := 0;
+  Count := 0;
   SetLength(Result, 0);
 
   for I := 1 to Length(Str) do
   begin
     if (Str[I] in Separators) then
     begin
-      // end of component found
-      if (Start > 0) then
-      begin
-        AddSplit(Start, I);
-        Start := 0;
-      end;
-    end
-    else if (Start = 0) then
-    begin
-      // mark beginning of component
+      inc(Count);
+      AddSplit(Start+1, I);
       Start := I;
-      // check if this is the last component
-      if (Length(Result) = MaxCount-1) then
-      begin
-        // find last non-separator char
-        Last := Length(Str);
-        while (Str[Last] in Separators) do
-          Dec(Last);
-        // add component up to last non-separator
-        AddSplit(Start, Last);
-        Exit;
-      end;
+      if (MaxCount > 0) and (Count >= MaxCount) then Break
     end;
   end;
 
   // last component
-  if (Start > 0) then
-    AddSplit(Start, Length(Str)+1);
+  if (Start < Length(Str)+1) then
+    AddSplit(Start+1, Length(Str)+1);
 end;
 
 const
@@ -332,7 +369,7 @@ begin
     SetSSECSR($1F80);
   {$IFEND}
   *)
-  
+
   // disable all of the six FPEs (x87 and SSE) to be compatible with C/C++ and
   // other libs which rely on the standard FPU behaviour (no div-by-zero FPE anymore).
   SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide,
@@ -379,9 +416,10 @@ var
  *)
 procedure _ConsoleWriteLn(const aString: string); {$IFDEF HasInline}inline;{$ENDIF}
 begin
+  Log.LogConsole(aString);
   {$IFDEF MSWINDOWS}
   // sanity check to avoid crashes with writeln()
-  if (IsConsole) then
+  if IsConsole and HasConsole then
   begin
   {$ENDIF}
     Writeln(aString);
@@ -525,7 +563,7 @@ begin
   else
     TempList[MidPos] := InList[MidPos];
 
-  // merge sorted left and right sub-lists into output-list 
+  // merge sorted left and right sub-lists into output-list
   LeftEnd := MidPos;
   RightEnd := StartPos + BlockSize;
   Pos := StartPos;
@@ -579,6 +617,12 @@ begin
   TempList.Free;
 end;
 
+function Equals(A,B: string; CaseSensitive: boolean = false): boolean;
+begin
+  if CaseSensitive then Result := A = B
+  else Result := (CompareText(A, B) = 0);
+end;
+
 (**
  * Returns the index of Value in SearchArray
  * or -1 if Value is not in SearchArray.
@@ -601,6 +645,53 @@ begin
   end;
 end;
 
+(**
+ * Returns the index of Value in SearchArray
+ * or -1 if Value is not in SearchArray.
+ *)
+function GetArrayIndex(const SearchArray: array of integer; Value: integer): integer;
+var
+  i: integer;
+begin
+  Result := -1;
+
+  for i := 0 to High(SearchArray) do
+  begin
+    if (SearchArray[i] = Value) then
+    begin
+      Result := i;
+      Break;
+    end;
+  end;
+end;
+
+function BuildResolutionString(x,y: integer): string;
+begin
+  Result := Format('%dx%d', [x, y]);
+end;
+
+function ParseResolutionString(const ResolutionString: string; out x,y : integer): boolean;
+  var
+    Pieces: TStringDynArray;
+begin
+  Pieces := SplitString(LowerCase(ResolutionString), 1, ['x']);
+  Result := false;
+
+  if (Length(Pieces) > 1) and (Length(Pieces[0]) > 0) and (Length(Pieces[1]) > 0) then
+  begin
+    x := StrToInt(Pieces[0]);
+    y := StrToInt(Pieces[1]);
+  end
+  // FIXME: legacy code as long as SplitString is not fixed
+  else if Pos('x', ResolutionString) > 0then
+  begin
+    x := StrToInt(Copy(ResolutionString, 1, Pos('x', ResolutionString)-1));
+    y := StrToInt(Copy(ResolutionString, Pos('x', ResolutionString)+1, 1000));
+  end else Exit;
+
+  // verify if resolution has proper values
+  Result := (x > 0) and (y > 0);
+end;
 
 type
   // stores the unaligned pointer of data allocated by GetAlignedMem()

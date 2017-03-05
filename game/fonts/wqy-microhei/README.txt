@@ -152,7 +152,7 @@ http://dejavu.sourceforge.net/wiki/index.php/Font_utilities).
   el     Greek                                    100% (70/70)
   en     English                                  100% (73/73)
   eo     Esperanto                                100% (64/64)
-  es     Spanish                                  100% (67/67)
+  es     Español                                  100% (67/67)
   et     Estonian                                 100% (64/64)
   eu     Basque                                   100% (56/56)
   fa     Persian                                       (0/129)

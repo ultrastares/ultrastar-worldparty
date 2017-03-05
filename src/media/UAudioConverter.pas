@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/media/UAudioConverter.pas $
- * $Id: UAudioConverter.pas 3031 2013-12-15 21:08:54Z k-m_schindler $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UAudioConverter;
@@ -43,6 +40,7 @@ uses
   {$IFDEF UseFFmpegResample}
   avcodec,
   avutil,
+  UMediaCore_FFmpeg,
   {$ENDIF}
   UMediaCore_SDL,
   sdl2,
@@ -205,11 +203,15 @@ end;
 
 function TAudioConverter_FFmpeg.Init(SrcFormatInfo: TAudioFormatInfo;
                                      DstFormatInfo: TAudioFormatInfo): boolean;
+var
+  SrcFormat: TAVSampleFormat;
+  DstFormat: TAVSampleFormat;
 begin
   inherited Init(SrcFormatInfo, DstFormatInfo);
 
   Result := false;
 
+  {$IF LIBAVCODEC_VERSION < 52015000} // 52.15.0
   // Note: ffmpeg does not support resampling for more than 2 input channels
 
   if srcFormatInfo.Format <> asfS16 then
@@ -229,15 +231,30 @@ begin
     Exit;
   end;
 
-  {$IF LIBAVCODEC_VERSION < 52122000} // 52.122.0
   ResampleContext := audio_resample_init(
       dstFormatInfo.Channels, srcFormatInfo.Channels,
       Round(dstFormatInfo.SampleRate), Round(srcFormatInfo.SampleRate));
   {$ELSE}
+  if not TMediaCore_FFmpeg.ConvertAudioFormatToFFmpeg(srcFormatInfo.Format, SrcFormat) then
+  begin
+    Log.LogError('Unsupported format', 'TAudioConverter_FFmpeg.Init');
+    Log.LogError('srcFormatInfo.Format: ' + intToStr(integer(srcFormatInfo.Format)),
+                 'TAudioConverter_FFmpeg.Init');
+    Exit;
+  end;
+
+  if not TMediaCore_FFmpeg.ConvertAudioFormatToFFmpeg(DstFormatInfo.Format, DstFormat) then
+  begin
+    Log.LogError('Unsupported format', 'TAudioConverter_FFmpeg.Init');
+    Log.LogError('dstFormatInfo.Format: ' + intToStr(integer(dstFormatInfo.Format)),
+                 'TAudioConverter_FFmpeg.Init');
+    Exit;
+  end;
+
   ResampleContext := av_audio_resample_init(
       dstFormatInfo.Channels, srcFormatInfo.Channels,
       Round(dstFormatInfo.SampleRate), Round(srcFormatInfo.SampleRate),
-      AV_SAMPLE_FMT_S16, AV_SAMPLE_FMT_S16,
+      DstFormat, SrcFormat,
       16, 10, 0, 0.8);
   {$IFEND}
   if ResampleContext = nil then

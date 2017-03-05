@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/ULyrics.pas $
- * $Id: ULyrics.pas 1939 2009-11-09 00:27:55Z s_alexander $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit ULyrics;
@@ -36,6 +33,7 @@ interface
 uses
   dglOpenGL,
   UCommon,
+  UIni,
   UTexture,
   UThemes,
   UMusic;
@@ -50,8 +48,8 @@ type
   TLyricWord = record
     X:          real;     // left corner
     Width:      real;     // width
-    Start:      cardinal; // start of the word in quarters (beats)
-    Length:     cardinal; // length of the word in quarters
+    Start:      Longint; // start of the word in quarters (beats)
+    Length:     Longint; // length of the word in quarters
     Text:       UTF8String; // text
     Freestyle:  boolean;  // is freestyle?
   end;
@@ -89,8 +87,7 @@ type
       LCounter:       integer;       // line counter
 
       // duet mode - textures for player icons
-      // FIXME: do not use a fixed player count, use MAX_PLAYERS instead
-      PlayerIconTex:  array[0..5] of TPlayerIconTex;
+      PlayerIconTex:  array[0..UIni.IMaxPlayerCount -1] of TPlayerIconTex;
 
       // Some helper procedures for lyric drawing
       procedure DrawLyrics (Beat: real);
@@ -163,8 +160,7 @@ uses
   UGraphic,
   UDisplay,
   ULog,
-  math,
-  UIni;
+  math;
 
 { TLyricLine }
 
@@ -272,7 +268,7 @@ begin
   BallTex := Texture.LoadTexture(Skin.GetTextureFileName('Ball'), TEXTURE_TYPE_TRANSPARENT, 0);
 
   // duet mode: load player icon
-  for I := 0 to 5 do
+  for I := 0 to UIni.IMaxPlayerCount - 1 do
   begin
     PlayerIconTex[I][0] := Texture.LoadTexture(Skin.GetTextureFileName('LyricIcon_P' + InttoStr(I+1)), TEXTURE_TYPE_TRANSPARENT, 0);
     PlayerIconTex[I][1] := Texture.LoadTexture(Skin.GetTextureFileName('LyricIconD_P' + InttoStr(I+1)), TEXTURE_TYPE_TRANSPARENT, 0);
