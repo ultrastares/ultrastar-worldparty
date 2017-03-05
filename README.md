@@ -1,5 +1,6 @@
 #UltraStar Deluxe WorldParty
 
+
 ![WorldParty logo](https://github.com/Daniel20Ultrastar-es/usdxworldparty/blob/master/promo/Worldparty%20logo.png)
 
 UltraStar Deluxe WorldParty is a free and open source karaoke game.  It allows
