@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/media/UAudioDecoder_FFmpeg.pas $
- * $Id: UAudioDecoder_FFmpeg.pas 3107 2014-11-23 00:02:56Z k-m_schindler $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UAudioDecoder_FFmpeg;
@@ -66,6 +63,9 @@ uses
   avio,
 	ctypes,
   rational,
+{$IFDEF UseSWResample}
+  swresample,
+{$ENDIF}
   UMusic,
   UIni,
   UMain,
@@ -74,6 +74,17 @@ uses
   UCommon,
   UConfig,
   UPath;
+
+{$IFDEF UseSWResample}
+  {$IF LIBAVCODEC_VERSION >= 54041100}
+    {$DEFINE UseFrameDecoderAPI}
+    {$DEFINE ConvertPlanar}
+  {$ENDIF}
+{$ELSE}
+  {$IF LIBAVCODEC_VERSION >= 57000000}
+    {$DEFINE UseFrameDecoderAPI}
+  {$ENDIF}
+{$ENDIF}
 
 const
   MAX_AUDIOQ_SIZE = (5 * 16 * 1024);
@@ -116,6 +127,12 @@ type
       fPacketQueue: TPacketQueue;
 
       fFormatInfo: TAudioFormatInfo;
+      {$IFDEF UseFrameDecoderAPI}
+      fBytesPerSample: integer;
+      {$IFEND}
+      {$IFDEF ConvertPlanar}
+      fSwrContext: PSwrContext;
+      {$IFEND}
 
       // FFmpeg specific data
       fFormatCtx: PAVFormatContext;
@@ -142,6 +159,9 @@ type
       fAudioBufferPos:  integer;
       fAudioBufferSize: integer;
       fAudioBuffer:     PByteArray;
+      {$IFDEF UseFrameDecoderAPI}
+      fAudioBufferFrame: PAVFrame;
+      {$IFEND}
 
       fFilename: IPath;
 
@@ -158,7 +178,7 @@ type
       procedure PauseParser();
       procedure ResumeParser();
 
-      function DecodeFrame(Buffer: PByteArray; BufferSize: integer): integer;
+      function DecodeFrame(): integer;
       procedure FlushCodecBuffers();
       procedure PauseDecoder();
       procedure ResumeDecoder();
@@ -211,6 +231,13 @@ begin
   fDecoderUnlockedCond := SDL_CreateCond();
   fDecoderResumeCond := SDL_CreateCond();
 
+  {$IFDEF UseFrameDecoderAPI}
+    {$IF LIBAVUTIL_VERSION >= 52019101}
+  fAudioBufferFrame := av_frame_alloc();
+    {$ELSE}
+  fAudioBufferFrame := avcodec_alloc_frame();
+    {$IFEND}
+  {$ELSE}
   // according to the documentation of avcodec_decode_audio(2), sample-data
   // should be aligned on a 16 byte boundary. Otherwise internal calls
   // (e.g. to SSE or Altivec operations) might fail or lack performance on some
@@ -227,6 +254,7 @@ begin
   // was not applicable as Delphi in contrast to FPC provides at most 8 byte
   // alignment ({$ALIGN 16} is not supported) by this directive.
   fAudioBuffer := GetAlignedMem(AUDIO_BUFFER_SIZE, 16);
+  {$IFEND}
 
   Reset();
 end;
@@ -262,7 +290,6 @@ destructor TFFmpegDecodeStream.Destroy();
 begin
   Close();
 
-  SDL_UnlockMutex(fStateLock);
   SDL_DestroyMutex(fStateLock);
   fStateLock:=nil;
   SDL_DestroyCond(fParserUnlockedCond);
@@ -272,7 +299,15 @@ begin
   SDL_DestroyCond(fDecoderUnlockedCond);
   SDL_DestroyCond(fDecoderResumeCond);
 
+  {$IFDEF UseFrameDecoderAPI}
+    {$IF LIBAVUTIL_VERSION >= 52019101}
+  av_frame_free(@fAudioBufferFrame);
+    {$ELSE}
+  avcodec_free_frame(@fAudioBufferFrame);
+    {$IFEND}
+  {$ELSE}
   FreeAlignedMem(fAudioBuffer);
+  {$IFEND}
 
   inherited;
 end;
@@ -280,6 +315,7 @@ end;
 function TFFmpegDecodeStream.Open(const Filename: IPath): boolean;
 var
   SampleFormat: TAudioSampleFormat;
+  PackedSampleFormat: TAVSampleFormat;
   TestFrame: TAVPacket;
   AVResult: integer;
 begin
@@ -357,7 +393,9 @@ begin
 
   // TODO: should we use this or not? Should we allow 5.1 channel audio?
 
-  {$IF LIBAVCODEC_VERSION >= 51042000}
+  {$IF LIBAVCODEC_VERSION >= 56042000}
+  fCodecCtx^.request_channel_layout := ($20000000 or $40000000); //avcodec.c AV_CH_LAYOUT_STEREO_DOWNMIX;
+  {$ELSEIF LIBAVCODEC_VERSION >= 51042000}
   if (fCodecCtx^.channels > 0) then
     fCodecCtx^.request_channels := Min(2, fCodecCtx^.channels)
   else
@@ -412,8 +450,35 @@ begin
   end;
 
   // now initialize the audio-format
+  {$IFDEF ConvertPlanar}
+  PackedSampleFormat := av_get_packed_sample_fmt(fCodecCtx^.sample_fmt);
+  if (PackedSampleFormat <> fCodecCtx^.sample_fmt) then
+  begin
+    // There is no point in leaving PackedSampleFormat as is.
+    // av_audio_resample_init as used by TAudioConverter_FFmpeg will internally
+    // convert to AV_SAMPLE_FMT_S16 anyway and most architectures have assembly
+    // optimized conversion routines from AV_SAMPLE_FMT_FLTP to AV_SAMPLE_FMT_S16.
+    PackedSampleFormat := AV_SAMPLE_FMT_S16;
+    fSwrContext := swr_alloc_set_opts(nil, fCodecCtx^.channel_layout, PackedSampleFormat, fCodecCtx^.sample_rate,
+                                      fCodecCtx^.channel_layout, fCodecCtx^.sample_fmt, fCodecCtx^.sample_rate, 0, nil);
+    if (fSwrContext = nil) then
+      Log.LogStatus('Error: Failed to create SwrContext', 'TFFmpegDecodeStream.Open')
+    else
+    begin
+      av_opt_set_int(fSwrContext, 'ich', fCodecCtx^.channels, 0);
+      av_opt_set_int(fSwrContext, 'och', fCodecCtx^.channels, 0);
+      if (swr_init(fSwrContext) < 0) then
+      begin
+        swr_free(@fSwrContext);
+        Log.LogStatus('Error: Failed to initialize SwrContext', 'TFFmpegDecodeStream.Open');
+      end;
+    end;
+  end;
+  {$ELSE}
+  PackedSampleFormat := fCodecCtx^.sample_fmt;
+  {$IFEND}
 
-  if (not FFmpegCore.ConvertFFmpegToAudioFormat(fCodecCtx^.sample_fmt, SampleFormat)) then
+  if (not FFmpegCore.ConvertFFmpegToAudioFormat(PackedSampleFormat, SampleFormat)) then
   begin
     // try standard format
     SampleFormat := asfS16;
@@ -425,6 +490,9 @@ begin
     fCodecCtx^.sample_rate,
     SampleFormat
   );
+  {$IFDEF UseFrameDecoderAPI}
+  fBytesPerSample := av_get_bytes_per_sample(PackedSampleFormat) * fCodecCtx^.channels;
+  {$IFEND}
 
   fPacketQueue := TPacketQueue.Create();
 
@@ -457,6 +525,12 @@ begin
     //SDL_WaitThread(fParseThread, PInt(ThreadResult));
     fParseThread := nil;
   end;
+
+  {$IFDEF ConvertPlanar}
+  // Free the swresample context
+  if (fSwrContext <> nil) then
+    swr_free(@fSwrContext);
+  {$IFEND}
 
   // Close the codec
   if (fCodecCtx <> nil) then
@@ -546,9 +620,7 @@ end;
 
 function TFFmpegDecodeStream.IsQuit(): boolean;
 begin
-  SDL_LockMutex(fStateLock);
   Result := fQuitRequest;
-  SDL_UnlockMutex(fStateLock);
 end;
 
 function TFFmpegDecodeStream.GetPosition(): real;
@@ -697,11 +769,18 @@ begin
   // reuse thread as long as the stream is not terminated
   while (ParseLoop()) do
   begin
+    if(fQuitRequest = false) then
+    begin
     // wait for reuse or destruction of stream
     SDL_LockMutex(fStateLock);
     while (not (fSeekRequest or fQuitRequest)) do
       SDL_CondWait(fParserIdleCond, fStateLock);
      SDL_UnlockMutex(fStateLock);
+    end
+    else
+    begin
+      Break;
+    end;
   end;
 end;
 
@@ -738,15 +817,17 @@ var
   // instead and give priority to the threads requesting the parser to pause.
   procedure LockParser();
   begin
+    if fQuitRequest then Exit;
     SDL_LockMutex(fStateLock);
     while (fParserPauseRequestCount > 0) do
       SDL_CondWait(fParserResumeCond, fStateLock);
     fParserLocked := true;
-     SDL_UnlockMutex(fStateLock);
+    SDL_UnlockMutex(fStateLock);
   end;
 
   procedure UnlockParser();
   begin
+    if fQuitRequest then Exit;
     SDL_LockMutex(fStateLock);
     fParserLocked := false;
     SDL_CondBroadcast(fParserUnlockedCond);
@@ -968,14 +1049,16 @@ begin
   end;
 end;
 
-function TFFmpegDecodeStream.DecodeFrame(Buffer: PByteArray; BufferSize: integer): integer;
+function TFFmpegDecodeStream.DecodeFrame(): integer;
 var
   PaketDecodedSize: integer; // size of packet data used for decoding
   DataSize: integer;         // size of output data decoded by FFmpeg
   BlockQueue: boolean;
   SilenceDuration: double;
-  {$IF LIBAVCODEC_VERSION >= 57000000}
-  AVFrame: PAVFrame;
+  {$IF (LIBAVCODEC_VERSION >= 52122000) and (LIBAVCODEC_VERSION < 57037100)}
+  AVPacket: TAVPacket;
+  {$IFEND}
+  {$IFDEF UseFrameDecoderAPI}
   got_frame_ptr: integer;
   {$IFEND}
   {$IFDEF DebugFFmpegDecode}
@@ -989,12 +1072,16 @@ begin
 
   while(true) do
   begin
+    {$IF (LIBAVCODEC_VERSION >= 52122000) and (LIBAVCODEC_VERSION < 57037100)}
+    AVPacket := fAudioPaket;
+    {$IFEND}
+
     // for titles with start_time > 0 we have to generate silence
     // until we reach the pts of the first data packet.
     if (fAudioPaketSilence > 0) then
     begin
-      DataSize := Min(fAudioPaketSilence, BufferSize);
-      FillChar(Buffer[0], DataSize, 0);
+      DataSize := Min(fAudioPaketSilence, AUDIO_BUFFER_SIZE);
+      FillChar(fAudioBuffer[0], DataSize, 0);
       Dec(fAudioPaketSilence, DataSize);
       fAudioStreamPos := fAudioStreamPos + DataSize / fFormatInfo.BytesPerSec;
       Result := DataSize;
@@ -1004,23 +1091,42 @@ begin
     // read packet data
     while (fAudioPaketSize > 0) do
     begin
-      DataSize := BufferSize;
+      DataSize := AUDIO_BUFFER_SIZE;
+      {$IF (LIBAVCODEC_VERSION >= 52122000) and (LIBAVCODEC_VERSION < 57037100)}
+      AVPacket.data := fAudioPaketData;
+      AVPacket.size := fAudioPaketSize;
+      {$IFEND}
 
-      {$IF LIBAVCODEC_VERSION >= 57000000}
-      AVFrame := av_frame_alloc();
-      PaketDecodedSize := avcodec_decode_audio4(fCodecCtx, AVFrame,
-            @got_frame_ptr, @fAudioPaket);
-      DataSize := AVFrame.nb_samples;
-      Buffer   := PByteArray(AVFrame.data[0]);
-      {$ELSEIF LIBAVCODEC_VERSION >= 52122000} // 52.122.0
-      PaketDecodedSize := avcodec_decode_audio3(fCodecCtx, PSmallint(Buffer),
-                  DataSize, @fAudioPaket);
-      {$ELSEIF LIBAVCODEC_VERSION >= 51030000} // 51.30.0
-      PaketDecodedSize := avcodec_decode_audio2(fCodecCtx, PSmallint(Buffer),
-                  DataSize, fAudioPaketData, fAudioPaketSize);
+      {$IFDEF UseFrameDecoderAPI}
+        {$IF LIBAVCODEC_VERSION >= 57037100}
+      got_frame_ptr := avcodec_receive_frame(fCodecCtx, fAudioBufferFrame);
+      if (got_frame_ptr = AVERROR(EAGAIN)) then
+        PaketDecodedSize := fAudioPaketSize
+      else
+        PaketDecodedSize := 0;
+      got_frame_ptr := ord(got_frame_ptr = 0);
+        {$ELSE}
+      PaketDecodedSize := avcodec_decode_audio4(fCodecCtx, fAudioBufferFrame,
+            @got_frame_ptr, @AVPacket);
+        {$IFEND}
+      if(got_frame_ptr <> 0) then
+      begin
+        DataSize := fAudioBufferFrame.nb_samples * fBytesPerSample;
+        fAudioBuffer := PByteArray(fAudioBufferFrame.data[0]);
+      end
+      else
+        DataSize := 0;
       {$ELSE}
-      PaketDecodedSize := avcodec_decode_audio(fCodecCtx, PSmallint(Buffer),
+        {$IF LIBAVCODEC_VERSION >= 52122000} // 52.122.0
+      PaketDecodedSize := avcodec_decode_audio3(fCodecCtx, PSmallint(fAudioBuffer),
+                  DataSize, @AVPacket);
+        {$ELSEIF LIBAVCODEC_VERSION >= 51030000} // 51.30.0
+      PaketDecodedSize := avcodec_decode_audio2(fCodecCtx, PSmallint(fAudioBuffer),
                   DataSize, fAudioPaketData, fAudioPaketSize);
+        {$ELSE}
+      PaketDecodedSize := avcodec_decode_audio(fCodecCtx, PSmallint(fAudioBuffer),
+                  DataSize, fAudioPaketData, fAudioPaketSize);
+        {$IFEND}
       {$IFEND}
 
       if(PaketDecodedSize < 0) then
@@ -1108,6 +1214,10 @@ begin
     fAudioPaketData := fAudioPaket.data;
     fAudioPaketSize := fAudioPaket.size;
 
+    {$IF LIBAVCODEC_VERSION >= 57037100}
+    avcodec_send_packet(fCodecCtx, @fAudioPaket);
+    {$IFEND}
+
     // if available, update the stream position to the presentation time of this package
     if(fAudioPaket.pts <> AV_NOPTS_VALUE) then
     begin
@@ -1129,6 +1239,7 @@ var
   CopyByteCount:   integer; // number of bytes to copy
   RemainByteCount: integer; // number of bytes left (remain) to read
   BufferPos: integer;
+  BufferPtr: PByte;
 
   // prioritize pause requests
   procedure LockDecoder();
@@ -1154,22 +1265,44 @@ begin
   // set number of bytes to copy to the output buffer
   BufferPos := 0;
 
+  {$IFDEF ConvertPlanar}
+  if (fSwrContext <> nil) then
+  begin
+    RemainByteCount := BufferSize mod fBytesPerSample;
+    BufferSize := BufferSize - RemainByteCount;
+  end;
+  {$IFEND}
+
   LockDecoder();
   try
     // leave if end-of-file is reached
     if (EOF) then
       Exit;
 
+    BufferPtr := nil;
+    {$IFDEF ConvertPlanar}
+    if ((fSwrContext <> nil) and (fAudioBufferSize > 0)) then
+    begin
+      BufferPtr := @Buffer[0];
+      BufferPos := swr_convert(fSwrContext, BufferPtr, BufferSize div fBytesPerSample,
+                               fAudioBufferFrame.extended_data^, 0);
+      if (BufferPos < 0) then // might happen if out of memory
+        Exit;
+      BufferPos := BufferPos * fBytesPerSample;
+      Inc(fAudioBufferPos, BufferPos);
+    end;
+    {$IFEND}
+
     // copy data to output buffer
     while (BufferPos < BufferSize) do
     begin
       // check if we need more data
-      if (fAudioBufferPos >= fAudioBufferSize) then
+      if ((fAudioBufferPos >= fAudioBufferSize) or (BufferPtr <> nil)) then
       begin
         fAudioBufferPos := 0;
 
         // we have already sent all our data; get more
-        fAudioBufferSize := DecodeFrame(fAudioBuffer, AUDIO_BUFFER_SIZE);
+        fAudioBufferSize := DecodeFrame();
 
         // check for errors or EOF
         if(fAudioBufferSize < 0) then
@@ -1179,10 +1312,27 @@ begin
         end;
       end;
 
+      RemainByteCount := BufferSize - BufferPos;
+
+      {$IFDEF ConvertPlanar}
+      if (fSwrContext <> nil) then
+      begin
+        BufferPtr := @Buffer[BufferPos];
+        CopyByteCount := swr_convert(fSwrContext, BufferPtr, RemainByteCount div fBytesPerSample,
+                                     fAudioBufferFrame.extended_data^, fAudioBufferFrame.nb_samples);
+        if (CopyByteCount < 0) then
+          Exit;
+        CopyByteCount := CopyByteCount * fBytesPerSample;
+
+        Inc(BufferPos,       CopyByteCount);
+        Inc(fAudioBufferPos, CopyByteCount);
+        continue;
+      end;
+      {$IFEND}
+
       // calc number of new bytes in the decode-buffer
       CopyByteCount := fAudioBufferSize - fAudioBufferPos;
       // resize copy-count if more bytes available than needed (remaining bytes are used the next time)
-      RemainByteCount := BufferSize - BufferPos;
       if (CopyByteCount > RemainByteCount) then
         CopyByteCount := RemainByteCount;
 

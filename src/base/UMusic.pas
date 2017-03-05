@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/base/UMusic.pas $
- * $Id: UMusic.pas 3103 2014-11-22 23:21:19Z k-m_schindler $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UMusic;
@@ -42,7 +39,7 @@ uses
   UWebcam;
 
 type
-  TNoteType = (ntFreestyle, ntNormal, ntGolden);
+  TNoteType = (ntFreestyle, ntNormal, ntGolden, ntRap, ntRapGolden);
 
   TPos = record
     CP:   integer;
@@ -77,7 +74,7 @@ const
   // 0 means this notetype is not rated at all
   // 2 means a hit of this notetype will be rated w/ twice as much
   // points as a hit of a notetype w/ ScoreFactor 1
-  ScoreFactor:         array[TNoteType] of integer = (0, 1, 2);
+  ScoreFactor:         array[TNoteType] of integer = (0, 1, 2, 1, 2);
 
 type
   (**
@@ -96,6 +93,13 @@ type
 
     IsMedley:   boolean;     //just for editor
     IsStartPreview: boolean; //just for editor
+
+    private
+    function GetEnd:integer;
+
+    public
+    property End_:integer read GetEnd;
+
 
   end;
 
@@ -116,6 +120,22 @@ type
     TotalNotes: integer; // value of all notes in the line
     LastLine:   boolean;
     Note:       array of TLineFragment;
+
+    private
+    function GetLength(): integer;
+
+    public
+    { Returns whether the line has a valid length. }
+    function HasLength(): boolean; overload;
+    { Returns whether the line has a valid length and passes length. }
+    function HasLength(out Len: Integer): boolean; overload;
+    { Returns whether the line has a valid length and passes length. Output converted to Real }
+    function HasLength(out Len: real): boolean; overload;
+    { Returns whether the line has a valid length and passes length. Output converted to Double }
+    function HasLength(out Len: double): boolean; overload;
+
+    property Length_: integer read GetLength;
+
   end;
 
   (**
@@ -167,9 +187,9 @@ const
     2, 2,     // asfU16LSB, asfS16LSB
     2, 2,     // asfU16MSB, asfS16MSB
     2, 2,     // asfU16,    asfS16
-    3,        // asfS24
     4,        // asfS32
-    4         // asfFloat
+    4,        // asfFloat
+    8         // asfDouble
   );
 
 const
@@ -219,6 +239,23 @@ type
   TVoiceRemoval = class(TSoundEffect)
     public
       procedure Callback(Buffer: PByteArray; BufSize: integer); override;
+  end;
+
+  TSoundFX = class
+    public
+      EngineData: Pointer; // can be used for engine-specific data
+      procedure Init(); virtual; abstract;
+      procedure Removed(); virtual; abstract;
+
+      class function CanEnable: boolean; virtual; abstract; static;
+
+      function GetType: DWORD; virtual; abstract;
+      function GetPriority: LongInt; virtual; abstract;
+      function GetName: string; virtual; abstract;
+
+  end;
+  
+  TReplayGain = class(TSoundFX)
   end;
 
 type
@@ -312,6 +349,9 @@ type
 
       procedure AddSoundEffect(Effect: TSoundEffect);    virtual; abstract;
       procedure RemoveSoundEffect(Effect: TSoundEffect); virtual; abstract;
+
+      procedure AddSoundFX(FX: TSoundFX);    virtual; abstract;
+      procedure RemoveSoundFX(FX: TSoundFX); virtual; abstract;
 
       procedure SetSyncSource(SyncSource: TSyncSource);
       function GetSourceStream(): TAudioSourceStream;
@@ -1258,5 +1298,48 @@ procedure TAudioVoiceStream.SetLoop(Enabled: boolean);
 begin
 end;
 
+{ TLineFragment }
+
+function TLineFragment.GetEnd(): integer;
+begin
+  Result := Start+Length;
+end;
+
+{ TLine }
+
+function TLine.HasLength(): boolean;
+var tempi: integer;
+begin
+  Result := HasLength(tempi);
+end;
+
+function TLine.HasLength(out Len: integer): boolean;
+begin
+  Result := false;
+  if Length(Note) >= 0 then
+  begin
+    Result := true;
+    Len := End_ - Note[0].Start;
+  end;
+end;
+
+function TLine.HasLength(out Len: real): boolean;
+var tempi: integer;
+begin
+  Result := HasLength(tempi);
+  Len := tempi;
+end;
+
+function TLine.HasLength(out Len: double): boolean;
+var tempi: integer;
+begin
+  Result := HasLength(tempi);
+  Len := tempi;
+end;
+
+function TLine.GetLength(): integer;
+begin
+  Result := ifthen(Length(Note) < 0, 0, End_ - Note[0].Start);
+end;
 
 end.

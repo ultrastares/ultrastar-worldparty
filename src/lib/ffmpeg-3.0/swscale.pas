@@ -83,8 +83,6 @@ const
                            (LIBSWSCALE_MAX_VERSION_MINOR * VERSION_MINOR) +
 			   (LIBSWSCALE_MAX_VERSION_RELEASE * VERSION_RELEASE);
 
-  
-
 (* Check if linked versions are supported *)
 {$IF (LIBSWSCALE_VERSION > LIBSWSCALE_MAX_VERSION)}
   {$MESSAGE Error 'Linked version of libswscale is not yet supported!'}
@@ -97,25 +95,6 @@ type
   PCintArray = ^TCintArray;
   TPCuint8Array = array[0..0] of PCuint8;
   PPCuint8Array = ^TPCuint8Array;
-
-(* libswscale/version.h start *)
-
-(**
- * FF_API_* defines may be placed below to indicate public API that will be
- * dropped at a future version bump. The defines themselves are not part of
- * the public API and may change, break or disappear at any time.
- *)
-{$ifndef FF_API_SWS_GETCONTEXT}
-{$define FF_API_SWS_GETCONTEXT        := (LIBSWSCALE_VERSION_MAJOR < 3)}
-{$endif}
-{$ifndef FF_API_SWS_CPU_CAPS}
-{$define FF_API_SWS_CPU_CAPS          := (LIBSWSCALE_VERSION_MAJOR < 3)}
-{$endif}
-{$ifndef FF_API_SWS_FORMAT_NAME}
-{$define FF_API_SWS_FORMAT_NAME       := (LIBSWSCALE_VERSION_MAJOR < 3)}
-{$endif}
-
-(* libswscale/version.h end *)
 
 (**
  * Return the LIBSWSCALE_VERSION_INT constant.
@@ -164,22 +143,6 @@ const
   SWS_DIRECT_BGR        = $8000;
   SWS_ACCURATE_RND      = $40000;
   SWS_BITEXACT          = $80000;
-
-{$IFDEF FF_API_SWS_CPU_CAPS}
-(**
- * CPU caps are autodetected now, those flags
- * are only provided for API compatibility.
- *)
-  SWS_CPU_CAPS_MMX      = $80000000;
-  SWS_CPU_CAPS_MMXEXT   = $20000000;
-  SWS_CPU_CAPS_MMX2     = $20000000;
-  SWS_CPU_CAPS_3DNOW    = $40000000;
-  SWS_CPU_CAPS_ALTIVEC  = $10000000;
-{$IFDEF  FF_API_ARCH_BFIN}
-  SWS_CPU_CAPS_BFIN     = $01000000;
-{$IFEND}
-  SWS_CPU_CAPS_SSE2     = $02000000;
-{$IFEND}
 
   SWS_MAX_REDUCE_CUTOFF = 0.002;
 
@@ -284,7 +247,7 @@ procedure sws_freeContext(swsContext: PSwsContext);
  * @param flags specify which algorithm and options to use for rescaling
  * @param param extra parameters to tune the used scaler
  *              For SWS_BICUBIC param[0] and [1] tune the shape of the basis
- *              function, param[0] tunes f(1) and param[1] f´(1)
+ *              function, param[0] tunes f(1) and param[1] f??(1)
  *              For SWS_GAUSS param[0] tunes the exponent and thus cutoff
  *              frequency
  *              For SWS_LANCZOS param[0] tunes the width of the window function

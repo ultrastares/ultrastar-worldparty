@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/UFiles.pas $
- * $Id: UFiles.pas 2510 2010-06-13 09:03:10Z tobigun $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UFiles;
@@ -148,15 +145,17 @@ begin
       if Song.Background.IsSet then    SongFile.WriteLine('#BACKGROUND:'  + EncodeToken(Song.Background.ToUTF8));
       if Song.Video.IsSet      then    SongFile.WriteLine('#VIDEO:'       + EncodeToken(Song.Video.ToUTF8));
 
-      if Song.VideoGAP    <> 0  then    SongFile.WriteLine('#VIDEOGAP:'    + FloatToStr(Song.VideoGAP));
-      if Song.Resolution  <> 4  then    SongFile.WriteLine('#RESOLUTION:'  + IntToStr(Song.Resolution));
-      if Song.NotesGAP    <> 0  then    SongFile.WriteLine('#NOTESGAP:'    + IntToStr(Song.NotesGAP));
-      if Song.Start       <> 0  then    SongFile.WriteLine('#START:'       + FloatToStr(Song.Start));
-      if Song.Finish      <> 0  then    SongFile.WriteLine('#END:'         + IntToStr(Song.Finish));
-      if Relative               then    SongFile.WriteLine('#RELATIVE:yes');
+      if Song.VideoGAP    <> 0.0  then    SongFile.WriteLine('#VIDEOGAP:'    + FloatToStr(Song.VideoGAP));
+      if Song.Resolution  <> 4    then    SongFile.WriteLine('#RESOLUTION:'  + IntToStr(Song.Resolution));
+      if Song.NotesGAP    <> 0    then    SongFile.WriteLine('#NOTESGAP:'    + IntToStr(Song.NotesGAP));
+      if Song.Start       <> 0.0  then    SongFile.WriteLine('#START:'       + FloatToStr(Song.Start));
+      if Song.Finish      <> 0    then    SongFile.WriteLine('#END:'         + IntToStr(Song.Finish));
+      if Relative                 then    SongFile.WriteLine('#RELATIVE:yes');
+
+      if Song.HasPreview and (Song.PreviewStart >= 0.0) then // also allow writing 0.0 preview if set
+        SongFile.WriteLine('#PREVIEWSTART:' + FloatToStr(Song.PreviewStart));
 
       if (Song.Medley.Source=msTag) and not Relative and (Song.Medley.EndBeat - Song.Medley.StartBeat > 0) then
-      //if (Song.Medley.Source=msTag) and not Relative and (Song.Medley.EndBeat - Song.Medley.StartBeat > 0) then
       begin
         SongFile.WriteLine('#MedleyStartBeat:' + IntToStr(Song.Medley.StartBeat));
         SongFile.WriteLine('#MedleyEndBeat:' + IntToStr(Song.Medley.EndBeat));

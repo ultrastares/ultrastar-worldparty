@@ -1,12 +1,25 @@
-﻿Ultrastar Deluxe WorldParty
-Copyright (C) 2007-2016 by the following:
+Ultrastar Deluxe WorldParty
+Copyright (C) 2010-2017 by the following:
 
-"zup3r_vock"
-Stefan Ludowicy "basisbit"
+If you have contributed to this project then you deserve to be on this
+list.  Contact us and we'll add you.
+
+"Zup3r_vock"
 "Daniel20"
 
 
-Based on UltraStar Deluxe developed by:
+ --> Follow the project at https://github.com/ultrastares/usdxworldparty
+
+ --> Support and contact: http://ultrastar-es.org
+
+---------------------------------------------------------------------------------
+*Consider that Ultrastar Deluxe Worldparty is a fork of Ultrastar Deluxe.
+Some modifications could be related to their team which is impossible to merge
+with our project. So, please visit their repo to follow all modifications and 
+the people who are involved. https://github.com/UltraStar-Deluxe/USDX/commits/master
+---------------------------------------------------------------------------------
+
+Based on UltraStar Deluxe written by:
 
 Jay Binks "jaybinks"
 Dirk Dunger "blindy"
@@ -18,8 +31,8 @@ Tobias Gunkel "tobigun"
 Alexander S. "s_alexander"
 Karl-Michael Schindler "mischi"
 Philipp Steinhardt "whiteshark"
-
-
+Stefan Ludowicy "basisbit"
+"RattleSN4K3"
 
 Based on UltraStar written by:
 "Corvus5"
@@ -34,17 +47,4 @@ Benedikt Krueger
 Holger Kuhn "hawkear"
 Florian Küpper "flokuep"
 Wesley Stessens "profoX"
-
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+various other people, see commit log from github.com/UltraStar-Deluxe/USDX and github.com/UltraStar-Deluxe/mirror

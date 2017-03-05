@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/media/UAudioPlayback_Bass.pas $
- * $Id: UAudioPlayback_Bass.pas 3141 2015-10-11 22:15:05Z basisbit $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UAudioPlayback_Bass;
@@ -45,11 +42,13 @@ uses
   UAudioCore_Bass,
   ULog,
   sdl2,
-  bass,
+  BASS,
+  BASS_FX,
   SysUtils;
 
 type
   PHDSP = ^HDSP;
+  PHFX = ^HFX;
 
 type
   TBassPlaybackStream = class(TAudioPlaybackStream)
@@ -86,6 +85,9 @@ type
       procedure AddSoundEffect(Effect: TSoundEffect);    override;
       procedure RemoveSoundEffect(Effect: TSoundEffect); override;
 
+      procedure AddSoundFX(FX: TSoundFX);    override;
+      procedure RemoveSoundFX(FX: TSoundFX); override;
+
       procedure GetFFTData(var Data: TFFTData);           override;
       function  GetPCMData(var Data: TPCMData): Cardinal; override;
 
@@ -121,6 +123,8 @@ type
       function GetLatency(): double; override;
       function CreatePlaybackStream(): TAudioPlaybackStream; override;
     public
+      constructor Create(); override;
+
       function GetName: String; override;
       function InitializePlayback(): boolean; override;
       function FinalizePlayback: boolean; override;
@@ -133,9 +137,26 @@ type
       BassDeviceID: DWORD; // DeviceID used by BASS
   end;
 
+  TReplayGain_Bass = class(TReplayGain)
+    private
+      procedure Init(); override;
+    public
+      class function CanEnable(): boolean; override; static;
+
+      function GetType: DWORD; override;
+      function GetPriority: LongInt; override;
+      function GetName: string; override;
+  end;
+
 var
   BassCore: TAudioCore_Bass;
 
+constructor TAudioPlayback_Bass.Create();
+begin
+  inherited;
+
+  IReplayGain := TReplayGain_Bass;
+end;
 
 { TBassPlaybackStream }
 
@@ -532,6 +553,49 @@ begin
   Effect.EngineData := nil;
 end;
 
+procedure TBassPlaybackStream.AddSoundFX(FX: TSoundFX);
+var
+  FXHandle: HFX;
+begin
+  if assigned(FX.engineData) then
+  begin
+    Log.LogError(Concat(FX.GetName, ': ', 'TSoundFX.engineData already set'), 'TBassPlaybackStream.AddSoundFX');
+    Exit;
+  end;
+
+  FXHandle := BASS_ChannelSetFX(Handle, FX.GetType(), FX.GetPriority());
+  if (FXHandle = 0) then
+  begin
+    Log.LogError(Concat(FX.GetName, ': ', BassCore.ErrorGetString()), 'TBassPlaybackStream.AddSoundFX');
+    Exit;
+  end;
+
+  GetMem(FX.EngineData, SizeOf(HFX));
+  PHFX(FX.EngineData)^ := FXHandle;
+
+  FX.Init();
+end;
+
+procedure TBassPlaybackStream.RemoveSoundFX(FX: TSoundFX);
+begin
+  if not assigned(FX.EngineData) then
+  begin
+    Log.LogError(Concat(FX.GetName, ': ', 'TSoundFX.engineData invalid'), 'TBassPlaybackStream.RemoveSoundFX');
+    Exit;
+  end;
+
+  if not BASS_ChannelRemoveFX(Handle, PHFX(FX.EngineData)^) then
+  begin
+    Log.LogError(Concat(FX.GetName, ': ', BassCore.ErrorGetString()), 'TBassPlaybackStream.RemoveSoundFX');
+    Exit;
+  end;
+
+  FX.Removed();
+
+  FreeMem(FX.EngineData);
+  FX.EngineData := nil;
+end;
+
 procedure TBassPlaybackStream.GetFFTData(var Data: TFFTData);
 begin
   // get FFT channel data (Mono, FFT512 -> 256 values)
@@ -716,6 +780,11 @@ begin
   //BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 10);
   //BASS_SetConfig(BASS_CONFIG_BUFFER, 100);
 
+  // Using floating-point DSP config converts the passed data to 32bit sample data
+  // some used effects doesn't expect this kind of data, therefore they are bugging
+  // (see Voice removal; UMusic TVoiceRemoval.Callback)
+  //BASS_SetConfig(BASS_CONFIG_FLOATDSP, 1); // enable floating-point DSP
+
   Result := true;
 end;
 
@@ -762,6 +831,69 @@ begin
     Result := Info.latency / 1000
   else
   Result := 0;
+end;
+
+{ TReplayGain }
+
+class function TReplayGain_Bass.CanEnable(): boolean;
+begin
+  Result := (Ini.MusicAutoGain > 0);
+end;
+
+procedure TReplayGain_Bass.Init();
+  var
+    FxGain: BASS_BFX_DAMP;
+    I: integer;
+begin
+
+  if Ini.MusicAutoGain < 0 then Exit;
+  I := IMusicAutoGainVals[Ini.MusicAutoGain];
+  case I of
+    0: // soft preset
+      begin
+        FxGain.fTarget := 0.92; // target volume level [0<......1] linear
+        FxGain.fQuiet := 0.02;  // quiet  volume level [0.......1] linear
+        FxGain.fRate := 0.01;   // amp adjustment rate [0.......1] linear
+        FxGain.fGain := 1.0;    // amplification level [0...1...n] linear
+        FxGain.fDelay := 0.5;  // delay in seconds before increasing level
+        FxGain.lChannel := BASS_BFX_CHANALL;
+      end;
+    1: // medium preset
+      begin
+        FxGain.fTarget := 0.94; // target volume level [0<......1] linear
+        FxGain.fQuiet := 0.03;  // quiet  volume level [0.......1] linear
+        FxGain.fRate := 0.01;   // amp adjustment rate [0.......1] linear
+        FxGain.fGain := 1.0;    // amplification level [0...1...n] linear
+        FxGain.fDelay := 0.35;  // delay in seconds before increasing level
+        FxGain.lChannel := BASS_BFX_CHANALL;
+      end;
+    2: // hard preset
+      begin
+        FxGain.fTarget := 0.98; // target volume level [0<......1] linear
+        FxGain.fQuiet := 0.04;  // quiet  volume level [0.......1] linear
+        FxGain.fRate := 0.02;   // amp adjustment rate [0.......1] linear
+        FxGain.fGain := 2.0;    // amplification level [0...1...n] linear
+        FxGain.fDelay := 0.2;  // delay in seconds before increasing level
+        FxGain.lChannel := BASS_BFX_CHANALL;
+      end;
+  end;
+
+  BASS_FXSetParameters(DWORD(EngineData), @FxGain);
+end;
+
+function TReplayGain_Bass.GetName: String;
+begin
+  result := 'BASS_FX Dynamic Amplification';
+end;
+
+function TReplayGain_Bass.GetType(): DWORD;
+begin
+  Result := BASS_FX_BFX_DAMP;
+end;
+
+function TReplayGain_Bass.GetPriority(): LongInt;
+begin
+  Result := 3;
 end;
 
 

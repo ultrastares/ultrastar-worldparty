@@ -1,0 +1,9 @@
+#Generate a launcher in desktop
+[Desktop Entry]
+Name=Ultrastar Deluxe WorldParty
+Comment=Karaoke game
+Exec=/usr/local/bin/WorldParty
+Icon=/usr/local/share/WorldParty/resources/icons/WorldParty.png
+Terminal=false
+Type=Application
+

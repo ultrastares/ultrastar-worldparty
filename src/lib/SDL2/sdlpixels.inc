@@ -72,11 +72,11 @@ function SDL_DEFINE_PIXELFOURCC(A,B,C,D: Variant): Variant;
      ((bits) << 8) | ((bytes) << 0))
        }
 
-function SDL_PIXELFLAG(X: Cardinal): Boolean;
-function SDL_PIXELTYPE(X: Cardinal): Boolean;
-function SDL_PIXELORDER(X: Cardinal): Boolean;
-function SDL_PIXELLAYOUT(X: Cardinal): Boolean;
-function SDL_BITSPERPIXEL(X: Cardinal): Boolean;
+function SDL_PIXELFLAG(X: Cardinal): Cardinal;
+function SDL_PIXELTYPE(X: Cardinal): Cardinal;
+function SDL_PIXELORDER(X: Cardinal): Cardinal;
+function SDL_PIXELLAYOUT(X: Cardinal): Cardinal;
+function SDL_BITSPERPIXEL(X: Cardinal): Cardinal;
      {
 #define SDL_BYTESPERPIXEL(X) \
     (SDL_ISPIXELFORMAT_FOURCC(X) ? \
@@ -313,6 +313,23 @@ const
                                   (32 shl 8)                       or
                                   (4 shl 0);
 
+    (* Aliases for RGBA byte arrays of color data, for the current platform *)
+    {$IFDEF FPC}
+      {$IF DEFINED(ENDIAN_LITTLE)}
+        SDL_PIXELFORMAT_RGBA32 = SDL_PIXELFORMAT_ABGR8888;
+        SDL_PIXELFORMAT_ARGB32 = SDL_PIXELFORMAT_BGRA8888;
+        SDL_PIXELFORMAT_BGRA32 = SDL_PIXELFORMAT_ARGB8888;
+        SDL_PIXELFORMAT_ABGR32 = SDL_PIXELFORMAT_RGBA8888;
+      {$ELSEIF DEFINED(ENDIAN_BIG)}
+        SDL_PIXELFORMAT_RGBA32 = SDL_PIXELFORMAT_RGBA8888;
+        SDL_PIXELFORMAT_ARGB32 = SDL_PIXELFORMAT_ARGB8888;
+        SDL_PIXELFORMAT_BGRA32 = SDL_PIXELFORMAT_BGRA8888;
+        SDL_PIXELFORMAT_ABGR32 = SDL_PIXELFORMAT_ABGR8888;
+      {$ELSE}
+        {$FATAL Cannot determine endianness.}
+      {$IFEND}
+    {$ENDIF}
+
     {**< Planar mode: Y + V + U  (3 planes) *}
     SDL_PIXELFORMAT_YV12 = (Integer('Y')       ) or
                            (Integer('V') shl  8) or
@@ -432,7 +449,7 @@ procedure SDL_FreeFormat(format: PSDL_PixelFormat) cdecl; external SDL_LibName {
    *  A new palette, or nil if there wasn't enough memory.
    *
    *  The palette entries are initialized to white.
-   *  
+   *
    *  SDL_FreePalette()
    *}
 

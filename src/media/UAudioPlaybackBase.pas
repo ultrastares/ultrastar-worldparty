@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/media/UAudioPlaybackBase.pas $
- * $Id: UAudioPlaybackBase.pas 2945 2013-02-22 22:33:33Z k-m_schindler $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UAudioPlaybackBase;
@@ -41,10 +38,16 @@ uses
   SysUtils;
 
 type
+  FReplayGain = class of TReplayGain;
+
   TAudioPlaybackBase = class(TInterfacedObject, IAudioPlayback)
     protected
+
       OutputDeviceList: TAudioOutputDeviceList;
       MusicStream: TAudioPlaybackStream;
+
+      IReplayGain: FReplayGain;
+
       function CreatePlaybackStream(): TAudioPlaybackStream; virtual; abstract;
       procedure ClearOutputDeviceList();
       function GetLatency(): double; virtual; abstract;
@@ -54,6 +57,7 @@ type
       function OpenStreamBuffer(Buffer: TStream; Format: TAudioFormatInfo): TAudioPlaybackStream;
       function OpenDecodeStream(const Filename: IPath): TAudioDecodeStream;
     public
+      constructor Create(); virtual;
       function GetName: string; virtual; abstract;
 
       function Open(const Filename: IPath): boolean; // true if succeed
@@ -119,10 +123,24 @@ type
       procedure Close(); override;
   end;
 
+procedure ToggleVoiceRemoval();
+
 implementation
 
 uses
   ULog;
+
+var doVoiceRemoval: boolean;
+
+constructor TAudioPlaybackBase.Create();
+begin
+  inherited;
+end;
+
+procedure ToggleVoiceRemoval();
+begin
+  doVoiceRemoval:=not(doVoiceRemoval);
+end;
 
 { TAudioPlaybackBase }
 
@@ -145,7 +163,8 @@ begin
     Exit;
   end;
 
-  //MusicStream.AddSoundEffect(TVoiceRemoval.Create());
+  if doVoiceRemoval then MusicStream.AddSoundEffect(TVoiceRemoval.Create());
+  if assigned(IReplayGain) and IReplayGain.CanEnable then MusicStream.AddSoundFX(IReplayGain.Create());
 
   Result := true;
 end;

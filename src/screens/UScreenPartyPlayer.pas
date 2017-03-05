@@ -1,27 +1,25 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/screens/UScreenPartyPlayer.pas $
- * $Id: UScreenPartyPlayer.pas 2201 2010-03-15 21:14:51Z brunzelchen $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
+
 
 unit UScreenPartyPlayer;
 
@@ -43,7 +41,7 @@ uses
   UNote,
   UFiles,
   SysUtils,
-  UScreenSing,
+  UScreenSingController,
   UScreenPartyNewRound,
   UScreenPartyWin,
   UScreenPartyScore,
@@ -79,6 +77,7 @@ type
       Player12Name: cardinal;
 
       constructor Create; override;
+      function ShouldHandleInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean; out SuppressKey: boolean): boolean; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure OnShow; override;
       
@@ -196,7 +195,7 @@ begin
   Party.bPartyGame := true;
   PlayersPlay := Length(Party.Teams);
 
-  ScreenSing := TScreenSing.Create;
+  ScreenSing := TScreenSingController.Create;
   ScreenPartyNewRound := TScreenPartyNewRound.Create;
   ScreenPartyWin := TScreenPartyWin.Create;
   ScreenPartyScore := TScreenPartyScore.Create;
@@ -213,11 +212,29 @@ begin
   end;
 end;
 
+function TScreenPartyPlayer.ShouldHandleInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean; out SuppressKey: boolean): boolean;
+begin
+  Result := inherited;
+  // only suppress special keys for now
+  case PressedKey of
+    // Templates for Names Mod
+    SDLK_F1, SDLK_F2, SDLK_F3, SDLK_F4, SDLK_F5, SDLK_F6, SDLK_F7, SDLK_F8, SDLK_F9, SDLK_F10, SDLK_F11, SDLK_F12:
+     if (Button[Interactions[Interaction].Num].Selected) then
+     begin
+       SuppressKey := true;
+     end
+     else
+     begin
+       Result := false;
+     end;
+  end;
+end;
+
 function TScreenPartyPlayer.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
-var
-  SDL_ModState:  word;
-  Team: integer;
-  I: integer;
+  var
+    SDL_ModState:  word;
+    Team: integer;
+    I: integer;
   procedure IntNext;
   begin
     repeat
@@ -233,6 +250,16 @@ var
     until ((Interactions[Interaction].Typ = iSelectS) and
       SelectsS[Interactions[Interaction].Num].Visible) or
       (Button[Interactions[Interaction].Num].Visible);
+  end;
+  procedure HandleNameTemplate(const index: integer);
+  var
+    isAlternate: boolean;
+  begin
+    isAlternate := (SDL_ModState = KMOD_LSHIFT) or (SDL_ModState = KMOD_RSHIFT);
+    isAlternate := isAlternate or (SDL_ModState = KMOD_LALT); // legacy key combination
+
+    if isAlternate then Ini.NameTemplate[index] := Button[Interactions[Interaction].Num].Text[0].Text
+    else Button[Interactions[Interaction].Num].Text[0].Text := Ini.NameTemplate[index];
   end;
 begin
   Result := true;
@@ -259,118 +286,33 @@ begin
     // check special keys
     case PressedKey of
       // Templates for Names Mod
-      SDLK_F1:
-       if (SDL_ModState = KMOD_LALT) then
-         begin
-           Ini.NameTemplate[0] := Button[Interactions[Interaction].Num].Text[0].Text;
-         end
-         else
-         begin
-           Button[Interactions[Interaction].Num].Text[0].Text := Ini.NameTemplate[0];
-         end;
-      SDLK_F2:
-       if (SDL_ModState = KMOD_LALT) then
-         begin
-           Ini.NameTemplate[1] := Button[Interactions[Interaction].Num].Text[0].Text;
-         end
-         else
-         begin
-           Button[Interactions[Interaction].Num].Text[0].Text := Ini.NameTemplate[1];
-         end;
-      SDLK_F3:
-       if (SDL_ModState = KMOD_LALT) then
-         begin
-           Ini.NameTemplate[2] := Button[Interactions[Interaction].Num].Text[0].Text;
-         end
-         else
-         begin
-           Button[Interactions[Interaction].Num].Text[0].Text := Ini.NameTemplate[2];
-         end;
-      SDLK_F4:
-       if (SDL_ModState = KMOD_LALT) then
-         begin
-           Ini.NameTemplate[3] := Button[Interactions[Interaction].Num].Text[0].Text;
-         end
-         else
-         begin
-           Button[Interactions[Interaction].Num].Text[0].Text := Ini.NameTemplate[3];
-         end;
-      SDLK_F5:
-       if (SDL_ModState = KMOD_LALT) then
-         begin
-           Ini.NameTemplate[4] := Button[Interactions[Interaction].Num].Text[0].Text;
-         end
-         else
-         begin
-           Button[Interactions[Interaction].Num].Text[0].Text := Ini.NameTemplate[4];
-         end;
-      SDLK_F6:
-       if (SDL_ModState = KMOD_LALT) then
-         begin
-           Ini.NameTemplate[5] := Button[Interactions[Interaction].Num].Text[0].Text;
-         end
-         else
-         begin
-           Button[Interactions[Interaction].Num].Text[0].Text := Ini.NameTemplate[5];
-         end;
-      SDLK_F7:
-       if (SDL_ModState = KMOD_LALT) then
-         begin
-           Ini.NameTemplate[6] := Button[Interactions[Interaction].Num].Text[0].Text;
-         end
-         else
-         begin
-           Button[Interactions[Interaction].Num].Text[0].Text := Ini.NameTemplate[6];
-         end;
-      SDLK_F8:
-       if (SDL_ModState = KMOD_LALT) then
-         begin
-           Ini.NameTemplate[7] := Button[Interactions[Interaction].Num].Text[0].Text;
-         end
-         else
-         begin
-           Button[Interactions[Interaction].Num].Text[0].Text := Ini.NameTemplate[7];
-         end;
-      SDLK_F9:
-       if (SDL_ModState = KMOD_LALT) then
-         begin
-           Ini.NameTemplate[8] := Button[Interactions[Interaction].Num].Text[0].Text;
-         end
-         else
-         begin
-           Button[Interactions[Interaction].Num].Text[0].Text := Ini.NameTemplate[8];
-         end;
-      SDLK_F10:
-       if (SDL_ModState = KMOD_LALT) then
-         begin
-           Ini.NameTemplate[9] := Button[Interactions[Interaction].Num].Text[0].Text;
-         end
-         else
-         begin
-           Button[Interactions[Interaction].Num].Text[0].Text := Ini.NameTemplate[9];
-         end;
-      SDLK_F11:
-       if (SDL_ModState = KMOD_LALT) then
-         begin
-           Ini.NameTemplate[10] := Button[Interactions[Interaction].Num].Text[0].Text;
-         end
-         else
-         begin
-           Button[Interactions[Interaction].Num].Text[0].Text := Ini.NameTemplate[10];
-         end;
-      SDLK_F12:
-       if (SDL_ModState = KMOD_LALT) then
-         begin
-           Ini.NameTemplate[11] := Button[Interactions[Interaction].Num].Text[0].Text;
-         end
-         else
-         begin
-           Button[Interactions[Interaction].Num].Text[0].Text := Ini.NameTemplate[11];
-         end;
+      SDLK_F1: HandleNameTemplate(0);
+      SDLK_F2: HandleNameTemplate(1);
+      SDLK_F3: HandleNameTemplate(2);
+      SDLK_F4: HandleNameTemplate(3);
+      SDLK_F5: HandleNameTemplate(4);
+      SDLK_F6: HandleNameTemplate(5);
+      SDLK_F7: HandleNameTemplate(6);
+      SDLK_F8: HandleNameTemplate(7);
+      SDLK_F9: HandleNameTemplate(8);
+      SDLK_F10: HandleNameTemplate(9);
+      SDLK_F11: HandleNameTemplate(10);
+      SDLK_F12: HandleNameTemplate(11);
 
       SDLK_BACKSPACE:
         begin
           Button[Interactions[Interaction].Num].Text[0].DeleteLastLetter;
+        end;
+    end;
+  end
+  else
+  begin
+    // check normal keys
+    case UCS4UpperCase(CharCode) of
+      Ord('Q'):
+        begin
+          Result := false;
+          Exit;
         end;
     end;
   end;

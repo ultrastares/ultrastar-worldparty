@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/branches/experimental/Lua/src/lua/ULuaTexture.pas $
- * $Id: ULuaTexture.pas 1551 2009-01-04 14:08:33Z Hawkear $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit ULuaScreenSing;
@@ -34,6 +31,7 @@ interface
 {$I switches.inc}
 
 uses
+  UIni,
   ULua;
 
 { returns a table with following structure:
@@ -98,7 +96,7 @@ function ULuaScreenSing_SetSettings(L: Plua_State): Integer; cdecl;
 function ULuaScreenSing_GetSongLines(L: Plua_State): Integer; cdecl;
 
 const
-  ULuaScreenSing_Lib_f: array [0..11] of lual_reg = (
+  ULuaScreenSing_Lib_f: array [0..UIni.IMaxPlayerCount-1] of lual_reg = (
     (name:'GetScores';func:ULuaScreenSing_GetScores),
     (name:'GetRating';func:ULuaScreenSing_GetRating),
     (name:'GetBPM';func:ULuaScreenSing_GetBPM),
@@ -114,7 +112,14 @@ const
   );
 
 implementation
-uses UScreenSing, UNote, UDisplay, UGraphic, UMusic, ULuaUtils, SysUtils;
+uses
+  UScreenSingController,
+  UNote,
+  UDisplay,
+  UGraphic,
+  UMusic,
+  ULuaUtils,
+  SysUtils;
 
 { returns a table with following structure:
     t[1..playercount] = score of player i }

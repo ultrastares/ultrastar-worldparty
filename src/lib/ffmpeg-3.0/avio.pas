@@ -167,6 +167,54 @@ type
      * to any av_opt_* functions in that case.
      *)
     av_class: {const} PAVClass;
+    
+    (*
+     * The following shows the relationship between buffer, buf_ptr, buf_end, buf_size,
+     * and pos, when reading and when writing (since AVIOContext is used for both):
+     *
+     **********************************************************************************
+     *                                   READING
+     **********************************************************************************
+     *
+     *                            |              buffer_size              |
+     *                            |---------------------------------------|
+     *                            |                                       |
+     *
+     *                         buffer          buf_ptr       buf_end
+     *                            +---------------+-----------------------+
+     *                            |/ / / / / / / /|/ / / / / / /|         |
+     *  read buffer:              |/ / consumed / | to be read /|         |
+     *                            |/ / / / / / / /|/ / / / / / /|         |
+     *                            +---------------+-----------------------+
+     *
+     *                                                         pos
+     *              +-------------------------------------------+-----------------+
+     *  input file: |                                           |                 |
+     *              +-------------------------------------------+-----------------+
+     *
+     *
+     **********************************************************************************
+     *                                   WRITING
+     **********************************************************************************
+     *
+     *                                          |          buffer_size          |
+     *                                          |-------------------------------|
+     *                                          |                               |
+     *
+     *                                       buffer              buf_ptr     buf_end
+     *                                          +-------------------+-----------+
+     *                                          |/ / / / / / / / / /|           |
+     *  write buffer:                           | / to be flushed / |           |
+     *                                          |/ / / / / / / / / /|           |
+     *                                          +-------------------+-----------+
+     *
+     *                                         pos
+     *               +--------------------------+-----------------------------------+
+     *  output file: |                          |                                   |
+     *               +--------------------------+-----------------------------------+
+     *
+     *)
+
     buffer: PByteArray;  (**< Start of the buffer. *)
     buffer_size: cint;   (**< Maximum buffer size *)
     buf_ptr: PByteArray; (**< Current position in the buffer *)
@@ -247,10 +295,25 @@ type
      * This is current internal only, do not use from outside.
      *)
     short_seek_threshold: cint;
+    
+    (**
+     * ',' separated list of allowed protocols.
+     *)
+    protocol_whitelist: {const} PAnsiChar;
   end;
 
 (* unbuffered I/O *)
-
+  
+(**
+ * Return the name of the protocol that will handle the passed URL.
+ *
+ * NULL is returned if no protocol could be found for the given URL.
+ *
+ * @return Name of the protocol or NULL.
+ *)
+function avio_find_protocol_name(url: {const} PAnsiChar): {const} PAnsiChar;
+  cdecl; external av__format;
+	
 (**
  * Return AVIO_* access flags corresponding to the access permissions
  * of the resource in url, or a negative value corresponding to an
@@ -473,7 +536,7 @@ function url_feof(s: PAVIOContext): cint;
   cdecl; external av__format; {attribute_deprecated}
 {$ENDIF}
  
-(** @warning currently size is limited *)
+(** @warning Writes up to 4 KiB per call *)
 function avio_printf(s: PAVIOContext; fmt: {const} PAnsiChar; args: array of const): cint;
   cdecl; external av__format;
 

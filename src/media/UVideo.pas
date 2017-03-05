@@ -1,28 +1,24 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/media/UVideo.pas $
- * $Id: UVideo.pas 3150 2015-10-20 00:07:57Z basisbit $
- *}
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
+ *}
 unit UVideo;
 
 {*
@@ -238,6 +234,7 @@ var
   SupportsNPOT: Boolean;
 
 
+{$IF LIBAVCODEC_VERSION < 51068000}
 // These are called whenever we allocate a frame buffer.
 // We use this to store the global_pts in a frame at the time it is allocated.
 function PtsGetBuffer(CodecCtx: PAVCodecContext; Frame: PAVFrame): integer; cdecl;
@@ -245,11 +242,7 @@ var
   pts: Pint64;
   VideoPktPts: Pint64;
 begin
-  {$IF LIBAVCODEC_VERSION >= 56000000}
-  Result := avcodec_default_get_buffer2(CodecCtx, Frame, 0);
-  {$ELSE}
   Result := avcodec_default_get_buffer(CodecCtx, Frame);
-  {$ENDIF}
   VideoPktPts := CodecCtx^.opaque;
   if (VideoPktPts <> nil) then
   begin
@@ -265,12 +258,9 @@ procedure PtsReleaseBuffer(CodecCtx: PAVCodecContext; Frame: PAVFrame); cdecl;
 begin
   if (Frame <> nil) then
     av_freep(@Frame^.opaque);
-  {$IF LIBAVCODEC_VERSION >= 57000000}
-  av_frame_unref(Frame);
-  {$ELSE}
   avcodec_default_release_buffer(CodecCtx, Frame);
-  {$ENDIF}
 end;
+{$ENDIF}
 
 
 {*------------------------------------------------------------------------------
@@ -402,8 +392,6 @@ begin
   // allow non spec compliant speedup tricks.
 
   //fCodecContext^.flags2 := CODEC_FLAG2_FAST;
-  if (FileName.GetExtension().ToUTF8() = '.mp4') or (FileName.GetExtension().ToUTF8() = '.mkv') then
-  fCodecContext^.flags := CODEC_FLAG_LOW_DELAY;  //ffmpeg has a bug here when playing certain avi files
 
   // Note: avcodec_open() and avcodec_close() are not thread-safe and will
   // fail if called concurrently by different threads.
@@ -425,8 +413,10 @@ begin
   end;
 
   // register custom callbacks for pts-determination
-  fCodecContext^.get_buffer := PtsGetBuffer;
-  fCodecContext^.release_buffer := PtsReleaseBuffer;
+  {$IF LIBAVCODEC_VERSION < 51068000}
+    fCodecContext^.get_buffer := PtsGetBuffer;
+    fCodecContext^.release_buffer := PtsReleaseBuffer;
+  {$IFEND}
 
   {$ifdef DebugDisplay}
   DebugWriteln('Found a matching Codec: '+ fCodecContext^.Codec.Name + sLineBreak +
@@ -667,7 +657,9 @@ end;
 function TVideo_FFmpeg.DecodeFrame(): boolean;
 var
   FrameFinished: Integer;
+  {$IF LIBAVCODEC_VERSION < 51068000}
   VideoPktPts: int64;
+  {$ENDIF}
   {$IF FFMPEG_VERSION_INT < 1001000}
   pbIOCtx: PByteIOContext;
   {$ELSE}
@@ -748,9 +740,13 @@ begin
     // if we got a packet from the video stream, then decode it
     if (AVPacket.stream_index = fStreamIndex) then
     begin
+      {$IF LIBAVCODEC_VERSION < 51068000}
       // save pts to be stored in pFrame in first call of PtsGetBuffer()
       VideoPktPts := AVPacket.pts;
       fCodecContext^.opaque := @VideoPktPts;
+      {$ELSEIF LIBAVCODEC_VERSION < 51105000}
+      fCodecContext^.reordered_opaque := AVPacket.pts;
+      {$IFEND}
 
       // decode packet
       {$IF LIBAVFORMAT_VERSION < 52012200)}
@@ -762,18 +758,32 @@ begin
       {$IFEND}
 
       // reset opaque data
+      {$IF LIBAVCODEC_VERSION < 51068000}
       fCodecContext^.opaque := nil;
+      {$ELSEIF LIBAVCODEC_VERSION < 51105000}
+      fCodecContext^.reordered_opaque := AV_NOPTS_VALUE;
+      {$IFEND}
 
       // update pts
+      {$IF LIBAVCODEC_VERSION < 51068000}
+      if ((fAVFrame^.opaque <> nil) and
+          (Pint64(fAVFrame^.opaque)^ <> AV_NOPTS_VALUE)) then
+        pts := Pint64(fAVFrame^.opaque)^
+      {$ELSEIF LIBAVCODEC_VERSION < 51105000}
+      if (fAVFrame^.reordered_opaque <> AV_NOPTS_VALUE) then
+        pts := fAVFrame^.reordered_opaque
+      {$ELSE}
+      if (fAVFrame^.pkt_pts <> AV_NOPTS_VALUE) then
+        pts := fAVFrame^.pkt_pts
+      {$IFEND}
+      else
+      {$IF LIBAVCODEC_VERSION < 51106000}
       if (AVPacket.dts <> AV_NOPTS_VALUE) then
-      begin
-        pts := AVPacket.dts;
-      end
-      else if ((fAVFrame^.opaque <> nil) and
-               (Pint64(fAVFrame^.opaque)^ <> AV_NOPTS_VALUE)) then
-      begin
-        pts := Pint64(fAVFrame^.opaque)^;
-      end
+        pts := AVPacket.dts
+      {$ELSE}
+      if (fAVFrame^.pkt_dts <> AV_NOPTS_VALUE) then
+        pts := fAVFrame^.pkt_dts
+      {$IFEND}
       else
       begin
         pts := 0;

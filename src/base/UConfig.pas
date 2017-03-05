@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/UConfig.pas $
- * $Id: UConfig.pas 2656 2010-10-10 18:55:31Z tobigun $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UConfig;
@@ -127,11 +124,11 @@ const
   (*
    * Current version of UltraStar Deluxe WorldParty
    *)
-  USDX_VERSION_MAJOR   = 16;
-  USDX_VERSION_MINOR   = 6;
-  USDX_VERSION_RELEASE = 0;
-  USDX_VERSION_STATE   = 'RC';
-  USDX_STRING = 'UltraStar Deluxe WorldParty';
+   USDX_VERSION_MAJOR   = 17;
+   USDX_VERSION_MINOR   = 03;
+   USDX_VERSION_RELEASE = '';
+   USDX_VERSION_STATE   = 'RC1';
+   USDX_STRING = 'UltraStar Deluxe WorldParty';
 
   (*
    * FPC version numbers are already defined as built-in macros:
@@ -183,6 +180,12 @@ const
                        (LIBSWSCALE_VERSION_RELEASE * VERSION_RELEASE);
   {$ENDIF}
 
+  {$IFDEF HaveSWResample}
+  LIBSWRESAMPLE_VERSION = (LIBSWRESAMPLE_VERSION_MAJOR * VERSION_MAJOR) +
+                          (LIBSWRESAMPLE_VERSION_MINOR * VERSION_MINOR) +
+                          (LIBSWRESAMPLE_VERSION_RELEASE * VERSION_RELEASE);
+  {$ENDIF}
+  
   {$ENDIF}
 
   {$IFDEF HaveProjectM}
@@ -221,12 +224,10 @@ end;
 function USDXVersionStr(): string;
 begin
   Result :=
-    USDX_STRING + ' V ' +
+    USDX_STRING + ' ' +
     IntToStr(USDX_VERSION_MAJOR) + '.' +
-    IntToStr(USDX_VERSION_MINOR) + '.' +
-    IntToStr(USDX_VERSION_RELEASE) +
-    IfThen(USDX_VERSION_STATE <> '', ' '+USDX_VERSION_STATE) +
-    ' Build';
+    IntToStr(USDX_VERSION_MINOR) + 
+    IfThen(USDX_VERSION_STATE <> '', ' '+USDX_VERSION_STATE) 
 end;
 
 end.

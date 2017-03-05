@@ -31,17 +31,6 @@
 type
   (* from opt.h *)
   TAVOptionType = (
-{$IFDEF FF_API_OLD_AVOPTIONS}
-    FF_OPT_TYPE_FLAGS = 0,
-    FF_OPT_TYPE_INT,
-    FF_OPT_TYPE_INT64,
-    FF_OPT_TYPE_DOUBLE,
-    FF_OPT_TYPE_FLOAT,
-    FF_OPT_TYPE_STRING,
-    FF_OPT_TYPE_RATIONAL,
-    FF_OPT_TYPE_BINARY,  ///< offset must point to a pointer immediately followed by an int for the length
-    FF_OPT_TYPE_CONST = 128
-{$ELSE}
     AV_OPT_TYPE_FLAGS,
     AV_OPT_TYPE_INT,
     AV_OPT_TYPE_INT64,
@@ -52,14 +41,14 @@ type
     AV_OPT_TYPE_BINARY,  ///< offset must point to a pointer immediately followed by an int for the length
     AV_OPT_TYPE_DICT,
     AV_OPT_TYPE_CONST = 128,
-    AV_OPT_TYPE_IMAGE_SIZE     = $53495A45,  ///< MKBETAG('S','I','Z','E'), offset must point to two consecutive integers    
-    AV_OPT_TYPE_PIXEL_FMT      = $50464D54,  ///< MKBETAG('P','F','M','T') 
-    AV_OPT_TYPE_SAMPLE_FMT     = $53464D54,  ///< MKBETAG('S','F','M','T') 
-    AV_OPT_TYPE_VIDEO_RATE     = $56524154   ///< MKBETAG('V','R','A','T'), offset must point to TAVRational   
-    AV_OPT_TYPE_DURATION       = $44555220,  ///< MKBETAG('D','U','R',' '),
-    AV_OPT_TYPE_COLOR          = $434F4C52,  ///< MKBETAG('C','O','L','R'),    
+    AV_OPT_TYPE_BOOL           = $424F4F4C,  ///< MKBETAG('B','O','O','L'),
     AV_OPT_TYPE_CHANNEL_LAYOUT = $43484C41,  ///< MKBETAG('C','H','L','A'),
-{$ENDIF}
+    AV_OPT_TYPE_COLOR          = $434F4C52,  ///< MKBETAG('C','O','L','R'),    
+    AV_OPT_TYPE_DURATION       = $44555220,  ///< MKBETAG('D','U','R',' '),
+    AV_OPT_TYPE_PIXEL_FMlT     = $50464D54,  ///< MKBETAG('P','F','M','T') 
+    AV_OPT_TYPE_SAMPLE_FMT     = $53464D54,  ///< MKBETAG('S','F','M','T') 
+    AV_OPT_TYPE_IMAGE_SIZE     = $53495A45,  ///< MKBETAG('S','I','Z','E'), offset must point to two consecutive integers    
+    AV_OPT_TYPE_VIDEO_RATE     = $56524154   ///< MKBETAG('V','R','A','T'), offset must point to TAVRational   
   );
 
 const

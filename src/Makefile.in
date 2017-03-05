@@ -1,3 +1,26 @@
+
+#    UltraStar Deluxe WorldParty - Karaoke Game
+#	
+#	UltraStar Deluxe WorldParty is the legal property of its developers, 
+#	whose names	are too numerous to list here. Please refer to the 
+#	COPYRIGHT file distributed with this source distribution.
+#
+#   This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program. Check "LICENSE" file. If not, see 
+#	<http://www.gnu.org/licenses/>.
+#
+
+
 #################################################
 # @PACKAGE_STRING@
 # @configure_input@
@@ -35,21 +58,21 @@ RM_REC    ?= $(RM) -r
 # General package configuration
 #################################################
 
-USDX_PACKAGE_NAME := @PACKAGE_NAME@
-USDX_VERSION := @PACKAGE_VERSION@
-USDX_TARNAME := @PACKAGE_TARNAME@
+USDXWP_PACKAGE_NAME := @PACKAGE_NAME@
+USDXWP_VERSION := @PACKAGE_VERSION@
+USDXWP_TARNAME := @PACKAGE_TARNAME@
 
 #################################################
-# USDX Paths
+# USDXWP Paths
 #################################################
 
-USDX_SRC_DIR   := $(top_srcdir)/src
-USDX_GAME_DIR  := $(top_srcdir)/game
-USDX_TOOLS_DIR := $(top_srcdir)/tools
-USDX_BUILD_DIR := $(top_srcdir)/build
-USDX_LIB_DIR   := $(USDX_SRC_DIR)/lib
+USDXWP_SRC_DIR   := $(top_srcdir)/src
+USDXWP_GAME_DIR  := $(top_srcdir)/game
+USDXWP_TOOLS_DIR := $(top_srcdir)/tools
+USDXWP_BUILD_DIR := $(top_srcdir)/build
+USDXWP_LIB_DIR   := $(USDXWP_SRC_DIR)/lib
 
-INSTALL_DATADIR := $(datadir)/$(USDX_PACKAGE_NAME)
+INSTALL_DATADIR := $(datadir)/$(USDXWP_PACKAGE_NAME)
 
 #################################################
 # FPC config
@@ -65,11 +88,11 @@ PPROCESSOR := @FPC_PROCESSOR@
 PUNIT_FLAGS := -Fu.
 
 # Directory where compiled units (.ppu and .o files) are stored
-PCUNIT_DIR   := $(USDX_BUILD_DIR)/fpc-$(PPROCESSOR)-$(PPLATFORM)
+PCUNIT_DIR   := $(USDXWP_BUILD_DIR)/fpc-$(PPROCESSOR)-$(PPLATFORM)
 PCUNIT_FLAGS := -FU$(PCUNIT_DIR)
 
 # Directories added to the includes path
-PINC_FLAGS := -Fi$(USDX_LIB_DIR)/JEDI-SDL/SDL/Pas
+PINC_FLAGS := -Fi$(USDXWP_LIB_DIR)/JEDI-SDL/SDL/Pas
 
 ##
 # PFLAGS
@@ -130,20 +153,20 @@ endif
 PFLAGS_ALL = $(PFLAGS) $(PDEFINES) $(PLINKFLAGS) $(PINC_FLAGS) $(PUNIT_FLAGS) $(PCUNIT_FLAGS)
 
 #################################################
-# USDX project config
+# USDXWP project config
 #################################################
 
 # dpr project file used as input
-USDX_PROJ := ultrastardx.dpr
+USDXWP_PROJ := WorldParty.dpr
 # name of executable
-USDX_BIN_NAME ?= ultrastardx$(EXEEXT)
-USDX_BIN := $(USDX_GAME_DIR)/$(USDX_BIN_NAME)
+USDXWP_BIN_NAME ?= WorldParty$(EXEEXT)
+USDXWP_BIN := $(USDXWP_GAME_DIR)/$(USDXWP_BIN_NAME)
 
 #################################################
 # ProjectM
 #################################################
 
-PROJECTM_CWRAPPER_DIR := $(USDX_LIB_DIR)/projectM/cwrapper
+PROJECTM_CWRAPPER_DIR := $(USDXWP_LIB_DIR)/projectM/cwrapper
 PROJECTM_CWRAPPER_LIB := $(PROJECTM_CWRAPPER_DIR)/libprojectM-cwrapper.a
 USE_PROJECTM_CWRAPPER := @USE_PROJECTM_CWRAPPER@
 
@@ -196,7 +219,7 @@ rebuild: clean_obj
 # builds and renders debugging difficult (because FPC uses outdated
 # .ppu/.o data of files that have been changed).
 .PHONY: build
-build: $(USDX_BIN)
+build: $(USDXWP_BIN)
 
 #################################################
 # build
@@ -213,13 +236,13 @@ SRC_FILES = $(shell find $(srcdir) -name "*.inc" -o -name "*.pas" -o -name "*.pp
 # See [info autoconf], "19.5 How Do I `#define' Installation Directories?"
 #
 # Do NOT use paths.inc as target name as it is in the requisite list
-# of $(USDX_BIN).
+# of $(USDXWP_BIN).
 .PHONY: create-pathinfo
 create-pathinfo:
 	echo "INSTALL_DATADIR = '$(INSTALL_DATADIR)';" > paths.inc
 
 # check if any src-file changed and rebuild
-$(USDX_BIN): $(USDX_PROJ) $(STATIC_LIBS) $(SRC_FILES)
+$(USDXWP_BIN): $(USDXWP_PROJ) $(STATIC_LIBS) $(SRC_FILES)
 	@echo "==================================="
 	@echo "Changed files:"
 	@echo "$?"
@@ -233,7 +256,7 @@ $(USDX_BIN): $(USDX_PROJ) $(STATIC_LIBS) $(SRC_FILES)
 
 	$(MKDIR) "$(PCUNIT_DIR)"
 	$(MAKE) create-pathinfo
-	$(PPC) $(strip $(PFLAGS_ALL)) -o$@ $(USDX_PROJ)
+	$(PPC) $(strip $(PFLAGS_ALL)) -o$@ $(USDXWP_PROJ)
 
 #################################################
 # clean-up
@@ -249,4 +272,4 @@ clean_obj: clean_bin
 
 .PHONY: clean_bin
 clean_bin:
-	$(RM) "$(USDX_BIN)"
+	$(RM) "$(USDXWP_BIN)"

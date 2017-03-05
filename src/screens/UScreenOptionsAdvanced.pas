@@ -1,27 +1,25 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/screens/UScreenOptionsAdvanced.pas $
- * $Id: UScreenOptionsAdvanced.pas 2338 2010-05-03 21:58:30Z k-m_schindler $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
+
 
 unit UScreenOptionsAdvanced;
 
@@ -34,6 +32,7 @@ interface
 {$I switches.inc}
 
 uses
+  UCommon,
   sdl2,
   UMenu,
   UDisplay,
@@ -41,9 +40,16 @@ uses
   UFiles,
   UIni,
   UThemes;
-
+	
 type
+
   TScreenOptionsAdvanced = class(TMenu)
+   protected
+      // interaction IDs
+	  ButtonExitIID: integer;
+      SelectJoyPad: integer;
+   
+	  
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -70,7 +76,7 @@ begin
           Exit;
         end;
     end;
-
+    
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -116,7 +122,7 @@ end;
 constructor TScreenOptionsAdvanced.Create;
 begin
   inherited Create;
-
+  
   LoadFromTheme(Theme.OptionsAdvanced);
 
   //SelectLoadAnimation Hidden because it is useless atm
@@ -129,9 +135,10 @@ begin
   Theme.OptionsAdvanced.SelectEffectSing.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsAdvanced.SelectEffectSing, Ini.EffectSing, IEffectSingTranslated);
 
-  Theme.OptionsAdvanced.SelectLineBonus.showArrows := true;
-  Theme.OptionsAdvanced.SelectLineBonus.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsAdvanced.SelectLineBonus, Ini.LineBonus, ILineBonusTranslated);
+  Theme.OptionsAdvanced.SelectJoypad.showArrows := true;
+  Theme.OptionsAdvanced.SelectJoypad.oneItemOnly := true;
+  SelectJoyPad := AddSelectSlide(Theme.OptionsAdvanced.SelectJoypad, Ini.Joypad, IJoypad);
+
 
   Theme.OptionsAdvanced.SelectOnSongClick.showArrows := true;
   Theme.OptionsAdvanced.SelectOnSongClick.oneItemOnly := true;
@@ -155,7 +162,7 @@ begin
 
   AddButton(Theme.OptionsAdvanced.ButtonExit);
   if (Length(Button[0].Text)=0) then
-    AddButtonText(20, 5, Theme.Options.Description[10]);
+    AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
 
   Interaction := 0;
 end;

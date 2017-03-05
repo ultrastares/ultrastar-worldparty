@@ -44,12 +44,13 @@ const
   AV_CPU_FLAG_ATOM          = $10000000; ///< Atom processor, some SSSE3 instructions are slower
   AV_CPU_FLAG_SSE4          = $0100;     ///< Penryn SSE4.1 functions
   AV_CPU_FLAG_SSE42         = $0200;     ///< Nehalem SSE4.2 functions
+  AV_CPU_FLAG_AESNI         = $80000;    ///< Advanced Encryption Standard functions
   AV_CPU_FLAG_AVX           = $4000;     ///< AVX functions: requires OS support even if YMM registers aren't used
   AV_CPU_FLAG_AVXSLOW       = $8000000;  ///< AVX supported, but slow when using YMM registers (e.g. Bulldozer)
   AV_CPU_FLAG_XOP           = $0400;     ///< Bulldozer XOP functions
   AV_CPU_FLAG_FMA4          = $0800;     ///< Bulldozer FMA4 functions
  
-  AV_CPU_FLAG_CMOV          = $1001000;  ///< supports cmov instruction
+  AV_CPU_FLAG_CMOV          = $1000;     ///< supports cmov instruction
   
   AV_CPU_FLAG_AVX2          = $8000;     ///< AVX2 functions: requires OS support even if YMM registers aren't used
   AV_CPU_FLAG_FMA3          = $10000;    ///< Haswell FMA3 functions
@@ -67,6 +68,7 @@ const
   AV_CPU_FLAG_VFPV3         = (1 << 4);
   AV_CPU_FLAG_NEON          = (1 << 5);
   AV_CPU_FLAG_ARMV8         = (1 << 6);
+  AV_CPU_FLAG_VFP_VM        = (1 << 7); ///< VFPv2 vector mode, deprecated in ARMv7-A and unavailable in various CPUs implementations
   AV_CPU_FLAG_SETEND        = (1 <<16);
 
 (**

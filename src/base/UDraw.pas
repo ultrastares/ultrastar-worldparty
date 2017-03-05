@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/base/UDraw.pas $
- * $Id: UDraw.pas 2514 2010-06-13 10:57:33Z tobigun $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UDraw;
@@ -37,7 +34,8 @@ uses
   UCommon,
   UThemes,
   sdl2,
-  UGraphicClasses;
+  UGraphicClasses,
+  UIni;
 
 procedure SingDraw;
 procedure SingDrawLines;
@@ -81,8 +79,8 @@ type
   end;
 
 var
-  NotesW:   array [0..5] of real;
-  NotesH:   array [0..5] of real;
+  NotesW:   array [0..UIni.IMaxPlayerCount-1] of real;
+  NotesH:   array [0..UIni.IMaxPlayerCount-1] of real;
   Starfr:   integer;
   StarfrG:  integer;
 
@@ -103,14 +101,13 @@ uses
   TextGL,
   UDrawTexture,
   UGraphic,
-  UIni,
   ULog,
   ULyrics,
   UNote,
   UParty,
   UMusic,
   URecord,
-  UScreenSing,
+  UScreenSingController,
   UScreenJukebox,
   USong,
   UTexture,
@@ -415,6 +412,10 @@ var
   Count: integer;
   TempR: real;
 begin
+
+  if not Lines[NrLines].Line[Lines[NrLines].Current].HasLength(TempR) then TempR := 0
+  else TempR := (Right-Left) / TempR;
+
   if (Lines[NrLines].Line[Lines[NrLines].Current].TotalNotes > 0) and ( Right-Left > 0 ) and ( (Lines[NrLines].Line[Lines[NrLines].Current].End_ - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) > 0 ) then
       TempR := (Right-Left) / (Lines[NrLines].Line[Lines[NrLines].Current].End_ - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start)
     else
@@ -459,10 +460,9 @@ begin
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    if (Lines[NrLines].Line[Lines[NrLines].Current].TotalNotes > 0) and ( Right-Left > 0 ) and ( (Lines[NrLines].Line[Lines[NrLines].Current].End_ - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) > 0 ) then
-      TempR := (Right-Left) / (Lines[NrLines].Line[Lines[NrLines].Current].End_ - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start)
-    else
-      TempR := 0;
+    if not Lines[NrLines].Line[Lines[NrLines].Current].HasLength(TempR) then TempR := 0
+    else TempR := (Right-Left) / TempR;
+
 
   with Lines[NrLines].Line[Lines[NrLines].Current] do
   begin
@@ -575,10 +575,9 @@ begin
 
   //if Player[NrGracza].LengthNote > 0 then
   begin
-    if (Lines[NrLines].Line[Lines[NrLines].Current].TotalNotes > 0) and ( W > 0 ) and ( (Lines[NrLines].Line[Lines[NrLines].Current].End_ - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) > 0 ) then
-      TempR := W / (Lines[NrLines].Line[Lines[NrLines].Current].End_ - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start)
-    else
-      TempR := 0;
+    if not Lines[NrLines].Line[Lines[NrLines].Current].HasLength(TempR) then TempR := 0
+    else TempR := W / TempR;
+
     for N := 0 to Player[PlayerIndex].HighNote do
     begin
       with Player[PlayerIndex].Note[N] do
@@ -686,10 +685,8 @@ begin
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    if (Lines[NrLines].Line[Lines[NrLines].Current].TotalNotes > 0) and ( Right-Left > 0 ) and ( (Lines[NrLines].Line[Lines[NrLines].Current].End_ - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) > 0 ) then
-      TempR := (Right-Left) / (Lines[NrLines].Line[Lines[NrLines].Current].End_ - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start)
-    else
-      TempR := 0;
+    if not Lines[NrLines].Line[Lines[NrLines].Current].HasLength(TempR) then TempR := 0
+    else TempR := (Right-Left) / TempR;
 
     with Lines[NrLines].Line[Lines[NrLines].Current] do
     begin
@@ -1765,140 +1762,6 @@ begin
   glDisable(GL_TEXTURE_2D);
 end;
 
-{//SingBar Mod
-procedure SingDrawSingbar(X, Y, W, H: real; Percent: integer);
-var
-  R: real;
-  G: real;
-  B: real;
-  A: cardinal;
-  I: integer;
-
-begin;
-
-   //SingBar Background
-  glColor4f(1, 1, 1, 0.8);
-  glEnable(GL_TEXTURE_2D);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glBindTexture(GL_TEXTURE_2D, Tex_SingBar_Back.TexNum);
-  glBegin(GL_QUADS);
-    glTexCoord2f(0, 0); glVertex2f(X, Y);
-    glTexCoord2f(0, 1); glVertex2f(X, Y+H);
-    glTexCoord2f(1, 1); glVertex2f(X+W, Y+H);
-    glTexCoord2f(1, 0); glVertex2f(X+W, Y);
-  glEnd;
-
-  //SingBar coloured Bar
-  case Percent of
-    0..22: begin
-          R := 1;
-          G := 0;
-          B := 0;
-        end;
-    23..42: begin
-          R := 1;
-          G := ((Percent-23)/100)*5;
-          B := 0;
-        end;
-    43..57: begin
-          R := 1;
-          G := 1;
-          B := 0;
-        end;
-    58..77: begin
-          R := 1-(Percent - 58)/100*5;
-          G := 1;
-          B := 0;
-        end;
-    78..99: begin
-          R := 0;
-          G := 1;
-          B := 0;
-        end;
-    end; //case
-
-  glColor4f(R, G, B, 1);
-  glEnable(GL_TEXTURE_2D);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glBindTexture(GL_TEXTURE_2D, Tex_SingBar_Bar.TexNum);
-  //Size= Player[PlayerNum].ScorePercent of W
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0); glVertex2f(X, Y);
-    glTexCoord2f(0, 1); glVertex2f(X, Y+H);
-    glTexCoord2f(1, 1); glVertex2f(X+(W/100 * (Percent +1)), Y+H);
-    glTexCoord2f(1, 0); glVertex2f(X+(W/100 * (Percent +1)), Y);
-  glEnd;
-
-  //SingBar Front
-  glColor4f(1, 1, 1, 0.6);
-  glEnable(GL_TEXTURE_2D);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glBindTexture(GL_TEXTURE_2D, Tex_SingBar_Front.TexNum);
-  glBegin(GL_QUADS);
-    glTexCoord2f(0, 0); glVertex2f(X, Y);
-    glTexCoord2f(0, 1); glVertex2f(X, Y+H);
-    glTexCoord2f(1, 1); glVertex2f(X+W, Y+H);
-    glTexCoord2f(1, 0); glVertex2f(X+W, Y);
-  glEnd;
-end;
-//end Singbar Mod
-
-//PhrasenBonus - Line Bonus Pop Up
-procedure SingDrawLineBonus(const X, Y: Single; Color: TRGB; Alpha: Single; Text: string; Age: integer);
-var
-  Length, X2: real; //Length of Text
-  Size: integer;    //Size of Popup
-begin
-  if Alpha <> 0 then
-  begin
-
-//Set Font Propertys
-    SetFontStyle(2); //Font: Outlined1
-    if Age < 5 then
-      SetFontSize((Age + 1) * 3)
-    else
-      SetFontSize(18);
-    SetFontItalic(False);
-
-//Check Font Size
-    Length := glTextWidth (Text) + 3; //Little Space for a Better Look ^^
-
-//Text
-    SetFontPos (X + 50 - (Length / 2), Y + 12); //Position
-
-    if Age < 5 then
-      Size := Age * 10
-    else
-      Size := 50;
-
-//Draw  Background
-//    glColor4f(Color.R, Color.G, Color.B, Alpha); //Set Color
-    glColor4f(1, 1, 1, Alpha);
-
-    glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-//New Method, Not Variable
-    glBindTexture(GL_TEXTURE_2D, Tex_SingLineBonusBack[2].TexNum);
-
-    glBegin(GL_QUADS);
-      glTexCoord2f(0, 0); glVertex2f(X + 50 - Size, Y + 25 - (Size/2));
-      glTexCoord2f(0, 1); glVertex2f(X + 50 - Size, Y + 25 + (Size/2));
-      glTexCoord2f(1, 1); glVertex2f(X + 50 + Size, Y + 25 + (Size/2));
-      glTexCoord2f(1, 0); glVertex2f(X + 50 + Size, Y + 25 - (Size/2));
-    glEnd;
-
-    glColor4f(1, 1, 1, Alpha); //Set Color
-//Draw Text
-    glPrint (Text);
-  end;
-end;
-//PhrasenBonus - Line Bonus Mod}
-
 // Draw Note Bars for Editor
 // There are 11 reasons for a new procedure:   (nice binary :D )
 // 1. It does not look good when you draw the golden note star effect in the editor
@@ -1915,10 +1778,10 @@ begin
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  if (Lines[NrLines].Line[Lines[NrLines].Current].TotalNotes > 0) and ( Right-Left > 0 ) and ( (Lines[NrLines].Line[Lines[NrLines].Current].End_ - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) > 0 ) then
-      TempR := (Right-Left) / (Lines[NrLines].Line[Lines[NrLines].Current].End_ - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start)
-    else
-      TempR := 0;
+
+  if not Lines[NrLines].Line[Lines[NrLines].Current].HasLength(TempR) then TempR := 0
+  else TempR := (Right-Left) / TempR;
+
   with Lines[NrLines].Line[Lines[NrLines].Current] do
   begin
     for Count := 0 to HighNote do

@@ -45,35 +45,35 @@ INSTALL_PROGRAM ?= @INSTALL_PROGRAM@
 # General package configuration
 #################################################
 
-USDX_PACKAGE_NAME := @PACKAGE_NAME@
-USDX_VERSION := @PACKAGE_VERSION@
-USDX_TARNAME := @PACKAGE_TARNAME@
+USDXWP_PACKAGE_NAME := @PACKAGE_NAME@
+USDXWP_VERSION := @PACKAGE_VERSION@
+USDXWP_TARNAME := @PACKAGE_TARNAME@
 
 #################################################
-# USDX Paths
+# USDXWP Paths
 #################################################
 
-USDX_SRC_DIR   := $(top_srcdir)/src
-USDX_GAME_DIR  := $(top_srcdir)/game
-USDX_TOOLS_DIR := $(top_srcdir)/tools
-USDX_BUILD_DIR := $(top_srcdir)/build
-USDX_LIB_DIR   := $(USDX_SRC_DIR)/lib
+USDXWP_SRC_DIR   := $(top_srcdir)/src
+USDXWP_GAME_DIR  := $(top_srcdir)/game
+USDXWP_TOOLS_DIR := $(top_srcdir)/tools
+USDXWP_BUILD_DIR := $(top_srcdir)/build
+USDXWP_LIB_DIR   := $(USDXWP_SRC_DIR)/lib
 
-INSTALL_DATADIR := $(datadir)/$(USDX_PACKAGE_NAME)
+INSTALL_DATADIR := $(datadir)/$(USDXWP_PACKAGE_NAME)
 
 #################################################
 # Binary name
 #################################################
 
 # name of executable
-USDX_BIN_NAME ?= ultrastardx$(EXEEXT)
-USDX_BIN := $(USDX_GAME_DIR)/$(USDX_BIN_NAME)
+USDXWP_BIN_NAME ?= WorldParty$(EXEEXT)
+USDXWP_BIN := $(USDXWP_GAME_DIR)/$(USDXWP_BIN_NAME)
 
 #################################################
 # ProjectM
 #################################################
 
-PROJECTM_CWRAPPER_DIR := $(USDX_LIB_DIR)/projectM/cwrapper
+PROJECTM_CWRAPPER_DIR := $(USDXWP_LIB_DIR)/projectM/cwrapper
 USE_PROJECTM_CWRAPPER = @USE_PROJECTM_CWRAPPER@
 
 #################################################
@@ -93,7 +93,7 @@ endif
 define install_osx_libraries
     @echo "work on $(dylib)"
     $(shell $(INSTALL) -m 755 $(dylib) $(macosx_bundle_path)/MacOS)
-    $(shell $(INSTALL_NAME_TOOL) -change $(dylib) @executable_path/$(notdir $(dylib)) $(macosx_bundle_path)/MacOS/ultrastardx)
+    $(shell $(INSTALL_NAME_TOOL) -change $(dylib) @executable_path/$(notdir $(dylib)) $(macosx_bundle_path)/MacOS/WorldParty)
     $(shell $(INSTALL_NAME_TOOL) -id @executable_path/$(notdir $(dylib)) $(macosx_bundle_path)/MacOS/$(notdir $(dylib)))
     $(foreach linked_dylibs_2,$(shell $(OTOOL) -L $(dylib) | grep version | cut -f 1 -d ' ' | grep -v \/System\/Library | grep -v \usr\/lib | grep -v executable_path),$(rename_secondary_osx_libraries))
 endef
@@ -133,7 +133,7 @@ USE_OSX_PACKAGING_LIBDIR=@USE_OSX_PACKAGING_LIBDIR@
 BUILD_TARGETS = all debug release rebuild build
 .PHONY: $(BUILD_TARGETS)
 $(BUILD_TARGETS): all-deps
-	$(MAKE) -C $(USDX_SRC_DIR) $@
+	$(MAKE) -C $(USDXWP_SRC_DIR) $@
 
 .PHONY: all-deps
 all-deps:
@@ -146,7 +146,7 @@ clean: clean-src clean-deps
 
 .PHONY: clean-src
 clean-src:
-	$(MAKE) -C $(USDX_SRC_DIR) clean
+	$(MAKE) -C $(USDXWP_SRC_DIR) clean
 
 .PHONY: clean-deps
 clean-deps:
@@ -156,12 +156,12 @@ clean-deps:
 
 .PHONY: clean-game
 clean-game:
-	$(RM) $(USDX_GAME_DIR)/*.log
-	$(RM) $(USDX_GAME_DIR)/*.db
-	$(RM) $(USDX_GAME_DIR)/*.ini
-	-rmdir $(USDX_GAME_DIR)/screenshots
-	-rmdir $(USDX_GAME_DIR)/playlists
-	-rmdir $(USDX_GAME_DIR)/songs
+	$(RM) $(USDXWP_GAME_DIR)/*.log
+	$(RM) $(USDXWP_GAME_DIR)/*.db
+	$(RM) $(USDXWP_GAME_DIR)/*.ini
+	-rmdir $(USDXWP_GAME_DIR)/screenshots
+	-rmdir $(USDXWP_GAME_DIR)/playlists
+	-rmdir $(USDXWP_GAME_DIR)/songs
 
 # just clean the game build data but no dependencies (libs, tools, ...)
 .PHONY: mostlyclean
@@ -171,8 +171,8 @@ mostlyclean: clean-src
 distclean: clean clean-game
 	$(RM) config.log config.status aclocal.m4 
 	$(RM_REC) autom4te.cache
-	$(RM) $(USDX_SRC_DIR)/config.inc 
-	$(RM) $(srcdir)/Makefile $(USDX_SRC_DIR)/Makefile $(PROJECTM_CWRAPPER_DIR)/Makefile
+	$(RM) $(USDXWP_SRC_DIR)/config.inc 
+	$(RM) $(srcdir)/Makefile $(USDXWP_SRC_DIR)/Makefile $(PROJECTM_CWRAPPER_DIR)/Makefile
 
 .PHONY: maintainer-clean
 maintainer-clean: distclean
@@ -193,7 +193,7 @@ tidy:
 # auto-update
 #################################################
 
-Makefile: $(srcdir)/Makefile.in $(USDX_SRC_DIR)/Makefile.in $(USDX_SRC_DIR)/config.inc.in $(PROJECTM_CWRAPPER_DIR)/Makefile.in config.status
+Makefile: $(srcdir)/Makefile.in $(USDXWP_SRC_DIR)/Makefile.in $(USDXWP_SRC_DIR)/config.inc.in $(PROJECTM_CWRAPPER_DIR)/Makefile.in config.status
 	@echo "-----------------------------------"
 	@echo "Performing reconfiguration..."
 	./config.status
@@ -222,10 +222,15 @@ reconf:
 
 .PHONY: install
 install: install-all
-	@echo "--------------------------------"
-	@echo "$(USDX_PACKAGE_NAME) installed."
-	@echo "Start with: $(bindir)/$(USDX_BIN_NAME)"
-	@echo "--------------------------------"
+	@echo "---------------------------------------"
+	@echo "          WW              WW             "
+	@echo "           WW     WW     WW            "
+	@echo "            WW  WW  WW  WW            "
+	@echo "              WW      WW              "
+	@echo "              ----------"	
+	@echo "$(USDXWP_PACKAGE_NAME) has been installed in your system."
+	@echo "Type: '$(USDXWP_BIN_NAME)' to start the program. *Keep in mind the CAPS"
+	@echo "---------------------------------------"
 
 # strip binaries during install
 install-strip:
@@ -238,7 +243,7 @@ install-all: install-exec install-plugins install-data
 .PHONY: install-exec
 install-exec:
 	$(MKDIR) "$(DESTDIR)$(bindir)"
-	$(INSTALL_PROGRAM) "$(USDX_BIN)" "$(DESTDIR)$(bindir)"
+	$(INSTALL_PROGRAM) "$(USDXWP_BIN)" "$(DESTDIR)$(bindir)"
 
 # FPC target platform and processor
 PPLATFORM  := @FPC_PLATFORM@
@@ -247,26 +252,41 @@ PPROCESSOR := @FPC_PROCESSOR@
 .PHONY: install-plugins
 install-plugins:
 	$(MKDIR) "$(DESTDIR)$(INSTALL_DATADIR)/plugins"
-	$(INSTALL) "$(USDX_GAME_DIR)/plugins"/* "$(DESTDIR)$(INSTALL_DATADIR)/plugins"
+	$(INSTALL) "$(USDXWP_GAME_DIR)/plugins"/* "$(DESTDIR)$(INSTALL_DATADIR)/plugins"
 
 .PHONY: install-data
 install-data:
-	$(MAKE) RECURSIVE_SRC_DIR="$(USDX_GAME_DIR)/languages" \
-            RECURSIVE_DST_DIR="$(DESTDIR)$(INSTALL_DATADIR)/languages" \
+	$(MAKE) RECURSIVE_SRC_DIR="$(USDXWP_GAME_DIR)/avatars" \
+            RECURSIVE_DST_DIR="$(DESTDIR)$(INSTALL_DATADIR)/avatars" \
             install-data-recursive
-	$(MAKE) RECURSIVE_SRC_DIR="$(USDX_GAME_DIR)/sounds" \
-            RECURSIVE_DST_DIR="$(DESTDIR)$(INSTALL_DATADIR)/sounds" \
+	$(MAKE) RECURSIVE_SRC_DIR="$(USDXWP_GAME_DIR)/covers" \
+            RECURSIVE_DST_DIR="$(DESTDIR)$(INSTALL_DATADIR)/covers" \
             install-data-recursive
-	$(MAKE) RECURSIVE_SRC_DIR="$(USDX_GAME_DIR)/themes" \
-            RECURSIVE_DST_DIR="$(DESTDIR)$(INSTALL_DATADIR)/themes" \
-            install-data-recursive
-	$(MAKE) RECURSIVE_SRC_DIR="$(USDX_GAME_DIR)/fonts" \
+	$(MAKE) RECURSIVE_SRC_DIR="$(USDXWP_GAME_DIR)/fonts" \
             RECURSIVE_DST_DIR="$(DESTDIR)$(INSTALL_DATADIR)/fonts" \
             install-data-recursive
-	$(MAKE) RECURSIVE_SRC_DIR="$(USDX_GAME_DIR)/resources" \
+	$(MAKE) RECURSIVE_SRC_DIR="$(USDXWP_GAME_DIR)/languages" \
+            RECURSIVE_DST_DIR="$(DESTDIR)$(INSTALL_DATADIR)/languages" \
+            install-data-recursive
+	$(MAKE) RECURSIVE_SRC_DIR="$(USDXWP_GAME_DIR)/resources" \
             RECURSIVE_DST_DIR="$(DESTDIR)$(INSTALL_DATADIR)/resources" \
             install-data-recursive
-	$(INSTALL_DATA) "COPYING.txt" "$(DESTDIR)$(INSTALL_DATADIR)/COPYING.txt"
+	$(MAKE) RECURSIVE_SRC_DIR="$(USDXWP_GAME_DIR)/soundfonts" \
+            RECURSIVE_DST_DIR="$(DESTDIR)$(INSTALL_DATADIR)/sounds" \
+            install-data-recursive
+	$(MAKE) RECURSIVE_SRC_DIR="$(USDXWP_GAME_DIR)/sounds" \
+            RECURSIVE_DST_DIR="$(DESTDIR)$(INSTALL_DATADIR)/sounds" \
+            install-data-recursive
+	$(MAKE) RECURSIVE_SRC_DIR="$(USDXWP_GAME_DIR)/themes" \
+            RECURSIVE_DST_DIR="$(DESTDIR)$(INSTALL_DATADIR)/themes" \
+            install-data-recursive
+	$(MAKE) RECURSIVE_SRC_DIR="$(USDXWP_GAME_DIR)/visuals" \
+            RECURSIVE_DST_DIR="$(DESTDIR)$(INSTALL_DATADIR)/visuals" \
+            install-data-recursive
+	$(MAKE) RECURSIVE_SRC_DIR="$(USDXWP_GAME_DIR)/webs" \
+            RECURSIVE_DST_DIR="$(DESTDIR)$(INSTALL_DATADIR)/themes" \
+            install-data-recursive
+	$(INSTALL_DATA) "LICENSE" "$(DESTDIR)$(INSTALL_DATADIR)/LICENSE"
 
 .PHONY: install-data-recursive
 install-data-recursive:
@@ -295,17 +315,22 @@ uninstall-all: uninstall-data uninstall-exec uninstall-plugins
 
 .PHONY: uninstall-data
 uninstall-data:
+	$(RM_REC) "$(DESTDIR)$(INSTALL_DATADIR)/avatars"
+	$(RM_REC) "$(DESTDIR)$(INSTALL_DATADIR)/covers"
+	$(RM_REC) "$(DESTDIR)$(INSTALL_DATADIR)/fonts"
 	$(RM_REC) "$(DESTDIR)$(INSTALL_DATADIR)/languages"
+	$(RM_REC) "$(DESTDIR)$(INSTALL_DATADIR)/resources"
+	$(RM_REC) "$(DESTDIR)$(INSTALL_DATADIR)/soundfonts"
 	$(RM_REC) "$(DESTDIR)$(INSTALL_DATADIR)/sounds"
 	$(RM_REC) "$(DESTDIR)$(INSTALL_DATADIR)/themes"
-	$(RM_REC) "$(DESTDIR)$(INSTALL_DATADIR)/fonts"
-	$(RM_REC) "$(DESTDIR)$(INSTALL_DATADIR)/resources"
+	$(RM_REC) "$(DESTDIR)$(INSTALL_DATADIR)/visuals"
+	$(RM_REC) "$(DESTDIR)$(INSTALL_DATADIR)/webs"
 	$(RM)     "$(DESTDIR)$(INSTALL_DATADIR)/COPYING.txt"
 	-rmdir "$(DESTDIR)$(INSTALL_DATADIR)"
 
 .PHONY: uninstall-exec
 uninstall-exec:
-	$(RM) "$(DESTDIR)$(bindir)/$(USDX_BIN_NAME)"
+	$(RM) "$(DESTDIR)$(bindir)/$(USDXWP_BIN_NAME)"
 
 .PHONY: uninstall-plugins
 uninstall-plugins:
@@ -315,8 +340,8 @@ uninstall-plugins:
 # Distributable source-package (TODO)
 #################################################
 
-#disttmpdir := $(USDX_PACKAGE_NAME)-$(USDX_VERSION)-src
-disttmpdir := $(USDX_PACKAGE_NAME)-1.1_alpha-src
+#disttmpdir := $(USDXWP_PACKAGE_NAME)-$(USDXWP_VERSION)-src
+disttmpdir := $(USDXWP_PACKAGE_NAME)-1.1_alpha-src
 # choose all files in SVN that are not deleted
 svn-files := svn status -v | grep -v "^[?D]" | cut -c8- | tr -s " " | cut -f5- -d" "
 
@@ -341,8 +366,8 @@ dist:
 
 debpkgdir    ?= dists/debian
 debpkgtmpdir := $(debpkgdir)/deb-package
-debpkgprefix := $(USDX_PACKAGE_NAME)
-debpkgname   := $(debpkgprefix)_$(USDX_VERSION)_$(PPROCESSOR).deb
+debpkgprefix := $(USDXWP_PACKAGE_NAME)
+debpkgname   := $(debpkgprefix)_$(USDXWP_VERSION)_$(PPROCESSOR).deb
 
 .PHONY: deb
 deb: all
@@ -386,7 +411,7 @@ pkgingLibDir := @USE_OSX_PACKAGING_LIBDIR@
 # Mac OS X app-bundle
 #################################################
 
-macosx_bundle_path := UltraStarDeluxe.app/Contents
+macosx_bundle_path := USDXWorldParty.app/Contents
 .PHONY: macosx-app
 macosx-app: all 
 # Create double clickable Mac OS X application.
@@ -400,10 +425,10 @@ macosx-app: all
 # Put the icon file into its particular place. 
 # Must be done BEFORE info.plist is created.
 	$(MKDIR) $(macosx_bundle_path)/resources
-	$(INSTALL_DATA) icons/ultrastardx.icns $(macosx_bundle_path)/resources/
+	$(INSTALL_DATA) icons/WorldParty.icns $(macosx_bundle_path)/resources/
 
 # the info.plist file
-	$(INSTALL_DATA) $(USDX_SRC_DIR)/macosx/Info.plist $(macosx_bundle_path)/
+	$(INSTALL_DATA) $(USDXWP_SRC_DIR)/macosx/Info.plist $(macosx_bundle_path)/
 
 # Copy the resources. 
 	$(MAKE) install-all INSTALL_DATADIR=$(macosx_bundle_path) bindir=$(macosx_bundle_path)/MacOS
@@ -416,7 +441,7 @@ macosx-app: all
 
 # final messages
 	@echo ""
-	@echo "Mac OS X application created (UltraStarDeluxe.app)."
+	@echo "Mac OS X application created (USDXWorldParty.app)."
 	@echo "Using @USE_OSX_PACKAGING@ with libdir @USE_OSX_PACKAGING_LIBDIR@"
 	@echo "Please report issues to the developer team, preferably mischi."
 	@echo "Have fun."
@@ -448,9 +473,9 @@ endif
 ifeq ($(USE_OSX_PACKAGING), fink)
 	@echo "avcodec lib found: $(finkLibDir)/$(AVCODECLIB)"
 endif
-# work on the dylibs in $(macosx_bundle_path)/MacOS/ultrastardx
-	@echo "[generic] copying libs of ultrastardx"
-	$(foreach dylib,$(shell $(OTOOL) -L $(macosx_bundle_path)/MacOS/ultrastardx | grep version | cut -f 1 -d ' ' | grep -v \/System\/Library | grep -v \/usr\/lib),$(install_osx_libraries))
+# work on the dylibs in $(macosx_bundle_path)/MacOS/WorldParty
+	@echo "[generic] copying libs of WorldParty"
+	$(foreach dylib,$(shell $(OTOOL) -L $(macosx_bundle_path)/MacOS/WorldParty | grep version | cut -f 1 -d ' ' | grep -v \/System\/Library | grep -v \/usr\/lib),$(install_osx_libraries))
 
 # work on the secondary dylibs from ffmpeg
 # libavcodec references all tertiary libraries of the ffmpeg libs
@@ -515,11 +540,11 @@ ifeq ($(USE_OSX_PACKAGING), fink)
 	# same procedure for secondary libs in libbluray
 	@echo "[fink] copying libs of libblueray"
 	$(foreach dylib,$(shell $(OTOOL) -L $(brewLibDir)/libbluray.dylib | grep version | cut -f 1 -d ' ' | grep -v \/System\/Library | grep -v \/usr\/lib),$(install_osx_libraries))
-endif
 
-#	X11 libs as well, because users may not have installed it.
-	@echo "[xquartz] copying libs of libX11"
+	# X11 libs as well, because users may not have installed it.
+	@echo "[fink] copying libs of libX11"
 	$(foreach dylib,$(shell $(OTOOL) -L /opt/X11/lib/libX11.6.dylib  | grep version | cut -f 1 -d ' ' | grep -v \/System\/Library | grep -v \/usr\/lib),$(install_osx_libraries))
+endif
 
 	@echo ""
 	@echo "libpcre.dylib must be work on additionally, since it is not linked to the executable but opened using dlopen"
@@ -528,7 +553,7 @@ endif
 	$(shell $(INSTALL_NAME_TOOL) -id @executable_path/libpcre.dylib $(macosx_bundle_path)/MacOS/libpcre.dylib)
 
 # do  not forget to sign the code
-#	codesign -f -s USDX-codesign UltraStarDeluxe.app
+#	codesign -f -s USDXWP-codesign USDXWorldParty.app
 
 # final messages
 	@echo ""
@@ -537,24 +562,26 @@ endif
 
 .PHONY: macosx-dmg
 macosx-dmg: macosx-standalone-app
-	@if test -d "/Volumes/UltraStarDeluxe"; then\
-		echo "Error: there is already a disk mounted on /Volumes/UltraStarDeluxe";\
+	@if test -d "/Volumes/USDXWorldParty"; then\
+		echo "Error: there is already a disk mounted on /Volumes/USDXWorldParty";\
 		exit 1;\
 	fi
-	$(RM) UltraStarDeluxe.dmg
-	$(RM) UltraStarDeluxe.sparseimage
-	$(HDIUTIL) create -type SPARSE -size 100m -fs HFS+ -volname UltraStarDeluxe -ov UltraStarDeluxe.sparseimage
-	$(HDIUTIL) attach UltraStarDeluxe.sparseimage
-	/bin/ln -s /Applications /Volumes/UltraStarDeluxe/Applications
-	/bin/cp -R UltraStarDeluxe.app /Volumes/UltraStarDeluxe
-#	/bin/cp ultrastardx/icons/UltraStarDeluxeVolumeIcon.icns /Volumes/UltraStarDeluxe/.VolumeIcon.icns
-#	/Developer/Tools/SetFile -a C /Volumes/UltraStarDeluxe/.VolumeIcon.icns /Volumes/UltraStarDeluxe
-	$(HDIUTIL) detach /Volumes/UltraStarDeluxe
-	$(HDIUTIL) convert UltraStarDeluxe.sparseimage -format UDBZ -o UltraStarDeluxe.dmg
-	$(RM) UltraStarDeluxe.sparseimage
+	$(RM) USDXWorldParty.dmg
+	$(RM) USDXWorldParty.sparseimage
+	$(HDIUTIL) create -type SPARSE -size 100m -fs HFS+ -volname USDXWorldParty -ov USDXWorldParty.sparseimage
+	$(HDIUTIL) attach USDXWorldParty.sparseimage
+	/bin/ln -s /Applications /Volumes/USDXWorldParty/Applications
+	/bin/cp -R USDXWorldParty.app /Volumes/USDXWorldParty
+	$(MKDIR) /Volumes/USDXWorldParty/Licenses
+	find $(USDXWP_GAME_DIR) -name 'LICENSE.*' -maxdepth 1 -exec cp {} /Volumes/USDXWorldParty/Licenses \;
+#	/bin/cp WorldParty/icons/USDXWorldPartyVolumeIcon.icns /Volumes/USDXWorldParty/.VolumeIcon.icns
+#	/Developer/Tools/SetFile -a C /Volumes/USDXWorldParty/.VolumeIcon.icns /Volumes/USDXWorldParty
+	$(HDIUTIL) detach /Volumes/USDXWorldParty
+	$(HDIUTIL) convert USDXWorldParty.sparseimage -format UDBZ -o USDXWorldParty.dmg
+	$(RM) USDXWorldParty.sparseimage
 
 	@echo ""
-	@echo "DMG Disk image created (UltraStarDeluxe.dmg)."
+	@echo "DMG Disk image created (USDXWorldParty.dmg)."
 	@echo ""
 
 # remove Mac OS X apllication bundle and disk image
@@ -563,9 +590,9 @@ clean-macosx: clean-macosx-app clean-macosx-dmg
 
 .PHONY: clean-macosx-app
 clean-macosx-app:
-	$(RM_REC) UltraStarDeluxe.app 
+	$(RM_REC) USDXWorldParty.app 
 
 .PHONY: clean-macosx-dmg
 clean-macosx-dmg:
-	$(RM) UltraStarDeluxe.dmg 
-	$(RM) UltraStarDeluxe.sparseimage
+	$(RM) USDXWorldParty.dmg 
+	$(RM) USDXWorldParty.sparseimage

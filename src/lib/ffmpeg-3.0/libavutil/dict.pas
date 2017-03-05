@@ -131,8 +131,10 @@ function av_dict_parse_string(var pm: PAVDictionary; {const} str: PAnsiChar;
  * @param src pointer to source AVDictionary struct
  * @param flags flags to use when setting entries in *dst
  * @note metadata is read using the AV_DICT_IGNORE_SUFFIX flag
+ * @return 0 on success, negative AVERROR code on failure. If dst was allocated
+ *           by this function, callers should free the associated memory.
  *)
-procedure av_dict_copy(var dst: PAVDictionary; {const} src: PAVDictionary; flags: cint);
+function av_dict_copy(var dst: PAVDictionary; {const} src: PAVDictionary; flags: cint): cint;
   cdecl; external av__util;
 
 (**

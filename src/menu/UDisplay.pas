@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/menu/UDisplay.pas $
- * $Id: UDisplay.pas 3150 2015-10-20 00:07:57Z basisbit $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UDisplay;
@@ -76,10 +73,21 @@ type
       Cursor_LastMove:     cardinal;
       Cursor_Fade:         boolean;
 
+      Cursor_Update:       boolean;
+
+      Console_Draw:         boolean;
+      Console_ScrollOffset: integer;
       procedure DrawDebugInformation;
+      procedure DrawDebugConsole;
+
+      { Handles parsing of inputs when console is opened. Called from ParseInput }
+      function ConsoleParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown : boolean): boolean;
+       { Handles parsing of inputs when console is opened. Called from ParseMouse }
+      function ConsoleParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 
       { called by MoveCursor and OnMouseButton to update last move and start fade in }
       procedure UpdateCursorFade;
+
     public
       Cursor_HiddenByScreen: boolean; // hides software cursor and deactivate auto fade in, must be public for access in UMenuButton
 
@@ -97,13 +105,22 @@ type
       destructor  Destroy; override;
 
       procedure InitFadeTextures();
+
+      procedure ToggleConsole;
       
       procedure SaveScreenShot;
 
       function  Draw: boolean;
 
+      // TODO rewrite ParseInput to include handling/suppressing input as return, use KeepGoing as by-reference
+      { checks if display is handling the passed key in ParseInput. calls HandleInput of cur or next Screen if assigned }
+      function ShouldHandleInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown : boolean; out SuppressKey: boolean): boolean;
+
       { calls ParseInput of cur or next Screen if assigned }
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown : boolean): boolean;
+
+      { calls ParseMouse of cur or next Screen if assigned }
+      function ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 
       { sets SDL_ShowCursor depending on options set in Ini }
       procedure SetCursor;
@@ -121,6 +138,16 @@ type
 
       { draws software cursor }
       procedure DrawCursor;
+
+      { forces to update cursor (position and set visibility) }
+      procedure UpdateCursor;
+
+      { returns whether this display is requesting an cursor update }
+      function NeedsCursorUpdate(): boolean;
+
+      { called when the window has been resized }
+      procedure OnWindowResized(); virtual;
+
   end;
 
 var
@@ -189,6 +216,7 @@ begin
   Cursor_Y        := -1;
   Cursor_Fade     := false;
   Cursor_HiddenByScreen := true;
+  Cursor_Update   := false;
 end;
 
 destructor TDisplay.Destroy;
@@ -414,6 +442,7 @@ begin
         begin
           CurrentScreen.OnShowFinish;
           CurrentScreen.ShowFinish := true;
+          Cursor_Update := true;
         end
         else
         begin
@@ -425,7 +454,15 @@ begin
 
     // Draw OSD only on first Screen if Debug Mode is enabled
     if ((Ini.Debug = 1) or (Params.Debug)) and (S = 1) then
+    begin
       DrawDebugInformation;
+      if Console_Draw then DrawDebugConsole;
+    end else if Console_Draw then
+    begin
+      // clear flag to prevent drawing console when toggling debug
+      // TODO: considers using event in ScreenOptions for clearing debug
+      Console_Draw := false;
+    end;
 
     if not BlackScreen then
       DrawCursor;
@@ -605,12 +642,44 @@ begin
   end;
 end;
 
+function TDisplay.ShouldHandleInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown : boolean; out SuppressKey: boolean): boolean;
+begin
+  if Console_Draw then
+  begin
+    Result := true;
+    SuppressKey := true;
+    Exit;
+  end;
+
+  if (assigned(NextScreen)) then
+    Result := NextScreen^.ShouldHandleInput(PressedKey, CharCode, PressedDown, SuppressKey)
+  else if (assigned(CurrentScreen)) then
+    Result := CurrentScreen^.ShouldHandleInput(PressedKey, CharCode, PressedDown, SuppressKey)
+  else
+    Result := True;
+end;
+
 function TDisplay.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown : boolean): boolean;
 begin
+  if Console_Draw and ConsoleParseInput(PressedKey, CharCode, PressedDown) then Exit;
+
   if (assigned(NextScreen)) then
     Result := NextScreen^.ParseInput(PressedKey, CharCode, PressedDown)
   else if (assigned(CurrentScreen)) then
     Result := CurrentScreen^.ParseInput(PressedKey, CharCode, PressedDown)
+  else
+    Result := True;
+end;
+
+function TDisplay.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
+begin
+  if Console_Draw and ConsoleParseMouse(MouseButton, BtnDown, X, Y) then Exit;
+
+  if (assigned(NextScreen)) then
+    Result := NextScreen^.ParseMouse(MouseButton, BtnDown, X, Y)
+  else
+  if (assigned(CurrentScreen)) then
+    Result := CurrentScreen^.ParseMouse(MouseButton, BtnDown, X, Y)
   else
     Result := True;
 end;
@@ -652,6 +721,28 @@ begin
     else
       Result.FadeTo(Screen);
   end;
+end;
+
+procedure TDisplay.UpdateCursor;
+begin
+  UpdateCursorFade;
+  Cursor_Update := true;
+end;
+
+function TDisplay.NeedsCursorUpdate: boolean;
+begin
+  Result := Cursor_Update and Cursor_Visible and not Cursor_Fade;
+  Cursor_Update := false;
+end;
+
+procedure TDisplay.OnWindowResized();
+begin
+  // update cursor position once the window has been resized, otherwise the cursor jumps
+  Cursor_Update := true;
+
+  if (assigned(NextScreen)) then NextScreen^.OnWindowResized()
+  else if (assigned(CurrentScreen)) then CurrentScreen^.OnWindowResized()
+
 end;
 
 procedure TDisplay.SaveScreenShot;
@@ -717,10 +808,10 @@ begin
   glDisable(GL_TEXTURE_2D);
   glColor4f(1, 1, 1, 0.5);
   glBegin(GL_QUADS);
-    glVertex2f(690, 35);
-    glVertex2f(690, 0);
+    glVertex2f(710, 20);
+    glVertex2f(700, 0);
     glVertex2f(800, 0);
-    glVertex2f(800, 35);
+    glVertex2f(790, 20);
   glEnd;
   glDisable(GL_BLEND);
 
@@ -744,14 +835,146 @@ begin
   // draw text
 
   // fps
-  SetFontPos(695, 0);
+  SetFontPos(720, 0);
   glPrint ('FPS: ' + InttoStr(LastFPS));
 
-  // muffins
-  SetFontPos(695, 13);
-  glColor4f(0.8, 0.5, 0.2, 1);
-  glPrint ('Muffins!');
+  glColor4f(1, 1, 1, 1);
+end;
 
+procedure TDisplay.ToggleConsole;
+begin
+  Console_Draw := not Console_Draw;
+  Console_ScrollOffset := 0;
+end;
+
+function TDisplay.ConsoleParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown : boolean): boolean;
+var
+  SDL_ModState:  word;
+begin
+  Result := false;
+
+  if (PressedDown) then
+  begin // Key Down
+    Result := true;
+    SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT
+    + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
+
+    case PressedKey of
+      SDLK_PAGEUP: Console_ScrollOffset := Min(Console_ScrollOffset+3, Log.ConsoleCount-1);
+      SDLK_PAGEDOWN: Console_ScrollOffset := Max(Console_ScrollOffset-3, 0);
+      SDLK_HOME: Console_ScrollOffset := Log.ConsoleCount-1;
+      SDLK_END: Console_ScrollOffset := 0;
+      SDLK_DELETE: if SDL_ModState and KMOD_CTRL <> 0 then Log.ClearConsoleLog;
+      otherwise Result := false;
+    end;
+  end;
+end;
+
+function TDisplay.ConsoleParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
+begin
+  Result := false;
+
+  if (BtnDown) then
+  begin // button Down
+    Result := true;
+    case MouseButton of
+      SDL_BUTTON_WHEELUP: Console_ScrollOffset := Min(Console_ScrollOffset+3, Log.ConsoleCount-1);
+      SDL_BUTTON_WHEELDOWN: Console_ScrollOffset := Max(Console_ScrollOffset-3, 0);
+      otherwise Result := false;
+    end;
+  end;
+end;
+
+//------------
+// DrawDebugInformation - procedure draw fps and some other informations on screen
+//------------
+procedure TDisplay.DrawDebugConsole;
+var
+  I, LineCount: integer;
+  YOffset, ScaleF, FontSize: real;
+  PosX, PosY: real;
+  W, H: real;
+  ScrollPad, ScrollW: real;
+  OldStretch: real;
+begin
+  FontSize := 16.0;
+  W := 800.0;
+  H := 400.0;
+  ScrollPad := 5.0;
+  ScrollW := 10.0;
+
+  // Some black background
+  glEnable(GL_BLEND);
+  glDisable(GL_TEXTURE_2D);
+  glColor4f(0, 0, 0, 0.85);
+  glBegin(GL_QUADS);
+    glVertex2f(0, 0);
+    glVertex2f(0, H);
+    glVertex2f(W, H);
+    glVertex2f(W, 0);
+  glEnd;
+  glDisable(GL_BLEND);
+
+  // scale sizes to DPI/aspect
+  ScaleF := (1.0*ScreenH)/(1.0*ScreenW);
+  FontSize := FontSize * 600.0/(1.0*ScreenH);
+  ScrollW := ScrollW * 800.0/(1.0*ScreenW);
+  ScrollPad := ScrollPad * ScaleF;
+
+  // set font specs
+  SetFontStyle(ftNormal);
+  SetFontSize(FontSize);
+  SetFontItalic(false);
+  SetFontReflection(false, 0);
+  glColor4f(1, 1, 1, 1);
+
+  OldStretch := Fonts[ActFont].Font.Stretch;
+  Fonts[ActFont].Font.Stretch := 1.4*ScaleF * Min(1.3, Max(0.8, power((1.0*ScreenW)/800.0, 1.2)));
+
+  // don't draw anything else if nothing's logged
+  if Log.ConsoleCount < 1 then Exit;
+
+
+  // draw log buffer
+  YOffset := H; // start at bottom
+  LineCount := 0;
+  I := Log.ConsoleCount-1 - Console_ScrollOffset;
+  while (I >= 0) and (YOffset > 0) do
+  begin
+    YOffset := YOffset - FontSize;
+    SetFontPos(5, YOffset);
+    glPrint(Log.GetConsole(i));
+
+    Dec(i);
+    Inc(LineCount);
+  end;
+
+  // draw scoll bar
+  glEnable(GL_BLEND);
+  glDisable(GL_TEXTURE_2D);
+  glColor4f(0.33, 0.33, 0.33, 1);
+  glBegin(GL_QUADS);
+    glVertex2f(W-ScrollPad-ScrollW, ScrollPad); // top left
+    glVertex2f(W-ScrollPad, ScrollPad); // top right
+    glVertex2f(W-ScrollPad, H-ScrollPad); // bottom right
+    glVertex2f(W-ScrollPad-ScrollW, H-ScrollPad); // bottom left
+  glEnd;
+
+  // visible height bar + offset
+  YOffset := H * ((1.0*LineCount)/(1.0*Log.ConsoleCount));
+  PosY := 0;
+  if I > 0 then PosY := (H-2.0*ScrollPad) * Max(0.0, I)/(1.0*Log.ConsoleCount);
+
+  glColor4f(1, 1, 1, 1);
+  glBegin(GL_QUADS);
+    glVertex2f(W-ScrollPad-ScrollW, ScrollPad + PosY); // top left
+    glVertex2f(W-ScrollPad, ScrollPad + PosY); // top right
+    glVertex2f(W-ScrollPad, ScrollPad + PosY + YOffset); // bottom right
+    glVertex2f(W-ScrollPad-ScrollW, ScrollPad + PosY + YOffset); // bottom left
+  glEnd;
+  glDisable(GL_BLEND);
+
+  Fonts[ActFont].Font.Stretch := OldStretch;
   glColor4f(1, 1, 1, 1);
 end;
 

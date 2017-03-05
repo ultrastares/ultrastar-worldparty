@@ -158,12 +158,22 @@ type
      * @endcode
      *)
     AV_FRAME_DATA_SKIP_SAMPLES,
-
     (**
      * This side data must be associated with an audio frame and corresponds to
      * enum AVAudioServiceType defined in avcodec.h.
      *)
-    AV_FRAME_DATA_AUDIO_SERVICE_TYPE
+    AV_FRAME_DATA_AUDIO_SERVICE_TYPE,
+    (**
+     * Mastering display metadata associated with a video frame. The payload is
+     * an AVMasteringDisplayMetadata type and contains information about the
+     * mastering display color volume.
+     *)
+    AV_FRAME_DATA_MASTERING_DISPLAY_METADATA,
+    (**
+     * The GOP timecode in 25 bit timecode format. Data format is 64-bit integer.
+     * This is set on the first frame of a GOP that has a temporal reference of 0.
+     *)
+    AV_FRAME_DATA_GOP_TIMECODE
   );
 
 	TAVActiveFormatDescription = (
@@ -293,10 +303,6 @@ type
      *)
     pict_type: TAVPictureType;
 
-{$IFDEF FF_API_AVFRAME_LAVC}
-    base: array [0..AV_NUM_DATA_POINTERS - 1] of pbyte; {deprecated}
-{$ENDIF}
-
     (**
      * sample aspect ratio for the video frame, 0/1 if unknown/unspecified
      *)
@@ -334,68 +340,16 @@ type
      *)
     quality: cint;
 
-{$IFDEF FF_API_AVFRAME_LAVC}
-    reference: cint; {deprecated}
-
-    (**
-     * QP table
-     *)
-    qscale_table: pbyte; {deprecated}
-
-    (**
-     * QP store stride
-     *)
-    qstride: cint; {deprecated}
-    qscale_type: cint; {deprecated}
-
-    (**
-     * mbskip_table[mb]>=1 if MB didn't change
-     * stride= mb_width = (width+15)>>4
-     *)
-    mbskip_table: pbyte; {deprecated}
-
-    (**
-     * motion vector table
-     * @code
-     * example:
-     * int mv_sample_log2= 4 - motion_subsample_log2;
-     * int mb_width= (width+15)>>4;
-     * int mv_stride= (mb_width << mv_sample_log2) + 1;
-     * motion_val[direction][x + y*mv_stride][0->mv_x, 1->mv_y];
-     * @endcode
-     *)
-    motion_val: array [0..1] of pointer;
-
-    (**
-     * macroblock type table
-     * mb_type_base + mb_width + 2
-     *)
-    mb_type: PCuint; {deprecated}
-
-    (**
-     * DCT coefficients
-     *)
-    dct_coeff: PsmallInt; {deprecated}
-
-    (**
-     * motion reference frame index
-     * the order in which these are stored can depend on the codec.
-     *)
-    ref_index: array [0..1] of pbyte; {deprecated}
-{$ENDIF}
-
     (**
      * for some private data of the user
      *)
     opaque: pointer;
 
+{$IFDEF FF_API_ERROR_FRAME}
     (**
-     * error
+     * @deprecated unused
      *)
-    error: array [0..AV_NUM_DATA_POINTERS - 1] of cuint64;
-
-{$IFDEF FF_API_AVFRAME_LAVC}
-    type_: cint; {deprecated}
+    error: array [0..AV_NUM_DATA_POINTERS - 1] of cuint64; {deprecated}
 {$ENDIF}
 
     (**
@@ -419,14 +373,6 @@ type
      *)
     palette_has_changed: cint;
 
-{$IFDEF FF_API_AVFRAME_LAVC}
-    buffer_hints: cint; {deprecated}
-    (**
-     * Pan scan.
-     *)
-    pan_scan: PAVPanScan; {deprecated}
-{$ENDIF}
-
     (**
      * reordered opaque 64bit (generally an integer or a double precision float
      * PTS but can be anything).
@@ -437,21 +383,6 @@ type
      * @deprecated in favor of pkt_pts
      *)
     reordered_opaque: cint64;
-
-{$IFDEF FF_API_AVFRAME_LAVC}
-    (**
-     * @deprecated this field is unused
-     *)
-    hwaccel_picture_private: pointer; {deprecated}
-    owner: pointer; {deprecated} (** Note: Should be a PAVCodecContext, but a type pointer is used to avoid a reference problem. *)
-    thread_opaque: pointer; {deprecated}
-
-    (**
-     * log2 of the size of the block which a single vector in motion_val represents:
-     * (4->16x16, 3->8x8, 2-> 4x4, 1-> 2x2)
-     *)
-    motion_subsample_log2: cuint8; {deprecated}
-{$ENDIF}
 
     (**
      * Sample rate of the audio data.
@@ -602,10 +533,24 @@ type
      *)
     pkt_size: cint;
 
+{$IFDEF FF_API_FRAME_QP}
+    (**
+     * QP table
+     * Not to be accessed directly from outside libavutil
+     *)
+    qscale_table: PByte; {deprecated}
+    (**
+     * QP store stride
+     * Not to be accessed directly from outside libavutil
+     *)
+    qstride: cint; {deprecated}
+
+    qscale_type: cint; {deprecated}
     (**
      * Not to be accessed directly from outside libavutil
      *)
-    qp_table_buf: PAVBufferRef;
+    qp_table_buf: PAVBufferRef; {deprecated}
+{$ENDIF}
   end; {TAVFrame}
 
 (**
@@ -651,10 +596,12 @@ procedure av_frame_set_pkt_size             (frame: PAVFrame; val: cint);
   cdecl; external av__codec;
 function avpriv_frame_get_metadatap(frame: PAVFrame): PPAVDictionary;
   cdecl; external av__codec;
+{$IFDEF FF_API_FRAME_QP}
 function av_frame_get_qp_table(f: PAVFrame; stride: pcint; type_: pcint): PByte;
   cdecl; external av__codec;
 function av_frame_set_qp_table(f: PAVFrame; buf: PAVBufferRef; stride: cint; type_: cint): cint;
   cdecl; external av__codec;
+{$ENDIF}
 function av_frame_get_colorspace(frame: {const} PAVFrame): TAVColorSpace;
   cdecl; external av__codec;
 procedure av_frame_set_colorspace(frame: PAVFrame; val: TAVColorSpace);

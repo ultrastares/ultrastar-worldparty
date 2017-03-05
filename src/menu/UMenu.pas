@@ -1,26 +1,23 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: svn://basisbit@svn.code.sf.net/p/ultrastardx/svn/trunk/src/menu/UMenu.pas $
- * $Id: UMenu.pas 3103 2014-11-22 23:21:19Z k-m_schindler $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
 
 unit UMenu;
@@ -56,7 +53,6 @@ type
   PMenu = ^TMenu;
   TMenu = class
     protected
-      Background:       TMenuBackground;
 
       Interactions:     array of TInteract;
       SelInteraction:   integer;
@@ -67,6 +63,7 @@ type
       SelectsS:         array of TSelectSlide;
       ButtonCollection: array of TButtonCollection;
     public
+      Background:       TMenuBackground;
       Text:        array of TText;
       Statics:     array of TStatic;
       StaticsList: array of TStatic;
@@ -149,6 +146,7 @@ type
       function DrawBG: boolean; virtual;
       function DrawFG: boolean; virtual;
       function Draw: boolean; virtual;
+      function ShouldHandleInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown : boolean; out SuppressKey: boolean): boolean; virtual;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown : boolean): boolean; virtual;
       function ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean; virtual;
       function InRegion(X, Y: real; A: TMouseOverRect): boolean;
@@ -159,6 +157,8 @@ type
       procedure OnShow; virtual;
       procedure OnShowFinish; virtual;
       procedure OnHide; virtual;
+
+      procedure OnWindowResized(); virtual;
 
       procedure SetAnimationProgress(Progress: real); virtual;
 
@@ -302,29 +302,36 @@ var
   NewNum, NewTyp: integer;
 begin
   // set inactive
+  if(Interaction > -1) then
+  begin
   OldNum := Interactions[Interaction].Num;
   OldTyp := Interactions[Interaction].Typ;
-
-  NewNum := Interactions[Num].Num;
-  NewTyp := Interactions[Num].Typ;
-
-  case OldTyp of
-    iButton:  Button[OldNum].Selected := false;
-    iText:    Text[OldNum].Selected := false;
-    iSelectS: SelectsS[OldNum].Selected := false;
-    //Button Collection Mod
-    iBCollectionChild:
-      begin
-        Button[OldNum].Selected := false;
-      
-        // deselect collection if next button is not from collection
-        if (NewTyp <> iButton) or (Button[NewNum].Parent <> Button[OldNum].Parent) then
-          ButtonCollection[Button[OldNum].Parent-1].Selected := false;
-      end;
   end;
+  if(Num > -1) then
+  begin
+    NewNum := Interactions[Num].Num;
+    NewTyp := Interactions[Num].Typ;
+  end;
+  if(Interaction > -1) then
+  begin
+    case OldTyp of
+      iButton:  Button[OldNum].Selected := false;
+      iText:    Text[OldNum].Selected := false;
+      iSelectS: SelectsS[OldNum].Selected := false;
+      //Button Collection Mod
+      iBCollectionChild:
+        begin
+          Button[OldNum].Selected := false;
 
-  // set active
+          // deselect collection if next button is not from collection
+          if (NewTyp <> iButton) or (Button[NewNum].Parent <> Button[OldNum].Parent) then
+            ButtonCollection[Button[OldNum].Parent-1].Selected := false;
+        end;
+    end;
+  end;
   SelInteraction := Num;
+  if(Num = -1) then exit;
+  // set active
   case NewTyp of
     iButton:  Button[NewNum].Selected := true;
     iText:    Text[NewNum].Selected := true;
@@ -1714,6 +1721,17 @@ begin
   Background.OnFinish;
 end;
 
+procedure TMenu.OnWindowResized;
+begin
+  // nothing
+end;
+
+function TMenu.ShouldHandleInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean; out SuppressKey: boolean): boolean;
+begin
+  // nothing
+  Result := true;
+end;
+
 function TMenu.ParseInput(PressedKey: Cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
 begin
   // nothing
@@ -1769,7 +1787,7 @@ begin
           else
             Action := maReturn;
         end
-        {else if (MouseButton = SDL_BUTTON_WHEELDOWN) then
+        else if (MouseButton = SDL_BUTTON_WHEELDOWN) then
         begin //forward on select slide with mousewheel
           if (Interactions[nBut].Typ = iSelectS) then
             Action := maRight;
@@ -1778,7 +1796,7 @@ begin
         begin //backward on select slide with mousewheel
           if (Interactions[nBut].Typ = iSelectS) then
             Action := maLeft;
-        end};
+        end;
       end;
 
         // do the action we have to do ;)

@@ -1,7 +1,4 @@
-{***************************************************************** 
- * Configuration file for ultrastardx 1.1
- * src/config-darwin.inc.  Generated from config.inc.in by configure.
- *****************************************************************}
+
 
 {* Libraries *}
 

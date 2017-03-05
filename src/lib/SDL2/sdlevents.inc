@@ -49,6 +49,8 @@ const
   SDL_KEYUP            = $301;  // Key released
   SDL_TEXTEDITING      = $302;  // Keyboard text editing (composition)
   SDL_TEXTINPUT        = $303;  // Keyboard text input
+  SDL_KEYMAPCHANGED    = $304;  // Keymap changed due to a system event such as an
+                                // input language or keyboard layout change.
 
   { Mouse events }
   SDL_MOUSEMOTION      = $400;  // Mouse moved
@@ -88,9 +90,17 @@ const
 
   { Drag and drop events }
   SDL_DROPFILE        = $1000; // The system requests a file open
-  
+  SDL_DROPTEXT        = $1001; // text/plain drag-and-drop event
+  SDL_DROPBEGIN       = $1002; // A new set of drops is beginning (NULL filename)
+  SDL_DROPCOMPLETE    = $1003; // Current set of drops is now complete (NULL filename)
+
+  { Audio hotplug events }
+  SDL_AUDIODEVICEADDED     = $1100; // A new audio device is available
+  SDL_AUDIODEVICEREMOVED   = $1101; // An audio device has been removed.
+
   { Render events }
   SDL_RENDER_TARGETS_RESET = $2000; // The render targets have been reset
+  SDL_RENDER_DEVICE_RESET  = $2001; // The device has been reset and all textures need to be recreated
   
   {** Events SDL_USEREVENT through SDL_LASTEVENT are for your use,
    *  and should be allocated with SDL_RegisterEvents()
@@ -226,6 +236,7 @@ type
     which: UInt32;       // The mouse instance id, or SDL_TOUCH_MOUSEID
     x: SInt32;           // The amount scrolled horizontally 
     y: SInt32;           // The amount scrolled vertically
+    direction: UInt32;   // Set to one of the SDL_MOUSEWHEEL_* defines. When FLIPPED the values in X and Y will be opposite. Multiply by -1 to change them back
   end;
 
   {**
@@ -344,6 +355,21 @@ type
     timestamp: UInt32;
     which: SInt32;       // The joystick device index for the ADDED event, instance id for the REMOVED or REMAPPED event
   end;
+
+  {**
+   *  Audio device event structure (event.adevice.*)
+   *}
+
+  TSDL_AudioDeviceEvent = record
+    type_: UInt32;        // ::SDL_AUDIODEVICEADDED, or ::SDL_AUDIODEVICEREMOVED
+    timestamp: UInt32;
+    which: UInt32;        // The audio device index for the ADDED event (valid until next SDL_GetNumAudioDevices() call), SDL_AudioDeviceID for the REMOVED event
+    iscapture: UInt8;     // zero if an output device, non-zero if a capture device.
+    padding1: UInt8;
+    padding2: UInt8;
+    padding3: UInt8;
+  end;
+
 
   {**
    *  Touch finger event structure (event.tfinger.*)
@@ -475,6 +501,9 @@ type
       SDL_CONTROLLERDEVICEREMOVED,
       SDL_CONTROLLERDEVICEREMAPPED: (cdevice: TSDL_ControllerDeviceEvent);
 
+      SDL_AUDIODEVICEADDED,
+      SDL_AUDIODEVICEREMOVED: (adevice: TSDL_AudioDeviceEvent);
+
       SDL_QUITEV: (quit: TSDL_QuitEvent);
 
       SDL_USEREVENT: (user: TSDL_UserEvent);
@@ -590,9 +619,9 @@ type
 type
   PSDL_EventFilter = ^TSDL_EventFilter;
   {$IFNDEF GPC}
-    TSDL_EventFilter = function( event: PSDL_Event ): Integer; cdecl;
+    TSDL_EventFilter = function( userdata: Pointer; event: PSDL_Event ): Integer; cdecl;
   {$ELSE}
-    TSDL_EventFilter = function( event: PSDL_Event ): Integer;
+    TSDL_EventFilter = function( userdata: Pointer; event: PSDL_Event ): Integer;
   {$ENDIF}
 
   {**
@@ -623,7 +652,7 @@ type
    *  If there is no event filter set, this function returns SDL_FALSE.
    *}
 
-  function SDL_GetEventFilter(filter: PSDL_EventFilter; userdata: Pointer): TSDL_Bool cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_GetEventFilter' {$ENDIF} {$ENDIF};
+  function SDL_GetEventFilter(var filter: PSDL_EventFilter; var userdata: PPointer): TSDL_Bool cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_GetEventFilter' {$ENDIF} {$ENDIF};
 
   {**
    *  Add a function which is called when an event is added to the queue.

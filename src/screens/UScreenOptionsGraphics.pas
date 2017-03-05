@@ -1,27 +1,25 @@
-{* UltraStar Deluxe - Karaoke Game
- *
- * UltraStar Deluxe is the legal property of its developers, whose names
- * are too numerous to list here. Please refer to the COPYRIGHT
- * file distributed with this source distribution.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING. If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * $URL: https://ultrastardx.svn.sourceforge.net/svnroot/ultrastardx/trunk/src/screens/UScreenOptionsGraphics.pas $
- * $Id: UScreenOptionsGraphics.pas 2338 2010-05-03 21:58:30Z k-m_schindler $
+{*
+    UltraStar Deluxe WorldParty - Karaoke Game
+	
+	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	whose names	are too numerous to list here. Please refer to the 
+	COPYRIGHT file distributed with this source distribution.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. Check "LICENSE" file. If not, see 
+	<http://www.gnu.org/licenses/>.
  *}
+
 
 unit UScreenOptionsGraphics;
 
@@ -44,10 +42,24 @@ uses
 
 type
   TScreenOptionsGraphics = class(TMenu)
+    private
+      SelectWindowMode:    cardinal;
+      SelectResolution:    cardinal;
+
+      IResolutionEmpty:    array of UTF8String;
+      ResolutionEmpty:     integer; // not used, only to prevent changing original by-ref passed variable
+
+      OldWindowMode:       integer;
+
+      procedure UpdateWindowMode;
+      procedure UpdateResolution;
+
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure OnShow; override;
+      procedure OnHide; override;
+      procedure OnWindowResized; override;
   end;
 
 implementation
@@ -86,12 +98,10 @@ begin
           begin
             Ini.Save;
             AudioPlayback.PlaySound(SoundLib.Back);
-            // FIXME: changing the video mode does not work this way in windows
-            // and MacOSX as all textures will be invalidated through this.
-            // See the ALT+TAB code too.
-            {$IF Defined(Linux) or Defined(FreeBSD)}
-            Reinitialize3D();
-            {$IFEND}
+
+            if OldWindowMode <> Ini.FullScreen then UGraphic.UpdateVideoMode()
+            else UGraphic.UpdateResolution();
+
             FadeTo(@ScreenOptions);
           end;
         end;
@@ -106,6 +116,12 @@ begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractInc;
           end;
+
+          if (Interaction = SelectWindowMode) then
+          begin
+            UpdateResolution;
+          end;
+
         end;
       SDLK_LEFT:
         begin
@@ -113,6 +129,11 @@ begin
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractDec;
+          end;
+
+          if (Interaction = SelectWindowMode) then
+          begin
+            UpdateResolution;
           end;
         end;
     end;
@@ -124,13 +145,17 @@ begin
   inherited Create;
   LoadFromTheme(Theme.OptionsGraphics);
 
-  Theme.OptionsGraphics.SelectResolution.showArrows := true;
-  Theme.OptionsGraphics.SelectResolution.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGraphics.SelectResolution,   Ini.Resolution, IResolution);
+  ResolutionEmpty := 0;
+  SetLength(IResolutionEmpty, 1);
+  IResolutionEmpty[0] := '---';
 
   Theme.OptionsGraphics.SelectFullscreen.showArrows := true;
   Theme.OptionsGraphics.SelectFullscreen.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGraphics.SelectFullscreen,   Ini.Fullscreen, IFullScreenTranslated);
+  SelectWindowMode := AddSelectSlide(Theme.OptionsGraphics.SelectFullscreen,   Ini.Fullscreen, IFullScreenTranslated);
+
+  Theme.OptionsGraphics.SelectResolution.showArrows := true;
+  Theme.OptionsGraphics.SelectResolution.oneItemOnly := true;
+  SelectResolution := AddSelectSlide(Theme.OptionsGraphics.SelectResolution,   Ini.Resolution, IResolution);
 
   Theme.OptionsGraphics.SelectDepth.showArrows := true;
   Theme.OptionsGraphics.SelectDepth.oneItemOnly := true;
@@ -148,17 +173,61 @@ begin
   Theme.OptionsGraphics.SelectMovieSize.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsGraphics.SelectMovieSize,    Ini.MovieSize, IMovieSizeTranslated);
 
+  // TODO: Add apply button
   AddButton(Theme.OptionsGraphics.ButtonExit);
   if (Length(Button[0].Text)=0) then
-    AddButtonText(20, 5, Theme.Options.Description[10]);
+    AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
 
 end;
 
 procedure TScreenOptionsGraphics.OnShow;
+var
+  i: integer;
 begin
   inherited;
 
+  if CurrentWindowMode = Mode_Windowed then Ini.SetResolution(ScreenW, ScreenH);
+
+  UpdateWindowMode();
+  UpdateResolution();
+
   Interaction := 0;
+end;
+
+procedure TScreenOptionsGraphics.OnHide;
+begin
+  inherited;
+  Ini.ClearCustomResolutions();
+end;
+
+procedure TScreenOptionsGraphics.OnWindowResized;
+begin
+  inherited;
+
+  UpdateWindowMode;
+
+  if CurrentWindowMode = Mode_Windowed then Ini.SetResolution(ScreenW, ScreenH);
+  UpdateResolution;
+
+end;
+
+procedure TScreenOptionsGraphics.UpdateWindowMode;
+begin
+
+  UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectFullscreen, SelectWindowMode, IFullScreenTranslated, Ini.FullScreen);
+  OldWindowMode := integer(Ini.FullScreen);
+end;
+
+procedure TScreenOptionsGraphics.UpdateResolution;
+begin
+
+  if Ini.Fullscreen = 2 then
+    UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectResolution, SelectResolution, IResolutionEmpty, ResolutionEmpty)
+  else if Ini.Fullscreen = 1 then
+    UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectResolution, SelectResolution, IResolutionFullScreen, Ini.ResolutionFullscreen)
+  else
+    UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectResolution, SelectResolution, IResolution, Ini.Resolution);
+
 end;
 
 end.
