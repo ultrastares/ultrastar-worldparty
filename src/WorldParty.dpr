@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,11 +16,11 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
- 
- 
+
+
 program WorldParty;
 
 {$IFDEF MSWINDOWS}
@@ -140,6 +140,11 @@ uses
   {$ENDIF}
 
   {$IFDEF MSWINDOWS}
+  FPCAdds in 'lib\Lazarus\fpcadds.pas',
+  LazUtilsStrConsts in 'lib\Lazarus\lazutilsstrconst.pas',
+  LazFileUtils in 'lib\Lazarus\lazfileutils.pas',
+  LazUTF8 in 'lib\Lazarus\lazutf8.pas',
+  LazUTF8Classes in 'lib\Lazarus\lazutf8classes.pas',
   {$IFDEF FPC}
   // FPC compatibility file for Allocate/DeallocateHWnd
   WinAllocation in 'lib\other\WinAllocation.pas',
@@ -193,7 +198,7 @@ uses
   //Includes - base
   //------------------------------
   UConfig           in 'base\UConfig.pas',
-  
+
   UCommon           in 'base\UCommon.pas',
   UGraphic          in 'base\UGraphic.pas',
   UTexture          in 'base\UTexture.pas',
@@ -407,4 +412,3 @@ begin
     end;
   end;
 end.
-

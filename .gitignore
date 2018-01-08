@@ -8,10 +8,11 @@ Thumbs.db
 *.log
 
 # lazarus project files
-*.o
+*.o*
 *.ppu
 *.a
 *.dcu
+*.rsj
 
 # intermediates
 /build/
