@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -29,7 +29,7 @@ unit UCovers;
   - support for update of changed covers
   - use paths relative to the song for removable disks support
     (a drive might have a different drive-name the next time it is connected,
-     so "H:/songs/..." will not match "I:/songs/...") 
+     so "H:/songs/..." will not match "I:/songs/...")
 }
 
 interface
@@ -71,7 +71,7 @@ type
     CoverHeight: integer;        // Original height of cover
     PixelFormat: TImagePixelFmt; // Pixel-format of thumbnail
   end;
-  
+
   TCoverDatabase = class
     private
       DB: TSQLiteDatabase;
@@ -112,9 +112,8 @@ uses
 
 const
   COVERDB_FILENAME: UTF8String = 'cover.db';
-  COVERDB_VERSION = 01; // 0.1
+  COVERDB_VERSION = 02; // 0.2
   COVER_TBL = 'Cover';
-  COVER_THUMBNAIL_TBL = 'CoverThumbnail';
   COVER_IDX = 'Cover_Filename_IDX';
 
 // Note: DateUtils.DateTimeToUnix() will throw an exception in FPC
@@ -160,11 +159,8 @@ begin
 end;
 
 function TCover.GetTexture(): TTexture;
-var
-  debughelper: UTF8String;
 begin
   if not (Assigned(Filename)) or (Filename = nil) then Exit;
-  debughelper:=Filename.ToUTF8(true);
   Result := Texture.LoadTexture(Filename);
 end;
 
@@ -249,7 +245,7 @@ begin
   // With this option disk-writing is approx. 4 times faster but the database
   // might be corrupted if the OS crashes, although this is very unlikely.
   DB.ExecSQL('PRAGMA synchronous = OFF;');
-  
+
   // the next line rather gives a slow-down instead of a speed-up, so we do not use it
   //DB.ExecSQL('PRAGMA temp_store = MEMORY;');
 end;
@@ -257,23 +253,19 @@ end;
 procedure TCoverDatabase.InitCoverDatabase();
 begin
   DB.ExecSQL('CREATE TABLE IF NOT EXISTS ['+COVER_TBL+'] (' +
-               '[ID] INTEGER  NOT NULL PRIMARY KEY AUTOINCREMENT, ' +
-               '[Filename] TEXT  UNIQUE NOT NULL, ' +
-               '[Date] INTEGER  NOT NULL, ' +
-               '[Width] INTEGER  NOT NULL, ' +
-               '[Height] INTEGER  NOT NULL ' +
+               '[ID] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ' +
+               '[Filename] TEXT UNIQUE NOT NULL, ' +
+               '[Date] INTEGER NOT NULL, ' +
+               '[Width] INTEGER NOT NULL, ' +
+               '[Height] INTEGER NOT NULL, ' +
+               '[ThumbnailFormat] INTEGER NOT NULL, ' +
+               '[ThumbnailWidth] INTEGER NOT NULL, ' +
+               '[ThumbnailHeight] INTEGER NOT NULL, ' +
+               '[Thumbnail] BLOB NULL' +
              ')');
 
   DB.ExecSQL('CREATE INDEX IF NOT EXISTS ['+COVER_IDX+'] ON ['+COVER_TBL+'](' +
                '[Filename]  ASC' +
-             ')');
-
-  DB.ExecSQL('CREATE TABLE IF NOT EXISTS ['+COVER_THUMBNAIL_TBL+'] (' +
-               '[ID] INTEGER  NOT NULL PRIMARY KEY, ' +
-               '[Format] INTEGER  NOT NULL, ' +
-               '[Width] INTEGER  NOT NULL, ' +
-               '[Height] INTEGER  NOT NULL, ' +
-               '[Data] BLOB  NULL' +
              ')');
 end;
 
@@ -316,7 +308,6 @@ end;
 
 function TCoverDatabase.AddCover(const Filename: IPath): TCover;
 var
-  CoverID: int64;
   Thumbnail: PSDL_Surface;
   CoverData: TBlobWrapper;
   FileDate: TDateTime;
@@ -339,27 +330,25 @@ begin
 
   try
     // Note: use a transaction to speed-up file-writing.
-    // Without data written by the first INSERT might be moved at the second INSERT. 
     DB.BeginTransaction();
 
     // add general cover info
-    DB.ExecSQL('INSERT INTO ['+COVER_TBL+'] ' +
-               '([Filename], [Date], [Width], [Height]) VALUES' +
-               '(?, ?, ?, ?)',
-               [Filename.ToUTF8, DateTimeToUnixTime(FileDate),
-                Info.CoverWidth, Info.CoverHeight]);
+    DB.ExecSQL('INSERT INTO ['+COVER_TBL+'] '
+      + '([Filename], [Date], [Width], [Height], [ThumbnailFormat], [ThumbnailWidth], [ThumbnailHeight], [Thumbnail]) VALUES '
+      + '(?, ?, ?, ?, ?, ?, ?, ?)',
+      [
+        Filename.ToUTF8,
+        DateTimeToUnixTime(FileDate),
+        Info.CoverWidth,
+        Info.CoverHeight,
+        Ord(Info.PixelFormat),
+        Thumbnail^.w,
+        Thumbnail^.h,
+        CoverData
+      ]
+    );
 
-    // get auto-generated cover ID
-    CoverID := DB.GetLastInsertRowID();
-
-    // add thumbnail info
-    DB.ExecSQL('INSERT INTO ['+COVER_THUMBNAIL_TBL+'] ' +
-               '([ID], [Format], [Width], [Height], [Data]) VALUES' +
-               '(?, ?, ?, ?, ?)',
-               [CoverID, Ord(Info.PixelFormat),
-                Thumbnail^.w, Thumbnail^.h, 0]);
-
-    Result := TCover.Create(CoverID, Filename);
+    Result := TCover.Create(DB.GetLastInsertRowID(), Filename);
   except on E: Exception do
     Log.LogError(E.Message, 'TCoverDatabase.AddCover');
   end;
@@ -382,10 +371,8 @@ begin
 
   try
     Table := DB.GetUniTable(Format(
-      'SELECT C.[Filename], T.[Format], T.[Width], T.[Height], T.[Data] ' +
-      'FROM ['+COVER_TBL+'] C ' +
-        'INNER JOIN ['+COVER_THUMBNAIL_TBL+'] T ' +
-        'USING(ID) ' +
+      'SELECT [Filename], [ThumbnailFormat], [ThumbnailWidth], [ThumbnailHeight], [Thumbnail] ' +
+      'FROM ['+COVER_TBL+']' +
       'WHERE [ID] = %d', [CoverID]));
 
     Filename := Path(Table.FieldAsString(0));
@@ -395,10 +382,8 @@ begin
 
     Data := Table.FieldAsBlobPtr(4, DataSize);
 
-      if (Data <> nil) and
-       (PixelFmt = ipfRGB) then
+    if (Data <> nil) and (PixelFmt = ipfRGB) then
     begin
-
       Result := Texture.CreateTexture(Data, Filename, Width, Height, 24)
     end
     else
@@ -419,7 +404,6 @@ end;
 procedure TCoverDatabase.DeleteCover(CoverID: int64);
 begin
   DB.ExecSQL(Format('DELETE FROM ['+COVER_TBL+'] WHERE [ID] = %d', [CoverID]));
-  DB.ExecSQL(Format('DELETE FROM ['+COVER_THUMBNAIL_TBL+'] WHERE [ID] = %d', [CoverID]));
 end;
 
 (**
@@ -476,4 +460,3 @@ begin
 end;
 
 end.
-
