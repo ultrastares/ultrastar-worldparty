@@ -7,7 +7,7 @@ Thumbs.db
 *.~*
 *.log
 
-# lazarus project files
+# lazarus/FPC project files
 *.o*
 *.ppu
 *.a
@@ -24,7 +24,7 @@ aclocal.m4
 /autom4te.cache/
 link.res
 ppaslink.sh
-/UltraStarDeluxe.app/*
+/.atom-build.json
 
 # source intermediates
 #/src/**/*.cfg

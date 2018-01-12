@@ -141,7 +141,7 @@ uses
 
   {$IFDEF MSWINDOWS}
   FPCAdds in 'lib\Lazarus\fpcadds.pas',
-  LazUtilsStrConsts in 'lib\Lazarus\lazutilsstrconst.pas',
+  LazUtilsStrConsts in 'lib\Lazarus\lazutilsstrconsts.pas',
   LazFileUtils in 'lib\Lazarus\lazfileutils.pas',
   LazUTF8 in 'lib\Lazarus\lazutf8.pas',
   LazUTF8Classes in 'lib\Lazarus\lazutf8classes.pas',
