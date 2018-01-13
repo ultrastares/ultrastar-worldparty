@@ -2,7 +2,7 @@
 cd %1\src
 if not %2=="execute" (
     rm -rf ..\game\WorldParty* units\*.*o units\*.a units\*.ppu units\*.rsj
-    fpc WorldParty.dpr -FE../game -FUunits
+    fpc WorldParty.dpr -FE../game -FUunits -O4 -CfSSE -CfSSE2 -CfSSE3
 )
 if exist "units\link.res" (
     mv units\link.res ..\res\
