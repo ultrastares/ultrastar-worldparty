@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -57,8 +57,7 @@ uses
   UTexture,
   UTextEncoding,
   UUnicodeStringHelper,
-  UUnicodeUtils,
-  UXMLSong;
+  UUnicodeUtils;
 
 type
 
@@ -110,7 +109,6 @@ type
     function ParseLyricText(const Line: RawByteString; var LinePos: integer): RawByteString;
 
     function ReadTXTHeader(SongFile: TTextFileStream; ReadCustomTags: Boolean): boolean;
-    function ReadXMLHeader(const aFileName: IPath): boolean;
 
     function GetFolderCategory(const aFileName: IPath): UTF8String;
     function FindSongFile(Dir: IPath; Mask: UTF8String): IPath;
@@ -151,7 +149,7 @@ type
     Resolution: integer;
     BPM:        array of TBPM;
     GAP:        real; // in miliseconds
-    
+
     Encoding:   TEncoding;
     PreviewStart: real;   // in seconds
     HasPreview: boolean;  // set if a valid PreviewStart was read
@@ -185,9 +183,7 @@ type
     constructor Create(); overload;
     constructor Create(const aFileName : IPath); overload;
     function    LoadSong(DuetChange: boolean): boolean;
-    function    LoadXMLSong: boolean;
     function    Analyse(const ReadCustomTags: Boolean = false; DuetChange: boolean = false): boolean;
-    function    AnalyseXML(): boolean;
     procedure   SetMedleyMode();
     procedure   Clear();
     function    MD5SongFile(SongFileR: TTextFileStream): string;
@@ -736,251 +732,6 @@ begin
   Result := true;
 end;
 
-//Load XML Song
-function TSong.LoadXMLSong(): boolean;
-var
-  Count:     integer;
-  Both:      boolean;
-  Param1:    integer;
-  Param2:    integer;
-  Param3:    integer;
-  ParamS:    string;
-  I, J:      integer;
-  NoteIndex: integer;
-
-  NoteType:  char;
-  SentenceEnd, Rest, Time: integer;
-  Parser: TParser;
-  FileNamePath: IPath;
-begin
-  Result := false;
-  LastError := '';
-
-  FileNamePath := Path.Append(FileName);
-  if not FileNamePath.IsFile() then
-  begin
-    Log.LogError('File not found: "' + FileNamePath.ToNative + '"', 'TSong.LoadSong()');
-    exit;
-  end;
-
-  MultBPM           := 4; // multiply beat-count of note by 4
-  Mult              := 1; // accuracy of measurement of note
-  Lines[0].ScoreValue := 0;
-  Lines[1].ScoreValue := 0;
-  self.Relative     := false;
-  Rel[0]            := 0;
-  Both              := false;
-
-  if Length(Player) = 2 then
-    Both := true;
-
-  Parser := TParser.Create;
-  Parser.Settings.DashReplacement := '~';
-
-  for Count := 0 to High(Lines) do
-  begin
-    Lines[Count].High := 0;
-      Lines[Count].Number := 1;
-      Lines[Count].Current := 0;
-      Lines[Count].Resolution := self.Resolution;
-      Lines[Count].NotesGAP   := self.NotesGAP;
-      Lines[Count].ScoreValue := 0;
-
-      //Add first line and set some standard values to fields
-      //see procedure NewSentence for further explantation
-      //concerning most of these values
-      SetLength(Lines[Count].Line, 1);
-      Lines[Count].Line[0].HighNote := -1;
-      Lines[Count].Line[0].LastLine := false;
-      Lines[Count].Line[0].BaseNote := High(Integer);
-      Lines[Count].Line[0].TotalNotes := 0;
-  end;
-
-  //Try to Parse the Song
-
-  if Parser.ParseSong(FileNamePath) then
-  begin
-    //Writeln('XML Inputfile Parsed succesful');
-
-    //Start write parsed information to Song
-    //Notes Part
-    for I := 0 to High(Parser.SongInfo.Sentences) do
-    begin
-      //Add Notes
-      for J := 0 to High(Parser.SongInfo.Sentences[I].Notes) do
-      begin
-        case Parser.SongInfo.Sentences[I].Notes[J].NoteTyp of
-          NT_Normal:    NoteType := ':';
-          NT_Golden:    NoteType := '*';
-          NT_Freestyle: NoteType := 'F';
-        end;
-
-        Param1:=Parser.SongInfo.Sentences[I].Notes[J].Start;       //Note Start
-        Param2:=Parser.SongInfo.Sentences[I].Notes[J].Duration;    //Note Duration
-        Param3:=Parser.SongInfo.Sentences[I].Notes[J].Tone;        //Note Tone
-        ParamS:=' ' + Parser.SongInfo.Sentences[I].Notes[J].Lyric; //Note Lyric
-
-        if not Both then
-          // P1
-          ParseNote(0, NoteType, (Param1+Rel[0]) * Mult, Param2 * Mult, Param3, ParamS)
-        else
-        begin
-          // P1 + P2
-          ParseNote(0, NoteType, (Param1+Rel[0]) * Mult, Param2 * Mult, Param3, ParamS);
-          ParseNote(1, NoteType, (Param1+Rel[1]) * Mult, Param2 * Mult, Param3, ParamS);
-        end;
-
-      end; //J Forloop
-
-      //Add Sentence break
-      if (I < High(Parser.SongInfo.Sentences)) then
-      begin
-        SentenceEnd := Parser.SongInfo.Sentences[I].Notes[High(Parser.SongInfo.Sentences[I].Notes)].Start + Parser.SongInfo.Sentences[I].Notes[High(Parser.SongInfo.Sentences[I].Notes)].Duration;
-        Rest := Parser.SongInfo.Sentences[I+1].Notes[0].Start - SentenceEnd;
-
-        //Calculate Time
-        case Rest of
-          0, 1: Time := Parser.SongInfo.Sentences[I+1].Notes[0].Start;
-          2:    Time := Parser.SongInfo.Sentences[I+1].Notes[0].Start - 1;
-          3:    Time := Parser.SongInfo.Sentences[I+1].Notes[0].Start - 2;
-          else
-            if (Rest >= 4) then
-              Time := SentenceEnd + 2
-            else //Sentence overlapping :/
-              Time := Parser.SongInfo.Sentences[I+1].Notes[0].Start;
-        end;
-        // new sentence
-        if not Both then // P1
-          NewSentence(0, (Time + Rel[0]) * Mult, Param2)
-        else
-        begin // P1 + P2
-          NewSentence(0, (Time + Rel[0]) * Mult, Param2);
-          NewSentence(1, (Time + Rel[1]) * Mult, Param2);
-        end;
-
-      end;
-    end;
-    //End write parsed information to Song
-    Parser.Free;
-  end
-  else
-  begin
-    Log.LogError('Could not parse inputfile: ' + FileNamePath.ToNative);
-    exit;
-  end;
-
-  for Count := 0 to High(Lines) do
-  begin
-    Lines[Count].Line[High(Lines[Count].Line)].LastLine := true;
-  end;
-
-  Result := true;
-end;
-
-function TSong.ReadXMLHeader(const aFileName : IPath): boolean;
-var
-  Done        : byte;
-  Parser      : TParser;
-  FileNamePath: IPath;
-begin
-  Result := true;
-  Done   := 0;
-
-  //Parse XML
-  Parser := TParser.Create;
-  Parser.Settings.DashReplacement := '~';
-
-  FileNamePath := Self.Path.Append(Self.FileName);
-  if Parser.ParseSong(FileNamePath) then
-  begin
-    //-----------
-    //Required Attributes
-    //-----------
-
-    //Title
-    self.Title := Parser.SongInfo.Header.Title;
-    self.TitleNoAccent := LowerCase(GetStringWithNoAccents(UTF8Decode(Parser.SongInfo.Header.Title)));
-
-    //Add Title Flag to Done
-    Done := Done or 1;
-
-    //Artist
-    self.Artist := Parser.SongInfo.Header.Artist;
-    self.ArtistNoAccent := LowerCase(GetStringWithNoAccents(UTF8Decode(Parser.SongInfo.Header.Artist)));
-
-    //Add Artist Flag to Done
-    Done := Done or 2;
-
-    //MP3 File //Test if Exists
-    Self.Mp3 := FindSongFile(Self.Path, '*.mp3');
-    //Add Mp3 Flag to Done
-    if (Self.Path.Append(Self.Mp3).IsFile()) then
-      Done := Done or 4;
-
-    //Beats per Minute
-    SetLength(self.BPM, 1);
-    self.BPM[0].StartBeat := 0;
-
-    self.BPM[0].BPM := (Parser.SongInfo.Header.BPM * Parser.SongInfo.Header.Resolution/4  ) * Mult * MultBPM;
-
-    //Add BPM Flag to Done
-    if self.BPM[0].BPM <> 0 then
-      Done := Done or 8;
-
-    //---------
-    //Additional Header Information
-    //---------
-
-    // Gap
-    self.GAP := Parser.SongInfo.Header.Gap;
-
-    //Cover Picture
-    self.Cover := FindSongFile(Path, '*[CO].jpg');
-
-    //Background Picture
-    self.Background := FindSongFile(Path, '*[BG].jpg');
-
-    // Video File
-    //    self.Video := Value
-
-    // Video Gap
-    //  self.VideoGAP := StrtoFloatI18n( Value )
-
-    //Genre Sorting
-    self.Genre := Parser.SongInfo.Header.Genre;
-
-    //Edition Sorting
-    self.Edition := Parser.SongInfo.Header.Edition;
-
-    //Year Sorting
-    //self.Year := Parser.SongInfo.Header.Year
-
-    //Language Sorting
-    self.Language := Parser.SongInfo.Header.Language;
-  end
-  else
-    Log.LogError('File incomplete or not SingStar XML (A): ' + aFileName.ToNative);
-
-  Parser.Free;
-
-  //Check if all Required Values are given
-  if (Done <> 15) then
-  begin
-    Result := false;
-    if (Done and 8) = 0 then      //No BPM Flag
-      Log.LogError('BPM tag missing: ' + self.FileName.ToNative)
-    else if (Done and 4) = 0 then //No MP3 Flag
-      Log.LogError('MP3 tag/file missing: ' + self.FileName.ToNative)
-    else if (Done and 2) = 0 then //No Artist Flag
-      Log.LogError('Artist tag missing: ' + self.FileName.ToNative)
-    else if (Done and 1) = 0 then //No Title Flag
-      Log.LogError('Title tag missing: ' + self.FileName.ToNative)
-    else //unknown Error
-      Log.LogError('File incomplete or not SingStar XML (B - '+ inttostr(Done) +'): ' + aFileName.ToNative);
-  end;
-
-end;
-
 {**
  * "International" StrToFloat variant. Uses either ',' or '.' as decimal
  * separator.
@@ -1112,7 +863,7 @@ begin
         if (Self.Path.Append(EncFile).IsFile) then
         begin
           self.Mp3 := EncFile;
-          
+
           //Add Mp3 Flag to Done
           Done := Done or 4;
         end
@@ -1764,23 +1515,6 @@ begin
   SongFile.Free;
 end;
 
-
-function TSong.AnalyseXML(): boolean;
-
-begin
-  Result := false;
-
-  //Reset LineNo
-  FileLineNo := 0;
-
-  //Clear old Song Header
-  self.clear;
-
-  //Read Header
-  Result := self.ReadXMLHeader( FileName );
-
-end;
-
 function TSong.MD5SongFile(SongFileR: TTextFileStream): string;
 var
   TextFile: string;
@@ -1810,4 +1544,3 @@ begin
 end;
 
 end.
-

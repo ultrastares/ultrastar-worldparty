@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -872,7 +872,7 @@ begin
             {$IFDEF UseMIDIPort} MidiTime  := USTime.GetTime;
             MidiStart := GetTimeFromBeat(Lines[0].Line[Lines[0].Current].Note[0].Start);
             MidiStop  := GetTimeFromBeat(Lines[0].Line[Lines[0].Current].End_); {$ENDIF}
-            
+
             LastClick := -100;
 
             PlaySentence := true;
@@ -2172,7 +2172,7 @@ begin
       SetLength(Note, HighNote + 1);
       Note[HighNote] := Lines[0].Line[CStart].Note[N];
       End_ := Note[HighNote].Start + Note[HighNote].Length;
-      
+
       if Note[HighNote].Tone < BaseNote then
         BaseNote := Note[HighNote].Tone;
     end;
@@ -2366,7 +2366,7 @@ begin
     begin
       Lines[0].Line[C].Note[N-1] := Lines[0].Line[C].Note[N];
     end;
-    
+
     Dec(Lines[0].Line[C].HighNote);
 
     SetLength(Lines[0].Line[C].Note, Lines[0].Line[C].HighNote + 1);
@@ -3264,7 +3264,6 @@ end;
 
 procedure TScreenEditSub.OnShow;
 var
-  FileExt: IPath;
   Files: TPathDynArray;
   i: integer;
 
@@ -3351,19 +3350,12 @@ begin
   SetLength(Undoheader, 0);
 
   try
-    //Check if File is XML
-    FileExt := CurrentSong.FileName.GetExtension;
-    if FileExt.ToUTF8 = '.xml' then
-      Error := not CurrentSong.LoadXMLSong()
-    else
-    begin
-      // reread header with custom tags
-      Error := not CurrentSong.Analyse(true, false);
+    // reread header with custom tags
+    Error := not CurrentSong.Analyse(true, false);
 
-      // with the duet/medley code, TSong.Analyse is already loading the song
-      //if not Error then
-      //  Error := not CurrentSong.LoadSong(false);
-    end;
+    // with the duet/medley code, TSong.Analyse is already loading the song
+    //if not Error then
+    //  Error := not CurrentSong.LoadSong(false);
   except
     Error := true;
   end;

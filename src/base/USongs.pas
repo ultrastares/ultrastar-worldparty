@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -106,7 +106,6 @@ type
     procedure FindFilesByExtension(const Dir: IPath; const Ext: IPath; Recursive: Boolean; var Files: TPathDynArray);
     procedure BrowseDir(Dir: IPath); // should return number of songs in the future
     procedure BrowseTXTFiles(Dir: IPath);
-    procedure BrowseXMLFiles(Dir: IPath);
     procedure Sort(Order: TSortingType);
     property  Processing: boolean read fProcessing;
   end;
@@ -258,7 +257,6 @@ end;
 procedure TSongs.BrowseDir(Dir: IPath);
 begin
   BrowseTXTFiles(Dir);
-  BrowseXMLFiles(Dir);
 end;
 
 procedure TSongs.FindFilesByExtension(const Dir: IPath; const Ext: IPath; Recursive: Boolean; var Files: TPathDynArray);
@@ -307,33 +305,6 @@ begin
     Song := TSong.Create(Files[I]);
 
     if Song.Analyse then
-      SongList.Add(Song)
-    else
-    begin
-      Log.LogError('AnalyseFile failed for "' + Files[I].ToNative + '".');
-      FreeAndNil(Song);
-    end;
-  end;
-
-  SetLength(Files, 0);
-end;
-
-procedure TSongs.BrowseXMLFiles(Dir: IPath);
-var
-  I: integer;
-  Files: TPathDynArray;
-  Song: TSong;
-  Extension: IPath;
-begin
-  SetLength(Files, 0);
-  Extension := Path('.xml');
-  FindFilesByExtension(Dir, Extension, true, Files);
-
-  for I := 0 to High(Files) do
-  begin
-    Song := TSong.Create(Files[I]);
-
-    if Song.AnalyseXML then
       SongList.Add(Song)
     else
     begin
@@ -419,7 +390,7 @@ begin
   // Note: Do not use TList.Sort() as it uses QuickSort which is instable.
   // For example, if a list is sorted by title first and
   // by artist afterwards, the songs of an artist will not be sorted by title anymore.
-  // The stable MergeSort guarantees to maintain this order. 
+  // The stable MergeSort guarantees to maintain this order.
   MergeSort(SongList, CompareFunc);
 end;
 
@@ -824,7 +795,7 @@ end;
 
 (**
  * Returns the index of a song in the subset of all visible songs.
- * If all songs are visible, the result will be equal to the Index parameter. 
+ * If all songs are visible, the result will be equal to the Index parameter.
  *)
 function TCatSongs.VisibleIndex(Index: integer): integer;
 var
