@@ -1,10 +1,6 @@
 UltraStar Deluxe WorldParty with Atom (by Github)
 =================================================
 
-To compile USDX WorldParty using Atom editor developed by Github (https://atom.io) you must install in it at least this two packages:
-- Pascal language support in Atom (language-pascal https://atom.io/packages/language-pascal) to syntax highlighting.
-- Atom Build package (atom-build https://github.com/noseglid/atom-build) to compile (and optionally execute) the project.
+To compile USDX WorldParty using Atom editor develped by Github (https://atom.io) you must install in it the Atom Build package (https://github.com/noseglid/atom-build) and install Free Pascal in your system (https://www.freepascal.org).
 
-You must also have installed Free Pascal in your system (https://www.freepascal.org).
-
-After install all things you must copy, depend of your system, the .atom-build-[system].json file to the root project path  and rename it to .atom-build.json. Restart Atom and now you can press F9 to compile or F10 to compile and execute the game. If all works fine the executable will appear in game folder and link.res file will be copied to res folder.
+Then you must copy or link the .atom-build.json file to root project path and press F9 to build. If all works fine the executable will appear in game folder.
