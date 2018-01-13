@@ -9,12 +9,21 @@
     "targets": {
         "Free Pascal compile and execute": {
             "cmd": "{PROJECT_PATH}\\dists\\atom\\compile.bat",
+            "args": ["{PROJECT_PATH}", "compile-execute"],
+            "cwd": "{PROJECT_PATH}",
+            "sh": false,
+            "atomCommandName": "worldparty:compile-execute",
+            "errorMatch": ["errorMatch"],
+            "keymap": "f10"
+        },
+        "Free Pascal execute without compile": {
+            "cmd": "{PROJECT_PATH}\\dists\\atom\\compile.bat",
             "args": ["{PROJECT_PATH}", "execute"],
             "cwd": "{PROJECT_PATH}",
             "sh": false,
             "atomCommandName": "worldparty:execute",
             "errorMatch": ["errorMatch"],
-            "keymap": "f10"
+            "keymap": "ctrl-f10"
         }
     }
 }
