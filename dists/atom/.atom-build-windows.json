@@ -1,0 +1,20 @@
+{
+    "name": "Free Pascal compile",
+    "cmd": "{PROJECT_PATH}\\dists\\atom\\compile.bat",
+    "args": ["{PROJECT_PATH}", "compile"],
+    "cwd": "{PROJECT_PATH}",
+    "sh": false,
+    "atomCommandName": "worldparty:compile",
+    "errorMatch": ["errorMatch"],
+    "targets": {
+        "Free Pascal compile and execute": {
+            "cmd": "{PROJECT_PATH}\\dists\\atom\\compile.bat",
+            "args": ["{PROJECT_PATH}", "execute"],
+            "cwd": "{PROJECT_PATH}",
+            "sh": false,
+            "atomCommandName": "worldparty:execute",
+            "errorMatch": ["errorMatch"],
+            "keymap": "f10"
+        }
+    }
+}
