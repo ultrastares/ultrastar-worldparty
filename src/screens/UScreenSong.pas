@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -281,7 +281,6 @@ type
 
       //procedures for Menu
       procedure StartSong;
-      procedure OpenEditor;
       procedure DoJoker(Team: integer);
       procedure SelectPlayers;
 
@@ -633,7 +632,7 @@ begin
         // chessboard change row
         SelectPrevRow;
         SetScrollRefresh;
-		
+
       end;
     end;
   end;
@@ -899,12 +898,6 @@ begin
           begin
             ScreenSongJumpto.Visible := true;
           end;
-          Exit;
-        end;
-
-      Ord('E'):
-        begin
-          OpenEditor;
           Exit;
         end;
 
@@ -3518,7 +3511,7 @@ begin
 
     if not ((TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic]) and (PrevInt > Interaction)) then
       Interaction := PrevInt;
-    
+
     if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic]) then
     begin
       if (not Button[Interaction].Visible) then
@@ -3701,7 +3694,7 @@ begin
     end;
 
     AudioPlayback.Position := PreviewPos;
-  
+
     // set preview volume
     if Ini.PreviewFading = 0 then
     begin
@@ -4146,19 +4139,6 @@ begin
 
   ScreenName.Goto_SingScreen := true;
   FadeTo(@ScreenName);
-end;
-
-procedure TScreenSong.OpenEditor;
-begin
-  if (Songs.SongList.Count > 0) and
-     (not CatSongs.Song[Interaction].Main) and
-     (Mode = smNormal) then
-  begin
-    StopMusicPreview();
-    AudioPlayback.PlaySound(SoundLib.Start);
-    CurrentSong := CatSongs.Song[Interaction];
-    FadeTo(@ScreenEditSub);
-  end;
 end;
 
 //Team No of Team (0-5)

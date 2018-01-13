@@ -266,14 +266,6 @@
         <Filename Value="screens\UScreenCredits.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit54>
-      <Unit55>
-        <Filename Value="screens\UScreenEditHeader.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit55>
-      <Unit56>
-        <Filename Value="screens\UScreenEditSub.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit56>
       <Unit57>
         <Filename Value="screens\UScreenLoading.pas"/>
         <IsPartOfProject Value="True"/>

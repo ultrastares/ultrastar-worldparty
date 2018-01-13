@@ -327,8 +327,6 @@ uses
   UScreenOptionsThemes    in 'screens\UScreenOptionsThemes.pas',
   UScreenOptionsRecord    in 'screens\UScreenOptionsRecord.pas',
   UScreenOptionsAdvanced  in 'screens\UScreenOptionsAdvanced.pas',
-  UScreenEditSub          in 'screens\UScreenEditSub.pas',
-  UScreenEditHeader       in 'screens\UScreenEditHeader.pas',
   UScreenOpen             in 'screens\UScreenOpen.pas',
   UScreenTop5             in 'screens\UScreenTop5.pas',
   UScreenSongMenu         in 'screens\UScreenSongMenu.pas',

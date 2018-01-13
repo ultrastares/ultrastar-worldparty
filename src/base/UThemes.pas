@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -278,7 +278,7 @@ type
     PlayerSelectText:    array [0..UIni.IMaxPlayerCount-1] of TThemeText;
     PlayerSelectAvatar:  array [0..UIni.IMaxPlayerCount-1] of TThemeStatic;
     PlayerSelectCurrent: TThemeButton;
-    
+
     SelectPlayersCount:  TThemeSelectSlide;
     SelectPlayerColor:   TThemeSelectSlide;
     SelectPlayerLevel:   TThemeSelectSlide;
@@ -1262,7 +1262,7 @@ type
 
     TextOverview:     TThemeText;
   end;
-  
+
   //Stats Screens
   TThemeStatMain = class(TThemeBasic)
     ButtonScores:     TThemeButton;
@@ -1534,7 +1534,7 @@ begin
   // About
   AboutMain :=   TThemeAboutMain.Create;
   Developers :=   TThemeDevelopers.Create;
-  
+
   //Stats Screens:
   StatMain :=   TThemeStatMain.Create;
   StatDetail := TThemeStatDetail.Create;
@@ -1689,7 +1689,7 @@ begin
       Main.Description[5] := Language.Translate('SING_EXIT');
       Main.DescriptionLong[5] := Language.Translate('SING_EXIT_DESC');
       Main.Description[6] := Language.Translate('SING_ABOUT');
-      Main.DescriptionLong[6] := Language.Translate('SING_ABOUT_DESC');	  
+      Main.DescriptionLong[6] := Language.Translate('SING_ABOUT_DESC');
 
       //Main Desc Text Translation End
 
@@ -2350,48 +2350,6 @@ begin
 
       ThemeLoadButton(OptionsJukebox.ButtonExit,              'OptionsJukeboxButtonExit');
 
-      //Edit Menu
-      ThemeLoadBasic (Edit,               'Edit');
-
-      ThemeLoadButton(Edit.ButtonConvert, 'EditButtonConvert');
-      ThemeLoadButton(Edit.ButtonExit,    'EditButtonExit');
-
-      Edit.Description[0] := Language.Translate('SING_EDIT_BUTTON_DESCRIPTION_CONVERT');
-      Edit.Description[1] := Language.Translate('SING_EDIT_BUTTON_DESCRIPTION_EXIT');
-
-      ThemeLoadText(Edit.TextDescription, 'EditTextDescription');
-      Edit.TextDescription.Text := Edit.Description[0];
-
-      // editor
-      ThemeLoadBasic (EditSub,               'EditSub');
-      ThemeLoadStatic(EditSub.BackgroundImage, 'EditSubBackgroundImage');
-      // current position in editor
-      ThemeLoadButton(EditSub.ButtonCurrentLine, 'EditSubButtonCurrentLine');
-      ThemeLoadButton(EditSub.ButtonCurrentNote, 'EditSubButtonCurrentNote');
-      ThemeLoadButton(EditSub.PlayOnly,    'EditSubBarStatic1');
-      ThemeLoadButton(EditSub.PlayWithNote,    'EditSubBarStatic2');
-      ThemeLoadButton(EditSub.PlayNote,    'EditSubBarStatic3');
-      ThemeLoadButton(EditSub.previousseq,    'EditSubBarStatic4');
-      ThemeLoadButton(EditSub.nextseq,    'EditSubBarStatic5');
-      ThemeLoadButton(EditSub.gold,    'EditSubBarStatic6');
-      ThemeLoadButton(EditSub.freestyle,    'EditSubBarStatic7');
-      ThemeLoadButton(EditSub.undo,    'EditSubBarStatic8');
-      ThemeLoadSelectSlide(EditSub.SlideTitle, 'EditSubTitle');
-      ThemeLoadSelectSlide(EditSub.SlideArtist, 'EditSubArtist');
-      ThemeLoadSelectSlide(EditSub.SlideMP3, 'EditSubMP3');
-      ThemeLoadSelectSlide(EditSub.SlideCover, 'EditSubSlideCover');
-      ThemeLoadSelectSlide(EditSub.SlideBackground, 'EditSubSlideBG');
-      ThemeLoadSelectSlide(EditSub.SlideBPM, 'EditSubBPM');
-      ThemeLoadSelectSlide(EditSub.SlideGAP, 'EditSubGAP');
-      ThemeLoadSelectSlide(EditSub.SlideStart, 'EditSubStart');
-      ThemeLoadSelectSlide(EditSub.SlideDuration, 'EditSubDuration');
-      ThemeLoadSelectSlide(EditSub.SlideTone, 'EditSubTone');
-      ThemeLoadSelectSlide(EditSub.SlideLyric, 'EditSubLyric');
-      ThemeLoadSelectSlide(EditSub.SelectVolAudio, 'EditSubSelectVolAudio');
-      ThemeLoadSelectSlide(EditSub.SelectVolMidi, 'EditSubSelectVolMidi');
-      ThemeLoadSelectSlide(EditSub.SelectVolClick, 'EditSubSelectVolClick');
-      ThemeLoadSelectSlide(EditSub.SlideVideoGap, 'EditSubVideoGap');
-
       //error popup
       ThemeLoadBasic (ErrorPopup, 'ErrorPopup');
       ThemeLoadButton(ErrorPopup.Button1, 'ErrorPopupButton1');
@@ -2561,11 +2519,11 @@ begin
 
       // About
       ThemeLoadBasic(AboutMain, 'AboutMain');
-      ThemeLoadButton(AboutMain.ButtonDevelopers, 'AboutMainButtonDevelopers');	  
+      ThemeLoadButton(AboutMain.ButtonDevelopers, 'AboutMainButtonDevelopers');
       ThemeLoadButton(AboutMain.ButtonCredits, 'AboutMainButtonCredits');
       ThemeLoadButton(AboutMain.ButtonExit, 'AboutMainButtonExit');
       ThemeLoadText (AboutMain.TextOverview, 'AboutMainTextOverview');
-	  
+
       ThemeLoadBasic(Developers, 'Developers');
       ThemeLoadButton(Developers.ButtonExit, 'DevelopersButtonExit');
       ThemeLoadText (Developers.TextOverview, 'DevelopersTextOverview');
@@ -4289,7 +4247,7 @@ begin
   // 4 - slide
   // 5 - list
   // 6 - mosaic
-  
+
   if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic]) then
   begin
     Song.Cover.Rows := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Rows', 4);
@@ -4453,7 +4411,7 @@ begin
 
   freeandnil(AboutMain);
   AboutMain := TThemeAboutMain.Create;
-  
+
   freeandnil(Developers);
   Developers := TThemeDevelopers.Create;
 

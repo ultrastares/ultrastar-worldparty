@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -67,8 +67,6 @@ uses
   UScreenJukeboxPlaylist,
   UScreenScore,
   UScreenTop5,
-  UScreenEditSub,
-  UScreenEditHeader,
   UScreenOpen,
   UScreenAbout,
   UScreenDevelopers,
@@ -155,8 +153,6 @@ var
   ScreenOptionsNetwork:   TScreenOptionsNetwork;
   ScreenOptionsWebcam:    TScreenOptionsWebcam;
   ScreenOptionsJukebox:   TScreenOptionsJukebox;
-  ScreenEditSub:      TScreenEditSub;
-  ScreenEditHeader:   TScreenEditHeader;
   ScreenOpen:         TScreenOpen;
   ScreenAbout:        TScreenAbout;
   ScreenDevelopers:   TScreenDevelopers;
@@ -217,7 +213,7 @@ var
 
   Tex_TimeProgress: TTexture;
   Tex_JukeboxTimeProgress: TTexture;
-  
+
   //Sing Bar Mod
   Tex_SingBar_Back:  TTexture;
   Tex_SingBar_Bar:  TTexture;
@@ -923,8 +919,6 @@ begin
   ScreenOptionsWebcam  :=    TScreenOptionsWebcam.Create;
   SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenOptionsJukebox'));
   ScreenOptionsJukebox :=    TScreenOptionsJukebox.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - ScreenEditSub'));
-  ScreenEditSub :=          TScreenEditSub.Create;
   SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenOpen'));
   ScreenOpen :=             TScreenOpen.Create;
   SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenAbout & ScreenDevelopers'));
@@ -986,7 +980,6 @@ begin
   ScreenOptionsNetwork.Free;
   ScreenOptionsWebcam.Free;
   ScreenOptionsJukebox.Free;
-  ScreenEditSub.Free;
   ScreenJukebox.Free;
   ScreenJukeboxOptions.Free;
   ScreenJukeboxPlaylist.Free;

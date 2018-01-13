@@ -176,10 +176,6 @@
 		2CF3EF270CDE13BA004F5956 /* MacResources.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF3EF260CDE13BA004F5956 /* MacResources.pas */; };
 		2CF3EF280CDE13BA004F5956 /* MacResources.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF3EF260CDE13BA004F5956 /* MacResources.pas */; };
 		2CF54F650CDA1B2B00627463 /* UScreenCredits.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F430CDA1B2B00627463 /* UScreenCredits.pas */; };
-		2CF54F660CDA1B2B00627463 /* UScreenEdit.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F440CDA1B2B00627463 /* UScreenEdit.pas */; };
-		2CF54F670CDA1B2B00627463 /* UScreenEditConvert.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F450CDA1B2B00627463 /* UScreenEditConvert.pas */; };
-		2CF54F680CDA1B2B00627463 /* UScreenEditHeader.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F460CDA1B2B00627463 /* UScreenEditHeader.pas */; };
-		2CF54F690CDA1B2B00627463 /* UScreenEditSub.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F470CDA1B2B00627463 /* UScreenEditSub.pas */; };
 		2CF54F6A0CDA1B2B00627463 /* UScreenLevel.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F480CDA1B2B00627463 /* UScreenLevel.pas */; };
 		2CF54F6B0CDA1B2B00627463 /* UScreenLoading.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F490CDA1B2B00627463 /* UScreenLoading.pas */; };
 		2CF54F6C0CDA1B2B00627463 /* UScreenMain.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F4A0CDA1B2B00627463 /* UScreenMain.pas */; };
@@ -210,10 +206,6 @@
 		2CF54F850CDA1B2B00627463 /* UScreenTop5.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F630CDA1B2B00627463 /* UScreenTop5.pas */; };
 		2CF54F860CDA1B2B00627463 /* UScreenWelcome.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F640CDA1B2B00627463 /* UScreenWelcome.pas */; };
 		2CF54F870CDA1B2B00627463 /* UScreenCredits.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F430CDA1B2B00627463 /* UScreenCredits.pas */; };
-		2CF54F880CDA1B2B00627463 /* UScreenEdit.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F440CDA1B2B00627463 /* UScreenEdit.pas */; };
-		2CF54F890CDA1B2B00627463 /* UScreenEditConvert.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F450CDA1B2B00627463 /* UScreenEditConvert.pas */; };
-		2CF54F8A0CDA1B2B00627463 /* UScreenEditHeader.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F460CDA1B2B00627463 /* UScreenEditHeader.pas */; };
-		2CF54F8B0CDA1B2B00627463 /* UScreenEditSub.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F470CDA1B2B00627463 /* UScreenEditSub.pas */; };
 		2CF54F8C0CDA1B2B00627463 /* UScreenLevel.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F480CDA1B2B00627463 /* UScreenLevel.pas */; };
 		2CF54F8D0CDA1B2B00627463 /* UScreenLoading.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F490CDA1B2B00627463 /* UScreenLoading.pas */; };
 		2CF54F8E0CDA1B2B00627463 /* UScreenMain.pas in Sources */ = {isa = PBXBuildFile; fileRef = 2CF54F4A0CDA1B2B00627463 /* UScreenMain.pas */; };
@@ -462,10 +454,6 @@
 		2CF3EF210CDE13A0004F5956 /* Messages.pas */ = {isa = PBXFileReference; fileEncoding = 5; indentWidth = 2; lastKnownFileType = sourcecode.pascal; name = Messages.pas; path = Wrapper/Messages.pas; sourceTree = "<group>"; tabWidth = 2; };
 		2CF3EF260CDE13BA004F5956 /* MacResources.pas */ = {isa = PBXFileReference; fileEncoding = 5; indentWidth = 2; lastKnownFileType = sourcecode.pascal; name = MacResources.pas; path = Wrapper/MacResources.pas; sourceTree = "<group>"; tabWidth = 2; };
 		2CF54F430CDA1B2B00627463 /* UScreenCredits.pas */ = {isa = PBXFileReference; fileEncoding = 5; indentWidth = 2; lastKnownFileType = sourcecode.pascal; name = UScreenCredits.pas; path = ../Screens/UScreenCredits.pas; sourceTree = SOURCE_ROOT; tabWidth = 2; };
-		2CF54F440CDA1B2B00627463 /* UScreenEdit.pas */ = {isa = PBXFileReference; fileEncoding = 5; indentWidth = 2; lastKnownFileType = sourcecode.pascal; name = UScreenEdit.pas; path = ../Screens/UScreenEdit.pas; sourceTree = SOURCE_ROOT; tabWidth = 2; };
-		2CF54F450CDA1B2B00627463 /* UScreenEditConvert.pas */ = {isa = PBXFileReference; fileEncoding = 5; indentWidth = 2; lastKnownFileType = sourcecode.pascal; name = UScreenEditConvert.pas; path = ../Screens/UScreenEditConvert.pas; sourceTree = SOURCE_ROOT; tabWidth = 2; };
-		2CF54F460CDA1B2B00627463 /* UScreenEditHeader.pas */ = {isa = PBXFileReference; fileEncoding = 5; indentWidth = 2; lastKnownFileType = sourcecode.pascal; name = UScreenEditHeader.pas; path = ../Screens/UScreenEditHeader.pas; sourceTree = SOURCE_ROOT; tabWidth = 2; };
-		2CF54F470CDA1B2B00627463 /* UScreenEditSub.pas */ = {isa = PBXFileReference; fileEncoding = 5; indentWidth = 2; lastKnownFileType = sourcecode.pascal; name = UScreenEditSub.pas; path = ../Screens/UScreenEditSub.pas; sourceTree = SOURCE_ROOT; tabWidth = 2; };
 		2CF54F480CDA1B2B00627463 /* UScreenLevel.pas */ = {isa = PBXFileReference; fileEncoding = 5; indentWidth = 2; lastKnownFileType = sourcecode.pascal; name = UScreenLevel.pas; path = ../Screens/UScreenLevel.pas; sourceTree = SOURCE_ROOT; tabWidth = 2; };
 		2CF54F490CDA1B2B00627463 /* UScreenLoading.pas */ = {isa = PBXFileReference; fileEncoding = 5; indentWidth = 2; lastKnownFileType = sourcecode.pascal; name = UScreenLoading.pas; path = ../Screens/UScreenLoading.pas; sourceTree = SOURCE_ROOT; tabWidth = 2; };
 		2CF54F4A0CDA1B2B00627463 /* UScreenMain.pas */ = {isa = PBXFileReference; fileEncoding = 5; indentWidth = 2; lastKnownFileType = sourcecode.pascal; name = UScreenMain.pas; path = ../Screens/UScreenMain.pas; sourceTree = SOURCE_ROOT; tabWidth = 2; };
@@ -691,10 +679,6 @@
 			isa = PBXGroup;
 			children = (
 				2CF54F430CDA1B2B00627463 /* UScreenCredits.pas */,
-				2CF54F440CDA1B2B00627463 /* UScreenEdit.pas */,
-				2CF54F450CDA1B2B00627463 /* UScreenEditConvert.pas */,
-				2CF54F460CDA1B2B00627463 /* UScreenEditHeader.pas */,
-				2CF54F470CDA1B2B00627463 /* UScreenEditSub.pas */,
 				2CF54F480CDA1B2B00627463 /* UScreenLevel.pas */,
 				2CF54F490CDA1B2B00627463 /* UScreenLoading.pas */,
 				2CF54F4A0CDA1B2B00627463 /* UScreenMain.pas */,
@@ -1115,10 +1099,6 @@
 				2C4D9E150CC9EF840031092D /* Windows.pas in Sources */,
 				2C4D9E450CC9F0ED0031092D /* switches.inc in Sources */,
 				2CF54F650CDA1B2B00627463 /* UScreenCredits.pas in Sources */,
-				2CF54F660CDA1B2B00627463 /* UScreenEdit.pas in Sources */,
-				2CF54F670CDA1B2B00627463 /* UScreenEditConvert.pas in Sources */,
-				2CF54F680CDA1B2B00627463 /* UScreenEditHeader.pas in Sources */,
-				2CF54F690CDA1B2B00627463 /* UScreenEditSub.pas in Sources */,
 				2CF54F6A0CDA1B2B00627463 /* UScreenLevel.pas in Sources */,
 				2CF54F6B0CDA1B2B00627463 /* UScreenLoading.pas in Sources */,
 				2CF54F6C0CDA1B2B00627463 /* UScreenMain.pas in Sources */,
@@ -1245,10 +1225,6 @@
 				2C4D9E210CC9EF840031092D /* Windows.pas in Sources */,
 				2C4D9E460CC9F0ED0031092D /* switches.inc in Sources */,
 				2CF54F870CDA1B2B00627463 /* UScreenCredits.pas in Sources */,
-				2CF54F880CDA1B2B00627463 /* UScreenEdit.pas in Sources */,
-				2CF54F890CDA1B2B00627463 /* UScreenEditConvert.pas in Sources */,
-				2CF54F8A0CDA1B2B00627463 /* UScreenEditHeader.pas in Sources */,
-				2CF54F8B0CDA1B2B00627463 /* UScreenEditSub.pas in Sources */,
 				2CF54F8C0CDA1B2B00627463 /* UScreenLevel.pas in Sources */,
 				2CF54F8D0CDA1B2B00627463 /* UScreenLoading.pas in Sources */,
 				2CF54F8E0CDA1B2B00627463 /* UScreenMain.pas in Sources */,
