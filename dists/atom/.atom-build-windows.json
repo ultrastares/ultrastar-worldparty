@@ -5,7 +5,7 @@
     "cwd": "{PROJECT_PATH}",
     "sh": false,
     "atomCommandName": "worldparty:compile",
-    "errorMatch": ["errorMatch"],
+    "errorMatch": ["(?<file>.+)\\((?<line>\\d+)\\,(?<col>\\d+)\\) (?<message>.+)"],
     "targets": {
         "Free Pascal compile and execute": {
             "cmd": "{PROJECT_PATH}\\dists\\atom\\compile.bat",
@@ -13,7 +13,7 @@
             "cwd": "{PROJECT_PATH}",
             "sh": false,
             "atomCommandName": "worldparty:compile-execute",
-            "errorMatch": ["errorMatch"],
+            "errorMatch": ["(?<file>.+)\\((?<line>\\d+)\\,(?<col>\\d+)\\) (?<message>.+)"],
             "keymap": "f10"
         },
         "Free Pascal execute without compile": {
@@ -22,7 +22,7 @@
             "cwd": "{PROJECT_PATH}",
             "sh": false,
             "atomCommandName": "worldparty:execute",
-            "errorMatch": ["errorMatch"],
+            "errorMatch": ["(?<file>.+)\\((?<line>\\d+)\\,(?<col>\\d+)\\) (?<message>.+)"],
             "keymap": "ctrl-f10"
         }
     }
