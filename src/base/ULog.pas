@@ -359,6 +359,7 @@ begin
     else
       LogMsg := 'DEBUG:  ' + Text;
 
+    LogMsg := '['+DatetoStr(now)+' '+TimetoStr(now)+'] '+LogMsg;
     // output log-message
     if (Level <= LogLevel) then
     begin
