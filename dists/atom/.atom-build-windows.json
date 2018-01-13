@@ -1,8 +1,8 @@
 {
     "name": "Free Pascal",
-    "cmd": "fpc",
-    "args": ["-FE../game", "-FUunits", "WorldParty.dpr"],
-    "cwd": "{PROJECT_PATH}\\src",
+    "cmd": "{PROJECT_PATH}\\dists\\atom\\compile.bat",
+    "args": ["{PROJECT_PATH}"],
+    "cwd": "{PROJECT_PATH}",
     "sh": false,
     "atomCommandName": "worldparty:compile",
     "errorMatch": ["errorMatch"]
