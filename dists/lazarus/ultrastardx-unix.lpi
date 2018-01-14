@@ -79,10 +79,6 @@
         <Filename Value="base/UDraw.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit11>
-      <Unit12>
-        <Filename Value="base/UEditorLyrics.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit12>
       <Unit13>
         <Filename Value="base/UFiles.pas"/>
         <IsPartOfProject Value="True"/>
