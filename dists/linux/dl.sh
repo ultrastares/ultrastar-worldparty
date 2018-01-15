@@ -6,7 +6,6 @@ declare -a deps
 deps+=('SDL2,https://www.libsdl.org/release/SDL2-2.0.5.tar.gz')
 deps+=('SDL2_mixer,https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.1.tar.gz')
 deps+=('SDL2_image,https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.1.tar.gz')
-deps+=('SDL2_ttf,https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.tar.gz')
 deps+=('SDL2_net,https://www.libsdl.org/projects/SDL_net/release/SDL2_net-2.0.1.tar.gz')
 deps+=('SDL2_gfx,http://www.ferzkopp.net/Software/SDL2_gfx/SDL2_gfx-1.0.3.tar.gz')
 deps+=('sqlite,https://sqlite.org/2017/sqlite-autoconf-3170000.tar.gz')

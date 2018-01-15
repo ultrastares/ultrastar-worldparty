@@ -66,7 +66,6 @@ uses
   SDL2_image             in 'lib\SDL2\SDL2_image.pas',
   SDL2_mixer             in 'lib\SDL2\SDL2_mixer.pas',
   SDL2_net               in 'lib\SDL2\SDL2_net.pas',
-  SDL2_ttf               in 'lib\SDL2\SDL2_ttf.pas',
   //new work on current OpenGL implementation
   dglOpenGL              in 'lib\dglOpenGL\dglOpenGL.pas',
   UMediaCore_SDL         in 'media\UMediaCore_SDL.pas',

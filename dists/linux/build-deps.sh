@@ -65,14 +65,6 @@ make $makearg
 make install
 make distclean
 
-echo "Building SDL2_ttf"
-cd "$SRC/SDL2_ttf"
-bash ./autogen.sh
-./configure --prefix="$PREFIX" --with-sdl-prefix="$PREFIX" PKG_CONFIG_PATH="$PKG_CONFIG_PATH" --disable-static
-make $makearg
-make install
-make distclean
-
 echo "Building SDL2_net"
 cd "$SRC/SDL2_net"
 bash ./autogen.sh
