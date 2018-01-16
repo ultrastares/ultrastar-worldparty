@@ -105,7 +105,6 @@ type
     procedure LoadSongList;     // load all songs
     procedure FindFilesByExtension(const Dir: IPath; const Ext: IPath; Recursive: Boolean; var Files: TPathDynArray);
     procedure BrowseDir(Dir: IPath); // should return number of songs in the future
-    procedure BrowseTXTFiles(Dir: IPath);
     procedure Sort(Order: TSortingType);
     property  Processing: boolean read fProcessing;
   end;
@@ -170,7 +169,7 @@ begin
   inherited Create(true);
   Self.FreeOnTerminate := true;
 
-  SongList           := TList.Create();
+  SongList := TList.Create();
 
   // until it is fixed, simply load the song-list
   int_LoadSongList();
@@ -219,7 +218,6 @@ begin
     fProcessing := true;
 
     Log.LogStatus('Searching For Songs', 'SongList');
-
     // browse directories
     for I := 0 to SongPaths.Count-1 do
       BrowseDir(SongPaths[I] as IPath);
@@ -229,15 +227,6 @@ begin
 
     if assigned(CatCovers) then
       CatCovers.Load;
-
-    //if assigned(Covers) then
-    //  Covers.Load;
-
-    if assigned(ScreenSong)  then
-    begin
-      ScreenSong.GenerateThumbnails();
-      ScreenSong.OnShow; // refresh ScreenSong
-    end;
 
   finally
     Log.LogStatus('Search Complete', 'SongList');
@@ -252,11 +241,6 @@ procedure TSongs.LoadSongList;
 begin
   fParseSongDirectory := true;
   Resume();
-end;
-
-procedure TSongs.BrowseDir(Dir: IPath);
-begin
-  BrowseTXTFiles(Dir);
 end;
 
 procedure TSongs.FindFilesByExtension(const Dir: IPath; const Ext: IPath; Recursive: Boolean; var Files: TPathDynArray);
@@ -288,22 +272,25 @@ begin
   end;
 end;
 
-procedure TSongs.BrowseTXTFiles(Dir: IPath);
+procedure TSongs.BrowseDir(Dir: IPath);
 var
-  I, C: integer;
+  I, Percent, Total : integer;
   Files: TPathDynArray;
   Song: TSong;
-  //CloneSong: TSong;
-  Extension: IPath;
 begin
   SetLength(Files, 0);
-  Extension := Path('.txt');
-  FindFilesByExtension(Dir, Extension, true, Files);
-
-  for I := 0 to High(Files) do
+  FindFilesByExtension(Dir, Path('.txt'), true, Files);
+  Total := High(Files);
+  Randomize;
+  for I := 0 to Total do
   begin
-    Song := TSong.Create(Files[I]);
+    if Round((I*100)/Total) > Percent then //show random load percentage
+    begin
+      UGraphic.UpdateLoadingScreenText(IntToStr(I)+'/'+IntToStr(Total)+' ('+IntToStr(Percent)+'%)');
+      Inc(Percent, Random(19)+6); //show around 5 updates to minimize load time to only 75-150 miliseconds
+    end;
 
+    Song := TSong.Create(Files[I]);
     if Song.Analyse then
       SongList.Add(Song)
     else
@@ -312,7 +299,6 @@ begin
       FreeAndNil(Song);
     end;
   end;
-
   SetLength(Files, 0);
 end;
 

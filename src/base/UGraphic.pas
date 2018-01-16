@@ -306,13 +306,12 @@ const
 
 procedure Initialize3D (Title: string);
 procedure Finalize3D;
-procedure Reinitialize3D;
 procedure SwapBuffers;
 
 procedure LoadTextures;
-procedure InitializeScreen;
-procedure LoadLoadingScreen;
-procedure LoadScreens(Title: string);
+procedure InitializeScreen(Title: string);
+procedure UpdateLoadingScreenText(Message: string);
+procedure LoadScreens;
 procedure UnloadScreens;
 
 function LoadingThreadFunction: integer;
@@ -337,12 +336,6 @@ uses
   UCommandLine,
   UPathUtils;
 
-procedure LoadFontTextures;
-begin
-  Log.LogStatus('Building Fonts', 'LoadTextures');
-  BuildFonts;
-end;
-
 procedure UnloadFontTextures;
 begin
   Log.LogStatus('Kill Fonts', 'UnloadFontTextures');
@@ -350,14 +343,14 @@ begin
 end;
 
 procedure LoadTextures;
-
 var
   P:       integer;
   R, G, B: real;
   Col:     integer;
 begin
   Log.LogStatus('Loading Textures', 'LoadTextures');
-
+  Texture := TTextureUnit.Create;
+  Texture.Limit := 1920; //currently, Full HD is all we want. switch to 64bit target before going further up
   Log.LogStatus('Loading Textures - A', 'LoadTextures');
 
   Tex_Note_Perfect_Star := Texture.LoadTexture(Skin.GetTextureFileName('NotePerfectStar'), TEXTURE_TYPE_TRANSPARENT, 0);
@@ -436,94 +429,43 @@ begin
       Tex_Score_Ratings[P] := Texture.LoadTexture(Skin.GetTextureFileName('Rating_'+IntToStr(P)), TEXTURE_TYPE_TRANSPARENT, 0);
   end;
 
+  TextGL.BuildFonts; //font textures
   Log.LogStatus('Loading Textures - Done', 'LoadTextures');
 end;
 
 const
   WINDOW_ICON = 'icons/WorldParty.png';
 
-procedure Initialize3D (Title: string);
-var
-  Icon: PSDL_Surface;
+procedure Initialize3D(Title: string);
 begin
-  Log.LogStatus('SDL_Init', 'UGraphic.Initialize3D');
-  if ( SDL_InitSubSystem(SDL_INIT_VIDEO) = -1 ) then
-  begin
-    Log.LogCritical('SDL_Init Failed', 'UGraphic.Initialize3D');
-  end;
-  InitializeScreen;
-  // load icon image (must be 32x32 for win32)
-  Icon := LoadImage(ResourcesPath.Append(WINDOW_ICON));
-  if (Icon <> nil) then
-    SDL_SetWindowIcon(Screen, Icon);
-
-  SDL_SetWindowTitle(Screen, PChar(Title));
-
-  { workaround for buggy Intel 3D driver on Linux }
-  //SDL_putenv('texture_tiling=false');  //ToDo: on linux, check if this is still necessary with SDL 2
-
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Initializing screen'));
-
-
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Initializing texturizer'));
-  Texture := TTextureUnit.Create;
-  Texture.Limit :=1920; //currently, Full HD is all we want. switch to 64bit target before going further up
-
-  //LoadTextures;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Initializing video modules'));
-  // Note: do not initialize video modules earlier. They might depend on some
-  // SDL video functions or OpenGL extensions initialized in InitializeScreen()
-  InitializeVideo();
-
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Initializing 3D'));
-  Log.LogStatus('TDisplay.Create', 'UGraphic.Initialize3D');
-  Display := TDisplay.Create;
-  //Display.SetCursor;
-
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading font textures'));
-  Log.LogStatus('Loading Font Textures', 'UGraphic.Initialize3D');
-  LoadFontTextures();
-
-  // Show the Loading Screen
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading first screen'));
-  Log.LogStatus('Loading Loading Screen', 'UGraphic.Initialize3D');
-  LoadLoadingScreen;
-
-  // Covers Cache
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading and checking songs'));
-  Log.LogStatus('Loading and checking songs', 'UGraphic.Initialize3D');
-  Covers := TCoverDatabase.Create;
-
-  // Category Covers
-  Log.LogStatus('Creating Category Covers Array', 'Initialization');
-  CatCovers:= TCatCovers.Create;
-
-  // Avatars Cache
-  Log.LogStatus('Creating Avatars Cache', 'Initialization');
-  Avatars := TAvatarDatabase.Create;
-
-  // Songs
-  Log.LogStatus('Creating Song Array', 'Initialization');
-  Songs := TSongs.Create;
-
-  Log.LogStatus('Creating 2nd Song Array', 'Initialization');
-  CatSongs := TCatSongs.Create;
-
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading textures'));
-  Log.LogStatus(' Loading Textures', 'UGraphic.Initialize3D');
+  InitializeScreen(Title);
   LoadTextures;
 
+  //screen loading
+  ScreenLoading := TScreenLoading.Create;
+  Display := TDisplay.Create;
+  Display.CurrentScreen := @ScreenLoading;
+  SwapBuffers;
+
+  //load and check songs to get covers and category covers
+  Covers := TCoverDatabase.Create;
+  CatCovers:= TCatCovers.Create;
+
+  //avatars cache
+  Avatars := TAvatarDatabase.Create;
+
+  //create songs arrays
+  Songs := TSongs.Create;
+  CatSongs := TCatSongs.Create;
+  UpdateLoadingScreenText('');
+
   // this would be run in the loadingthread
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading screens'));
-  Log.LogStatus(' Loading Screens', 'UGraphic.Initialize3D');
-  LoadScreens(Title);
+  LoadScreens;
 
-  SDL_SetWindowTitle(Screen, PChar(Title));
-  Display.CurrentScreen^.FadeTo( @ScreenMain );
+  UMusic.InitializeVideo();
 
-  Log.BenchmarkEnd(2);
+  Display.CurrentScreen^.FadeTo(@ScreenMain);
   Log.LogBenchmark('--> Loading Screens', 2);
-
   Log.LogStatus('Finish', 'Initialize3D');
 end;
 
@@ -531,8 +473,8 @@ procedure SwapBuffers;
 begin
   SDL_GL_SwapWindow(Screen);
   glMatrixMode(GL_PROJECTION);
-    glLoadIdentity;
-    glOrtho(0, RenderW, RenderH, 0, -1, 100);
+  glLoadIdentity;
+  glOrtho(0, RenderW, RenderH, 0, -1, 100);
   glMatrixMode(GL_MODELVIEW);
 end;
 
@@ -542,12 +484,7 @@ begin
   SDL_QuitSubSystem(SDL_INIT_VIDEO);
 end;
 
-procedure Reinitialize3D;
-begin
-  InitializeScreen;
-end;
-
-procedure InitializeScreen;
+procedure InitializeScreen(Title: string);
 var
   S:      string;
   I:      integer;
@@ -705,6 +642,9 @@ NoDoubledResolution:
   glClearColor(1, 1, 1, 1);
   glClear(GL_COLOR_BUFFER_BIT);
   SwapBuffers;}
+
+  SDL_SetWindowTitle(Screen, PChar(Title));
+  SDL_SetWindowIcon(Screen, LoadImage(ResourcesPath.Append(WINDOW_ICON))); //load icon image (must be 32x32 for win32)
 end;
 
 function HasWindowState(Flag: integer): boolean;
@@ -873,92 +813,62 @@ begin
   end;
 end;
 
-procedure LoadLoadingScreen;
+procedure UpdateLoadingScreenText(Message: string);
 begin
-  ScreenLoading := TScreenLoading.Create;
-  ScreenLoading.OnShow;
-  Display.CurrentScreen := @ScreenLoading;
-  SwapBuffers;
+  ScreenLoading.Text[0].Text := Message;
   ScreenLoading.Draw;
-  Display.Draw;
   SwapBuffers;
 end;
 
-procedure LoadScreens(Title: string);
+procedure LoadScreens;
 begin
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenMain & ScreenName'));
-  ScreenMain :=             TScreenMain.Create;
-  ScreenName :=             TScreenName.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenSong'));
-  ScreenSong :=             TScreenSong.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenSongMenu & ScreenJukebox'));
-  ScreenSongMenu :=             TScreenSongMenu.Create;
-  ScreenJukebox :=             TScreenJukebox.Create;
-  Log.BenchmarkEnd(3); Log.LogBenchmark('====> Screen Jukebox', 3); Log.BenchmarkStart(3);
-  ScreenJukeboxOptions :=   TScreenJukeboxOptions.Create;
-  Log.BenchmarkEnd(3); Log.LogBenchmark('====> Screen Jukebox Options', 3); Log.BenchmarkStart(3);
-  ScreenJukeboxPlaylist :=   TScreenJukeboxPlaylist.Create;
-  Log.BenchmarkEnd(3); Log.LogBenchmark('====> Screen Jukebox Playlist', 3); Log.BenchmarkStart(3);
-  ScreenTop5 :=             TScreenTop5.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenOptions & ScreenOptionsGame'));
-  ScreenOptions :=          TScreenOptions.Create;
-  ScreenOptionsGame :=      TScreenOptionsGame.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenOptionsGraphics & ScreenOptionsSound & ScreenOptionsInput'));
-  ScreenOptionsGraphics  :=  TScreenOptionsGraphics.Create;
-  ScreenOptionsSound    :=     TScreenOptionsSound.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenOptionsLyrics & ScreenOptionsThemes'));
-  ScreenOptionsLyrics   :=    TScreenOptionsLyrics.Create;
-  ScreenOptionsThemes   :=    TScreenOptionsThemes.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenOptionsRecord & ScreenOptionsAdvanced'));
-  ScreenOptionsRecord   :=    TScreenOptionsRecord.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenOptionsAdvanced'));
-  ScreenOptionsAdvanced :=    TScreenOptionsAdvanced.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenOptionsNetwork'));
-  ScreenOptionsNetwork :=    TScreenOptionsNetwork.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenOptionsWebCam'));
-  ScreenOptionsWebcam  :=    TScreenOptionsWebcam.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenOptionsJukebox'));
-  ScreenOptionsJukebox :=    TScreenOptionsJukebox.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenOpen'));
-  ScreenOpen :=             TScreenOpen.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenAbout & ScreenDevelopers'));
-  ScreenAbout :=            TScreenAbout.Create;
-  ScreenDevelopers :=       TScreenDevelopers.Create;
-  Log.BenchmarkEnd(3); Log.LogBenchmark('====> Screen About', 3); Log.BenchmarkStart(3);
-  //ScreenSingModi :=         TScreenSingModi.Create;
-  //Log.BenchmarkEnd(3); Log.LogBenchmark('====> Screen Sing with Modi support', 3); Log.BenchmarkStart(3);
-  ScreenSongJumpto :=         TScreenSongJumpto.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenPopupCheck & ScreenPopupError'));
+  ScreenMain := TScreenMain.Create;
+  ScreenName := TScreenName.Create;
+  ScreenSong := TScreenSong.Create;
+  ScreenSongMenu := TScreenSongMenu.Create;
+  ScreenJukebox := TScreenJukebox.Create;
+  ScreenJukeboxOptions := TScreenJukeboxOptions.Create;
+  ScreenJukeboxPlaylist := TScreenJukeboxPlaylist.Create;
+  ScreenTop5 := TScreenTop5.Create;
+  ScreenOptions := TScreenOptions.Create;
+  ScreenOptionsGame := TScreenOptionsGame.Create;
+  ScreenOptionsGraphics := TScreenOptionsGraphics.Create;
+  ScreenOptionsSound := TScreenOptionsSound.Create;
+  ScreenOptionsLyrics := TScreenOptionsLyrics.Create;
+  ScreenOptionsThemes := TScreenOptionsThemes.Create;
+  ScreenOptionsRecord := TScreenOptionsRecord.Create;
+  ScreenOptionsAdvanced := TScreenOptionsAdvanced.Create;
+  ScreenOptionsNetwork := TScreenOptionsNetwork.Create;
+  ScreenOptionsWebcam := TScreenOptionsWebcam.Create;
+  ScreenOptionsJukebox := TScreenOptionsJukebox.Create;
+  ScreenOpen := TScreenOpen.Create;
+  ScreenAbout := TScreenAbout.Create;
+  ScreenDevelopers := TScreenDevelopers.Create;
+  ScreenSongJumpto := TScreenSongJumpto.Create;
   ScreenPopupCheck := TScreenPopupCheck.Create;
   ScreenPopupError := TScreenPopupError.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenPopupInfo & ScreenScoreX & ScreenPartyNewRound'));
   ScreenPopupInfo := TScreenPopupInfo.Create;
   ScreenPopupInsertUser := TScreenPopupInsertUser.Create;
   ScreenPopupSendScore := TScreenPopupSendScore.Create;
   ScreenPopupScoreDownload := TScreenPopupScoreDownload.Create;
-  ScreenPartyNewRound :=    TScreenPartyNewRound.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenPartyScore & ScreenPartyWin'));
-  ScreenPartyScore :=       TScreenPartyScore.Create;
-  ScreenPartyWin :=         TScreenPartyWin.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenPartyOptions & ScreenPartyPlayer'));
-  ScreenPartyOptions :=     TScreenPartyOptions.Create;
-  ScreenPartyPlayer :=      TScreenPartyPlayer.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenPartyRounds & ScreenTournamentX & ScreenStatMain'));
-  ScreenPartyRounds :=      TScreenPartyRounds.Create;
-  ScreenPartyTournamentRounds :=      TScreenPartyTournamentRounds.Create;
-  ScreenPartyTournamentPlayer :=      TScreenPartyTournamentPlayer.Create;
-  ScreenPartyTournamentOptions :=      TScreenPartyTournamentOptions.Create;
-  ScreenPartyTournamentWin :=      TScreenPartyTournamentWin.Create;
-  ScreenStatMain :=         TScreenStatMain.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title + ' - Loading ScreenStatDetail & ScreenCredits'));
-  ScreenStatDetail :=       TScreenStatDetail.Create;
-  ScreenCredits    :=       TScreenCredits.Create;
-  SDL_SetWindowTitle(Screen, PChar(Title));
+  ScreenPartyNewRound := TScreenPartyNewRound.Create;
+  ScreenPartyScore := TScreenPartyScore.Create;
+  ScreenPartyWin := TScreenPartyWin.Create;
+  ScreenPartyOptions := TScreenPartyOptions.Create;
+  ScreenPartyPlayer := TScreenPartyPlayer.Create;
+  ScreenPartyRounds := TScreenPartyRounds.Create;
+  ScreenPartyTournamentRounds := TScreenPartyTournamentRounds.Create;
+  ScreenPartyTournamentPlayer := TScreenPartyTournamentPlayer.Create;
+  ScreenPartyTournamentOptions := TScreenPartyTournamentOptions.Create;
+  ScreenPartyTournamentWin := TScreenPartyTournamentWin.Create;
+  ScreenStatMain := TScreenStatMain.Create;
+  ScreenStatDetail := TScreenStatDetail.Create;
+  ScreenCredits := TScreenCredits.Create;
 end;
 
 function LoadingThreadFunction: integer;
 begin
-  LoadScreens(USDXVersionStr);
+  LoadScreens;
   Result:= 1;
 end;
 
@@ -967,7 +877,6 @@ begin
   ScreenMain.Free;
   ScreenName.Free;
   ScreenSong.Free;
-  //ScreenSing.Free;
   ScreenScore.Free;
   ScreenOptions.Free;
   ScreenOptionsGame.Free;
@@ -987,7 +896,6 @@ begin
   ScreenOpen.Free;
   ScreenAbout.Free;
   ScreenDevelopers.Free;
-  //ScreenSingModi.Free;
   ScreenSongMenu.Free;
   ScreenSongJumpto.Free;
   ScreenPopupCheck.Free;
