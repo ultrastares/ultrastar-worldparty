@@ -446,6 +446,7 @@ begin
   Display := TDisplay.Create;
   Display.CurrentScreen := @ScreenLoading;
   SwapBuffers;
+  UpdateLoadingScreenText('');
 
   //load and check songs to get covers and category covers
   Covers := TCoverDatabase.Create;
