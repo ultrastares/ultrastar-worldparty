@@ -287,7 +287,6 @@ type
       procedure OnSongSelect;   // called when song flows movement stops at a song
       procedure OnSongDeSelect; // called before current song is deselected
 
-      procedure UnloadCover(NumberOfButtonInArray: integer);
       procedure LoadCover(NumberOfButtonInArray: integer);
 
       procedure SongScore;
@@ -1960,9 +1959,6 @@ end;
 procedure TScreenSong.GenerateThumbnails();
 var
   I: integer;
-  CoverButtonIndex: integer;
-  CoverButton: TButton;
-  Cover: TCover;
   CoverFile: IPath;
   Song: TSong;
 begin
@@ -1974,70 +1970,7 @@ begin
 
   // create all buttons
   for I := 0 to High(CatSongs.Song) do
-  begin
-    CoverButton := nil;
-
-    // create a clickable cover
-    CoverButtonIndex := AddButton(300 + I*250, 140, 200, 200, PATH_NONE, TEXTURE_TYPE_PLAIN, Theme.Song.Cover.Reflections);
-    if (CoverButtonIndex > -1) then
-      CoverButton := Button[CoverButtonIndex];
-    if (CoverButton = nil) then
-      Continue;
-
-    Song := CatSongs.Song[I];
-
-    CoverFile := Song.Path.Append(Song.Cover);
-    if (not CoverFile.IsFile()) then
-      Song.Cover := PATH_NONE;
-
-    if (Song.Cover.IsUnset) then
-      CoverFile := Skin.GetTextureFileName('SongCover');
-
-    // load cover and cache its texture
-    Cover := Covers.FindCover(CoverFile);
-    if (Cover = nil) then
-      Cover := Covers.AddCover(CoverFile);
-
-    // use the cached texture
-    // TODO: this is a workaround until the new song-loading works.
-    // The TCover object should be added to the song-object. The thumbnails
-    // should be loaded each time the song-screen is shown (it is real fast).
-    // This way, we will not waste that much memory and have a link between
-    // song and cover.
-
-    if (Cover <> nil) then
-    begin
-      //Texture.AddTexture(CoverTexture, TEXTURE_TYPE_PLAIN, false);
-      CoverButton.Texture := Cover.GetEmptyTexture();
-      Song.CoverTex := CoverButton.Texture;  //basisbit ToDo 11.11.2015
-      glDeleteTextures(1, @CoverButton.Texture.TexNum);
-      CoverButton.Texture.TexNum := 0;
-      // set selected to false -> the right texture will be displayed
-      CoverButton.Selected := False;
-    end
-    else
-    begin
-      Song.Cover := PATH_NONE;
-      if (Song.Cover.IsUnset) then
-      CoverFile := Skin.GetTextureFileName('SongCover');
-      Log.LogInfo(CoverFile.ToNative(), 'Test');
-      // load cover and cache its texture
-      Cover := Covers.FindCover(CoverFile);
-      if (Cover = nil) then
-        Cover := Covers.AddCover(CoverFile);
-      if (Cover <> nil) then
-      begin
-        //Texture.AddTexture(CoverTexture, TEXTURE_TYPE_PLAIN, false);
-        CoverButton.Texture := Cover.GetPreviewTexture();
-        Song.CoverTex := CoverButton.Texture;  //basisbit ToDo 11.11.2015
-        glDeleteTextures(1, @CoverButton.Texture.TexNum);
-        CoverButton.Texture.TexNum := 0;
-        // set selected to false -> the right texture will be displayed
-        CoverButton.Selected := False;
-      end
-    end;
-    Cover.Free;
-  end;
+    AddButton(300 + I*250, 140, 200, 200, PATH_NONE, TEXTURE_TYPE_PLAIN, Theme.Song.Cover.Reflections);
 
   // reset selection
   if (Length(CatSongs.Song) > 0) then
@@ -2067,8 +2000,6 @@ begin
   DuetChange := false;
 
   CoverTime := 10;
-  //UnloadCover(Interaction);
-
   StopMusicPreview();
   StopVideoPreview();
   PreviewOpened := -1;
@@ -2392,7 +2323,6 @@ begin
       else
       begin
         Button[B].Visible := false;
-        UnLoadCover(B);
       end;
     end;
   end;
@@ -2573,7 +2503,6 @@ begin
       begin
         Button[B].Visible := false;
         Button[B].Z := 0;
-        UnLoadCover(B);
       end;
 
       Count := Count + 1;
@@ -2582,7 +2511,6 @@ begin
     begin
       Button[B].Visible := false;
       Button[B].Z := 0;
-      UnLoadCover(B);
     end;
 
     Index := Index + 1;
@@ -2631,7 +2559,6 @@ begin
 
       if (Button[B].X < -Theme.Song.Cover.W) or (Button[B].X > 800) then
       begin
-        UnloadCover(B);
         Button[B].Visible := false;
       end
       else
@@ -2706,7 +2633,6 @@ begin
       else
       begin
         Button[B].Visible := false;
-        UnloadCover(B);
       end;
      end;
   end;
@@ -2742,11 +2668,7 @@ begin
       else
         Button[B].X := Theme.Song.Cover.X + (Count - SongCurrent) * Theme.Song.Cover.W - (Count - SongCurrent) * (Theme.Song.Cover.W * Scale - Theme.Song.Cover.Padding);
 
-      if (Button[B].X < -Theme.Song.Cover.W) or (Button[B].X > 800) then
-      begin
-        UnloadCover(B);
-      end
-      else
+      if not (Button[B].X < -Theme.Song.Cover.W) or (Button[B].X > 800) then
         LoadCover(B);
 
       if (B <= Interaction) then
@@ -2864,14 +2786,12 @@ begin
         else
         begin
           Button[B].Visible := false;
-          UnloadCover(B);
         end;
       end
       else
       begin
         Line := Line + 1;
         Button[B].Visible := false;
-        UnloadCover(B);
       end;
     end;
   end;
@@ -4155,27 +4075,20 @@ begin
   end;
 end;
 
-//Detailed Cover Unloading. Unloads the Detailed, uncached Cover of the Song Button
-procedure TScreenSong.UnloadCover(NumberOfButtonInArray: integer);
-begin
-  // background texture (garbage disposal)
-  if (not (Button[NumberOfButtonInArray].Texture.TexNum = 0)) and (Button[NumberOfButtonInArray].Texture.Name <> Skin.GetTextureFileName('SongCover')) then
-  begin
-    Texture.UnloadTexture(Button[NumberOfButtonInArray].Texture.Name, TEXTURE_TYPE_PLAIN, false);
-    glDeleteTextures(1, PGLuint(@Button[NumberOfButtonInArray].Texture.TexNum));
-    Button[NumberOfButtonInArray].Texture.TexNum := 0;
-  end;
-end;
-
-//Detailled Cover Loading. Loads the Detailled, uncached Cover of the Song Button
 procedure TScreenSong.LoadCover(NumberOfButtonInArray: integer);
 var
   deb1: string;
+  CoverFile: IPath;
+  Song: TSong;
 begin
-  If (Button[NumberOfButtonInArray].Texture.TexNum = 0) and Assigned(Button[NumberOfButtonInArray].Texture.Name) then
+  if not Assigned(Button[NumberOfButtonInArray].Texture.Name) then
   begin
-    deb1:=Button[NumberOfButtonInArray].Texture.Name.ToWide();
-    Button[NumberOfButtonInArray].Texture := Covers.FindCover(Button[NumberOfButtonInArray].Texture.Name).GetTexture();
+    Song := CatSongs.Song[NumberOfButtonInArray];
+    CoverFile := Song.Path.Append(Song.Cover);
+    if not CoverFile.IsFile() or Song.Cover.IsUnset then
+      CoverFile := Skin.GetTextureFileName('SongCover');
+
+    Button[NumberOfButtonInArray].Texture := Covers.AddCover(CoverFile).GetTexture();
   end;
 end;
 

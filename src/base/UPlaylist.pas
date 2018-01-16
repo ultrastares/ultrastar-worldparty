@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -210,7 +210,7 @@ begin
           //Found Name Value
           if (Uppercase(Trim(copy(Line, 2, PosDelimiter - 2))) = 'NAME') then
             PlayLists[Index].Name := Trim(copy(Line, PosDelimiter + 1,Length(Line) - PosDelimiter))
-            
+
         end
         //Song Entry
         else
@@ -333,7 +333,7 @@ var
 begin
   Result := Length(Playlists);
   SetLength(Playlists, Result + 1);
-  
+
   // Sort the Playlists - Insertion Sort
   while (Result > 0) and (CompareText(Playlists[Result - 1].Name, Name) >= 0) do
   begin
@@ -392,7 +392,6 @@ begin
   //-> Display Songs
   if (CatSongs.CatNumShow = -3) and (Index = CurPlaylist) then
   begin
-    ScreenSong.UnloadCover(ScreenSong.Interaction);
     ScreenSong.HideCatTL;
     CatSongs.SetFilter('', fltAll);
     ScreenSong.Interaction := 0;
@@ -481,7 +480,7 @@ var
   Len: Integer;
 begin
   Len := High(Playlists);
-  
+
   if (Length(PLNames) <> Len + 1) then
     exit;
 
