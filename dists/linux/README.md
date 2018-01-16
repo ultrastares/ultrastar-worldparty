@@ -1,7 +1,7 @@
 UltraStar Deluxe WorldParty builder for Linux 
 =============================================
 
-These scripts builds USDX and its dependencies. It copies the required dynamic libraries and outputs a distro-independent package that can be extracted and launched. 
+These scripts builds WorldParty and its dependencies. It copies the required dynamic libraries and outputs a distro-independent package that can be extracted and launched. 
 
 How to use
 ----------

@@ -46,7 +46,7 @@ local dissmissedCount;
 
 
 function plugin_init()
-  register('party mode: holdthelineblind', '0.6', 'USDX Team', 'http://www.UltrastarDeluxe.org');
+  register('party mode: holdthelineblind', '0.6', 'USDX Team', 'https://ultrastar-es.org');
 
   require('math', 'Usdx.Party', 'Usdx.ScreenSing', 'Usdx.Gl', 'Usdx.TextGl');
   local Mode = {}

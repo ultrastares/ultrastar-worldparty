@@ -1,5 +1,5 @@
 function plugin_init()
-  register('party mode: 7000points', '1.00', 'zup3r_vock', 'http://www.ultrastar-es.org');
+  register('party mode: 7000points', '1.00', 'zup3r_vock', 'https://www.ultrastar-es.org');
 
   require('Usdx.Party')
   require('Usdx.ScreenSing');

@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -124,10 +124,10 @@ const
   (*
    * Current version of UltraStar Deluxe WorldParty
    *)
-   USDX_VERSION_MAJOR   = 17;
-   USDX_VERSION_MINOR   = 03;
+   USDX_VERSION_MAJOR   = 18;
+   USDX_VERSION_MINOR   = 1;
    USDX_VERSION_RELEASE = '';
-   USDX_VERSION_STATE   = 'RC1';
+   USDX_VERSION_STATE   = 'RC2';
    USDX_STRING = 'UltraStar Deluxe WorldParty';
 
   (*
@@ -185,7 +185,7 @@ const
                           (LIBSWRESAMPLE_VERSION_MINOR * VERSION_MINOR) +
                           (LIBSWRESAMPLE_VERSION_RELEASE * VERSION_RELEASE);
   {$ENDIF}
-  
+
   {$ENDIF}
 
   {$IFDEF HaveProjectM}
@@ -226,8 +226,8 @@ begin
   Result :=
     USDX_STRING + ' ' +
     IntToStr(USDX_VERSION_MAJOR) + '.' +
-    IntToStr(USDX_VERSION_MINOR) + 
-    IfThen(USDX_VERSION_STATE <> '', ' '+USDX_VERSION_STATE) 
+    IntToStr(USDX_VERSION_MINOR) +
+    IfThen(USDX_VERSION_STATE <> '', ' '+USDX_VERSION_STATE)
 end;
 
 end.
