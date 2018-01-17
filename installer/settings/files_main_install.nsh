@@ -1,40 +1,9 @@
-; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; UltraStar Deluxe Installer: Main components
+﻿; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
+; UltraStar Deluxe WorldParty Installer: Main components
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
 ; Remove old files from previous versions
-IfFileExists $INSTDIR\ScoreConverter.exe 0 +2
-Delete "$INSTDIR\ScoreConverter.exe"
-IfFileExists $INSTDIR\USdx.exe 0 +2
-Delete "$INSTDIR\USdx.exe"
-IfFileExists $INSTDIR\covers.cache 0 +2
-Delete "$INSTDIR\covers.cache"
-IfFileExists $INSTDIR\avcodec-51.dll 0 +2
-Delete "$INSTDIR\avcodec-51.dll"
-IfFileExists $INSTDIR\avformat-50.dll 0 +2
-Delete "$INSTDIR\avformat-50.dll"
-IfFileExists $INSTDIR\avutil-49.dll 0 +2
-Delete "$INSTDIR\avutil-49.dll"
-IfFileExists $INSTDIR\bass.dll 0 +2
-Delete "$INSTDIR\bass.dll"
-IfFileExists $INSTDIR\bass_fx.dll 0 +2
-Delete "$INSTDIR\bass_fx.dll"
-IfFileExists $INSTDIR\bassmidi.dll 0 +2
-Delete "$INSTDIR\bassmidi.dll"
-IfFileExists $INSTDIR\SDL.dll 0 +2
-Delete "$INSTDIR\SDL.dll"
-IfFileExists $INSTDIR\sqlite3.dll 0 +2
-Delete "$INSTDIR\sqlite3.dll"
-IfFileExists $INSTDIR\webs\ultrastares.dll 0 +2
-Delete "$INSTDIR\webs\ultrastares.dll"
-IfFileExists $INSTDIR\cv210.dll 0 +2
-Delete "$INSTDIR\cv210.dll"
-IfFileExists $INSTDIR\cxcore210.dll 0 +2
-Delete "$INSTDIR\cxcore210.dll"
-IfFileExists $INSTDIR\highgui210.dll 0 +2
-Delete "$INSTDIR\highgui210.dll"
-IfFileExists $INSTDIR\avatar.db 0 +2
-Delete "$INSTDIR\avatar.db"
+
 
 RMDir /r "$INSTDIR\Themes"
 RMDir /r "$INSTDIR\Skins"
@@ -85,16 +54,8 @@ File /r /x .svn /x .gitignore ..\game\licenses
 
 ; Root dir:
 
-File .\dependencies\dll\*.dll
-
-;File ..\ChangeLog.txt
-File ..\game\LuaCommands.odt
+File ..\game\*.dll
 File ..\game\Readme.txt
-File ..\README.md
-File .\dependencies\documents\license.txt
-File .\dependencies\documents\thirdparty\*
-File .\dependencies\documents\documentation.pdf
-
 File ..\game\WorldParty.exe
 
 ; Covers dir:
@@ -103,12 +64,11 @@ SetOutPath "$INSTDIR\covers"
 
 IfFileExists $INSTDIR\covers\covers.ini +2 0
 File ..\game\covers\covers.ini
-File ..\game\covers\NoCover.jpg
 File "..\game\covers\*.*"
 
 ; Plugins dir:
 
-SetOutPath "$INSTDIR\plugins\"
-File "..\game\plugins\*.*"
+;SetOutPath "$INSTDIR\plugins\"
+;File "..\game\plugins\*.*"
 
-SetOutPath "$INSTDIR"
+;SetOutPath "$INSTDIR"

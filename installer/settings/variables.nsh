@@ -1,11 +1,11 @@
-; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
+﻿; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 ; UltraStar Deluxe Un/Installer: Variables
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
 ; Product Information:
 
-!define VersionStr "16.12"
-!define FullVersion "16.12 RC1 Update 2" ; semver compatible. see semver.org
+!define VersionStr "17.12"
+!define FullVersion "17.12 RC2" 
 
 !define installername " Installer"
 !define installerexe "WorldParty ${VersionStr} installer"
@@ -18,22 +18,22 @@
 
 !define name "UltraStar Deluxe WorldParty"
 !define publisher "UltraStar España"
-!define homepage "http://ultrastar-es.org"
+!define homepage "https://ultrastar-es.org"
+!define forum "https://ultrastar-es.org/foro"
+!define wiki "https://github.com/ultrastares/usdxworldparty/wiki"
 
 !define exe "WorldParty"
 !define exeuninstall "Uninstall"
 !define exeupdate "Update"
 
 !define license ".\dependencies\documents\license.txt"
-!define music1 ".\dependencies\loop.wav"
-!define music2 "$PLUGINSDIR\loop.wav"
 
 ; Installer
 
 !define installer_version_path "$LOCALAPPDATA\Temp\WorldParty"
 !define installer_exe_path "$LOCALAPPDATA\Temp\WorldPartyupdate.exe"
-;!define version_url "http://raw.githubusercontent.com/UltraStar-Deluxe/USDX/release/VERSION"
-;!define update_url "https://github.com/UltraStar-Deluxe/USDX/releases/download/%VERSION%/UltraStar.Deluxe_v%VERSIONSTRING%-installer.exe"
+;!define version_url "https://github.com/ultrastares/usdxworldparty/blob/master/VERSION"
+;!define update_url "https://github.com/ultrastares/usdxworldparty/releases/download/%VERSION%/UltraStar.Deluxe.WorldParty_%VERSIONSTRING%-installer.exe"
 !define update_mask_online_version "%VERSION%"
 !define update_mask_installer_version "%VERSIONSTRING%"
 

@@ -1,5 +1,5 @@
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; UltraStar Deluxe Installer: Update
+; UltraStar Deluxe WorldParty Installer: Update
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
 !include MUI2.nsh
@@ -134,7 +134,7 @@ RequestExecutionLevel user
 
 !insertmacro MUI_PAGE_WELCOME
 
-; USDX Update Page
+; WorldParty Update Page
 
 Page custom pageUpdateConfirm pageVersionCheck
 
@@ -489,7 +489,7 @@ Function .onInit
 	!define PRODUCT_NAME111 "${name} ${version}"
 
 	${UAC.I.Elevate.AdminOnly}
-	System::Call 'kernel32::CreateMutexA(i 0, i 0, t "USdx Update.exe") ?e'
+	System::Call 'kernel32::CreateMutexA(i 0, i 0, t "WorldParty Update.exe") ?e'
 
 	Pop $R0
 

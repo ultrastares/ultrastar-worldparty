@@ -1,15 +1,14 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+﻿;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; NSIS installer script for     ;
 ; Ultrastar Deluxe WorldParty   ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-!include MUI2.nsh
-!include WinVer.nsh
-!include LogicLib.nsh
-!include InstallOptions.nsh
-!include nsDialogs.nsh
-!include UAC.nsh
-!include FileFunc.nsh
+!include MUI2.nsh			;Used for create the interface
+!include LogicLib.nsh		;Used for internal calculations
+!include InstallOptions.nsh	;Used for components selections
+!include nsDialogs.nsh		;Used for custom pages
+!include UAC.nsh			;Used for get privileges to write on disk
+!include FileFunc.nsh 		;used for get size info at uninstaller
 
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 ; Variables
@@ -35,10 +34,11 @@
 ; Export Settings
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
-SetCompress Auto
-SetCompressor lzma
+SetCompress force
+SetCompressor /FINAL /SOLID lzma
 SetCompressorDictSize 64
 SetDatablockOptimize On
+
 
 CRCCheck on
 
@@ -153,7 +153,7 @@ Var StartMenuFolder
 
 !insertmacro MUI_PAGE_INSTFILES
 
-; USDX Settings Page
+; WorldParty Settings Page
 
 Page custom Settings
 
@@ -385,13 +385,12 @@ FunctionEnd
 ; Sections Installation Routine
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
-;------------------------------------
-; MAIN COMPONENTS (Section 1)
-;------------------------------------
+;-----------------
+; MAIN COMPONENTS 
+;-----------------
+Section Install
 
-Section $(name_section1) Section1
-
-	SectionIn RO
+	;SectionIn RO
 	SetOutPath $INSTDIR
 	SetOverwrite try
 	
@@ -414,9 +413,10 @@ Section $(name_section1) Section1
 
 	CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
 	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\$(sm_shortcut).lnk" "$INSTDIR\${exe}.exe"
-	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\$(sm_website).lnk" "${homepage}"
+	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\$(sm_website).lnk" "${homepage}" 
 	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\$(sm_songs).lnk" "$INSTDIR\songs"
 	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\$(sm_uninstall).lnk" "$INSTDIR\${exeuninstall}.exe"
+	
 !insertmacro MUI_STARTMENU_WRITE_END
 
 	; Vista Game Explorer:
@@ -442,7 +442,8 @@ Section $(name_section1) Section1
  ;-------------- calculate the total size of the program -----	
 		${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
 		IntFmt $0 "0x%08X" $0
-		WriteRegDWORD HKLM "${ARP}" "EstimatedSize" "$0"
+		WriteRegDWORD HKLM "${PRODUCT_UNINST_KEY}" "EstimatedSize" "$0"
+		
 SectionEnd
 
 ;------------------------------------
@@ -487,17 +488,11 @@ SectionEnd
 ; Main
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
-;!addPluginDir "${path_plugins}\"
-
-Function .onGUIEnd
-	BGImage::Sound /STOP
-FunctionEnd
-
 Function .onInit
 
 	${UAC.I.Elevate.AdminOnly}
 
-	System::Call 'kernel32::CreateMutexA(i 0, i 0, t "USdx Installer.exe") ?e'
+	System::Call 'kernel32::CreateMutexA(i 0, i 0, t "${exe} Installer.exe") ?e'
 
 	Pop $R0
 
@@ -523,7 +518,7 @@ Function .onInit
 
 	${If} "$R0" != "${PRODUCT_VERSION}"
 		MessageBox MB_YESNO|MB_ICONEXCLAMATION \
-			"${name} $R0 $(oninit_alreadyinstalled). $\n$\n $(oninit_updateusdx) $R0$R1 -> ${version} (${FullVersion})" \
+			"${name} $R0 $(oninit_alreadyinstalled). $\n$\n $(oninit_updateWorldParty) $R0$R1 -> ${version} (${FullVersion})" \
 			IDYES continue
 			Abort
 	${EndIf}
@@ -535,36 +530,38 @@ continue:
 	ExecWait '"$R2" _?=$INSTDIR'
 
 done:
-	!insertmacro MUI_LANGDLL_DISPLAY
-
-	!insertmacro INSTALLOPTIONS_EXTRACT_AS ".\settings\settings.ini" "Settings"
 
 ;--------- Splash image
   InitPluginsDir
   File "/oname=${path_images}\logo.bmp" "${path_images}\logo.bmp"
 
-  advsplash::show 200 700 900 -1 ${path_images}\logo
+  advsplash::show 230 750 1000 -1 ${path_images}\logo
 
   Pop $0 ; $0 has '1' if the user closed the splash screen early,
          ; '0' if everything closed normally, and '-1' if some error occurred.
 ;-----------------------
+
+	!insertmacro MUI_LANGDLL_DISPLAY
+
+	!insertmacro INSTALLOPTIONS_EXTRACT_AS ".\settings\settings.ini" "Settings"
+
 FunctionEnd
 
 Function un.onInit
 
-	${nsProcess::FindProcess} "USdx.exe" $R0
+	${nsProcess::FindProcess} "${exe}.exe" $R0
 	StrCmp $R0 0 0 +2
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION '$(oninit_closeusdx)' IDYES closeit IDNO end
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION '$(oninit_closeWorldParty)' IDYES closeit IDNO end
 
 closeit:
-	${nsProcess::KillProcess} "USdx.exe" $R0
+	${nsProcess::KillProcess} "${exe}.exe" $R0
 	goto continue
 
 	${nsProcess::FindProcess} "${exe}.exe" $R0
 	StrCmp $R0 0 0 +2
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION '$(oninit_closeusdx)' IDYES closeusdx IDNO end
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION '$(oninit_closeWorldParty)' IDYES closeWorldParty IDNO end
 
-closeusdx:
+closeWorldParty:
 	${nsProcess::KillProcess} "${exe}.exe" $R0
 	goto continue
 
