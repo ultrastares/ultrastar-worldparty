@@ -88,7 +88,6 @@ implementation
 
 uses
   StrUtils,
-  pcre,
   UCommon,
   ULog;
 

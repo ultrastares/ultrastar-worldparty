@@ -62,10 +62,7 @@ uses
   SQLiteTable3  		 in 'lib\SQLite\SQLiteTable3.pas',
   SQLite3       		 in 'lib\SQLite\SQLite3.pas',
   sdl2                   in 'lib\SDL2\sdl2.pas',
-  SDL2_gfx               in 'lib\SDL2\SDL2_gfx.pas',
   SDL2_image             in 'lib\SDL2\SDL2_image.pas',
-  SDL2_mixer             in 'lib\SDL2\SDL2_mixer.pas',
-  SDL2_net               in 'lib\SDL2\SDL2_net.pas',
   //new work on current OpenGL implementation
   dglOpenGL              in 'lib\dglOpenGL\dglOpenGL.pas',
   UMediaCore_SDL         in 'media\UMediaCore_SDL.pas',
@@ -154,8 +151,6 @@ uses
   {$IFDEF DARWIN}
   PseudoThread  in 'macosx\PseudoThread.pas',
   {$ENDIF}
-
-  pcre          in 'lib\pcre\pcre.pas',
 
   //------------------------------
   //Includes - Lua Support
