@@ -658,7 +658,7 @@ end;
 
 function TScreenOptionsJukebox.Draw: boolean;
 begin
-  inherited Draw;
+  Result := inherited Draw;
 
   LyricSample();
 end;

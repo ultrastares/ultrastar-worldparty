@@ -938,10 +938,8 @@ var
   I, J, Count: integer;
 begin
   DrawBG;
-
   DrawGrid();
-
-  DrawFG;
+  Result := DrawFG;
 
 end;
 
