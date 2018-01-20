@@ -5,27 +5,27 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleDisplayName</key>
-	<string>UltraStarDeluxe</string>
+	<string>UltraStarDeluxeWorldParty</string>
 	<key>CFBundleExecutable</key>
-	<string>ultrastardx</string>
+	<string>WorldParty</string>
 	<key>CFBundleGetInfoString</key>
-	<string>UltraStarDeluxe, a SingStar clone</string>
+	<string>Ultrastar Deluxe WorldParty, a karaoke game</string>
 	<key>CFBundleIconFile</key>
-	<string>ultrastardx.icns</string>
+	<string>WorldParty.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.ultrastardeluxe.ultrastardeluxe</string>
+	<string>ultrastar-es.org</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>UltraStarDeluxe</string>
+	<string>UltraStarDeluxeWorldParty</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1</string>
+	<string>18.11</string>
 	<key>CFBundleSignature</key>
-	<string>USDX</string>
+	<string>USDXWP</string>
 	<key>CFBundleVersion</key>
-	<string>1.1</string>
+	<string>18.11</string>
 	<key>NSAppleScriptEnabled</key>
 	<false/>
 	<key>NSHumanReadableCopyright</key>
