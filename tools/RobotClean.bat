@@ -13,7 +13,7 @@ echo Cleaning files from installer
 RD /Q /S "..\installer\dist"
 
 echo Cleaning files from game
-del /Q "..\game\error.log" "..\game\avatar.db" "..\game\ultrastar.db" "..\game\cover.db" "..\game\config.ini" "..\game\WorldParty.exe" 
+del /Q "..\game\error.log" "..\game\avatar.db" "..\game\ultrastar.db" "..\game\cover.db" "..\game\config.ini" "..\game\WorldParty.exe" "..\game\screenshots\*.jpg" 
 
 echo Cleaning files from editor
 del /Q /S "..\*.bak"
