@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -168,7 +168,6 @@ end;
 function TScreenPartyTournamentPlayer.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
 var
   SDL_ModState:  word;
-  I:  integer;
   isAlternate: boolean;
   procedure IntNext;
   begin
@@ -426,8 +425,8 @@ begin
 end;
 
 procedure TScreenPartyTournamentPlayer.SetAnimationProgress(Progress: real);
-var
-  I:    integer;
+// var
+//   I:    integer;
 begin
   {for I := 0 to high(Button) do
     Button[I].Texture.ScaleW := Progress;   }

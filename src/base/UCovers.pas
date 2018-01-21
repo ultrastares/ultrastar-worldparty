@@ -22,16 +22,6 @@
 
 unit UCovers;
 
-{
-  TODO:
-  - adjust database to new song-loading (e.g. use SongIDs)
-  - support for deletion of outdated covers
-  - support for update of changed covers
-  - use paths relative to the song for removable disks support
-    (a drive might have a different drive-name the next time it is connected,
-     so "H:/songs/..." will not match "I:/songs/...")
-}
-
 interface
 
 {$IFDEF FPC}
@@ -55,7 +45,6 @@ type
 
   TCover = class
     private
-      ID: int64;
       Filename: IPath;
     public
       constructor Create(Filename: IPath);

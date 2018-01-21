@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,10 +16,9 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
-
 
 unit UScreenSingView;
 
@@ -231,8 +230,6 @@ const
 //ToDo basisbit: check this again
 // Dirty HacK
 procedure TScreenSingView.SwapToScreen(Screen: integer);
-var
-  P, I: integer;
 begin
   { if screens = 2 and playerplay <= 3 the 2nd screen shows the
     textures of screen 1 }
@@ -1212,13 +1209,10 @@ var
   DisplayPrefix:          string;
   DisplayMin:             integer;
   DisplaySec:             integer;
-  T:                      integer;
   CurLyricsTime:          real;
   VideoFrameTime:         Extended;
   Line:                   TLyricLine;
   LastWord:               TLyricWord;
-  LineDuet:                   TLyricLine;
-  LastWordDuet:               TLyricWord;
   medley_end:             boolean;
   medley_start_applause:  boolean;
 begin
@@ -1515,7 +1509,6 @@ var
   timeDiff:       real;
   t:              real;
   CountDownText:  UTF8String;
-  Position:       real;
 begin
   if AudioPlayback.Position < GetTimeFromBeat(CurrentSong.Medley.StartBeat) then
   begin
@@ -1594,7 +1587,6 @@ end;
 
 procedure TScreenSingView.MedleyTitleFadeOut();
 var
-  I: integer;
   Alpha: real;
   CTime: cardinal;
 begin
@@ -1735,7 +1727,7 @@ var
 
   x, y, w, h: real;
   CurrentLine: integer;
-  GAPxStart, GAPw: real;
+  GAPxStart: real;
 begin
   x := Theme.Sing.StaticTimeProgress.x;
   y := Theme.Sing.StaticTimeProgress.y;
@@ -1796,4 +1788,3 @@ begin
 end;
 
 end.
-

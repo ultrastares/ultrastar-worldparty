@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -175,7 +175,6 @@ end;
 function TWebcam.FrameEffect(Nr_Effect: integer; Frame: PIplImage): PIplImage;
 var
   Size: CvSize;
-  HalfSize: CvSize;
   CamEffectParam: integer;
   ImageFrame, EffectFrame, DiffFrame: PIplImage;
 begin
@@ -193,7 +192,6 @@ begin
   end;
 
   Size  := cvSizeV(Frame.width, Frame.height);
-  HalfSize  := cvSizeV(Frame.width/2, Frame.height/2);
 
   ImageFrame := cvCreateImage(Size, Frame.depth, 1);
   EffectFrame := cvCreateImage(Size, Frame.depth, 1);
@@ -321,16 +319,12 @@ end;
 
 function TWebcam.FrameAdjust(Frame: PIplImage): PIplImage;
 var
-  I, J: integer;
   Size: CvSize;
-  HalfSize: CvSize;
   BrightValue, SaturationValue, HueValue: integer;
   BrightValueConvt, SaturationValueConvt, HueValueConvt: real;
   ImageFrame, TmpFrame, HueFrame, SaturationFrame, ValueFrame: PIplImage;
 begin
-
   Size  := cvSizeV(Frame.width, Frame.height);
-  HalfSize  := cvSizeV(Frame.width/2, Frame.height/2);
 
   ImageFrame := cvCreateImage(Size, Frame.depth, 1);
   TmpFrame := cvCreateImage(Size, Frame.depth, 3);
@@ -357,11 +351,6 @@ begin
   // Saturation
   if (SaturationValue <> 100) then
   begin
-    if (SaturationValue > 100) then
-      SaturationValueConvt := (SaturationValue - 100) * 255/100
-    else
-      SaturationValueConvt := -((SaturationValue - 100) * -255/100);
-
     // Convert from Red-Green-Blue to Hue-Saturation-Value
 //    cvCvtColor(Frame, TmpFrame, CV_BGR2HSV );
 
@@ -379,11 +368,6 @@ begin
   // Hue
   if (HueValue <> 180) then
   begin
-    if (HueValue > 100) then
-      HueValueConvt := (HueValue - 100) * 255/100
-    else
-      HueValueConvt := -((HueValue - 100) * -255/100);
-
     // Convert from Red-Green-Blue to Hue-Saturation-Value
     cvCvtColor(Frame, TmpFrame, CV_BGR2RGB );
 

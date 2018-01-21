@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -107,7 +107,7 @@ type
     public
       // Players or Teams colors
       SingColor:      array[0..(IMaxPlayerCount-1)] of integer;
-      
+
       Name:           array[0..15] of UTF8String;
       PlayerColor:    array[0..(IMaxPlayerCount-1)] of integer;
       TeamColor:      array[0..2] of integer;
@@ -361,7 +361,7 @@ const
   IThresholdVals:    array[0..3] of single  = (0.05, 0.10,  0.15,  0.20);
 
   IVoicePassthrough: array[0..1] of UTF8String  = ('Off', 'On');
-  
+
   IMusicAutoGain:        array[0..3] of UTF8String  = ('Off', 'Soft', 'Medium', 'Hard');
   IMusicAutoGainVals:    array[0..3] of integer  = (-1, 0, 1, 2);
 
@@ -485,7 +485,7 @@ var
   ISavePlaybackTranslated:     array[0..1] of UTF8String  = ('Off', 'On');
 
   IVoicePassthroughTranslated: array[0..1] of UTF8String  = ('Off', 'On');
-  
+
   IMusicAutoGainTranslated: array[0..3] of UTF8String  = ('Off', 'Soft', 'Medium', 'Hard');
 
   ISyncToTranslated:           array[0..2] of UTF8String  = ('Music', 'Lyrics', 'Off');
@@ -1800,7 +1800,7 @@ begin
 
   // VoicePasstrough
   IniFile.WriteString('Sound', 'VoicePassthrough', IVoicePassthrough[VoicePassthrough]);
-  
+
   // MusicAutoGain
   IniFile.WriteString('Sound', 'MusicAutoGain', IMusicAutoGain[MusicAutoGain]);
 
@@ -2083,7 +2083,6 @@ end;
 procedure TIni.SaveSoundFont(Name: string);
 var
   IniFile: TIniFile;
-  I: integer;
 begin
   if not Filename.IsReadOnly() then
   begin
@@ -2122,7 +2121,6 @@ end;
 procedure TIni.SaveNumberOfPlayers;
 var
   IniFile: TIniFile;
-  I: integer;
 begin
   if not Filename.IsReadOnly() then
   begin
@@ -2138,7 +2136,6 @@ end;
 procedure TIni.SaveSingTimebarMode;
 var
   IniFile: TIniFile;
-  I: integer;
 begin
   if not Filename.IsReadOnly() then
   begin
@@ -2154,7 +2151,6 @@ end;
 procedure TIni.SaveJukeboxTimebarMode;
 var
   IniFile: TIniFile;
-  I: integer;
 begin
   if not Filename.IsReadOnly() then
   begin

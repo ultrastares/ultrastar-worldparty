@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 unit UJoystick;
@@ -199,7 +199,6 @@ type
 
       function GetJoystick(): Pointer; override;
 
-    private
       // mapping
       function TranslateAxisToKey(Axis: integer; Direction: integer; out Key: TSDL_KeyCode): boolean; override;
       function TranslateAxisToMouseAxis(Axis: integer; Direction: integer; out MouseAxis: byte): boolean; override;
@@ -220,7 +219,6 @@ type
       function GetJoystick(): Pointer; override;
       function ShouldIgnoreLegacy(): boolean; override;
 
-    private
       // mapping
       function TranslateAxisToKey(Axis: integer; Direction: integer; out Key: TSDL_KeyCode): boolean; override;
       function TranslateAxisToMouseAxis(Axis: integer; Direction: integer; out MouseAxis: byte): boolean; override;
@@ -501,7 +499,6 @@ end;
 destructor TJoy.Destroy;
 var
   i, index: integer;
-  Controller: TJoyController;
 begin
   inherited;
 
@@ -677,7 +674,6 @@ end;
 procedure TJoy.OnControllerButton(id: integer; ButtonId: integer; State: TJoyButtonState; Legacy: boolean);
 var
   Controller: TJoyController;
-  i, index: integer;
 begin
 
   // ignore unknown or disabled input
@@ -776,7 +772,6 @@ end;
 function TJoyController.SimulateKeyboard(Key: TSDL_KeyCode; Pressed: boolean; NoMouseOverride: boolean): boolean;
 var
   JoyEvent: TSDL_Event;
-  TempName: string;
 begin
   Result := true;
 

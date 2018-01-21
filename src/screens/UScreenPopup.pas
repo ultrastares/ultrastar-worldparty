@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -220,6 +220,7 @@ var
   Value: boolean;
 begin
   Result := true;
+  Value := false;
   if (PressedDown) then
   begin // Key Down
     // check special keys
@@ -262,7 +263,7 @@ begin
   fHandlerData := nil;
 
   AddText(Theme.CheckPopup.TextCheck);
-  
+
   LoadFromTheme(Theme.CheckPopup);
 
   AddButton(Theme.CheckPopup.Button1);
@@ -317,6 +318,7 @@ var
   Password_TMP: UTF8String;
 begin
   Result := true;
+  Value := false;
   if (PressedDown) then
   begin // Key Down
     // check normal keys
@@ -476,6 +478,7 @@ var
   Password_TMP: UTF8String;
 begin
   Result := true;
+  Value := 0;
   if (PressedDown) then
   begin // Key Down
     // check normal keys
@@ -817,8 +820,6 @@ end;
 { TScreenPopupScoreDownload }
 
 function TScreenPopupScoreDownload.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
-var
-  Value: boolean;
 begin
   Result := true;
   if (PressedDown) then
@@ -828,7 +829,6 @@ begin
       SDLK_ESCAPE,
       SDLK_BACKSPACE :
         begin
-          Value := false;
           Visible := false;
           Result := false;
           Text[0].Text := Language.Translate('SCORE_DOWNLOAD_RECEIVE_LIST');
@@ -837,7 +837,6 @@ begin
 
       SDLK_RETURN:
         begin
-          Value := (Interaction = 0);
           if (Interaction = 0) then
           begin
             Visible := false;
@@ -898,7 +897,7 @@ end;
 procedure TScreenPopupScoreDownload.SaveScoreSong();
 var
   String_Text, User_Score, Max_Score, Media_Score: string;
-  I, J, Update: integer;
+  J, Update: integer;
   DeleteSongLevel: array [0..2] of boolean;
 begin
 
