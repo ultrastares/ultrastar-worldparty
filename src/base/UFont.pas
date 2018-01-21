@@ -48,7 +48,6 @@ uses
   {$IFEND}
   FreeType,
   dglOpenGL,
-  glu,
   sdl2,
   Math,
   Classes,
@@ -1220,9 +1219,9 @@ end;
  *}
 function TScalableFont.GetMipmapLevel(): integer;
 var
-  ModelMatrix, ProjMatrix: T16dArray;
+  ModelMatrix, ProjMatrix: TGLMatrixd4;
   WinCoords: array[0..2, 0..2] of GLdouble;
-  ViewPortArray: TViewPortArray;
+  ViewPortArray: TGLVectori4;
   Dist, Dist2, DistSum: double;
   WidthScale, HeightScale: double;
 const

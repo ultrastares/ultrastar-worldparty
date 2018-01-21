@@ -479,6 +479,8 @@ begin
               case NoteType of
                 ntNormal: glColor4f(1, 1, 1, 1);   // We set alpha to 1, cause we can control the transparency through the png itself
                 ntGolden: glColor4f(1, 1, 0.3, 1); // no stars, paint yellow -> glColor4f(1, 1, 0.3, 0.85); - we could
+                ntRap:    glColor4f(1, 1, 1, 1);
+                ntRapGolden: glColor4f(1, 1, 0.3, 1);
             end; // case
             end //Else all Notes same Color
             else
@@ -489,7 +491,14 @@ begin
           Rec.Right := Rec.Left + NotesW[PlayerNumber - 1];
           Rec.Top := Top - (Tone-BaseNote)*Space/2 - NotesH[PlayerNumber - 1];
           Rec.Bottom := Rec.Top + 2 * NotesH[PlayerNumber - 1];
-          glBindTexture(GL_TEXTURE_2D, Tex_plain_Left[PlayerNumber].TexNum);
+          If (NoteType = ntRap) or (NoteType = ntRapGolden) then
+          begin
+            glBindTexture(GL_TEXTURE_2D, Tex_plain_Left_Rap[PlayerNumber].TexNum);
+          end
+          else
+          begin
+            glBindTexture(GL_TEXTURE_2D, Tex_plain_Left[PlayerNumber].TexNum);
+          end;
           glBegin(GL_QUADS);
             glTexCoord2f(0, 0); glVertex2f(Rec.Left,  Rec.Top);
             glTexCoord2f(0, 1); glVertex2f(Rec.Left,  Rec.Bottom);
@@ -509,7 +518,14 @@ begin
             if Rec.Right <= Rec.Left then
               Rec.Right := Rec.Left;
 
-            glBindTexture(GL_TEXTURE_2D, Tex_plain_Mid[PlayerNumber].TexNum);
+            If (NoteType = ntRap) or (NoteType = ntRapGolden) then
+            begin
+              glBindTexture(GL_TEXTURE_2D, Tex_plain_Mid_Rap[PlayerNumber].TexNum);
+            end
+            else
+            begin
+              glBindTexture(GL_TEXTURE_2D, Tex_plain_Mid[PlayerNumber].TexNum);
+            end;
             glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
             glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
             glBegin(GL_QUADS);
@@ -524,7 +540,14 @@ begin
         Rec.Right := Rec.Right + NotesW[PlayerNumber - 1];
 
 
-            glBindTexture(GL_TEXTURE_2D, Tex_plain_Right[PlayerNumber].TexNum);
+            If (NoteType = ntRap) or (NoteType = ntRapGolden) then
+            begin
+              glBindTexture(GL_TEXTURE_2D, Tex_plain_Right_Rap[PlayerNumber].TexNum);
+            end
+            else
+            begin
+              glBindTexture(GL_TEXTURE_2D, Tex_plain_Right[PlayerNumber].TexNum);
+            end;
             glBegin(GL_QUADS);
               glTexCoord2f(0, 0); glVertex2f(Rec.Left,  Rec.Top);
               glTexCoord2f(0, 1); glVertex2f(Rec.Left,  Rec.Bottom);
@@ -533,7 +556,7 @@ begin
             glEnd;
 
           // Golden Star Patch
-          if (NoteType = ntGolden) and (Ini.EffectSing=1) then
+          if ((NoteType = ntGolden) or (NoteType = ntRapGolden)) and (Ini.EffectSing=1) then
           begin
             GoldenRec.SaveGoldenStarsRec(GoldenStarPos, Rec.Top, Rec.Right, Rec.Bottom);
           end;
@@ -601,7 +624,14 @@ begin
 
         // draw the left part
         glColor3f(1, 1, 1);
-        glBindTexture(GL_TEXTURE_2D, Tex_Left[PlayerIndex+1].TexNum);
+        If (NoteType = ntRap) or (NoteType = ntRapGolden) then
+        begin
+          glBindTexture(GL_TEXTURE_2D, Tex_Left_Rap[PlayerIndex+1].TexNum);
+        end
+        else
+        begin
+          glBindTexture(GL_TEXTURE_2D, Tex_Left[PlayerIndex+1].TexNum);
+        end;
         glBegin(GL_QUADS);
           glTexCoord2f(0, 0); glVertex2f(Rec.Left,  Rec.Top);
           glTexCoord2f(0, 1); glVertex2f(Rec.Left,  Rec.Bottom);
@@ -622,7 +652,14 @@ begin
           Rec.Right := Rec.Left;
 
         // draw the middle part
-        glBindTexture(GL_TEXTURE_2D, Tex_Mid[PlayerIndex+1].TexNum);
+        If (NoteType = ntRap) or (NoteType = ntRapGolden) then
+        begin
+          glBindTexture(GL_TEXTURE_2D, Tex_Mid_Rap[PlayerIndex+1].TexNum);
+        end
+        else
+        begin
+          glBindTexture(GL_TEXTURE_2D, Tex_Mid[PlayerIndex+1].TexNum);
+        end;
         glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
         glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
         glBegin(GL_QUADS);
@@ -637,7 +674,14 @@ begin
         Rec.Left  := Rec.Right;
         Rec.Right := Rec.Right + NotesW[PlayerIndex];
 
+        If (NoteType = ntRap) or (NoteType = ntRapGolden) then
+        begin
+          glBindTexture(GL_TEXTURE_2D, Tex_Right_Rap[PlayerIndex+1].TexNum);
+        end
+        else
+        begin
         glBindTexture(GL_TEXTURE_2D, Tex_Right[PlayerIndex+1].TexNum);
+        end;
         glBegin(GL_QUADS);
           glTexCoord2f(0, 0); glVertex2f(Rec.Left,  Rec.Top);
           glTexCoord2f(0, 1); glVertex2f(Rec.Left,  Rec.Bottom);
@@ -715,7 +759,14 @@ begin
             Rec.Top := Top - (Tone-BaseNote)*Space/2 - H;
             Rec.Bottom := Rec.Top + 2 * H;
 
-            glBindTexture(GL_TEXTURE_2D, Tex_BG_Left[PlayerIndex+1].TexNum);
+            If (NoteType = ntRap) or (NoteType = ntRapGolden) then
+            begin
+              glBindTexture(GL_TEXTURE_2D, Tex_BG_Left_Rap[PlayerIndex+1].TexNum);
+            end
+            else
+            begin
+              glBindTexture(GL_TEXTURE_2D, Tex_BG_Left[PlayerIndex+1].TexNum);
+            end;
             glBegin(GL_QUADS);
               glTexCoord2f(0, 0); glVertex2f(Rec.Left,  Rec.Top);
               glTexCoord2f(0, 1); glVertex2f(Rec.Left,  Rec.Bottom);
@@ -731,7 +782,14 @@ begin
             if Rec.Right <= Rec.Left then
               Rec.Right := Rec.Left;
 
-            glBindTexture(GL_TEXTURE_2D, Tex_BG_Mid[PlayerIndex+1].TexNum);
+            If (NoteType = ntRap) or (NoteType = ntRapGolden) then
+            begin
+              glBindTexture(GL_TEXTURE_2D, Tex_BG_Mid_Rap[PlayerIndex+1].TexNum);
+            end
+            else
+            begin
+              glBindTexture(GL_TEXTURE_2D, Tex_BG_Mid[PlayerIndex+1].TexNum);
+            end;
             glBegin(GL_QUADS);
               glTexCoord2f(0, 0); glVertex2f(Rec.Left,  Rec.Top);
               glTexCoord2f(0, 1); glVertex2f(Rec.Left,  Rec.Bottom);
@@ -743,7 +801,14 @@ begin
             Rec.Left  := Rec.Right;
             Rec.Right := Rec.Left + W;
 
-            glBindTexture(GL_TEXTURE_2D, Tex_BG_Right[PlayerIndex+1].TexNum);
+            If (NoteType = ntRap) or (NoteType = ntRapGolden) then
+            begin
+              glBindTexture(GL_TEXTURE_2D, Tex_BG_Right_Rap[PlayerIndex+1].TexNum);
+            end
+            else
+            begin
+              glBindTexture(GL_TEXTURE_2D, Tex_BG_Right[PlayerIndex+1].TexNum);
+            end;
             glBegin(GL_QUADS);
               glTexCoord2f(0, 0); glVertex2f(Rec.Left,  Rec.Top);
               glTexCoord2f(0, 1); glVertex2f(Rec.Left,  Rec.Bottom);
@@ -781,8 +846,8 @@ var
   LyricEngine: TLyricEngine;
   Col: TRGB;
 const
-  BarWidth  = 50; // width  of the lyric helper bar
-  BarHeight = 30; // height of the lyric helper bar
+  BarWidth  = 17; // width  of the lyric helper bar
+  BarHeight = 20; // height of the lyric helper bar
   BarMoveLimit = 40; // max. number of beats remaining before the bar starts to move
 begin
   // get current lyrics line and the time in beats of its first note
@@ -814,7 +879,7 @@ begin
        (BarMoveDelta > 0) then   // and the first note of the line is not reached
     begin
       // let the bar blink to the beat
-      BarAlpha := 0.75 + cos(BarMoveDelta/2) * 0.25;
+      BarAlpha := 0.75 + cos(BarMoveDelta/3) * 0.35;
 
       // if the number of beats to the first note is too big,
       // the bar stays on the left side.
@@ -886,9 +951,9 @@ begin
         end;
       end
       else
-        Col := GetLyricBarColor(1);
+       // Col := GetLyricBarColor(1);
 
-      glColor4f(Col.R, Col.G, Col.B, BarAlpha);
+      glColor4f(255,255, 255, BarAlpha);
 
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glBindTexture(GL_TEXTURE_2D, Tex_Lyric_Help_Bar.TexNum);
@@ -922,8 +987,8 @@ var
   MoveDist: real;          // number of pixels the bar will move
   LyricEngine: TLyricEngine;
 const
-  BarWidth  = 50; // width  of the lyric helper bar
-  BarHeight = 30; // height of the lyric helper bar
+  BarWidth  = 17; // width  of the lyric helper bar
+  BarHeight = 20; // height of the lyric helper bar
   BarMoveLimit = 40; // max. number of beats remaining before the bar starts to move
 begin
 
@@ -948,7 +1013,7 @@ begin
        (BarMoveDelta > 0) then   // and the first note of the line is not reached
     begin
       // let the bar blink to the beat
-      BarAlpha := 0.75 + cos(BarMoveDelta/2) * 0.25;
+      BarAlpha := 0.75 + cos(BarMoveDelta/3) * 0.35;
 
       // if the number of beats to the first note is too big,
       // the bar stays on the left side.
@@ -994,8 +1059,8 @@ begin
       glEnable(GL_TEXTURE_2D);
       glEnable(GL_BLEND);
 
-      //glColor4f(1, 0.75, 0, BarAlpha);
-      glColor4f(ScreenJukebox.LyricHelper.R, ScreenJukebox.LyricHelper.G, ScreenJukebox.LyricHelper.B, BarAlpha);
+      glColor4f(255,255,255, BarAlpha);
+      //glColor4f(ScreenJukebox.LyricHelper.R, ScreenJukebox.LyricHelper.G, ScreenJukebox.LyricHelper.B, BarAlpha);
 
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glBindTexture(GL_TEXTURE_2D, Tex_Lyric_Help_Bar.TexNum);
@@ -1794,6 +1859,8 @@ begin
           ntFreestyle: glColor4f(1, 1, 1, 0.35);
           ntNormal: glColor4f(1, 1, 1, 0.85);
           ntGolden: Glcolor4f(1, 1, 0.3, 0.85);
+          ntRap: glColor4f(1, 1, 1, 0.85);
+          ntRapGolden: Glcolor4f(1, 1, 0.3, 0.85);
         end; // case
 
         // left part
@@ -1801,7 +1868,14 @@ begin
         Rec.Right := Rec.Left + NotesW[0];
         Rec.Top := Top - (Tone-BaseNote)*Space/2 - NotesH[0];
         Rec.Bottom := Rec.Top + 2 * NotesH[0];
-        glBindTexture(GL_TEXTURE_2D, Tex_Left[Color].TexNum);
+        If (NoteType = ntRap) or (NoteType = ntRapGolden) then
+        begin
+          glBindTexture(GL_TEXTURE_2D, Tex_Left_Rap[Color].TexNum);
+        end
+        else
+        begin
+          glBindTexture(GL_TEXTURE_2D, Tex_Left[Color].TexNum);
+        end;
         glBegin(GL_QUADS);
           glTexCoord2f(0, 0); glVertex2f(Rec.Left,  Rec.Top);
           glTexCoord2f(0, 1); glVertex2f(Rec.Left,  Rec.Bottom);
@@ -1814,7 +1888,14 @@ begin
         Rec.Left  := Rec.Right;
         Rec.Right := (Start+Length-Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) * TempR + Left - NotesW[0] - 0.5 + 10*ScreenX;
 
-        glBindTexture(GL_TEXTURE_2D, Tex_Mid[Color].TexNum);
+        If (NoteType = ntRap) or (NoteType = ntRapGolden) then
+        begin
+          glBindTexture(GL_TEXTURE_2D, Tex_Mid_Rap[Color].TexNum);
+        end
+        else
+        begin
+          glBindTexture(GL_TEXTURE_2D, Tex_Mid[Color].TexNum);
+        end;
         glBegin(GL_QUADS);
           glTexCoord2f(0, 0); glVertex2f(Rec.Left,  Rec.Top);
           glTexCoord2f(0, 1); glVertex2f(Rec.Left,  Rec.Bottom);
@@ -1826,7 +1907,14 @@ begin
         Rec.Left  := Rec.Right;
         Rec.Right := Rec.Right + NotesW[0];
 
-        glBindTexture(GL_TEXTURE_2D, Tex_Right[Color].TexNum);
+        If (NoteType = ntRap) or (NoteType = ntRapGolden) then
+        begin
+          glBindTexture(GL_TEXTURE_2D, Tex_Right_Rap[Color].TexNum);
+        end
+        else
+        begin
+          glBindTexture(GL_TEXTURE_2D, Tex_Right[Color].TexNum);
+        end;
         glBegin(GL_QUADS);
           glTexCoord2f(0, 0); glVertex2f(Rec.Left,  Rec.Top);
           glTexCoord2f(0, 1); glVertex2f(Rec.Left,  Rec.Bottom);
@@ -1834,7 +1922,7 @@ begin
           glTexCoord2f(1, 0); glVertex2f(Rec.Right, Rec.Top);
         glEnd;
 
-        if (NoteType = ntGolden) and (Ini.EffectSing=1) then
+        if ((NoteType = ntGolden) or (NoteType = ntRapGolden)) and (Ini.EffectSing=1) then
         begin
           GoldenRec.SaveGoldenStarsRec(GoldenStarPos, Rec.Top, Rec.Right, Rec.Bottom);
         end;

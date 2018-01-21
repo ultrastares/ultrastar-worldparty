@@ -135,6 +135,7 @@ begin
       SongFile.WriteLine('#ARTIST:'   + EncodeToken(Song.Artist));
 
       if Song.Creator     <> ''        then SongFile.WriteLine('#CREATOR:'   + EncodeToken(Song.Creator));
+      if Song.Fixer		  <> ''		   then SongFile.WriteLine('#FIXER:'  	 + EncodeToken(Song.Fixer));
       if Song.Edition     <> 'Unknown' then SongFile.WriteLine('#EDITION:'   + EncodeToken(Song.Edition));
       if Song.Genre       <> 'Unknown' then SongFile.WriteLine('#GENRE:'     + EncodeToken(Song.Genre));
       if Song.Language    <> 'Unknown' then SongFile.WriteLine('#LANGUAGE:'  + EncodeToken(Song.Language));
@@ -183,6 +184,8 @@ begin
               ntFreestyle: NoteState := 'F ';
               ntNormal: NoteState := ': ';
               ntGolden: NoteState := '* ';
+              ntRap: NoteState:= 'R ';
+              ntRapGolden: NoteState:='G ';
             end; // case
             S := NoteState + IntToStr(Start-RelativeSubTime) + ' '
                            + IntToStr(Length) + ' '

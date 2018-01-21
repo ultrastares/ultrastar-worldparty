@@ -72,7 +72,7 @@ const
   CHANNEL_OFF = 0;         // for field ChannelToPlayerMap
   LATENCY_AUTODETECT = -1; // for field Latency
   DEFAULT_RESOLUTION = '800x600';
-  DEFAULT_THEME = 'Modern';
+  DEFAULT_THEME = 'Fantasy';
   IMaxPlayerCount = 12;
   IPlayers:     array[0..6] of UTF8String = ('1', '2', '3', '4', '6', '8', '12');
   IPlayersVals: array[0..6] of integer    = ( 1 ,  2 ,  3 ,  4 ,  6 ,  8 ,  12);
@@ -132,7 +132,7 @@ type
       Sorting:        integer;
       ShowScores:     integer;
       ShowWebScore:   integer;
-      Debug:          integer;
+
 
       // Graphics
       MaxFramerate:   byte;
@@ -141,12 +141,13 @@ type
       Split:          integer;
       Resolution:     integer;             // Resolution for windowed mode
       ResolutionFullscreen:     integer;   // Resolution for real fullscreen (changing Video mode)
-      Depth:          integer;
+	  LoadAnimation:  integer;
+      EffectSing:     integer;
+      ScreenFade:     integer;
       VisualizerOption: integer;
       FullScreen:     integer;
       TextureSize:    integer;
       SingWindow:     integer;
-      Oscilloscope:   integer;
       // not used
       //Spectrum:       integer;
       //Spectrograph:   integer;
@@ -186,9 +187,9 @@ type
       InputDeviceConfig: array of TInputDeviceConfig;
 
       // Advanced
-      LoadAnimation:  integer;
-      EffectSing:     integer;
-      ScreenFade:     integer;
+
+	  Debug:          integer;
+      Oscilloscope:   integer;
       AskBeforeDel:   integer;
       OnSongClick:    integer;
       LineBonus:      integer;
@@ -334,7 +335,6 @@ const
   IScreens:          array[0..1] of UTF8String  = ('1', '2');
   ISplit:            array[0..1] of UTF8String  = ('Off', 'On');
   IFullScreen:       array[0..2] of UTF8String  = ('Off', 'On', 'Borderless');
-  IDepth:            array[0..1] of UTF8String  = ('16 bit', '32 bit');
   IVisualizer:       array[0..3] of UTF8String  = ('Off', 'WhenNoVideo', 'WhenNoVideoAndImage', 'On');
 
   IBackgroundMusic:  array[0..1] of UTF8String  = ('Off', 'On');
@@ -397,7 +397,7 @@ const
   //for lyric colors
   ILine:             array[0..2] of UTF8String = ('Sing', 'Actual', 'Next');
   IAttribute:        array[0..1] of UTF8String = ('Fill', 'Outline');
-  ISingLineColor:    array[0..20] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
+  ISingLineColor:    array[0..21] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
   IActualLineColor:  array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
   INextLineColor:    array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
   //outline
@@ -405,14 +405,13 @@ const
   IActualLineOColor:  array[0..2] of UTF8String = ('Black', 'White', 'Other');
   INextLineOColor:    array[0..2] of UTF8String = ('Black', 'White', 'Other');
 
-  IHexSingColor: array[0..20] of UTF8String = ('0096FF', '3FBF3F', 'FF3FC0', 'DC0000', 'B43FE6', 'FF9000', 'FFFF00', 'C07F1F', '000000', '00FFE6', 'FF7F66',
-                                                '99FF66', 'CCCCFF', 'FFE6CC', '339999', '9900CC', '336699', 'FF99FF', '8A5C2E', 'FFCC33', '');
+  IHexSingColor: array[0..21] of UTF8String = ('0096FF', '3FBF3F', 'FF3FC0', 'DC0000', 'B43FE6', 'FF9000', 'FFFF00', 'D7006F', 'C07F1F', '000000', '00FFE6', 'FF7F66', '99FF66', 'CCCCFF', 'FFE6CC', '339999', '9900CC', '336699', 'FF99FF', '8A5C2E', 'FFCC33', '');
   IHexGrayColor: array[0..9] of UTF8String = ('000000', '202020', '404040', '606060', '808080', 'A0A0A0', 'C0C0C0', 'D6D6D6', 'FFFFFF', '');
   IHexOColor:    array[0..2] of UTF8String = ('000000', 'FFFFFF', '');
 
   IJukeboxSongMenu: array[0..1] of UTF8String = ('Off', 'On');
 
-  IColor:         array[0..8] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Brown', 'Black');
+  IColor:         array[0..9] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black');
 
   // Advanced
   ILoadAnimation: array[0..1] of UTF8String = ('Off', 'On');
@@ -502,14 +501,14 @@ var
   ILyricsFontTranslated:       array[0..2] of UTF8String = ('Plain', 'OLine1', 'OLine2');
   ILyricsEffectTranslated:     array[0..4] of UTF8String = ('Simple', 'Zoom', 'Slide', 'Ball', 'Shift');
   INoteLinesTranslated:        array[0..1] of UTF8String = ('Off', 'On');
-  IColorTranslated:            array[0..8] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Brown', 'Black');
-  IPlayerColorTranslated:      array[0..15] of UTF8String = ('Blue', 'Red', 'Green', 'Yellow', 'Orange', 'Pink',  'Violet', 'Brown', 'Gray', 'Dark Blue', 'Sky', 'Cyan', 'Flame', 'Orchid', 'Harlequin', 'Lime');
+  IColorTranslated:            array[0..9] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black');
+  IPlayerColorTranslated:      array[0..16] of UTF8String = ('Blue', 'Red', 'Green', 'Yellow', 'Magenta', 'Orange', 'Pink',  'Violet', 'Brown', 'Gray', 'Dark Blue', 'Sky', 'Cyan', 'Flame', 'Orchid', 'Harlequin', 'Lime');
 
   //for lyric colors
   ILineTranslated:             array[0..2] of UTF8String = ('Sing', 'Actual', 'Next');
   IPropertyTranslated:         array[0..1] of UTF8String = ('Fill', 'Outline');
 
-  ISingLineColorTranslated:    array[0..20] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
+  ISingLineColorTranslated:    array[0..21] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
   IActualLineColorTranslated:  array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
   INextLineColorTranslated:    array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
   ISingLineOColorTranslated:   array[0..2] of UTF8String = ('Black', 'White', 'Other');
@@ -597,11 +596,7 @@ begin
 
   SetLength(ILanguageTranslated, Length(ILanguage));
   for I := 0 to High(ILanguage) do
-  begin
-    ILanguageTranslated[I] := ULanguage.Language.Translate(
-      'OPTION_VALUE_' + UpperCase(ILanguage[I])
-    );
-  end;
+	ILanguageTranslated[I] := ILanguage[I];
 
   IDifficultyTranslated[0]            := ULanguage.Language.Translate('OPTION_VALUE_EASY');
   IDifficultyTranslated[1]            := ULanguage.Language.Translate('OPTION_VALUE_MEDIUM');
@@ -725,20 +720,21 @@ begin
   ISingLineColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_VIOLET');
   ISingLineColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_ORANGE');
   ISingLineColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_YELLOW');
-  ISingLineColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
-  ISingLineColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
-  ISingLineColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_TURQUOISE');
-  ISingLineColorTranslated[10] := ULanguage.Language.Translate('OPTION_VALUE_SALMON');
-  ISingLineColorTranslated[11] := ULanguage.Language.Translate('OPTION_VALUE_GREENYELLOW');
-  ISingLineColorTranslated[12] := ULanguage.Language.Translate('OPTION_VALUE_LAVENDER');
-  ISingLineColorTranslated[13] := ULanguage.Language.Translate('OPTION_VALUE_BEIGE');
-  ISingLineColorTranslated[14] := ULanguage.Language.Translate('OPTION_VALUE_TEAL');
-  ISingLineColorTranslated[15] := ULanguage.Language.Translate('OPTION_VALUE_ORCHID');
-  ISingLineColorTranslated[16] := ULanguage.Language.Translate('OPTION_VALUE_STEELBLUE');
-  ISingLineColorTranslated[17] := ULanguage.Language.Translate('OPTION_VALUE_PLUM');
-  ISingLineColorTranslated[18] := ULanguage.Language.Translate('OPTION_VALUE_CHOCOLATE');
-  ISingLineColorTranslated[19] := ULanguage.Language.Translate('OPTION_VALUE_GOLD');
-  ISingLineColorTranslated[20] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
+  ISingLineColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_MAGENTA');
+  ISingLineColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
+  ISingLineColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
+  ISingLineColorTranslated[10] := ULanguage.Language.Translate('OPTION_VALUE_TURQUOISE');
+  ISingLineColorTranslated[11] := ULanguage.Language.Translate('OPTION_VALUE_SALMON');
+  ISingLineColorTranslated[12] := ULanguage.Language.Translate('OPTION_VALUE_GREENYELLOW');
+  ISingLineColorTranslated[13] := ULanguage.Language.Translate('OPTION_VALUE_LAVENDER');
+  ISingLineColorTranslated[14] := ULanguage.Language.Translate('OPTION_VALUE_BEIGE');
+  ISingLineColorTranslated[15] := ULanguage.Language.Translate('OPTION_VALUE_TEAL');
+  ISingLineColorTranslated[16] := ULanguage.Language.Translate('OPTION_VALUE_ORCHID');
+  ISingLineColorTranslated[17] := ULanguage.Language.Translate('OPTION_VALUE_STEELBLUE');
+  ISingLineColorTranslated[18] := ULanguage.Language.Translate('OPTION_VALUE_PLUM');
+  ISingLineColorTranslated[19] := ULanguage.Language.Translate('OPTION_VALUE_CHOCOLATE');
+  ISingLineColorTranslated[20] := ULanguage.Language.Translate('OPTION_VALUE_GOLD');
+  ISingLineColorTranslated[21] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
 
   IActualLineColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
   IActualLineColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +3';
@@ -781,25 +777,27 @@ begin
   IColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_VIOLET');
   IColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_ORANGE');
   IColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_YELLOW');
-  IColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
-  IColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
+  IColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_MAGENTA');
+  IColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
+  IColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
 
   IPlayerColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLUE');
   IPlayerColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_RED');
   IPlayerColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_GREEN');
   IPlayerColorTranslated[3] := ULanguage.Language.Translate('OPTION_VALUE_YELLOW');
-  IPlayerColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_ORANGE');
-  IPlayerColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_PINK');
-  IPlayerColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_VIOLET');
-  IPlayerColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
-  IPlayerColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_GRAY');
-  IPlayerColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_DARKBLUE');
-  IPlayerColorTranslated[10] := ULanguage.Language.Translate('OPTION_VALUE_SKY');
-  IPlayerColorTranslated[11] := ULanguage.Language.Translate('OPTION_VALUE_CYAN');
-  IPlayerColorTranslated[12] := ULanguage.Language.Translate('OPTION_VALUE_FLAME');
-  IPlayerColorTranslated[13] := ULanguage.Language.Translate('OPTION_VALUE_ORCHID');
-  IPlayerColorTranslated[14] := ULanguage.Language.Translate('OPTION_VALUE_HARLEQUIN');
-  IPlayerColorTranslated[15] := ULanguage.Language.Translate('OPTION_VALUE_GREENYELLOW');
+  IPlayerColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_MAGENTA');
+  IPlayerColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_ORANGE');
+  IPlayerColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_PINK');
+  IPlayerColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_VIOLET');
+  IPlayerColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
+  IPlayerColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_GRAY');
+  IPlayerColorTranslated[10] := ULanguage.Language.Translate('OPTION_VALUE_DARKBLUE');
+  IPlayerColorTranslated[11] := ULanguage.Language.Translate('OPTION_VALUE_SKY');
+  IPlayerColorTranslated[12] := ULanguage.Language.Translate('OPTION_VALUE_CYAN');
+  IPlayerColorTranslated[13] := ULanguage.Language.Translate('OPTION_VALUE_FLAME');
+  IPlayerColorTranslated[14] := ULanguage.Language.Translate('OPTION_VALUE_ORCHID');
+  IPlayerColorTranslated[15] := ULanguage.Language.Translate('OPTION_VALUE_HARLEQUIN');
+  IPlayerColorTranslated[16] := ULanguage.Language.Translate('OPTION_VALUE_GREENYELLOW');
 
   // Advanced
   ILoadAnimationTranslated[0]         := ULanguage.Language.Translate('OPTION_VALUE_OFF');
@@ -1222,7 +1220,6 @@ begin
   // Split mode
   Split := ReadArrayIndex(ISplit, IniFile, 'Graphics', 'Split', 0);
 
-  // FullScreen
   FullScreen := ReadArrayIndex(IFullScreen, IniFile, 'Graphics', 'FullScreen', IGNORE_INDEX, 'Borderless');
 
   // standard fallback resolutions
@@ -1344,8 +1341,6 @@ begin
   if (Length(IResolution) = 0) or (Resolution < 0) then
   begin
     // if no modes were set, then failback to DEFAULT_RESOLUTION (800x600)
-    // as per http://sourceforge.net/forum/message.php?msg_id=4544965
-    // THANKS : linnex at users.sourceforge.net
     SetLength(IResolution, Length(IResolution) + 1);
     IResolution[High(IResolution)] := DEFAULT_RESOLUTION;
     Resolution := GetArrayIndex(IResolution, DEFAULT_RESOLUTION);
@@ -1355,8 +1350,6 @@ begin
     FullScreen := 0; // default to fullscreen OFF in this case
   end;
 
-  // Depth
-  Depth := ReadArrayIndex(IDepth, IniFile, 'Graphics', 'Depth', IGNORE_INDEX, '32 bit');
 end;
 
 procedure TIni.Load();
@@ -1447,21 +1440,21 @@ begin
       ShowWebScore := 0;
   end;
 
-  // Debug
-  Debug := ReadArrayIndex(IDebug, IniFile, 'Game', 'Debug', 0);
-
   LoadScreenModes(IniFile);
 
   LoadWebcamSettings(IniFile);
+
+    // LoadAnimation
+  LoadAnimation := ReadArrayIndex(ILoadAnimation, IniFile, 'Graphics', 'LoadAnimation', IGNORE_INDEX, 'On');
+
+  // ScreenFade
+  ScreenFade := ReadArrayIndex(IScreenFade, IniFile, 'Graphics', 'ScreenFade', IGNORE_INDEX, 'On');
 
   // TextureSize (aka CachedCoverSize)
   TextureSize := ReadArrayIndex(ITextureSize, IniFile, 'Graphics', 'TextureSize', IGNORE_INDEX, '256');
 
   // SingWindow
   SingWindow := ReadArrayIndex(ISingWindow, IniFile, 'Graphics', 'SingWindow', IGNORE_INDEX, 'Big');
-
-  // Oscilloscope
-  Oscilloscope := ReadArrayIndex(IOscilloscope, IniFile, 'Graphics', 'Oscilloscope', 0);
 
   // Spectrum
   //Spectrum := ReadArrayIndex(ISpectrum, IniFile, 'Graphics', 'Spectrum', IGNORE_INDEX, 'Off');
@@ -1498,14 +1491,14 @@ begin
 
   //AudioRepeat aka VoicePassthrough
   VoicePassthrough := ReadArrayIndex(IVoicePassthrough, IniFile, 'Sound', 'VoicePassthrough', 0);
-  
+
   // ReplayGain aka MusicAutoGain
   MusicAutoGain := ReadArrayIndex(IMusicAutoGain, IniFile, 'Sound', 'MusicAutoGain', 0);
 
   SoundFont := IniFile.ReadString('Sound', 'SoundFont', '');
 
   // Lyrics Font
-  LyricsFont := ReadArrayIndex(ILyricsFont, IniFile, 'Lyrics', 'LyricsFont', 2);
+  LyricsFont := ReadArrayIndex(ILyricsFont, IniFile, 'Lyrics', 'LyricsFont', 0);
 
   // Lyrics Effect
   LyricsEffect := ReadArrayIndex(ILyricsEffect, IniFile, 'Lyrics', 'LyricsEffect', 2);
@@ -1520,11 +1513,12 @@ begin
 
   LoadInputDeviceCfg(IniFile);
 
-  // LoadAnimation
-  LoadAnimation := ReadArrayIndex(ILoadAnimation, IniFile, 'Advanced', 'LoadAnimation', IGNORE_INDEX, 'On');
+    // Debug
+  Debug := ReadArrayIndex(IDebug, IniFile, 'Advanced', 'Debug', 0);
 
-  // ScreenFade
-  ScreenFade := ReadArrayIndex(IScreenFade, IniFile, 'Advanced', 'ScreenFade', IGNORE_INDEX, 'On');
+    // Oscilloscope
+  Oscilloscope := ReadArrayIndex(IOscilloscope, IniFile, 'Advanced', 'Oscilloscope', 0);
+
 
   // Visualizations
   // <mog> this could be of use later..
@@ -1593,7 +1587,7 @@ begin
 
   // Jukebox
   JukeboxFont := ReadArrayIndex(ILyricsFont, IniFile, 'Jukebox', 'LyricsFont', 2);
-  JukeboxEffect := ReadArrayIndex(ILyricsEffect, IniFile, 'Jukebox', 'LyricsEffect', 1);
+  JukeboxEffect := ReadArrayIndex(ILyricsEffect, IniFile, 'Jukebox', 'LyricsEffect', 2);
   JukeboxAlpha := ReadArrayIndex(ILyricsAlpha, IniFile, 'Jukebox', 'LyricsAlpha', 20);
 
   JukeboxSongMenu := ReadArrayIndex(IJukeboxSongMenu, IniFile, 'Jukebox', 'SongMenu', IGNORE_INDEX, 'On');
@@ -1601,12 +1595,12 @@ begin
 
   JukeboxSingLineColor := ReadArrayIndex(IHexSingColor, IniFile, 'Jukebox', 'SingLineColor', High(IHexSingColor));
 
-  // other color
+  // SingLine color
   if (JukeboxSingLineColor = -1) or (JukeboxSingLineColor = High(IHexSingColor)) then
   begin
     JukeboxSingLineColor := High(IHexSingColor);
 
-    HexColor := IniFile.ReadString('Jukebox', 'SingLineColor', IHexSingColor[0]);
+    HexColor := IniFile.ReadString('Jukebox', 'SingLineColor', IHexSingColor[7]);
     Col := HexToRGB(HexColor);
 
     Ini.JukeboxSingLineOtherColorR := Round(Col.R);
@@ -1616,26 +1610,27 @@ begin
 
   JukeboxActualLineColor := ReadArrayIndex(IHexGrayColor, IniFile, 'Jukebox', 'ActualLineColor', High(IHexGrayColor));
 
-  // other color
+  // UpperLine Fill color
   if (JukeboxActualLineColor = -1) or (JukeboxActualLineColor = High(IHexGrayColor)) then
   begin
     JukeboxActualLineColor := High(IHexGrayColor);
 
-    HexColor := IniFile.ReadString('Jukebox', 'ActualLineColor', IHexGrayColor[8]);
+    HexColor := IniFile.ReadString('Jukebox', 'ActualLineColor', 'FFF5EB');
     Col := HexToRGB(HexColor);
 
     Ini.JukeboxActualLineOtherColorR := Round(Col.R);
     Ini.JukeboxActualLineOtherColorG := Round(Col.G);
     Ini.JukeboxActualLineOtherColorB := Round(Col.B);
+
   end;
 
   JukeboxNextLineColor := ReadArrayIndex(IHexGrayColor, IniFile, 'Jukebox', 'NextLineColor', High(IHexGrayColor));
-  // other color
+  // BottomLine Fill color
   if (JukeboxNextLineColor = -1) or (JukeboxNextLineColor = High(IHexGrayColor)) then
   begin
     JukeboxNextLineColor := High(IHexGrayColor);
 
-    HexColor := IniFile.ReadString('Jukebox', 'NextLineColor', IHexGrayColor[6]);
+    HexColor := IniFile.ReadString('Jukebox', 'NextLineColor', IHexGrayColor[5]);
     Col := HexToRGB(HexColor);
 
     Ini.JukeboxNextLineOtherColorR := Round(Col.R);
@@ -1644,7 +1639,7 @@ begin
   end;
 
   JukeboxSingLineOutlineColor := ReadArrayIndex(IHexOColor, IniFile, 'Jukebox', 'SingLineOColor', 0);
-  // other color
+  // SingLine Outline color
   if (JukeboxSingLineOutlineColor = -1) then
   begin
     JukeboxSingLineOutlineColor := High(IHexOColor);
@@ -1658,7 +1653,7 @@ begin
   end;
 
   JukeboxActualLineOutlineColor := ReadArrayIndex(IHexOColor, IniFile, 'Jukebox', 'ActualLineOColor', 0);
-  // other color
+  // UpperLine Outline color
   if (JukeboxActualLineOutlineColor = -1) then
   begin
     JukeboxActualLineOutlineColor := High(IHexOColor);
@@ -1672,7 +1667,7 @@ begin
   end;
 
   JukeboxNextLineOutlineColor := ReadArrayIndex(IHexOColor, IniFile, 'Jukebox', 'NextLineOColor', 0);
-  // other color
+	// BottomLine Outline color
   if (JukeboxNextLineOutlineColor = -1) then
   begin
     JukeboxNextLineOutlineColor := High(IHexOColor);
@@ -1696,14 +1691,15 @@ procedure TIni.Save;
 var
   IniFile: TIniFile;
   HexColor: string;
-  I: integer;
   C: TRGB;
 begin
-  if (Filename.IsFile and Filename.IsReadOnly) then
+  try
   begin
-    Log.LogError('Config-file is read-only', 'TIni.Save');
-    Exit;
-  end;
+    if (Filename.IsFile and Filename.IsReadOnly) then
+    begin
+      Log.LogError('Config-file is read-only', 'TIni.Save');
+      Exit;
+    end;
 
   IniFile := TIniFile.Create(Filename.ToNative);
 
@@ -1728,8 +1724,8 @@ begin
   // Show Scores
   IniFile.WriteString('Game', 'ShowScores', IShowScores[ShowScores]);
 
-  // Debug
-  IniFile.WriteString('Game', 'Debug', IDebug[Debug]);
+  // Joypad
+  IniFile.WriteString('Controller', 'Joypad', IJoypad[Joypad]);
 
   // MaxFramerate
   IniFile.WriteString('Graphics', 'MaxFramerate', IMaxFramerate[MaxFramerate]);
@@ -1750,17 +1746,20 @@ begin
   IniFile.WriteString('Graphics', 'Resolution', GetResolution);
   IniFile.WriteString('Graphics', 'ResolutionFullscreen', GetResolutionFullscreen);
 
-  // Depth
-  IniFile.WriteString('Graphics', 'Depth', IDepth[Depth]);
+    //LoadAnimation
+  IniFile.WriteString('Graphics', 'LoadAnimation', ILoadAnimation[LoadAnimation]);
+
+  //EffectSing
+  IniFile.WriteString('Graphics', 'EffectSing', IEffectSing[EffectSing]);
+
+  //ScreenFade
+  IniFile.WriteString('Graphics', 'ScreenFade', IScreenFade[ScreenFade]);
 
   // TextureSize
   IniFile.WriteString('Graphics', 'TextureSize', ITextureSize[TextureSize]);
 
   // Sing Window
   IniFile.WriteString('Graphics', 'SingWindow', ISingWindow[SingWindow]);
-
-  // Oscilloscope
-  IniFile.WriteString('Graphics', 'Oscilloscope', IOscilloscope[Oscilloscope]);
 
   // Spectrum
   //IniFile.WriteString('Graphics', 'Spectrum', ISpectrum[Spectrum]);
@@ -1827,14 +1826,11 @@ begin
 
   SaveInputDeviceCfg(IniFile);
 
-  //LoadAnimation
-  IniFile.WriteString('Advanced', 'LoadAnimation', ILoadAnimation[LoadAnimation]);
+  // Debug
+  IniFile.WriteString('Advanced', 'Debug', IDebug[Debug]);
 
-  //EffectSing
-  IniFile.WriteString('Advanced', 'EffectSing', IEffectSing[EffectSing]);
-
-  //ScreenFade
-  IniFile.WriteString('Advanced', 'ScreenFade', IScreenFade[ScreenFade]);
+  // Oscilloscope
+  IniFile.WriteString('Advanced', 'Oscilloscope', IOscilloscope[Oscilloscope]);
 
   //AskbeforeDel
   IniFile.WriteString('Advanced', 'AskbeforeDel', IAskbeforeDel[AskBeforeDel]);
@@ -1856,9 +1852,6 @@ begin
 
   //SyncTo
   IniFile.WriteString('Advanced', 'SyncTo', ISyncTo[SyncTo]);
-
-  // Joypad
-  IniFile.WriteString('Controller', 'Joypad', IJoypad[Joypad]);
 
   // Mouse
   IniFile.WriteString('Controller', 'Mouse', IMouse[Mouse]);
@@ -1940,9 +1933,16 @@ begin
   else
     HexColor := RGBToHex(JukeboxNextLineOtherOColorR, JukeboxNextLineOtherOColorG, JukeboxNextLineOtherOColorB);
 
-  IniFile.WriteString('Jukebox', 'NextLineOColor', HexColor);
+    IniFile.WriteString('Jukebox', 'NextLineOColor', HexColor);
 
-  IniFile.Free;
+    IniFile.Free;
+
+  end
+  except
+    On e :Exception do begin
+      Log.LogWarn('Saving InputDeviceConfig failed: ' + e.Message, 'UIni.Save');
+    end;
+  end;
 end;
 
 procedure TIni.SaveNames;

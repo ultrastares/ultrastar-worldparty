@@ -806,18 +806,18 @@ begin
   // Some White Background for information
   glEnable(GL_BLEND);
   glDisable(GL_TEXTURE_2D);
-  glColor4f(1, 1, 1, 0.5);
+  glColor4f(1, 1, 1, 0.4);
   glBegin(GL_QUADS);
-    glVertex2f(710, 20);
-    glVertex2f(700, 0);
-    glVertex2f(800, 0);
-    glVertex2f(790, 20);
+    glVertex2f(706, 17); //Bottom left
+    glVertex2f(700, 0); //Top left
+    glVertex2f(760, 0); //Top Right
+    glVertex2f(754, 17); //Bottom right
   glEnd;
   glDisable(GL_BLEND);
 
   // set font specs
   SetFontStyle(ftNormal);
-  SetFontSize(21);
+  SetFontSize(15);
   SetFontItalic(false);
   glColor4f(0, 0, 0, 1);
 
@@ -835,7 +835,7 @@ begin
   // draw text
 
   // fps
-  SetFontPos(720, 0);
+  SetFontPos(712, 1);
   glPrint ('FPS: ' + InttoStr(LastFPS));
 
   glColor4f(1, 1, 1, 1);

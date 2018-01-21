@@ -138,7 +138,8 @@ type
     ArtistNoAccent: UTF8String;
 
     Creator:    UTF8String;
-
+	Fixer:		UTF8String;
+	
     CoverTex:   TTexture;
 
     VideoGAP:   real;
@@ -149,7 +150,7 @@ type
     Resolution: integer;
     BPM:        array of TBPM;
     GAP:        real; // in miliseconds
-
+    
     Encoding:   TEncoding;
     PreviewStart: real;   // in seconds
     HasPreview: boolean;  // set if a valid PreviewStart was read
@@ -158,6 +159,8 @@ type
 
     isDuet: boolean;
     DuetNames:  array of UTF8String; // duet singers name
+
+    hasRap: boolean;
 
     CustomTags: array of TCustomHeaderTag;
 
@@ -523,7 +526,7 @@ begin
       while (SongFile.ReadLine(CurLine)) do
       begin
         Inc(FileLineNo);
-        if (Length(CurLine) > 0) and (CurLine[1] in [':', 'F', '*', 'P']) then
+        if (Length(CurLine) > 0) and (CurLine[1] in [':', 'F', '*', 'R', 'G', 'P']) then
         begin
           NotesFound := true;
           Break;
@@ -613,8 +616,13 @@ begin
         begin
           Break
         end
-        else if (Param0 in [':', '*', 'F']) then
+        else if (Param0 in [':', '*', 'F', 'R', 'G']) then
         begin
+          // sets the rap icon if the song has rap notes
+          if(Param0 in ['R', 'G']) then
+          begin
+            CurrentSong.hasRap := true;
+          end;
           // read notes
           Param1 := ParseLyricIntParam(CurLine, LinePos);
           Param2 := ParseLyricIntParam(CurLine, LinePos);
@@ -946,6 +954,12 @@ begin
         DecodeStringUTF8(Value, Creator, Encoding)
       end
 
+	  //Fixer Tag
+      else if (Identifier = 'FIXER') then
+      begin
+        DecodeStringUTF8(Value, Fixer, Encoding)
+      end
+	  
       //Language Sorting
       else if (Identifier = 'LANGUAGE') then
       begin
@@ -1149,6 +1163,8 @@ begin
       'F':  Note[HighNote].NoteType := ntFreestyle;
       ':':  Note[HighNote].NoteType := ntNormal;
       '*':  Note[HighNote].NoteType := ntGolden;
+      'R':  Note[HighNote].NoteType := ntRap;
+      'G':  Note[HighNote].NoteType := ntRapGolden;
     end;
 
     //add this notes value ("notes length" * "notes scorefactor") to the current songs entire value

@@ -186,8 +186,8 @@ begin
     PerfectNote:
         begin
           Tex := Tex_Note_Perfect_Star.TexNum;
-          W := 30;
-          H := 30;
+          W := 8;
+          H := 12;
           SetLength(Col,1);
           Col[0].r := 1;
           Col[0].g := 1;
@@ -213,24 +213,15 @@ begin
           SurviveSentenceChange := True;
           // assign colours according to player given
           SetLength(Scale,3);
-          Scale[1] := 0.3;
-          Scale[2] := 0.2;
+          Scale[1] := 1; //border color
+          Scale[2] := 1; //fill color
           SetLength(Col,3);
-          case Player of
-            0: LoadColor(Col[0].r,Col[0].g,Col[0].b,'P1Light');
-            1: LoadColor(Col[0].r,Col[0].g,Col[0].b,'P2Light');
-            2: LoadColor(Col[0].r,Col[0].g,Col[0].b,'P3Light');
-            3: LoadColor(Col[0].r,Col[0].g,Col[0].b,'P4Light');
-            4: LoadColor(Col[0].r,Col[0].g,Col[0].b,'P5Light');
-            5: LoadColor(Col[0].r,Col[0].g,Col[0].b,'P6Light');
-            else LoadColor(Col[0].r,Col[0].g,Col[0].b,'P1Light');
-          end;
           Col[1].r := 1;
           Col[1].g := 1;
-          Col[1].b := 0.4;
-          Col[2].r := Col[0].r+0.5;
-          Col[2].g := Col[0].g+0.5;
-          Col[2].b := Col[0].b+0.5;
+          Col[1].b := 1;
+          Col[2].r := Col[1].r;
+          Col[2].g := Col[1].g;
+          Col[2].b := Col[1].b;
           mX := RandomRange(-5,5);
           mY := RandomRange(-5,5);
         end;
