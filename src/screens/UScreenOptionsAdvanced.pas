@@ -88,7 +88,7 @@ begin
         end;
       SDLK_RETURN:
         begin
-          if SelInteraction = 8 then
+          if SelInteraction = 7 then
           begin
             Ini.Save;
             AudioPlayback.PlaySound(SoundLib.Back);
@@ -101,7 +101,7 @@ begin
         InteractPrev;
       SDLK_RIGHT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 7) then
+          if (SelInteraction >= 0) and (SelInteraction <= 6) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractInc;
@@ -109,7 +109,7 @@ begin
         end;
       SDLK_LEFT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 7) then
+          if (SelInteraction >= 0) and (SelInteraction <= 6) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractDec;
@@ -125,21 +125,14 @@ begin
   
   LoadFromTheme(Theme.OptionsAdvanced);
 
-  //SelectLoadAnimation Hidden because it is useless atm
-  //AddSelect(Theme.OptionsAdvanced.SelectLoadAnimation, Ini.LoadAnimation, ILoadAnimationTranslated);
-  Theme.OptionsAdvanced.SelectScreenFade.showArrows := true;
-  Theme.OptionsAdvanced.SelectScreenFade.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsAdvanced.SelectScreenFade, Ini.ScreenFade, IScreenFadeTranslated);
-
-  Theme.OptionsAdvanced.SelectEffectSing.showArrows := true;
-  Theme.OptionsAdvanced.SelectEffectSing.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsAdvanced.SelectEffectSing, Ini.EffectSing, IEffectSingTranslated);
-
-  Theme.OptionsAdvanced.SelectJoypad.showArrows := true;
-  Theme.OptionsAdvanced.SelectJoypad.oneItemOnly := true;
-  SelectJoyPad := AddSelectSlide(Theme.OptionsAdvanced.SelectJoypad, Ini.Joypad, IJoypad);
-
-
+  Theme.OptionsAdvanced.SelectDebug.showArrows  := true;
+  Theme.OptionsAdvanced.SelectDebug.oneItemOnly := true;
+  AddSelectSlide(Theme.OptionsAdvanced.SelectDebug, Ini.Debug, IDebugTranslated);
+  
+  Theme.OptionsAdvanced.SelectOscilloscope.showArrows := true;
+  Theme.OptionsAdvanced.SelectOscilloscope.oneItemOnly := true;
+  AddSelectSlide(Theme.OptionsAdvanced.SelectOscilloscope, Ini.Oscilloscope, IOscilloscopeTranslated);
+  
   Theme.OptionsAdvanced.SelectOnSongClick.showArrows := true;
   Theme.OptionsAdvanced.SelectOnSongClick.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsAdvanced.SelectOnSongClick, Ini.OnSongClick, IOnSongClickTranslated);
@@ -162,7 +155,7 @@ begin
 
   AddButton(Theme.OptionsAdvanced.ButtonExit);
   if (Length(Button[0].Text)=0) then
-    AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
+    AddButtonText(20, 6, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
 
   Interaction := 0;
 end;

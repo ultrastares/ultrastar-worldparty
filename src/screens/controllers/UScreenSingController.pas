@@ -31,28 +31,30 @@ interface
 {$I switches.inc}
 
 uses
-  SysUtils,
-  sdl2,
   dglOpenGL,
+  sdl2,
+  SysUtils,
   TextGL,
   UAvatars,
   UCommon,
+  UDisplay,
   UFiles,
   UGraphicClasses,
   UHookableEvent,
-  UScreenSingView,
   UIni,
   ULog,
   ULyrics,
   UMenu,
   UMusic,
   UPath,
+  UScreenSingView,
   USingScores,
+  USkins,
   USongs,
   UTexture,
   UThemes,
-  UTime,
-  USkins;
+  UTime;
+
 
 type
   TPos = record // Lines[part].Line[line].Note[note]
@@ -171,6 +173,7 @@ type
       PressedDown: boolean): boolean; override;
 
     function FinishedMusic: boolean;
+	function ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean; override;
 
     procedure AutoSendScore;
     procedure AutoSaveScore;
@@ -198,7 +201,6 @@ uses
   UNote,
   URecord,
   USong,
-  UDisplay,
   UParty,
   UPathUtils,
   UUnicodeUtils,
@@ -277,6 +279,11 @@ begin
           Scores.AddPlayer(Tex_ScoreBG[i1], Color);
         end;
         LyricsState.SetCurrentTime(CurrentSong.Start);
+
+		Lyrics.Clear(CurrentSong.BPM[0].BPM, CurrentSong.Resolution);
+		LyricsDuetP1.Clear(CurrentSong.BPM[0].BPM, CurrentSong.Resolution);
+		LyricsDuetP2.Clear(CurrentSong.BPM[0].BPM, CurrentSong.Resolution);
+
         Scores.Init;
         Exit;
       end;
@@ -457,7 +464,7 @@ end;
 
 constructor TScreenSingController.Create;
 var
-  Col: array [1..6] of TRGB;
+
   I: integer;
   Color: cardinal;
 begin
@@ -500,7 +507,9 @@ var
   V5DuetSixP: boolean;
   V6DuetSixP: boolean;
   BadPlayer: integer;
-  Col, ColP1, ColP2: TRGB;
+  ColP1, ColP2: TRGB;
+  Col_Sty_Up, Col_Sty_Sing, Col_Sty_dn: TRGB; //stylized typo color
+  Col_Out_Up, Col_Out_Sing, Col_Out_dn: TRGB; //Outline typo color
   I: integer;
 begin
   inherited;
@@ -718,6 +727,43 @@ begin
     end;
   end;
 
+
+	//Upper line - Sing
+	if (Ini.JukeboxSingLineColor = High(UIni.ISingLineColor)) then
+		begin
+			Col_Sty_Sing := GetJukeboxLyricOtherColor(0);
+			Col_Out_Sing := GetJukeboxLyricOtherColor(0);
+		end
+	else
+		begin
+			Col_Sty_Sing := GetLyricColor(Ini.JukeboxSingLineColor);
+			Col_Out_Sing := GetLyricColor(Ini.JukeboxSingLineColor);
+		end;
+
+	//Upper line - normal
+	if (Ini.JukeboxActualLineColor = High(UIni.IActualLineColor)) then
+		begin
+			Col_Sty_Up := GetJukeboxLyricOtherColor(1);
+			Col_Out_Up := GetJukeboxLyricOtherColor(1);
+		end
+	else
+		begin
+			Col_Sty_Up := GetLyricGrayColor(Ini.JukeboxActualLineColor);
+			Col_Out_Up := GetLyricGrayColor(Ini.JukeboxActualLineColor);
+		end;
+
+	// Bottom Line
+	if (Ini.JukeboxNextLineColor = High(UIni.INextLineColor)) then
+		begin
+			Col_Sty_dn := GetJukeboxLyricOtherColor(2);
+			Col_Out_Dn := GetJukeboxLyricOtherColor(2);
+		end
+	else
+		begin
+			Col_Sty_dn := GetLyricGrayColor(Ini.JukeboxNextLineColor);
+			Col_Out_Dn := GetLyricGrayColor(Ini.JukeboxNextLineColor);
+		end;
+
   // set custom options
   if (CurrentSong.isDuet) and (PlayersPlay <> 1) then
   begin
@@ -731,34 +777,36 @@ begin
         LyricsDuetP1.FontStyle := ftNormal;
         LyricsDuetP2.FontStyle := ftNormal;
 
-        LyricsDuetP1.LineColor_en.R := Skin_FontR;
-        LyricsDuetP1.LineColor_en.G := Skin_FontG;
-        LyricsDuetP1.LineColor_en.B := Skin_FontB;
+
+        LyricsDuetP1.LineColor_en.R := Col_Sty_Up.R;
+        LyricsDuetP1.LineColor_en.G := Col_Sty_Up.G;
+        LyricsDuetP1.LineColor_en.B := Col_Sty_Up.B;
         LyricsDuetP1.LineColor_en.A := 1;
 
-        LyricsDuetP2.LineColor_en.R := Skin_FontR;
-        LyricsDuetP2.LineColor_en.G := Skin_FontG;
-        LyricsDuetP2.LineColor_en.B := Skin_FontB;
+        LyricsDuetP2.LineColor_en.R := Col_Sty_Up.R;
+        LyricsDuetP2.LineColor_en.G := Col_Sty_Up.G;
+        LyricsDuetP2.LineColor_en.B := Col_Sty_Up.B;
         LyricsDuetP2.LineColor_en.A := 1;
 
-        LyricsDuetP1.LineColor_dis.R := 0.2;
-        LyricsDuetP1.LineColor_dis.G := 0.2;
-        LyricsDuetP1.LineColor_dis.B := 0.2;
+        LyricsDuetP1.LineColor_dis.R := Col_Sty_dn.R;
+        LyricsDuetP1.LineColor_dis.G := Col_Sty_dn.G;
+        LyricsDuetP1.LineColor_dis.B := Col_Sty_dn.B;
         LyricsDuetP1.LineColor_dis.A := 1;
 
-        LyricsDuetP2.LineColor_dis.R := 0.2;
-        LyricsDuetP2.LineColor_dis.G := 0.2;
-        LyricsDuetP2.LineColor_dis.B := 0.2;
+        LyricsDuetP2.LineColor_dis.R := Col_Sty_dn.R;
+        LyricsDuetP2.LineColor_dis.G := Col_Sty_dn.G;
+        LyricsDuetP2.LineColor_dis.B := Col_Sty_dn.B;
         LyricsDuetP2.LineColor_dis.A := 1;
 
-        LyricsDuetP1.LineColor_act.R := ColP1.R; //0.02;
-        LyricsDuetP1.LineColor_act.G := ColP1.G; //0.6;
-        LyricsDuetP1.LineColor_act.B := ColP1.B; //0.8;
+
+        LyricsDuetP1.LineColor_act.R := ColP1.R;
+        LyricsDuetP1.LineColor_act.G := ColP1.G;
+        LyricsDuetP1.LineColor_act.B := ColP1.B;
         LyricsDuetP1.LineColor_act.A := 1;
 
-        LyricsDuetP2.LineColor_act.R := ColP2.R; //0.02;
-        LyricsDuetP2.LineColor_act.G := ColP2.G; //0.6;
-        LyricsDuetP2.LineColor_act.B := ColP2.B; //0.8;
+        LyricsDuetP2.LineColor_act.R := ColP2.R;
+        LyricsDuetP2.LineColor_act.G := ColP2.G;
+        LyricsDuetP2.LineColor_act.B := ColP2.B;
         LyricsDuetP2.LineColor_act.A := 1;
 
       end;
@@ -775,34 +823,34 @@ begin
           LyricsDuetP2.FontStyle := ftOutline2;
         end;
 
-        LyricsDuetP1.LineColor_en.R := 0.7;
-        LyricsDuetP1.LineColor_en.G := 0.7;
-        LyricsDuetP1.LineColor_en.B := 0.7;
+        LyricsDuetP1.LineColor_en.R := Col_Out_Up.R;
+        LyricsDuetP1.LineColor_en.G := Col_Out_Up.G;
+        LyricsDuetP1.LineColor_en.B := Col_Out_Up.B;
         LyricsDuetP1.LineColor_en.A := 1;
 
-        LyricsDuetP2.LineColor_en.R := 0.7;
-        LyricsDuetP2.LineColor_en.G := 0.7;
-        LyricsDuetP2.LineColor_en.B := 0.7;
+        LyricsDuetP2.LineColor_en.R := Col_Out_Up.R;
+        LyricsDuetP2.LineColor_en.G := Col_Out_Up.G;
+        LyricsDuetP2.LineColor_en.B := Col_Out_Up.B;
         LyricsDuetP2.LineColor_en.A := 1;
 
-        LyricsDuetP1.LineColor_dis.R := 0.8;
-        LyricsDuetP1.LineColor_dis.G := 0.8;
-        LyricsDuetP1.LineColor_dis.B := 0.8;
+        LyricsDuetP1.LineColor_dis.R := Col_Out_Dn.R;
+        LyricsDuetP1.LineColor_dis.G := Col_Out_Dn.G;
+        LyricsDuetP1.LineColor_dis.B := Col_Out_Dn.B;
         LyricsDuetP1.LineColor_dis.A := 1;
 
-        LyricsDuetP2.LineColor_dis.R := 0.8;
-        LyricsDuetP2.LineColor_dis.G := 0.8;
-        LyricsDuetP2.LineColor_dis.B := 0.8;
+        LyricsDuetP2.LineColor_dis.R := Col_Out_Dn.R;
+        LyricsDuetP2.LineColor_dis.G := Col_Out_Dn.G;
+        LyricsDuetP2.LineColor_dis.B := Col_Out_Dn.B;
         LyricsDuetP2.LineColor_dis.A := 1;
 
-        LyricsDuetP1.LineColor_act.R := ColP1.R; //0.5;
-        LyricsDuetP1.LineColor_act.G := ColP1.G; //0.5;
-        LyricsDuetP1.LineColor_act.B := ColP1.B; //1;
+        LyricsDuetP1.LineColor_act.R := ColP1.R;
+        LyricsDuetP1.LineColor_act.G := ColP1.G;
+        LyricsDuetP1.LineColor_act.B := ColP1.B;
         LyricsDuetP1.LineColor_act.A := 1;
 
-        LyricsDuetP2.LineColor_act.R := ColP2.R; //0.5;
-        LyricsDuetP2.LineColor_act.G := ColP2.G; //0.5;
-        LyricsDuetP2.LineColor_act.B := ColP2.B; //1;
+        LyricsDuetP2.LineColor_act.R := ColP2.R;
+        LyricsDuetP2.LineColor_act.G := ColP2.G;
+        LyricsDuetP2.LineColor_act.B := ColP2.B;
         LyricsDuetP2.LineColor_act.A := 1;
       end;
     end; // case
@@ -816,25 +864,21 @@ begin
       begin
         Lyrics.FontStyle := ftNormal;
 
-        Lyrics.LineColor_en.R := Skin_FontR;
-        Lyrics.LineColor_en.G := Skin_FontG;
-        Lyrics.LineColor_en.B := Skin_FontB;
+		Lyrics.LineColor_act.R := Col_Sty_Sing.R;
+        Lyrics.LineColor_act.G := Col_Sty_Sing.G;
+        Lyrics.LineColor_act.B := Col_Sty_Sing.B;
+        Lyrics.LineColor_act.A := 1;
+
+		Lyrics.LineColor_en.R := Col_Sty_Up.R;
+        Lyrics.LineColor_en.G := Col_Sty_Up.G;
+        Lyrics.LineColor_en.B := Col_Sty_Up.B;
         Lyrics.LineColor_en.A := 1;
 
-        Lyrics.LineColor_dis.R := 0.2;
-        Lyrics.LineColor_dis.G := 0.2;
-        Lyrics.LineColor_dis.B := 0.2;
+		Lyrics.LineColor_dis.R := Col_Sty_dn.R;
+        Lyrics.LineColor_dis.G := Col_Sty_dn.G;
+        Lyrics.LineColor_dis.B := Col_Sty_dn.B;
         Lyrics.LineColor_dis.A := 1;
 
-        if (Ini.JukeboxSingLineColor = High(UIni.ISingLineColor)) then
-          Col := GetJukeboxLyricOtherColor(0)
-        else
-          Col := GetLyricColor(Ini.JukeboxSingLineColor);
-
-        Lyrics.LineColor_act.R := Col.R; //0.02;
-        Lyrics.LineColor_act.G := Col.G; //0.6;
-        Lyrics.LineColor_act.B := Col.B; //0.8;
-        Lyrics.LineColor_act.A := 1;
       end;
       1, 2: // outline fonts
       begin
@@ -843,31 +887,20 @@ begin
         else
           Lyrics.FontStyle := ftOutline2;
 
-        if (Ini.JukeboxSingLineColor = High(UIni.ISingLineColor)) then
-          Col := GetJukeboxLyricOtherColor(0)
-        else
-          Col := GetLyricColor(Ini.JukeboxSingLineColor);
-        Lyrics.LineColor_act.R := Col.R;
-        Lyrics.LineColor_act.G := Col.G;
-        Lyrics.LineColor_act.B := Col.B;
+
+        Lyrics.LineColor_act.R := Col_Out_Sing.R;
+        Lyrics.LineColor_act.G := Col_Out_Sing.G;
+        Lyrics.LineColor_act.B := Col_Out_Sing.B;
         Lyrics.LineColor_act.A := 1;
 
-        if (Ini.JukeboxActualLineColor = High(UIni.IActualLineColor)) then
-          Col := GetJukeboxLyricOtherColor(1)
-        else
-          Col := GetLyricGrayColor(Ini.JukeboxActualLineColor);
-        Lyrics.LineColor_en.R := Col.R;
-        Lyrics.LineColor_en.G := Col.G;
-        Lyrics.LineColor_en.B := Col.B;
+        Lyrics.LineColor_en.R := Col_Out_Up.R;
+        Lyrics.LineColor_en.G := Col_Out_Up.G;
+        Lyrics.LineColor_en.B := Col_Out_Up.B;
         Lyrics.LineColor_en.A := 1;
 
-        if (Ini.JukeboxNextLineColor = High(UIni.INextLineColor)) then
-          Col := GetJukeboxLyricOtherColor(2)
-        else
-          Col := GetLyricGrayColor(Ini.JukeboxNextLineColor);
-        Lyrics.LineColor_dis.R := Col.R;
-        Lyrics.LineColor_dis.G := Col.G;
-        Lyrics.LineColor_dis.B := Col.B;
+        Lyrics.LineColor_dis.R := Col_Out_Dn.R;
+        Lyrics.LineColor_dis.G := Col_Out_Dn.G;
+        Lyrics.LineColor_dis.B := Col_Out_Dn.B;
         Lyrics.LineColor_dis.A := 1;
       end;
     end; // case
@@ -886,7 +919,7 @@ var
   I, Index: integer;
 begin
   // hide cursor on singscreen show
-  Display.SetCursor;
+  //Display.SetCursor;
 
   // clear the scores of all players
   for Index := 0 to High(Player) do
@@ -1421,7 +1454,7 @@ begin
           fShowWebCam:=false;
         end;
   Background.OnFinish;
-  Display.SetCursor;
+ // Display.SetCursor; hide cursor
 end;
 
 function TScreenSingController.Draw: boolean;
@@ -1895,6 +1928,15 @@ begin
       end;
     end;
   end;
+end;
+
+function TScreenSingController.ParseMouse(MouseButton: integer;
+                                BtnDown: boolean;
+				X, Y: integer): boolean;
+begin
+  Result := true;
+  if (MouseButton = SDL_BUTTON_RIGHT) and BtnDown then
+    ParseInput(SDLK_ESCAPE, 0, true);
 end;
 
 end.

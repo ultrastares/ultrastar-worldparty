@@ -47,6 +47,11 @@ type
   TScreenOptionsGame = class(TMenu)
     private
       procedure ReloadScreens;
+	  
+	  protected
+      // interaction IDs
+	  ButtonExitIID: integer;
+      SelectJoyPad: integer;
 
     public
       ActualLanguage:  Integer;
@@ -155,10 +160,10 @@ begin
   Theme.OptionsGame.SelectShowScores.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsGame.SelectShowScores,    Ini.ShowScores,    IShowScoresTranslated);
 
-  Theme.OptionsGame.SelectDebug.showArrows  := true;
-  Theme.OptionsGame.SelectDebug.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGame.SelectDebug,      Ini.Debug,      IDebugTranslated);
-
+  Theme.OptionsGame.SelectJoypad.showArrows := true;
+  Theme.OptionsGame.SelectJoypad.oneItemOnly := true;
+  SelectJoyPad := AddSelectSlide(Theme.OptionsGame.SelectJoypad, Ini.Joypad, IJoypad);
+  
   AddButton(Theme.OptionsGame.ButtonExit);
   if (Length(Button[0].Text) = 0) then
     AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);

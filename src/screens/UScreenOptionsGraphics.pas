@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -82,7 +82,7 @@ begin
           Exit;
         end;
     end;
-    
+
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -111,7 +111,7 @@ begin
         InteractPrev;
       SDLK_RIGHT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction < 6) then
+          if (SelInteraction >= 0) and (SelInteraction < 7) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractInc;
@@ -125,7 +125,7 @@ begin
         end;
       SDLK_LEFT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction < 6) then
+          if (SelInteraction >= 0) and (SelInteraction < 7) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractDec;
@@ -157,17 +157,19 @@ begin
   Theme.OptionsGraphics.SelectResolution.oneItemOnly := true;
   SelectResolution := AddSelectSlide(Theme.OptionsGraphics.SelectResolution,   Ini.Resolution, IResolution);
 
-  Theme.OptionsGraphics.SelectDepth.showArrows := true;
-  Theme.OptionsGraphics.SelectDepth.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGraphics.SelectDepth,        Ini.Depth, IDepth);
+  //SelectLoadAnimation Hidden because it is useless atm
+  //AddSelect(Theme.OptionsGraphics.SelectLoadAnimation, Ini.LoadAnimation, ILoadAnimationTranslated);
+  Theme.OptionsGraphics.SelectScreenFade.showArrows := true;
+  Theme.OptionsGraphics.SelectScreenFade.oneItemOnly := true;
+  AddSelectSlide(Theme.OptionsGraphics.SelectScreenFade, Ini.ScreenFade, IScreenFadeTranslated);
+
+  Theme.OptionsGraphics.SelectEffectSing.showArrows := true;
+  Theme.OptionsGraphics.SelectEffectSing.oneItemOnly := true;
+  AddSelectSlide(Theme.OptionsGraphics.SelectEffectSing, Ini.EffectSing, IEffectSingTranslated);
 
   Theme.OptionsGraphics.SelectVisualizer.showArrows := true;
   Theme.OptionsGraphics.SelectVisualizer.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsGraphics.SelectVisualizer,   Ini.VisualizerOption, IVisualizerTranslated);
-
-  Theme.OptionsGraphics.SelectOscilloscope.showArrows := true;
-  Theme.OptionsGraphics.SelectOscilloscope.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGraphics.SelectOscilloscope, Ini.Oscilloscope, IOscilloscopeTranslated);
 
   Theme.OptionsGraphics.SelectMovieSize.showArrows := true;
   Theme.OptionsGraphics.SelectMovieSize.oneItemOnly := true;
@@ -176,7 +178,7 @@ begin
   // TODO: Add apply button
   AddButton(Theme.OptionsGraphics.ButtonExit);
   if (Length(Button[0].Text)=0) then
-    AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
+    AddButtonText(20, 6, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
 
 end;
 
