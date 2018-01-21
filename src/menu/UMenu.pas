@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -172,6 +172,8 @@ type
       procedure InteractNextRow; virtual; // this is for the options screen, so button down makes sense
       procedure InteractPrevRow; virtual; // this is for the options screen, so button up makes sense
       procedure AddBox(X, Y, W, H: real);
+	  procedure InteractMainNextRow(ItemsPerRow: integer); virtual; // this is for the main screen, so button down makes sense
+	  procedure InteractMainPrevRow(ItemsPerRow: integer); virtual; // this is for the main screen, so button up makes sense
   end;
 
 function RGBFloatToInt(R, G, B: double): cardinal;
@@ -378,7 +380,7 @@ procedure TMenu.AddBackground(ThemedSettings: TThemeBackground);
     I: integer;
   begin
     Result := false;
-  
+
     for I := 0 to High(A) do
       if (A[I] = Piece) then
       begin
@@ -1141,6 +1143,35 @@ begin
 
 end;
 
+// Implemented for the Main Menu with n items per row of buttons
+procedure TMenu.InteractMainPrevRow(ItemsPerRow: integer);
+var
+  Int: integer;
+begin
+  // these two procedures just make sense for Main menu.
+  // The number of items per row will be the offset.
+  Int := Interaction - ItemsPerRow;
+
+  //Set Interaction
+  if (Int < 0) or (Int > Length(Interactions) - 1) then
+    Int := Interaction // invalid button, keep current one
+  else
+    Interaction := Int; // select row above
+end;
+
+procedure TMenu.InteractMainNextRow(ItemsPerRow: integer);
+var
+  Int: integer;
+begin
+  Int := Interaction + ItemsPerRow;
+
+  //Set Interaction
+  if (Int < 0) or (Int > Length(Interactions) - 1) then
+    Int := Interaction // invalid button, keep current one
+  else
+    Interaction := Int; // select row above
+end;
+
 procedure TMenu.InteractNext;
 var
   Int: integer;
@@ -1362,7 +1393,7 @@ begin
 
   SelectsS[High(SelectsS)].Text.Size := ThemeSelectS.TextSize;
   SelectsS[High(SelectsS)].Text.Y := ThemeSelectS.Y + (ThemeSelectS.H /2 ) - (ThemeSelectS.TextSize / 2);
-  
+
   SelectsS[High(SelectsS)].Texture.Z := ThemeSelectS.Z;
   SelectsS[High(SelectsS)].TextureSBG.Z := ThemeSelectS.Z;
   SelectsS[High(SelectsS)].Tex_SelectS_ArrowL.Z := ThemeSelectS.Z;
@@ -1401,7 +1432,7 @@ begin
   begin
     SelectsS[S].Colorized := false;
     SelectsS[S].Texture := Texture.GetTexture(TexName, Typ);
-    
+
     SelectsS[S].ColR := ColR;
     SelectsS[S].ColG := ColG;
     SelectsS[S].ColB := ColB;
@@ -1410,14 +1441,14 @@ begin
     SelectsS[S].DColG := DColG;
     SelectsS[S].DColB := DColB;
   end;
-  
+
   SelectsS[S].Int := Int;
-  SelectsS[S].DInt := DInt; 
+  SelectsS[S].DInt := DInt;
 
   SelectsS[S].X := X;
   SelectsS[S].Y := Y;
   SelectsS[S].W := W;
-  SelectsS[S].H := H;  
+  SelectsS[S].H := H;
 
   if (SBGTyp = TEXTURE_TYPE_COLORIZED) then
   begin
@@ -1442,7 +1473,7 @@ begin
 
   SelectsS[S].SBGInt := SBGInt;
   SelectsS[S].SBGDInt := SBGDInt;
-  
+
   SelectsS[High(SelectsS)].Tex_SelectS_ArrowL   := Tex_SelectS_ArrowL;
   SelectsS[High(SelectsS)].Tex_SelectS_ArrowL.X := X + W + SkipX;
   SelectsS[High(SelectsS)].Tex_SelectS_ArrowL.Y := Y + (H - Tex_SelectS_ArrowL.H) / 2;

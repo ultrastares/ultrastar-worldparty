@@ -78,6 +78,9 @@ uses
   UParty,
   USkins,
   UUnicodeUtils;
+  
+const
+  ITEMS_PER_ROW = 3;   // Number of buttons for row of buttons in Main menu. 
 
 function TScreenMain.ParseInput(PressedKey: Cardinal; CharCode: UCS4Char;
   PressedDown: boolean): boolean;
@@ -181,8 +184,8 @@ begin
           FadeTo(@ScreenAbout, SoundLib.Start);
         end;        
       end;
-      SDLK_DOWN: InteractNextRow;
-      SDLK_UP: InteractPrevRow;
+      SDLK_DOWN: InteractMainNextRow(ITEMS_PER_ROW);
+      SDLK_UP: InteractMainPrevRow(ITEMS_PER_ROW);
       SDLK_RIGHT: InteractNext;
       SDLK_LEFT: InteractPrev;
     end;
