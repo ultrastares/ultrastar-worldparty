@@ -306,7 +306,7 @@ type
 
     //Duet Icon
     DuetIcon:         TThemeStatic;
-	
+
     //Rap Icon
     RapIcon:          TThemeStatic;
 
@@ -1691,7 +1691,7 @@ begin
       Main.Description[5] := Language.Translate('SING_EXIT');
       Main.DescriptionLong[5] := Language.Translate('SING_EXIT_DESC');
       Main.Description[6] := Language.Translate('SING_ABOUT');
-      Main.DescriptionLong[6] := Language.Translate('SING_ABOUT_DESC');	  
+      Main.DescriptionLong[6] := Language.Translate('SING_ABOUT_DESC');
 
       //Main Desc Text Translation End
 
@@ -2520,12 +2520,12 @@ begin
 
       // About
       ThemeLoadBasic(AboutMain, 'AboutMain');
-      ThemeLoadButton(AboutMain.ButtonDevelopers, 'AboutMainButtonDevelopers');	  
+      ThemeLoadButton(AboutMain.ButtonDevelopers, 'AboutMainButtonDevelopers');
       ThemeLoadButton(AboutMain.ButtonCredits, 'AboutMainButtonCredits');
       ThemeLoadButton(AboutMain.ButtonExit, 'AboutMainButtonExit');
       ThemeLoadText (AboutMain.TextOverview, 'AboutMainTextOverview');
 	  ThemeLoadStatic(AboutMain.StaticBghelper, 'AboutMainStatico');
-	  
+
       ThemeLoadBasic(Developers, 'Developers');
       ThemeLoadButton(Developers.ButtonExit, 'DevelopersButtonExit');
       ThemeLoadText (Developers.TextOverview, 'DevelopersTextOverview');
@@ -3822,8 +3822,6 @@ begin
 end;
 
 procedure TTheme.ThemeSave(const FileName: string);
-var
-  I: integer;
 begin
   {$IFDEF THEMESAVE}
   ThemeIni := TIniFile.Create(FileName);
@@ -4261,7 +4259,7 @@ begin
 
   //Duet Icon
   ThemeLoadStatic(Song.DuetIcon, 'Song' + prefix + 'DuetIcon');
- 
+
   //Rap Icon
   ThemeLoadStatic(Song.RapIcon, 'Song' + prefix + 'RapIcon');
 

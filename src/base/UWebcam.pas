@@ -321,7 +321,7 @@ function TWebcam.FrameAdjust(Frame: PIplImage): PIplImage;
 var
   Size: CvSize;
   BrightValue, SaturationValue, HueValue: integer;
-  BrightValueConvt, SaturationValueConvt, HueValueConvt: real;
+  BrightValueConvt: real;
   ImageFrame, TmpFrame, HueFrame, SaturationFrame, ValueFrame: PIplImage;
 begin
   Size  := cvSizeV(Frame.width, Frame.height);

@@ -281,6 +281,7 @@ begin
   SetLength(Files, 0);
   FindFilesByExtension(Dir, Path('.txt'), true, Files);
   Total := High(Files);
+  Percent := 0;
   Randomize;
   for I := 0 to Total do
   begin
@@ -442,7 +443,6 @@ var
   LetterTmp:   UCS4Char;
   CatNumber:   integer;    // Number of Song in Category
   tmpCategory: UTF8String; //
-  I, J:        integer;
 
   procedure AddCategoryButton(const CategoryName: UTF8String);
   var

@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -125,7 +125,7 @@ type
     protected
       fFilename: IPath;
       fStyle: TFontStyle;
-      fUseKerning: boolean;       
+      fUseKerning: boolean;
       fLineSpacing: single;       // must be inited by subclass
       fReflectionSpacing: single; // must be inited by subclass to -2*Descender
       fGlyphSpacing: single;
@@ -326,7 +326,7 @@ type
 
       {**
        * Frees memory. The fonts passed on Create() and mipmap creation
-       * are freed too. 
+       * are freed too.
        *}
       destructor Destroy(); override;
 
@@ -465,7 +465,7 @@ type
        * @raises EFontError  if the glyph could not be initialized
        *}
       constructor Create(const Filename: IPath; Size: integer);
-      
+
       destructor Destroy(); override;
 
       property Filename: IPath read fFilename;
@@ -482,7 +482,7 @@ type
   TFTFontFaceCache = class
     private
       fFaces:       array of TFTFontFace;
-      fFacesRefCnt: array of integer;      
+      fFacesRefCnt: array of integer;
     public
       {**
        * @raises EFontError  if the font could not be initialized
@@ -552,7 +552,7 @@ type
 
       {** Freetype specific char-index (<> char-code) }
       property CharIndex: FT_UInt read fCharIndex;
-      
+
       {** Freetype face used for this glyph }
       property Face: TFTFontFace read fFace;
   end;
@@ -657,7 +657,7 @@ type
                          PreCache: boolean = true);
 
       procedure AddFallback(const Filename: IPath); override;
-                         
+
       {** @seealso TGlyphCache.FlushCache }
       procedure FlushCache(KeepBaseSet: boolean);
 
@@ -665,7 +665,7 @@ type
       property Outset: single read GetOutset;
   end;
 
-  
+
   {**
    * Represents a freetype font with an additional outline around its glyphs.
    * The outline size is passed on creation and cannot be changed later.
@@ -679,7 +679,7 @@ type
       fPreCache: boolean;
 
       procedure ResetIntern();
-      
+
   protected
       procedure DrawUnderline(const Text: UCS4String); override;
       procedure Render(const Text: UCS4String); override;
@@ -716,7 +716,7 @@ type
       procedure FlushCache(KeepBaseSet: boolean);
 
       procedure AddFallback(const Filename: IPath); override;
-      
+
       {** @seealso TFont.Reset }
       procedure Reset(); override;
 
@@ -748,7 +748,7 @@ type
       procedure FlushCache(KeepBaseSet: boolean);
 
       procedure AddFallback(const Filename: IPath); override;
-      
+
       {** Outset size }
       property Outset: single read GetOutset;
   end;
@@ -844,12 +844,13 @@ const
       0,            0, 1, 0,
       0,            0, 0, 1
   );
-  cShearMatrixInv: array[0..15] of GLfloat = (
-      1,             0, 0, 0,
-      -cShearFactor, 1, 0, 0,
-      0,             0, 1, 0,
-      0,             0, 0, 1
-  );
+  // not used
+  // cShearMatrixInv: array[0..15] of GLfloat = (
+  //     1,             0, 0, 0,
+  //     -cShearFactor, 1, 0, 0,
+  //     0,             0, 1, 0,
+  //     0,             0, 0, 1
+  // );
 
 var
   LibraryInst: FT_Library;
@@ -930,7 +931,7 @@ begin
       LineLength := CharIndex - LineStart;
       // check if last character was a newline
       if (EOT and (LineLength = 0)) then
-        Break;      
+        Break;
 
       // copy line (even if LineLength is 0)
       SetLength(Lines, Length(Lines)+1);
@@ -1136,7 +1137,7 @@ var
   MipmapLevel: integer;
 begin
   inherited Create(Font.Filename);
-  
+
   fBaseFont := Font;
   fMipmapFonts[0] := Font;
   fUseMipmaps := UseMipmaps;
@@ -1521,7 +1522,6 @@ end;
    {$IF Defined(MSWINDOWS)}
    SourceFile: TFileStreamUTF8;
    {$IFEND}
-   lengthvar: Integer;
    b1: Integer;
    arraylength: Int64;
  begin
@@ -1669,7 +1669,7 @@ begin
   // free faces
   GetFaceCache.UnloadFace(fFace);
   for I := 0 to High(fFallbackFaces) do
-    GetFaceCache.UnloadFace(fFallbackFaces[I]);    
+    GetFaceCache.UnloadFace(fFallbackFaces[I]);
 
   inherited;
 end;
@@ -2286,7 +2286,7 @@ begin
     Exit;
 
   Outline := @FT_OutlineGlyph(Glyph).outline;
-  
+
   OuterBorder := FT_Outline_GetOutsideBorder(Outline);
   if (OuterBorder = FT_STROKER_BORDER_LEFT) then
     InnerBorder := FT_STROKER_BORDER_RIGHT
@@ -2404,7 +2404,7 @@ begin
   fBounds.Top    := CBox.yMax / 64 + fOutset*2;
 
   // convert the glyph to a bitmap (and destroy original glyph image).
-  // Request 8 bit gray level pixel mode. 
+  // Request 8 bit gray level pixel mode.
   FT_Glyph_To_Bitmap(Glyph, FT_RENDER_MODE_NORMAL, nil, 1);
   BitmapGlyph := FT_BitmapGlyph(Glyph);
 
@@ -2486,7 +2486,7 @@ begin
   // create alpha-map (GL_ALPHA component only).
   // TexCoord (0,0) corresponds to the top left pixel of the glyph,
   // (1,1) to the bottom right pixel. So the glyph is flipped as OpenGL uses
-  // a cartesian (y-axis up) coordinate system for textures.   
+  // a cartesian (y-axis up) coordinate system for textures.
   // See the cTexSmoothBorder comment for info on texture borders.
   glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, fTexSize.Width, fTexSize.Height,
       0, GL_ALPHA, GL_UNSIGNED_BYTE, @TexBuffer[0]);
@@ -2679,7 +2679,7 @@ begin
 
   // destroy TList
   fHash.Free;
-  
+
   inherited;
 end;
 
@@ -2751,7 +2751,7 @@ begin
   if (Table = nil) then
     Exit;
 
-  // find glyph    
+  // find glyph
   GlyphIndex := Ord(ch) and $FF;
   if (Table[GlyphIndex] <> nil) then
   begin
@@ -2984,7 +2984,7 @@ begin
 
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, fTex.TexNum);
-  
+
   if (not ReflectionPass) then
   begin
     glBegin(GL_QUADS);

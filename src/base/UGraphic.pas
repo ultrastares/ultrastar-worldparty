@@ -501,10 +501,8 @@ end;
 procedure InitializeScreen(Title: string);
 var
   S:      string;
-  I:      integer;
   W, H:   integer;
   X, Y:   integer; // offset for re-positioning
-  Depth:  Integer;
   Borderless, Fullscreen: boolean;
   Split: boolean;
   Disp: TSDL_DisplayMode;
@@ -714,7 +712,6 @@ end;
 
 procedure SetVideoMode(Mode: FullscreenModes);
   var
-    w,h: integer;
     Disp: TSDL_DisplayMode;
 begin
   if Mode = CurrentWindowMode then Exit;
