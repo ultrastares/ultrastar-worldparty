@@ -732,7 +732,7 @@ begin
   ScreenJukebox.Lyrics.LineColor_act.G := Col.G;
   ScreenJukebox.Lyrics.LineColor_act.B := Col.B;
 
-  ScreenJukebox.LyricHelper := Col;
+  //ScreenJukebox.LyricHelper := CO;
 
   if (JukeboxOptionsActualLineColor = High(IActualLineColor)) then
     Col := GetJukeboxOptionsLyricOtherColor(1)
