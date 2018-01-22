@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -43,7 +43,7 @@ type
   TPlayerIconTex = array [0..1] of TTexture;
 
   TLyricsEffect = (lfxSimple, lfxZoom, lfxSlide, lfxBall, lfxShift);
-  
+
   PLyricWord = ^TLyricWord;
   TLyricWord = record
     X:          real;     // left corner
@@ -129,7 +129,6 @@ type
 
       // song specific settings
       BPM:            real;
-      Resolution:     integer;
 
       // properties to easily read options of this class
       property IsQueueFull: boolean read QueueFull;  // line in queue?
@@ -139,7 +138,7 @@ type
       procedure Draw (Beat: real);                 // draw the current (active at beat) lyrics
 
       // clears all cached song specific information
-      procedure Clear(cBPM: real = 0; cResolution: integer = 0);
+      procedure Clear(cBPM: real = 0);
 
       function GetUpperLine(): TLyricLine;
       function GetLowerLine(): TLyricLine;
@@ -204,7 +203,6 @@ begin
   inherited Create();
 
   BPM := 0;
-  Resolution := 0;
   LCounter := 0;
   QueueFull := False;
 
@@ -242,10 +240,9 @@ end;
 {**
  * Clears all cached Song specific Information.
  *}
-procedure TLyricEngine.Clear(cBPM: real; cResolution: integer);
+procedure TLyricEngine.Clear(cBPM: real);
 begin
   BPM := cBPM;
-  Resolution := cResolution;
   LCounter := 0;
   QueueFull := False;
 
@@ -314,7 +311,7 @@ begin
 
   // reset line state
   LyricLine.Reset();
-                          
+
   // check if sentence has notes
   if (Line <> nil) and (Length(Line.Note) > 0) then
   begin
@@ -836,4 +833,3 @@ begin
 end;
 
 end.
-

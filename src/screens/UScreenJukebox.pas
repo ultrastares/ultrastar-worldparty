@@ -2598,7 +2598,7 @@ begin
   LyricsState.UpdateBeats();
 
   // main text
-  Lyrics.Clear(CurrentSong.BPM[0].BPM, CurrentSong.Resolution);
+  Lyrics.Clear(CurrentSong.BPM[0].BPM);
 
   // initialize lyrics by filling its queue
   while (not Lyrics.IsQueueFull) and

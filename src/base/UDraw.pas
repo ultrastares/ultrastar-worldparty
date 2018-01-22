@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -424,10 +424,7 @@ begin
   glBegin(GL_LINES);
   for Count := Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start to Lines[NrLines].Line[Lines[NrLines].Current].End_ do
   begin
-    if (Count mod Lines[NrLines].Resolution) = Lines[NrLines].NotesGAP then
-      glColor4f(0, 0, 0, 1)
-    else
-      glColor4f(0, 0, 0, 0.3);
+    glColor4f(0, 0, 0, 0.3);
     glVertex2f(Left + TempR * (Count - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start), Top);
     glVertex2f(Left + TempR * (Count - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start), Top + 135);
   end;
@@ -829,7 +826,7 @@ end;
 (**
  * Draws the lyrics helper bar.
  * Left: position the bar starts at
- * LyricsMid: the middle of the lyrics relative to the position Left 
+ * LyricsMid: the middle of the lyrics relative to the position Left
  *)
 procedure SingDrawLyricHelper(CP: integer; Left, LyricsMid: real);
 var
@@ -1926,7 +1923,7 @@ begin
         begin
           GoldenRec.SaveGoldenStarsRec(GoldenStarPos, Rec.Top, Rec.Right, Rec.Bottom);
         end;
-        
+
       end; // with
     end; // for
   end; // with
@@ -2066,4 +2063,3 @@ begin
 end;
 
 end.
-

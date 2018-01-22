@@ -280,9 +280,9 @@ begin
         end;
         LyricsState.SetCurrentTime(CurrentSong.Start);
 
-		Lyrics.Clear(CurrentSong.BPM[0].BPM, CurrentSong.Resolution);
-		LyricsDuetP1.Clear(CurrentSong.BPM[0].BPM, CurrentSong.Resolution);
-		LyricsDuetP2.Clear(CurrentSong.BPM[0].BPM, CurrentSong.Resolution);
+		Lyrics.Clear(CurrentSong.BPM[0].BPM);
+		LyricsDuetP1.Clear(CurrentSong.BPM[0].BPM);
+		LyricsDuetP2.Clear(CurrentSong.BPM[0].BPM);
 
         Scores.Init;
         Exit;
@@ -1349,9 +1349,9 @@ begin
   AudioInput.CaptureStart;
 
   // main text
-  Lyrics.Clear(CurrentSong.BPM[0].BPM, CurrentSong.Resolution);
-  LyricsDuetP1.Clear(CurrentSong.BPM[0].BPM, CurrentSong.Resolution);
-  LyricsDuetP2.Clear(CurrentSong.BPM[0].BPM, CurrentSong.Resolution);
+  Lyrics.Clear(CurrentSong.BPM[0].BPM);
+  LyricsDuetP1.Clear(CurrentSong.BPM[0].BPM);
+  LyricsDuetP2.Clear(CurrentSong.BPM[0].BPM);
 
   if (CurrentSong.isDuet) and (PlayersPlay <> 1) then
   begin

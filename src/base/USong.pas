@@ -134,10 +134,8 @@ type
     CoverTex:   TTexture;
 
     VideoGAP:   real;
-    NotesGAP:   integer;
     Start:      real; // in seconds
     Finish:     integer; // in miliseconds
-    Resolution: integer;
     BPM:        array of TBPM;
     GAP:        real; // in miliseconds
 
@@ -530,8 +528,6 @@ begin
         Lines[Count].High := 0;
         Lines[Count].Number := 1;
         Lines[Count].Current := 0;
-        Lines[Count].Resolution := self.Resolution;
-        Lines[Count].NotesGAP   := self.NotesGAP;
         Lines[Count].ScoreValue := 0;
 
         //Add first line and set some standard values to fields
@@ -902,7 +898,7 @@ begin
         DecodeStringUTF8(Value, Creator, Encoding)
       end
 
-	  //Fixer Tag
+      //Fixer Tag
       else if (Identifier = 'FIXER') then
       begin
         DecodeStringUTF8(Value, Fixer, Encoding)
@@ -930,18 +926,6 @@ begin
       else if (Identifier = 'END') then
       begin
         TryStrtoInt(Value, self.Finish)
-      end
-
-      // Resolution
-      else if (Identifier = 'RESOLUTION') then
-      begin
-        TryStrtoInt(Value, self.Resolution)
-      end
-
-      // Notes Gap
-      else if (Identifier = 'NOTESGAP') then
-      begin
-        TryStrtoInt(Value, self.NotesGAP)
       end
 
       // File encoding
@@ -1388,8 +1372,6 @@ begin
   Cover      := PATH_NONE;
   Video      := PATH_NONE;
   VideoGAP   := 0;
-  NotesGAP   := 0;
-  Resolution := 4;
   Creator    := '';
   PreviewStart := 0;
   CalcMedley := true;
