@@ -2455,7 +2455,6 @@ procedure TScreenJukebox.PlayMusic(ID: integer; ShowList: boolean);
 var
   Index:  integer;
   VideoFile, BgFile: IPath;
-  success: boolean;
   Max: integer;
   CoverPath: IPath;
 begin
@@ -2490,14 +2489,7 @@ begin
 
   fTimebarMode := TTimebarMode(Ini.JukeboxTimebarMode);
 
-  // FIXME: bad style, put the try-except into loadsong() and not here
-  try
-    success := CurrentSong.Analyse and CurrentSong.LoadSong(false);
-  except
-    success := false;
-  end;
-
-  if (not success) then
+  if not CurrentSong.Analyse() then
   begin
     // error loading song -> go back to previous screen and show some error message
     Display.AbortScreenChange;

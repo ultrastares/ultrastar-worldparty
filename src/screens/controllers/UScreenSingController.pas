@@ -1069,7 +1069,6 @@ var
   Index:      integer;
   VideoFile:  IPath;
   BgFile:     IPath;
-  success:    boolean;
 
   function FindNote(beat: integer): TPos;
   var
@@ -1207,15 +1206,8 @@ begin
   end;
 
   CurrentSong := CatSongs.Song[CatSongs.Selected];
-  success := false;
-  // FIXME: bad style, put the try-except into loadsong() and not here
-  try
-    success := CurrentSong.Analyse(false, ScreenSong.DuetChange); // and CurrentSong.LoadSong();
-  except
-    on E: EInOutError do Log.LogWarn(E.Message, 'TScreenSing.LoadNextSong');
-  end;
 
-  if (not success) then
+  if not CurrentSong.Analyse(ScreenSong.DuetChange) then
   begin
     SongError();
     Exit;

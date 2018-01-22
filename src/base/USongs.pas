@@ -260,7 +260,7 @@ begin
       Inc(Percent, Random(10)+6); //show around 4-10 updates to minimize load time to only a few miliseconds
     end;
     Song := TSong.Create(Path(Txts.Strings[I]));
-    if Song.Analyse then
+    if Song.Analyse() then
       SongList.Add(Song)
     else
     begin

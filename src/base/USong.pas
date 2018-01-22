@@ -85,14 +85,6 @@ type
     Date:       UTF8String;
   end;
 
-  { used to hold header tags that are not supported by this version of
-    usdx (e.g. some tags from ultrastar 0.7.0) when songs are loaded in
-    songeditor. They will be written the end of the song header }
-  TCustomHeaderTag = record
-    Tag: UTF8String;
-    Content: UTF8String;
-  end;
-
   TSong = class
   private
     FileLineNo  : integer;  // line, which is read last, for error reporting
@@ -108,10 +100,9 @@ type
     function ParseLyricCharParam(const Line: RawByteString; var LinePos: integer): AnsiChar;
     function ParseLyricText(const Line: RawByteString; var LinePos: integer): RawByteString;
 
-    function ReadTXTHeader(SongFile: TTextFileStream; ReadCustomTags: Boolean): boolean;
+    function ReadTXTHeader(SongFile: TTextFileStream): boolean;
 
     function GetFolderCategory(const aFileName: IPath): UTF8String;
-    function FindSongFile(Dir: IPath; Mask: UTF8String): IPath;
   public
     Path:         IPath; // kust path component of file (only set if file was found)
     Folder:       UTF8String; // for sorting by folder (only set if file was found)
@@ -139,7 +130,7 @@ type
 
     Creator:    UTF8String;
 	Fixer:		UTF8String;
-	
+
     CoverTex:   TTexture;
 
     VideoGAP:   real;
@@ -150,7 +141,7 @@ type
     Resolution: integer;
     BPM:        array of TBPM;
     GAP:        real; // in miliseconds
-    
+
     Encoding:   TEncoding;
     PreviewStart: real;   // in seconds
     HasPreview: boolean;  // set if a valid PreviewStart was read
@@ -161,8 +152,6 @@ type
     DuetNames:  array of UTF8String; // duet singers name
 
     hasRap: boolean;
-
-    CustomTags: array of TCustomHeaderTag;
 
     Score:      array[0..2] of array of TScore;
 
@@ -186,7 +175,7 @@ type
     constructor Create(); overload;
     constructor Create(const aFileName : IPath); overload;
     function    LoadSong(DuetChange: boolean): boolean;
-    function    Analyse(const ReadCustomTags: Boolean = false; DuetChange: boolean = false): boolean;
+    function    Analyse(DuetChange: boolean = false): boolean;
     procedure   SetMedleyMode();
     procedure   Clear();
     function    MD5SongFile(SongFileR: TTextFileStream): string;
@@ -323,19 +312,6 @@ begin
     end;
   end;
   *)
-end;
-
-function TSong.FindSongFile(Dir: IPath; Mask: UTF8String): IPath;
-var
-  Iter: IFileIterator;
-  FileInfo: TFileInfo;
-  FileName: IPath;
-begin
-  Iter := FileSystem.FileFind(Dir.Append(Mask), faDirectory);
-  if (Iter.HasNext) then
-    Result := Iter.Next.Name
-  else
-    Result := PATH_NONE;
 end;
 
 function TSong.DecodeFilename(Filename: RawByteString): IPath;
@@ -516,7 +492,7 @@ begin
   try
     // Open song file for reading.....
     SongFile := TMemTextFileStream.Create(FileNamePath, fmOpenRead);
-    MD5 := MD5SongFile(SongFile);
+    Self.MD5 := MD5SongFile(SongFile);
     SongFile.Position := 0;
 
     try
@@ -754,7 +730,7 @@ begin
   Result := StrToFloatDef(TempValue, 0);
 end;
 
-function TSong.ReadTXTHeader(SongFile: TTextFileStream; ReadCustomTags: Boolean): boolean;
+function TSong.ReadTXTHeader(SongFile: TTextFileStream): boolean;
 var
   Line, Identifier: string;
   Value: string;
@@ -764,21 +740,6 @@ var
   EncFile: IPath; // encoded filename
   FullFileName: string;
   I, P: integer;
-
-  { adds a custom header tag to the song
-    if there is no ':' in the read line, Tag should be empty
-    and the whole line should be in Content }
-  procedure AddCustomTag(const Tag, Content: String);
-    var Len: Integer;
-  begin
-    if ReadCustomTags then
-    begin
-      Len := Length(CustomTags);
-      SetLength(CustomTags, Len + 1);
-      CustomTags[Len].Tag := DecodeStringUTF8(Tag, Encoding);
-      CustomTags[Len].Content := DecodeStringUTF8(Content, Encoding);
-    end;
-  end;
 begin
   Result := true;
   Done   := 0;
@@ -816,17 +777,11 @@ begin
     SepPos := Pos(':', Line);
 
     //Line has no Seperator, ignore non header field
-    if (SepPos = 0) then
+    if (SepPos = 0) and not (SongFile.ReadLine(Line)) then
     begin
-      AddCustomTag('', Copy(Line, 2, Length(Line) - 1));
-      // read next line
-      if (not SongFile.ReadLine(Line)) then
-      begin
-        Result := false;
-        Log.LogError('File incomplete or not Ultrastar txt (A): ' + FullFileName);
-        Break;
-      end;
-      Continue;
+      Result := false;
+      Log.LogError('File incomplete or not Ultrastar txt (A): ' + FullFileName);
+      Break;
     end;
 
     //Read Identifier and Value
@@ -835,11 +790,7 @@ begin
 
     //Check the Identifier (If Value is given)
     if (Length(Value) = 0) then
-    begin
-      Log.LogInfo('Empty field "'+Identifier+'" in file ' + FullFileName,
-                   'TSong.ReadTXTHeader');
-      AddCustomTag(Identifier, '');
-    end
+      Log.LogInfo('Empty field "'+Identifier+'" in file ' + FullFileName, 'TSong.ReadTXTHeader')
     else
     begin
 
@@ -959,7 +910,7 @@ begin
       begin
         DecodeStringUTF8(Value, Fixer, Encoding)
       end
-	  
+
       //Language Sorting
       else if (Identifier = 'LANGUAGE') then
       begin
@@ -1063,12 +1014,6 @@ begin
       else if (Identifier = 'P2') then
       begin
         DecodeStringUTF8(Value, DuetNames[1], Encoding);
-      end
-
-      // unsupported tag
-      else
-      begin
-        AddCustomTag(Identifier, Value);
       end;
     end; // End check for non-empty Value
 
@@ -1080,12 +1025,6 @@ begin
       Break;
     end;
   end; // while
-
-  //MD5 of File
-  self.MD5 := MD5SongFile(SongFile);
-
-  if self.Cover.IsUnset then
-    self.Cover := FindSongFile(Path, '*[CO].jpg');
 
   //Check if all Required Values are given
   if (Done <> 15) then
@@ -1126,10 +1065,12 @@ begin
       self.Medley.FadeIn_time := DEFAULT_FADE_IN_TIME;
 
       self.Medley.FadeOut_time := DEFAULT_FADE_OUT_TIME;
-    end else
-      self.Medley.Source := msNone;
+    end
+    else if not Self.isDuet then //Medley and Duet - is it possible? Perhaps later...
+      Self.FindRefrain()
+    else
+      Self.Medley.Source := msNone;
   end;
-
 end;
 
 function  TSong.GetErrorLineNo: integer;
@@ -1461,9 +1402,6 @@ begin
   // set to default encoding
   Encoding := Ini.DefaultEncoding;
 
-  // clear custom header tags
-  SetLength(CustomTags, 0);
-
   //Required Information
   Mp3    := PATH_NONE;
   SetLength(BPM, 0);
@@ -1493,7 +1431,7 @@ begin
   Relative := false;
 end;
 
-function TSong.Analyse(const ReadCustomTags: Boolean; DuetChange: boolean): boolean;
+function TSong.Analyse(DuetChange: boolean): boolean;
 var
   SongFile: TTextFileStream;
 begin
@@ -1511,20 +1449,11 @@ begin
     Self.clear;
 
     //Read Header
-    Result := Self.ReadTxTHeader(SongFile, ReadCustomTags);
+    Result := Self.ReadTxTHeader(SongFile);
 
     //Load Song for Medley Tags
     CurrentSong := self;
     Result := Result and LoadSong(DuetChange);
-
-    if Result then
-    begin
-      //Medley and Duet - is it possible? Perhaps later...
-      if not Self.isDuet then
-        Self.FindRefrain()
-      else
-        Self.Medley.Source := msNone;
-    end;
   except
     Log.LogError('Reading headers from file failed. File incomplete or not Ultrastar txt?: ' + Self.Path.Append(Self.FileName).ToUTF8(true));
   end;

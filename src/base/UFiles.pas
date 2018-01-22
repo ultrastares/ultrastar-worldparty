@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -98,23 +98,6 @@ var
     if (not Success) then
       SaveSong := ssrEncodingError;
   end;
-
-  procedure WriteCustomTags;
-    var
-      I: integer;
-      Line: RawByteString;
-  begin
-    for I := 0 to High(Song.CustomTags) do
-    begin
-      Line := EncodeToken(Song.CustomTags[I].Content);
-      if (Length(Song.CustomTags[I].Tag) > 0) then
-        Line := EncodeToken(Song.CustomTags[I].Tag) + ':' + Line;
-
-      SongFile.WriteLine('#' + Line);
-    end;
-
-  end;
-
 begin
   //  Relative := true; // override (idea - use shift+S to save with relative)
   Result := ssrOK;
@@ -164,9 +147,6 @@ begin
 
       SongFile.WriteLine('#BPM:' + FloatToStr(Song.BPM[0].BPM / 4));
       SongFile.WriteLine('#GAP:' + FloatToStr(Song.GAP));
-
-      // write custom header tags
-      WriteCustomTags;
 
       RelativeSubTime := 0;
       for B := 1 to High(Song.BPM) do
@@ -220,4 +200,3 @@ begin
 end;
 
 end.
-
