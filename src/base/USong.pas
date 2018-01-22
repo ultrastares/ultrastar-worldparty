@@ -141,7 +141,6 @@ type
 
     Encoding:   TEncoding;
     PreviewStart: real;   // in seconds
-    HasPreview: boolean;  // set if a valid PreviewStart was read
     Medley:     TMedley;  // medley params
 
     isDuet: boolean;
@@ -933,17 +932,6 @@ begin
         self.Encoding := ParseEncoding(Value, Ini.DefaultEncoding);
       end
 
-      // PreviewStart
-      else if (Identifier = 'PREVIEWSTART') then
-      begin
-        self.PreviewStart := StrToFloatI18n( Value );
-        if (self.PreviewStart>0) then
-        begin
-          MedleyFlags := MedleyFlags or 1;
-          HasPreview := true;
-        end;
-      end
-
       // MedleyStartBeat
       else if (Identifier = 'MEDLEYSTARTBEAT') then
       begin
@@ -1015,7 +1003,7 @@ begin
         MedleyFlags := MedleyFlags - 6;
     end;
 
-    if ((MedleyFlags and 1) = 0) or (self.PreviewStart <= 0) then //PreviewStart is not set or <=0
+    if (MedleyFlags and 1) = 0 then //PreviewStart is not set or <=0
     begin
       if (MedleyFlags and 2) = 2 then
         self.PreviewStart := GetTimeFromBeat(self.Medley.StartBeat, self)  //fallback to MedleyStart
@@ -1029,7 +1017,6 @@ begin
 
       //calculate fade time
       self.Medley.FadeIn_time := DEFAULT_FADE_IN_TIME;
-
       self.Medley.FadeOut_time := DEFAULT_FADE_OUT_TIME;
     end
     else if not Self.isDuet then //Medley and Duet - is it possible? Perhaps later...

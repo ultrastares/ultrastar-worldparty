@@ -1800,7 +1800,7 @@ begin
 
     Theme.Song.DuetIcon.Y  := StaticDuetY + Padding;
     ListDuetIcon[I] := AddStatic(Theme.Song.DuetIcon);
-	
+
     Theme.Song.RapIcon.Y  := StaticRapY + Padding;
     ListRapIcon[I] := AddStatic(Theme.Song.RapIcon);
   end;
@@ -2069,7 +2069,7 @@ begin
 
       //Set Visibility of Duet Icon
       Statics[DuetIcon].Visible := CatSongs.Song[Interaction].isDuet;
-	  
+
       //Set Visibility of Rap Icon
       Statics[RapIcon].Visible := CatSongs.Song[Interaction].hasRap;
 
@@ -2918,7 +2918,7 @@ begin
     //Set Visibility of Duet Icon
     Statics[ListDuetIcon[I]].Texture.Alpha := Alpha;
     Statics[ListDuetIcon[I]].Visible := CatSongs.Song[SongID[I]].isDuet;
-	
+
    //Set Visibility of Rap Icon
     Statics[ListRapIcon[I]].Texture.Alpha := Alpha;
     Statics[ListRapIcon[I]].Visible := CatSongs.Song[SongID[I]].hasRap;
@@ -3634,7 +3634,7 @@ begin
     PreviewOpened := Interaction;
 
     // preview start is either calculated (by finding the chorus) or pre-set, use it
-    if ((Song.PreviewStart > 0.0) or Song.HasPreview) and InRange(Song.PreviewStart, 0.0, AudioPlayback.Length) then
+    if (Song.PreviewStart > 0.0) and InRange(Song.PreviewStart, 0.0, AudioPlayback.Length) then
       PreviewPos := Song.PreviewStart
     else
     begin // otherwise, fallback to simple preview calculation

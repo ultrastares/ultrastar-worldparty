@@ -131,9 +131,6 @@ begin
       if Song.Start       <> 0.0  then    SongFile.WriteLine('#START:'       + FloatToStr(Song.Start));
       if Song.Finish      <> 0    then    SongFile.WriteLine('#END:'         + IntToStr(Song.Finish));
 
-      if Song.HasPreview and (Song.PreviewStart >= 0.0) then // also allow writing 0.0 preview if set
-        SongFile.WriteLine('#PREVIEWSTART:' + FloatToStr(Song.PreviewStart));
-
       if (Song.Medley.Source=msTag) and (Song.Medley.EndBeat - Song.Medley.StartBeat > 0) then
       begin
         SongFile.WriteLine('#MedleyStartBeat:' + IntToStr(Song.Medley.StartBeat));
