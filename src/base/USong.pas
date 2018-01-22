@@ -137,7 +137,6 @@ type
     NotesGAP:   integer;
     Start:      real; // in seconds
     Finish:     integer; // in miliseconds
-    Relative:   boolean;
     Resolution: integer;
     BPM:        array of TBPM;
     GAP:        real; // in miliseconds
@@ -642,8 +641,6 @@ begin
         begin
           // reads sentence
           Param1 := ParseLyricIntParam(CurLine, LinePos);
-          if self.Relative then
-            Param2 := ParseLyricIntParam(CurLine, LinePos); // read one more data for relative system
 
           // new sentence
           if not CurrentSong.isDuet then
@@ -947,13 +944,6 @@ begin
         TryStrtoInt(Value, self.NotesGAP)
       end
 
-      // Relative Notes
-      else if (Identifier = 'RELATIVE') then
-      begin
-        if (UpperCase(Value) = 'YES') then
-          self.Relative := true;
-      end
-
       // File encoding
       else if (Identifier = 'ENCODING') then
       begin
@@ -972,14 +962,14 @@ begin
       end
 
       // MedleyStartBeat
-      else if (Identifier = 'MEDLEYSTARTBEAT') and not self.Relative then
+      else if (Identifier = 'MEDLEYSTARTBEAT') then
       begin
         if TryStrtoInt(Value, self.Medley.StartBeat) then
           MedleyFlags := MedleyFlags or 2;
       end
 
       // MedleyEndBeat
-      else if (Identifier = 'MEDLEYENDBEAT') and not self.Relative then
+      else if (Identifier = 'MEDLEYENDBEAT') then
       begin
         if TryStrtoInt(Value, self.Medley.EndBeat) then
           MedleyFlags := MedleyFlags or 4;
@@ -1159,16 +1149,7 @@ begin
   //basenote will be set to this notes pitch. Therefore the initial value of
   //this field has to be very high.
   Lines[LineNumberP].Line[Lines[LineNumberP].High].BaseNote := High(Integer);
-
-
-  if self.Relative then
-  begin
-    Lines[LineNumberP].Line[Lines[LineNumberP].High].Start := Param1;
-    Rel[LineNumberP] := Rel[LineNumberP] + Param2;
-  end
-  else
-    Lines[LineNumberP].Line[Lines[LineNumberP].High].Start := Param1;
-
+  Lines[LineNumberP].Line[Lines[LineNumberP].High].Start := Param1;
   Lines[LineNumberP].Line[Lines[LineNumberP].High].LastLine := false;
 end;
 
@@ -1200,14 +1181,6 @@ begin
 
   if not self.CalcMedley then
     Exit;
-
-  //relative is not supported for medley!
-  if self.Relative then
-  begin
-    Log.LogError('Song '+self.Artist+'-' + self.Title + ' contains #Relative, this is not supported by medley-function!');
-    self.Medley.Source := msNone;
-    Exit;
-  end;
 
   num_lines := Length(Lines[0].Line);
   SetLength(sentences, num_lines);
@@ -1427,8 +1400,6 @@ begin
   SetLength(DuetNames, 2);
   DuetNames[0] := 'P1';
   DuetNames[1] := 'P2';
-
-  Relative := false;
 end;
 
 function TSong.Analyse(DuetChange: boolean): boolean;

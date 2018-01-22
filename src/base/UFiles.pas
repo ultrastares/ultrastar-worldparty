@@ -47,7 +47,7 @@ type
  * Throws a TEncodingException if the song's fields cannot be encoded in the
  * requested encoding.
  *}
-function SaveSong(const Song: TSong; const Lines: TLines; const Name: IPath; Relative: boolean): TSaveSongResult;
+function SaveSong(const Song: TSong; const Lines: TLines; const Name: IPath): TSaveSongResult;
 
 implementation
 
@@ -80,13 +80,12 @@ end;
 //--------------------
 // Saves a Song
 //--------------------
-function SaveSong(const Song: TSong; const Lines: TLines; const Name: IPath; Relative: boolean): TSaveSongResult;
+function SaveSong(const Song: TSong; const Lines: TLines; const Name: IPath): TSaveSongResult;
 var
   C:      integer;
   N:      integer;
   S:      AnsiString;
   B:      integer;
-  RelativeSubTime: integer;
   NoteState: AnsiString;
   SongFile: TTextFileStream;
 
@@ -99,7 +98,6 @@ var
       SaveSong := ssrEncodingError;
   end;
 begin
-  //  Relative := true; // override (idea - use shift+S to save with relative)
   Result := ssrOK;
 
   try
@@ -134,12 +132,11 @@ begin
       if Song.NotesGAP    <> 0    then    SongFile.WriteLine('#NOTESGAP:'    + IntToStr(Song.NotesGAP));
       if Song.Start       <> 0.0  then    SongFile.WriteLine('#START:'       + FloatToStr(Song.Start));
       if Song.Finish      <> 0    then    SongFile.WriteLine('#END:'         + IntToStr(Song.Finish));
-      if Relative                 then    SongFile.WriteLine('#RELATIVE:yes');
 
       if Song.HasPreview and (Song.PreviewStart >= 0.0) then // also allow writing 0.0 preview if set
         SongFile.WriteLine('#PREVIEWSTART:' + FloatToStr(Song.PreviewStart));
 
-      if (Song.Medley.Source=msTag) and not Relative and (Song.Medley.EndBeat - Song.Medley.StartBeat > 0) then
+      if (Song.Medley.Source=msTag) and (Song.Medley.EndBeat - Song.Medley.StartBeat > 0) then
       begin
         SongFile.WriteLine('#MedleyStartBeat:' + IntToStr(Song.Medley.StartBeat));
         SongFile.WriteLine('#MedleyEndBeat:' + IntToStr(Song.Medley.EndBeat));
@@ -148,7 +145,6 @@ begin
       SongFile.WriteLine('#BPM:' + FloatToStr(Song.BPM[0].BPM / 4));
       SongFile.WriteLine('#GAP:' + FloatToStr(Song.GAP));
 
-      RelativeSubTime := 0;
       for B := 1 to High(Song.BPM) do
         SongFile.WriteLine('B ' + FloatToStr(Song.BPM[B].StartBeat) + ' '
                                 + FloatToStr(Song.BPM[B].BPM/4));
@@ -167,7 +163,7 @@ begin
               ntRap: NoteState:= 'R ';
               ntRapGolden: NoteState:='G ';
             end; // case
-            S := NoteState + IntToStr(Start-RelativeSubTime) + ' '
+            S := NoteState + IntToStr(Start) + ' '
                            + IntToStr(Length) + ' '
                            + IntToStr(Tone) + ' '
                            + EncodeToken(Text);
@@ -178,14 +174,7 @@ begin
 
         if C < Lines.High then // don't write end of last sentence
         begin
-          if not Relative then
-            S := '- ' + IntToStr(Lines.Line[C+1].Start)
-          else
-          begin
-            S := '- ' + IntToStr(Lines.Line[C+1].Start - RelativeSubTime) +
-              ' ' + IntToStr(Lines.Line[C+1].Start - RelativeSubTime);
-            RelativeSubTime := Lines.Line[C+1].Start;
-          end;
+          S := '- ' + IntToStr(Lines.Line[C+1].Start);
           SongFile.WriteLine(S);
         end;
       end; // C
