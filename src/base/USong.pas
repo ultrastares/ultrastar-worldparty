@@ -142,7 +142,6 @@ type
     Encoding:   TEncoding;
     PreviewStart: real;   // in seconds
     HasPreview: boolean;  // set if a valid PreviewStart was read
-    CalcMedley: boolean;  // if true => do not calc medley for that song
     Medley:     TMedley;  // medley params
 
     isDuet: boolean;
@@ -959,13 +958,6 @@ begin
           MedleyFlags := MedleyFlags or 4;
       end
 
-      // Medley
-      else if (Identifier = 'CALCMEDLEY') then
-      begin
-        if Uppercase(Value) = 'OFF' then
-          self.CalcMedley := false;
-      end
-
       // Duet Singer Name P1
       else if (Identifier = 'DUETSINGERP1') then
       begin
@@ -1161,9 +1153,6 @@ var
   found_end:            boolean;
 begin
   if self.Medley.Source = msTag then
-    Exit;
-
-  if not self.CalcMedley then
     Exit;
 
   num_lines := Length(Lines[0].Line);
@@ -1374,7 +1363,6 @@ begin
   VideoGAP   := 0;
   Creator    := '';
   PreviewStart := 0;
-  CalcMedley := true;
   Medley.Source := msNone;
 
   isDuet := false;
