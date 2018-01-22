@@ -93,18 +93,15 @@ type
     fProcessing:         boolean;
     procedure int_LoadSongList;
     procedure DoDirChanged(Sender: TObject);
+    procedure AddSongs(const Dir: IPath);
   protected
     procedure Execute; override;
   public
     SongList: TList;            // array of songs
-
     Selected: integer;        // selected song index
     constructor Create();
-    destructor  Destroy(); override;
-
+    destructor Destroy(); override;
     procedure LoadSongList;     // load all songs
-    procedure FindFilesByExtension(const Dir: IPath; const Ext: IPath; Recursive: Boolean; var Files: TPathDynArray);
-    procedure BrowseDir(Dir: IPath); // should return number of songs in the future
     procedure Sort(Order: TSortingType);
     property  Processing: boolean read fProcessing;
   end;
@@ -153,6 +150,7 @@ const
 implementation
 
 uses
+  FileUtil,
   StrUtils,
   UCovers,
   UFiles,
@@ -220,7 +218,7 @@ begin
     Log.LogStatus('Searching For Songs', 'SongList');
     // browse directories
     for I := 0 to SongPaths.Count-1 do
-      BrowseDir(SongPaths[I] as IPath);
+      AddSongs(SongPaths[I] as IPath);
 
     if assigned(CatSongs) then
       CatSongs.Refresh;
@@ -243,64 +241,33 @@ begin
   Resume();
 end;
 
-procedure TSongs.FindFilesByExtension(const Dir: IPath; const Ext: IPath; Recursive: Boolean; var Files: TPathDynArray);
-var
-  Iter: IFileIterator;
-  FileInfo: TFileInfo;
-  FileName: IPath;
-begin
-  // search for all files and directories
-  Iter := FileSystem.FileFind(Dir.Append('*'), faAnyFile);
-  while (Iter.HasNext) do
-  begin
-    FileInfo := Iter.Next;
-    FileName := FileInfo.Name;
-    if ((FileInfo.Attr and faDirectory) <> 0) then
-    begin
-      if Recursive and (not FileName.Equals('.')) and (not FileName.Equals('..')) then
-        FindFilesByExtension(Dir.Append(FileName), Ext, true, Files);
-    end
-    else
-    begin
-      // do not load files which either have wrong extension or start with a point
-      if (Ext.Equals(FileName.GetExtension(), true) and not (FileName.ToUTF8()[1] = '.')) then
-      begin
-        SetLength(Files, Length(Files)+1);
-        Files[High(Files)] := Dir.Append(FileName);
-      end;
-    end;
-  end;
-end;
-
-procedure TSongs.BrowseDir(Dir: IPath);
+{ Find txt files on directories and add songs }
+procedure TSongs.AddSongs(const Dir: IPath);
 var
   I, Percent, Total : integer;
-  Files: TPathDynArray;
+  Txts: TStringList;
   Song: TSong;
 begin
-  SetLength(Files, 0);
-  FindFilesByExtension(Dir, Path('.txt'), true, Files);
-  Total := High(Files);
   Percent := 0;
   Randomize;
-  for I := 0 to Total do
+  Txts := FileUtil.FindAllFiles(Dir.ToNative(), '*.txt', true);
+  Total := Txts.Count;
+  for I := 0 to Total-1 do
   begin
     if Round((I*100)/Total) > Percent then //show random load percentage
     begin
       UGraphic.UpdateLoadingScreenText(IntToStr(I)+'/'+IntToStr(Total)+' ('+IntToStr(Percent)+'%)');
-      Inc(Percent, Random(19)+6); //show around 5 updates to minimize load time to only 75-150 miliseconds
+      Inc(Percent, Random(10)+6); //show around 4-10 updates to minimize load time to only a few miliseconds
     end;
-
-    Song := TSong.Create(Files[I]);
+    Song := TSong.Create(Path(Txts.Strings[I]));
     if Song.Analyse then
       SongList.Add(Song)
     else
     begin
-      Log.LogError('AnalyseFile failed for "' + Files[I].ToNative + '".');
+      Log.LogError('AnalyseFile failed for "' + Txts.Strings[I] + '".');
       FreeAndNil(Song);
     end;
   end;
-  SetLength(Files, 0);
 end;
 
 (*

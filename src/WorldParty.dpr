@@ -135,17 +135,17 @@ uses
   MidiType      in 'lib\midi\MidiType.pas',
   {$ENDIF}
 
-  {$IFDEF MSWINDOWS}
+  {$IFDEF MSWINDOWS AND $IFDEF FPC}
+  FileUtil in 'lib\Lazarus\fileutil.pas',
   FPCAdds in 'lib\Lazarus\fpcadds.pas',
   LazUtilsStrConsts in 'lib\Lazarus\lazutilsstrconsts.pas',
   LazFileUtils in 'lib\Lazarus\lazfileutils.pas',
   LazUTF8 in 'lib\Lazarus\lazutf8.pas',
   LazUTF8Classes in 'lib\Lazarus\lazutf8classes.pas',
-  {$IFDEF FPC}
+  Masks in 'lib\Lazarus\masks.pas',
   // FPC compatibility file for Allocate/DeallocateHWnd
   WinAllocation in 'lib\other\WinAllocation.pas',
   Windows,
-  {$ENDIF}
   {$ENDIF}
 
   {$IFDEF DARWIN}
