@@ -280,9 +280,9 @@ begin
         end;
         LyricsState.SetCurrentTime(CurrentSong.Start);
 
-		Lyrics.Clear(CurrentSong.BPM[0].BPM);
-		LyricsDuetP1.Clear(CurrentSong.BPM[0].BPM);
-		LyricsDuetP2.Clear(CurrentSong.BPM[0].BPM);
+		Lyrics.Clear(CurrentSong.BPM);
+		LyricsDuetP1.Clear(CurrentSong.BPM);
+		LyricsDuetP2.Clear(CurrentSong.BPM);
 
         Scores.Init;
         Exit;
@@ -1226,7 +1226,7 @@ begin
       Text[screenSingViewRef.SongNameText].Text := CurrentSong.Artist + ' - ' + CurrentSong.Title;
 
     //medley start and end timestamps
-    StartNote := FindNote(CurrentSong.Medley.StartBeat - round(CurrentSong.BPM[0].BPM*CurrentSong.Medley.FadeIn_time/60));
+    StartNote := FindNote(CurrentSong.Medley.StartBeat - round(CurrentSong.BPM*CurrentSong.Medley.FadeIn_time/60));
     MedleyStart := GetTimeFromBeat(Lines[0].Line[StartNote.line].Note[0].Start);
 
     //check Medley-Start
@@ -1349,9 +1349,9 @@ begin
   AudioInput.CaptureStart;
 
   // main text
-  Lyrics.Clear(CurrentSong.BPM[0].BPM);
-  LyricsDuetP1.Clear(CurrentSong.BPM[0].BPM);
-  LyricsDuetP2.Clear(CurrentSong.BPM[0].BPM);
+  Lyrics.Clear(CurrentSong.BPM);
+  LyricsDuetP1.Clear(CurrentSong.BPM);
+  LyricsDuetP2.Clear(CurrentSong.BPM);
 
   if (CurrentSong.isDuet) and (PlayersPlay <> 1) then
   begin

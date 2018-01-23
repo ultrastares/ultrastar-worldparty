@@ -1757,14 +1757,14 @@ begin
 
   //calculate total singing seconds of song
   SongStart := 99999999999999;
-  SongEnd := CurrentSong.BPM[0].BPM*TotalTime/60;
+  SongEnd := CurrentSong.BPM*TotalTime/60;
   for CurrentLine := 0 to High(Lines) do //P1 of Duett or standard, P2 of Duett,..
   begin
     numLines := Length(Lines[CurrentLine].Line); //Lyric lines
     if (numLines < 2) then //catch cases which could cause endless loop
       Exit;
-    if SongStart > (Lines[CurrentLine].Line[0].Note[0].Start+(CurrentSong.BPM[0].BPM*CurrentSong.GAP*(1/60/1000))) then
-           SongStart := Lines[CurrentLine].Line[0].Note[0].Start + (CurrentSong.BPM[0].BPM*CurrentSong.GAP*(1/60/1000));
+    if SongStart > (Lines[CurrentLine].Line[0].Note[0].Start+(CurrentSong.BPM*CurrentSong.GAP*(1/60/1000))) then
+           SongStart := Lines[CurrentLine].Line[0].Note[0].Start + (CurrentSong.BPM*CurrentSong.GAP*(1/60/1000));
   end;
   ww := SongEnd - SongStart;
 

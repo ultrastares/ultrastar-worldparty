@@ -137,12 +137,8 @@ begin
         SongFile.WriteLine('#MedleyEndBeat:' + IntToStr(Song.Medley.EndBeat));
       end;
 
-      SongFile.WriteLine('#BPM:' + FloatToStr(Song.BPM[0].BPM / 4));
+      SongFile.WriteLine('#BPM:' + FloatToStr(Song.BPM / 4));
       SongFile.WriteLine('#GAP:' + FloatToStr(Song.GAP));
-
-      for B := 1 to High(Song.BPM) do
-        SongFile.WriteLine('B ' + FloatToStr(Song.BPM[B].StartBeat) + ' '
-                                + FloatToStr(Song.BPM[B].BPM/4));
 
       for C := 0 to Lines.High do
       begin

@@ -170,71 +170,9 @@ begin
   Result := BPM * msTime / 60;
 end;
 
-procedure GetMidBeatSub(BPMNum: integer; var Time: real; var CurBeat: real);
-var
-  NewTime: real;
-begin
-  if High(CurrentSong.BPM) = BPMNum then
-  begin
-    // last BPM
-    CurBeat := CurrentSong.BPM[BPMNum].StartBeat + GetBeats(CurrentSong.BPM[BPMNum].BPM, Time);
-    Time := 0;
-  end
-  else
-  begin
-    // not last BPM
-    // count how much time is it for start of the new BPM and store it in NewTime
-    NewTime := GetTimeForBeats(CurrentSong.BPM[BPMNum].BPM, CurrentSong.BPM[BPMNum+1].StartBeat - CurrentSong.BPM[BPMNum].StartBeat);
-
-    // compare it to remaining time
-    if (Time - NewTime) > 0 then
-    begin
-      // there is still remaining time
-      CurBeat := CurrentSong.BPM[BPMNum].StartBeat;
-      Time := Time - NewTime;
-    end
-    else
-    begin
-      // there is no remaining time
-      CurBeat := CurrentSong.BPM[BPMNum].StartBeat + GetBeats(CurrentSong.BPM[BPMNum].BPM, Time);
-      Time := 0;
-    end; // if
-  end; // if
-end;
-
 function GetMidBeat(Time: real): real;
-var
-  CurBeat: real;
-  CurBPM:  integer;
 begin
-  try
-  // static BPM
-  if Length(CurrentSong.BPM) = 1 then
-  begin
-    Result := Time * CurrentSong.BPM[0].BPM / 60;
-  end
-  // variable BPM
-  else if Length(CurrentSong.BPM) > 1 then
-  begin
-    CurBeat := 0;
-    CurBPM := 0;
-    while (Time > 0) do
-    begin
-      GetMidBeatSub(CurBPM, Time, CurBeat);
-      Inc(CurBPM);
-    end;
-
-    Result := CurBeat;
-  end
-  // invalid BPM
-  else
-  begin
-    Result := 0;
-  end;
-  except
-    on E : Exception do
-    Result :=0;
-  end;
+  Result := Time * CurrentSong.BPM / 60;
 end;
 
 function GetTimeFromBeat(Beat: integer; SelfSong: TSong = nil): real;
@@ -248,52 +186,7 @@ begin
   else
     Song := CurrentSong;
 
-  Result := 0;
-
-  // static BPM
-  if Length(Song.BPM) = 1 then
-  begin
-    Result := Song.GAP / 1000 + Beat * 60 / Song.BPM[0].BPM;
-  end
-  // variable BPM
-  else if Length(Song.BPM) > 1 then
-  begin
-    Result := Song.GAP / 1000;
-    CurBPM := 0;
-    while (CurBPM <= High(Song.BPM)) and
-          (Beat > Song.BPM[CurBPM].StartBeat) do
-    begin
-      if (CurBPM < High(Song.BPM)) and
-         (Beat >= Song.BPM[CurBPM+1].StartBeat) then
-      begin
-        // full range
-        Result := Result + (60 / Song.BPM[CurBPM].BPM) *
-                           (Song.BPM[CurBPM+1].StartBeat - Song.BPM[CurBPM].StartBeat);
-      end;
-
-      if (CurBPM = High(Song.BPM)) or
-         (Beat < Song.BPM[CurBPM+1].StartBeat) then
-      begin
-        // in the middle
-        Result := Result + (60 / Song.BPM[CurBPM].BPM) *
-                           (Beat - Song.BPM[CurBPM].StartBeat);
-      end;
-      Inc(CurBPM);
-    end;
-
-    {
-    while (Time > 0) do
-    begin
-      GetMidBeatSub(CurBPM, Time, CurBeat);
-      Inc(CurBPM);
-    end;
-    }
-  end
-  // invalid BPM
-  else
-  begin
-    Result := 0;
-  end;
+  Result := Song.GAP / 1000 + Beat * 60 / Song.BPM;
 end;
 
 procedure Sing(Screen: TScreenSingController);
