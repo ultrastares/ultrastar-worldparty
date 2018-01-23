@@ -95,6 +95,7 @@ begin
           if Interaction = 2 then
           begin
             AudioPlayback.PlaySound(SoundLib.Back);
+            ScreenDevelopers.SetOverview('');
             FadeTo(@ScreenDevelopers);
           end;
           //Exit Button Pressed
@@ -108,7 +109,8 @@ begin
           if Interaction = 0 then
           begin
             AudioPlayback.PlaySound(SoundLib.Back);
-            FadeTo(@ScreenCredits);
+            ScreenDevelopers.SetOverview('USDX');
+            FadeTo(@ScreenDevelopers);
           end;
         end;
       SDLK_LEFT:

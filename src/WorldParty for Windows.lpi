@@ -257,10 +257,6 @@
         <Filename Value="menu\UMenuStatic.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit53>
-      <Unit54>
-        <Filename Value="screens\UScreenCredits.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit54>
       <Unit57>
         <Filename Value="screens\UScreenLoading.pas"/>
         <IsPartOfProject Value="True"/>

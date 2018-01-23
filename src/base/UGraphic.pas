@@ -87,8 +87,6 @@ uses
   {Stats Screens}
   UScreenStatMain,
   UScreenStatDetail,
-  {CreditsScreen}
-  UScreenCredits,
   {Popup for errors, etc.}
   UScreenPopup;
 
@@ -178,9 +176,6 @@ var
   //StatsScreens
   ScreenStatMain:         TScreenStatMain;
   ScreenStatDetail:       TScreenStatDetail;
-
-  //CreditsScreen
-  ScreenCredits: TScreenCredits;
 
   //popup mod
   ScreenPopupCheck: TScreenPopupCheck;
@@ -874,7 +869,6 @@ begin
   ScreenPartyTournamentWin := TScreenPartyTournamentWin.Create;
   ScreenStatMain := TScreenStatMain.Create;
   ScreenStatDetail := TScreenStatDetail.Create;
-  ScreenCredits := TScreenCredits.Create;
 end;
 
 function LoadingThreadFunction: integer;

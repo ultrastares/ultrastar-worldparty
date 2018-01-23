@@ -832,15 +832,6 @@
 			sepNavWindowFrame = "{{200, 248}, {873, 739}}";
 		};
 	};
-	2CF54F430CDA1B2B00627463 /* UScreenCredits.pas */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {695, 19544}}";
-			sepNavSelRange = "{26865, 471}";
-			sepNavVisRange = "{25408, 2367}";
-			sepNavVisRect = "{{0, 1770}, {715, 815}}";
-			sepNavWindowFrame = "{{15, 79}, {754, 944}}";
-		};
-	};
 	2CF54F480CDA1B2B00627463 /* UScreenLevel.pas */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {715, 1302}}";

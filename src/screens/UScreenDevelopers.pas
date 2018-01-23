@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -32,23 +32,23 @@ interface
 {$I switches.inc}
 
 uses
-  UMenu,
   sdl2,
+  StrUtils,
   SysUtils,
-  UMusic,
   UIni,
+  UMenu,
+  UMusic,
   UThemes;
 
 type
   TScreenDevelopers = class(TMenu)
     public
-      TextOverview:    integer;
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
-      procedure OnShow; override;
       procedure SetAnimationProgress(Progress: real); override;
-
-      procedure SetOverview;
+      procedure SetOverview(Team: string);
+    private
+      TextOverview: integer;
   end;
 
 implementation
@@ -72,7 +72,7 @@ begin
           Exit;
         end;
     end;
-    
+
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -116,7 +116,7 @@ constructor TScreenDevelopers.Create;
 begin
   inherited Create;
 
-  TextOverview := AddText(Theme.Developers.TextOverview);
+  Self.TextOverview := AddText(Theme.Developers.TextOverview);
 
   LoadFromTheme(Theme.Developers);
 
@@ -125,21 +125,10 @@ begin
   Interaction := 0;
 end;
 
-procedure TScreenDevelopers.OnShow;
-begin
-  inherited;
-
-  //Set Overview Text:
-  SetOverview;
-end;
-
-procedure TScreenDevelopers.SetOverview;
-var
-  Overview: UTF8String;
+procedure TScreenDevelopers.SetOverview(Team: string);
 begin
   // Format overview
-  Overview := Language.Translate('DEVELOPERS_OVERVIEW');
-  Text[0].Text := Overview;
+  Text[0].Text := Language.Translate('DEVELOPERS_'+IfThen(Team <> '', Team+'_', '')+'OVERVIEW');
 end;
 
 procedure TScreenDevelopers.SetAnimationProgress(Progress: real);
@@ -149,5 +138,4 @@ begin
   for I := 0 to high(Button) do
     Button[I].Texture.ScaleW := Progress;
 end;
-
 end.
