@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -84,7 +84,7 @@ begin
           Exit;
         end;
     end;
-    
+
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -130,8 +130,6 @@ begin
 end;
 
 constructor TScreenStatMain.Create;
-var
-  I:    integer;
 begin
   inherited Create;
 
@@ -161,16 +159,18 @@ begin
 
   Interaction := 0;
 
+end;
+
+procedure TScreenStatMain.OnShow;
+var
+  I: integer;
+begin
+  inherited;
   //Set Songs with Vid
   SongsWithVid := 0;
   for I := 0 to Songs.SongList.Count -1 do
     if (TSong(Songs.SongList[I]).Video.IsSet) then
       Inc(SongsWithVid);
-end;
-
-procedure TScreenStatMain.OnShow;
-begin
-  inherited;
 
   //Set Overview Text:
   SetOverview;
@@ -230,7 +230,7 @@ begin
   Database.FreeStats(StatList);
 
   Result := '';
-  
+
   try
     Result := Format(FormatStr, [
         CntSongs, CntSungSongs, CntSongs-CntSungSongs, CntVidSongs,
@@ -304,8 +304,8 @@ var
   Overview: UTF8String;
 begin
   // Format overview
-  Overview := FormatOverviewIntro(Language.Translate('STAT_OVERVIEW_INTRO')) + '\n \n' + 
-              FormatSongOverview(Language.Translate('STAT_OVERVIEW_SONG')) + '\n \n' + 
+  Overview := FormatOverviewIntro(Language.Translate('STAT_OVERVIEW_INTRO')) + '\n \n' +
+              FormatSongOverview(Language.Translate('STAT_OVERVIEW_SONG')) + '\n \n' +
               FormatPlayerOverview(Language.Translate('STAT_OVERVIEW_PLAYER'));
   Text[0].Text := Overview;
 end;

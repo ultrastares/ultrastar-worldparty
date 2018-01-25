@@ -1670,15 +1670,6 @@ begin
 
   //TextPartyTime := AddText(Theme.Song.TextPartyTime);
 
-  // Song List
-  //Songs.LoadSongList; // moved to the UltraStar unit
-
-  if (TSortingType(Ini.Sorting) <> sPlaylist) then
-  begin
-    CatSongs.Refresh;
-    GenerateThumbnails();
-  end;
-
   // Randomize Patch
   Randomize;
 
@@ -2947,6 +2938,12 @@ var
   I: integer;
 begin
   inherited;
+
+  if (TSortingType(Ini.Sorting) <> sPlaylist) then
+  begin
+    CatSongs.Refresh;
+    GenerateThumbnails();
+  end;
 
   CloseMessage();
 

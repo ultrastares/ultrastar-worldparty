@@ -41,10 +41,6 @@ uses
   UIni,
   SysUtils,
   UImage,
-  UCatCovers,
-  USongs,
-  UAvatars,
-  UCovers,
   UMusic,
   UScreenLoading,
   UScreenMain,
@@ -318,11 +314,8 @@ procedure SwapBuffers;
 
 procedure LoadTextures;
 procedure InitializeScreen(Title: string);
-procedure UpdateLoadingScreenText(Message: string);
 procedure LoadScreens;
 procedure UnloadScreens;
-
-function LoadingThreadFunction: integer;
 
 procedure UpdateResolution;
 procedure UpdateVideoMode;
@@ -454,19 +447,8 @@ begin
   Display := TDisplay.Create;
   Display.CurrentScreen := @ScreenLoading;
   SwapBuffers;
-  UpdateLoadingScreenText('');
-
-  //load and check songs to get covers and category covers
-  Covers := TCoverDatabase.Create;
-  CatCovers:= TCatCovers.Create;
-
-  //avatars cache
-  Avatars := TAvatarDatabase.Create;
-
-  //create songs arrays
-  Songs := TSongs.Create;
-  CatSongs := TCatSongs.Create;
-  UpdateLoadingScreenText('');
+  ScreenLoading.Draw;
+  SwapBuffers;
 
   // this would be run in the loadingthread
   LoadScreens;
@@ -819,13 +801,6 @@ begin
   end;
 end;
 
-procedure UpdateLoadingScreenText(Message: string);
-begin
-  ScreenLoading.Text[0].Text := Message;
-  ScreenLoading.Draw;
-  SwapBuffers;
-end;
-
 procedure LoadScreens;
 begin
   ScreenMain := TScreenMain.Create;
@@ -871,10 +846,9 @@ begin
   ScreenStatDetail := TScreenStatDetail.Create;
 end;
 
-function LoadingThreadFunction: integer;
+procedure ShowStatus(Status: string);
 begin
-  LoadScreens;
-  Result:= 1;
+  ScreenMain.Text[3].Text := Status;
 end;
 
 procedure UnloadScreens;

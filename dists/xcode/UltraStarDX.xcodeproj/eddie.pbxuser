@@ -807,15 +807,6 @@
 			sepNavVisRange = "{6847, 865}";
 		};
 	};
-	2CEA2AF00CE3868E0097A5FF /* PseudoThread.pas */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {842, 686}}";
-			sepNavSelRange = "{598, 0}";
-			sepNavVisRange = "{214, 458}";
-			sepNavVisRect = "{{0, 0}, {737, 826}}";
-			sepNavWindowFrame = "{{15, 68}, {776, 955}}";
-		};
-	};
 	2CF3EF210CDE13A0004F5956 /* Messages.pas */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1013, 614}}";

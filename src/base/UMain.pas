@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -64,6 +64,9 @@ implementation
 uses
   math,
   dglOpenGL,
+  UAvatars,
+  UCatCovers,
+  UCovers,
   UCommandLine,
   UCommon,
   UConfig,
@@ -93,6 +96,7 @@ uses
   ULuaTextGL,
   ULuaParty,
   ULuaScreenSing,
+  USongs,
   UTime,
   UWebcam;
   //UVideoAcinerella;
@@ -108,7 +112,7 @@ begin
     WindowTitle := USDXVersionStr;
 
     Platform.Init;
-    
+
     // Commandline Parameter Parser
     Params := TCMDParams.Create;
 
@@ -179,9 +183,18 @@ begin
     Ini := TIni.Create;
     Ini.Load;
 
+    //load and check songs and get covers and category covers
+    UCovers.Covers := TCoverDatabase.Create;
+    UCatCovers.CatCovers := TCatCovers.Create;
+    USongs.CatSongs := TCatSongs.Create;
+    USongs.Songs := TSongs.Create; //in a new thread
+
     // it is possible that this is the first run, create a .ini file if neccessary
     Log.LogStatus('Write Ini', 'Initialization');
     Ini.Save;
+
+    //avatars cache
+    Avatars := TAvatarDatabase.Create;
 
     // Theme
     Theme.LoadTheme(Ini.Theme, Ini.Color);
@@ -191,7 +204,6 @@ begin
 
     // Lyrics-engine with media reference timer
     LyricsState := TLyricsState.Create();
-
     // Graphics
     Initialize3D(WindowTitle);
 
@@ -208,7 +220,7 @@ begin
     begin
       InitializeJoystick;
     end;
-    
+
     // Webcam
     //Log.LogStatus('WebCam', 'Initialization');
     //Webcam := TWebcam.Create;
@@ -245,7 +257,7 @@ begin
           [BadPlayer]));
       Display.CurrentScreen^.FadeTo( @ScreenOptionsRecord );
     end;
-    
+
     //------------------------------
     // Start Mainloop
     //------------------------------

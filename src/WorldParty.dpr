@@ -143,6 +143,8 @@ uses
   LazUTF8 in 'lib\Lazarus\lazutf8.pas',
   LazUTF8Classes in 'lib\Lazarus\lazutf8classes.pas',
   Masks in 'lib\Lazarus\masks.pas',
+  MTProcs in 'lib\Lazarus\components\multithreadprocs\mtprocs.pas',
+  MTPCPU in 'lib\Lazarus\components\multithreadprocs\mtpcpu.pas',
   // FPC compatibility file for Allocate/DeallocateHWnd
   WinAllocation in 'lib\other\WinAllocation.pas',
   Windows,

@@ -25,42 +25,36 @@ unit USongs;
 interface
 
 {$IFDEF FPC}
-  {$MODE Delphi}
+  {$MODE OBJFPC}
 {$ENDIF}
 
 {$I switches.inc}
 
-{$IFDEF DARWIN}
-  {$IFDEF DEBUG}
-    {$DEFINE USE_PSEUDO_THREAD}
-  {$ENDIF}
-{$ENDIF}
-
 uses
-  SysUtils,
   Classes,
   {$IFDEF MSWINDOWS}
     Windows,
     LazUTF8Classes,
   {$ELSE}
+    baseunix,
+    cthreads,
+    cmem,
+    MTProcs
     {$IFNDEF DARWIN}
     syscall,
     {$ENDIF}
-    baseunix,
     UnixType,
   {$ENDIF}
-  UPlatform,
-  ULog,
-  UTexture,
+  SysUtils,
+  UCatCovers,
   UCommon,
-  {$IFDEF USE_PSEUDO_THREAD}
-  PseudoThread,
-  {$ENDIF}
+  UIni,
+  ULog,
   UPath,
+  UPlatform,
   UPlaylist,
   USong,
-  UIni,
-  UCatCovers;
+  UTexture;
 
 type
   TSongFilter = (
@@ -75,30 +69,17 @@ type
     Length: string;
   end;
 
-  TPathDynArray = array of IPath;
-
-  {$IFDEF USE_PSEUDO_THREAD}
-  TSongs = class(TPseudoThread)
-  {$ELSE}
   TSongs = class(TThread)
-  {$ENDIF}
   private
-    fNotify, fWatch:     longint;
-    fParseSongDirectory: boolean;
-    fProcessing:         boolean;
-    procedure int_LoadSongList;
-    procedure DoDirChanged(Sender: TObject);
-    procedure AddSongs(const Dir: IPath);
   protected
     procedure Execute; override;
   public
-    SongList: TList;            // array of songs
-    Selected: integer;        // selected song index
+    LoadingSongs: boolean;
+    SongList: TList; //array of songs
+    Selected: integer; //selected song index
     constructor Create();
     destructor Destroy(); override;
-    procedure LoadSongList;     // load all songs
-    procedure Sort(Order: TSortingType);
-    property  Processing: boolean read fProcessing;
+    procedure Sort(OrderType: TSortingType);
   end;
 
   TCatSongs = class
@@ -149,119 +130,67 @@ uses
   StrUtils,
   UCovers,
   UFiles,
-  UGraphic,
-  UMain,
-  UPathUtils,
-  UNote,
   UFilesystem,
+  UGraphic,
+  ULanguage,
+  UMain,
+  UNote,
+  UPathUtils,
   UUnicodeUtils;
 
 constructor TSongs.Create();
 begin
-  // do not start thread BEFORE initialization (suspended = true)
-  inherited Create(true);
+  inherited Create(false);
   Self.FreeOnTerminate := true;
-
-  SongList := TList.Create();
-
-  // until it is fixed, simply load the song-list
-  int_LoadSongList();
+  Self.SongList := TList.Create();
 end;
 
 destructor TSongs.Destroy();
 begin
-  FreeAndNil(SongList);
+  FreeAndNil(Self.SongList);
 
   inherited;
 end;
 
-procedure TSongs.DoDirChanged(Sender: TObject);
-begin
-  LoadSongList();
-end;
-
+{ Create a new thread to load songs and update main screen with progress }
 procedure TSongs.Execute();
 var
-  fChangeNotify: THandle;
-begin
-{$IFDEF USE_PSEUDO_THREAD}
-  int_LoadSongList();
-{$ELSE}
-  fParseSongDirectory := true;
-
-  while not terminated do
-  begin
-
-    if fParseSongDirectory then
-    begin
-      Log.LogStatus('Calling int_LoadSongList', 'TSongs.Execute');
-      int_LoadSongList();
-    end;
-
-    Suspend();
-  end;
-{$ENDIF}
-end;
-
-procedure TSongs.int_LoadSongList;
-var
-  I: integer;
-begin
-  try
-    fProcessing := true;
-
-    Log.LogStatus('Searching For Songs', 'SongList');
-    // browse directories
-    for I := 0 to SongPaths.Count-1 do
-      AddSongs(SongPaths[I] as IPath);
-
-    if assigned(CatSongs) then
-      CatSongs.Refresh;
-
-    if assigned(CatCovers) then
-      CatCovers.Load;
-
-  finally
-    Log.LogStatus('Search Complete', 'SongList');
-
-    fParseSongDirectory := false;
-    fProcessing         := false;
-  end;
-end;
-
-
-procedure TSongs.LoadSongList;
-begin
-  fParseSongDirectory := true;
-  Resume();
-end;
-
-{ Find txt files on directories and add songs }
-procedure TSongs.AddSongs(const Dir: IPath);
-var
-  I, Percent, Total : integer;
+  I, J, Total : integer;
   Txts: TStringList;
   Song: TSong;
+  Folder: string;
 begin
-  Percent := 0;
-  Randomize;
-  Txts := FileUtil.FindAllFiles(Dir.ToNative(), '*.txt', true);
-  Total := Txts.Count;
-  for I := 0 to Total-1 do
+  Log.LogBenchmark('--> canciones', 3);
+  LoadingSongs := true;
+  while not Terminated and Self.LoadingSongs do //sleep when load finish to can access songlist and don't waste CPU
   begin
-    if Round((I*100)/Total) > Percent then //show random load percentage
+    Log.LogStatus('Searching For Songs', 'SongList');
+    //find txt files on directories and add songs
+    for I := 0 to UPathUtils.SongPaths.Count-1 do
     begin
-      UGraphic.UpdateLoadingScreenText(IntToStr(I)+'/'+IntToStr(Total)+' ('+IntToStr(Percent)+'%)');
-      Inc(Percent, Random(10)+6); //show around 4-10 updates to minimize load time to only a few miliseconds
+      Folder := IPath(UPathUtils.SongPaths[I]).ToNative();
+      if Assigned(UGraphic.ScreenMain) then
+        UGraphic.ScreenMain.SetLoadProgress(Format(ULanguage.Language.Translate('SING_LOADING_CHECK_FOLDER'), [Folder]));
+
+      Txts := FileUtil.FindAllFiles(Folder, '*.txt', true);
+      Total := Txts.Count;
+      for J := 0 to Total-1 do
+      begin
+        Song := TSong.Create(Path(Txts.Strings[J]));
+        if Song.Analyse() then
+          Self.SongList.Add(Song);
+
+        if Assigned(UGraphic.ScreenMain) then
+          UGraphic.ScreenMain.SetLoadProgress(IntToStr(J)+'/'+IntToStr(Total)+' ('+IntToStr(Trunc((J*100)/Total))+'%)');
+      end;
     end;
-    Song := TSong.Create(Path(Txts.Strings[I]));
-    if Song.Analyse() then
-      SongList.Add(Song)
-    else
-    begin
-      Log.LogError('AnalyseFile failed for "' + Txts.Strings[I] + '".');
-      FreeAndNil(Song);
-    end;
+    Log.LogStatus('Search Complete', 'SongList');
+    CatSongs.Refresh;
+    if Assigned(UGraphic.ScreenMain) then
+      UGraphic.ScreenMain.SetLoadProgress(ULanguage.Language.Translate('SING_LOADING_FINISH'));
+
+    Self.LoadingSongs := false;
+    Sleep(999999999); //of course it isn't the best solution but meanwhile... more than 11 days sleeping :D
   end;
 end;
 
@@ -307,30 +236,30 @@ begin
     Result := 0;
 end;
 
-procedure TSongs.Sort(Order: TSortingType);
+procedure TSongs.Sort(OrderType: TSortingType);
 var
   CompareFunc: TListSortCompare;
 begin
   // FIXME: what is the difference between artist and artist2, etc.?
-  case Order of
+  case OrderType of
     sEdition: // by edition
-      CompareFunc := CompareByEdition;
+      CompareFunc := @CompareByEdition;
     sGenre: // by genre
-      CompareFunc := CompareByGenre;
+      CompareFunc := @CompareByGenre;
     sTitle: // by title
-      CompareFunc := CompareByTitle;
+      CompareFunc := @CompareByTitle;
     sArtist: // by artist
-      CompareFunc := CompareByArtist;
+      CompareFunc := @CompareByArtist;
     sFolder: // by folder
-      CompareFunc := CompareByFolder;
+      CompareFunc := @CompareByFolder;
     sArtist2: // by artist2
-      CompareFunc := CompareByArtist;
+      CompareFunc := @CompareByArtist;
     sLanguage: // by Language
-      CompareFunc := CompareByLanguage;
+      CompareFunc := @CompareByLanguage;
     sYear: // by Year
-      CompareFunc := CompareByYear;
+      CompareFunc := @CompareByYear;
     sDecade: // by Decade
-      CompareFunc := CompareByYear;
+      CompareFunc := @CompareByYear;
     else
       Log.LogCritical('Unsupported comparison', 'TSongs.Sort');
       Exit; // suppress warning
@@ -340,7 +269,7 @@ begin
   // For example, if a list is sorted by title first and
   // by artist afterwards, the songs of an artist will not be sorted by title anymore.
   // The stable MergeSort guarantees to maintain this order.
-  MergeSort(SongList, CompareFunc);
+  MergeSort(Self.SongList, CompareFunc);
 end;
 
 procedure TCatSongs.SortSongs();
@@ -401,7 +330,7 @@ var
   CatIndex:    integer;    // index of current song in Song
   Letter:      UCS4Char;   // current letter for sorting using letter
   CurCategory: UTF8String; // current edition for sorting using edition, genre etc.
-  Order:       integer;    // number used for ordernum
+  OrderNum: integer; // number used for ordernum
   LetterTmp:   UCS4Char;
   CatNumber:   integer;    // Number of Song in Category
   tmpCategory: UTF8String; //
@@ -410,14 +339,14 @@ var
   var
     PrevCatBtnIndex: integer;
   begin
-    Inc(Order);
+    Inc(OrderNum);
     CatIndex := Length(Song);
     SetLength(Song, CatIndex+1);
     Song[CatIndex]          := TSong.Create();
     Song[CatIndex].Artist   := '[' + CategoryName + ']';
     Song[CatIndex].Main     := true;
     Song[CatIndex].OrderTyp := 0;
-    Song[CatIndex].OrderNum := Order;
+    Song[CatIndex].OrderNum := OrderNum;
     Song[CatIndex].Cover    := CatCovers.GetCover(TSortingType(Ini.Sorting), CategoryName);
     Song[CatIndex].Visible  := true;
 
@@ -435,7 +364,7 @@ begin
   SortSongs();
 
   CurCategory := '';
-  Order       := 0;
+  OrderNum := 0;
   CatNumber   := 0;
 
   // Note: do NOT set Letter to ' ', otherwise no category-button will be
@@ -595,7 +524,7 @@ begin
     Song[CatIndex] := CurSong;
 
     // set song's category info
-    CurSong.OrderNum := Order; // assigns category
+    CurSong.OrderNum := OrderNum; // assigns category
     CurSong.CatNumber := CatNumber;
 
     if (Ini.Tabs = 0) then
@@ -626,7 +555,7 @@ begin
   end;
 
   // update number of categories
-  CatCount := Order;
+  CatCount := OrderNum;
 end;
 
 procedure TCatSongs.ShowCategory(Index: integer);

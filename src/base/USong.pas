@@ -45,9 +45,6 @@ uses
   {$IFDEF DARWIN}
     cthreads,
   {$ENDIF}
-  {$IFDEF USE_PSEUDO_THREAD}
-    PseudoThread,
-  {$ENDIF}
   UCatCovers,
   UCommon,
   UFilesystem,
