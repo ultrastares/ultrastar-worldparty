@@ -773,8 +773,6 @@ begin
       Self.Medley.FadeIn_time := DEFAULT_FADE_IN_TIME;
       Self.Medley.FadeOut_time := DEFAULT_FADE_OUT_TIME;
     end
-    else if not Self.isDuet then //Medley and Duet - is it possible? Perhaps later...
-      Self.FindRefrain()
     else
       Self.Medley.Source := msNone;
   end;
@@ -892,9 +890,6 @@ var
   len_lines, len_notes: integer;
   found_end:            boolean;
 begin
-  if Self.Medley.Source = msTag then
-    Exit;
-
   num_lines := Length(Lines[0].Line);
   SetLength(sentences, num_lines);
 
@@ -1091,8 +1086,10 @@ begin
   end;
 
   try
-    Result := Self.ReadTxTHeader() and LoadSong(DuetChange);
+    Result := Self.ReadTxTHeader() and Self.LoadSong(DuetChange);
     UNote.CurrentSong := Self;
+    if (not Self.isDuet) and (Self.Medley.Source = msNone) then //TODO needed a little bit more work to find refrains in duets
+      Self.FindRefrain();
   except
     Log.LogError('Reading headers from file failed. File incomplete or not Ultrastar txt?: ' + Self.Path.Append(Self.FileName).ToUTF8(true));
   end;
