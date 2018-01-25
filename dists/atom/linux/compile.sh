@@ -9,10 +9,10 @@ if [ -f units\link.res ]
 then
     mv units/link.res ../res/
 fi
-if [ ! -f ../game/WorldParty ]
+if [ -f ../game/WorldParty ]
 then
     if [ $2 == "compile-execute" ] || [ $2 == "execute" ]
     then
-        start ../game/WorldParty -Benchmark
+        ../game/WorldParty -Benchmark
     fi
 fi

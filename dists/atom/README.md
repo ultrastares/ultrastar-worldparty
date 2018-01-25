@@ -7,4 +7,4 @@ To compile USDX WorldParty using Atom editor developed by Github (https://atom.i
 
 You must also have installed Free Pascal in your system (https://www.freepascal.org).
 
-After install all things you must copy, depend of your system, the .atom-build-[system].json file to the root project path  and rename it to .atom-build.json. Restart Atom and now you can press F9 to compile, F10 to compile and execute the game or Ctrl+F10 to only execute without compile. If all works fine the executable will appear in game folder and link.res file will be copied to res folder.
+After install all things you must copy, depend of your system, the .atom-build.json file to the root project path. Restart Atom and now you can press F9 to compile, F10 to compile and execute the game or Ctrl+F10 to only execute without compile. If all works fine the executable will appear in game folder and link.res file will be copied to res folder.
