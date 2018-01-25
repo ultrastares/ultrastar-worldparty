@@ -19,6 +19,7 @@ Thumbs.db
 Makefile
 config.log
 config.status
+configure
 __history
 aclocal.m4
 /autom4te.cache/
