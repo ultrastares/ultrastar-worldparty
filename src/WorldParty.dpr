@@ -135,7 +135,7 @@ uses
   MidiType      in 'lib\midi\MidiType.pas',
   {$ENDIF}
 
-  {$IFDEF MSWINDOWS AND $IFDEF FPC}
+  {$IFDEF FPC}
   FileUtil in 'lib\Lazarus\fileutil.pas',
   FPCAdds in 'lib\Lazarus\fpcadds.pas',
   LazUtilsStrConsts in 'lib\Lazarus\lazutilsstrconsts.pas',
@@ -145,13 +145,11 @@ uses
   Masks in 'lib\Lazarus\masks.pas',
   MTProcs in 'lib\Lazarus\components\multithreadprocs\mtprocs.pas',
   MTPCPU in 'lib\Lazarus\components\multithreadprocs\mtpcpu.pas',
+  {$ENDIF}
+  {$IFDEF MSWINDOWS}
   // FPC compatibility file for Allocate/DeallocateHWnd
   WinAllocation in 'lib\other\WinAllocation.pas',
   Windows,
-  {$ENDIF}
-
-  {$IFDEF DARWIN}
-  PseudoThread  in 'macosx\PseudoThread.pas',
   {$ENDIF}
 
   //------------------------------

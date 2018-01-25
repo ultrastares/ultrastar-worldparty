@@ -230,8 +230,6 @@ end;
 function TScreenMain.CheckSongs(): boolean;
 begin
   Result := false;
-  writeln(IntToStr(Integer(Songs.LoadingSongs)));
-  writeln(IntToStr(Songs.SongList.Count));
   if Songs.LoadingSongs then
     ScreenPopupError.ShowPopup(Language.Translate('ERROR_LOADING_SONGS'))
   else if Songs.SongList.Count = 0 then
