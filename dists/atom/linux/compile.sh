@@ -2,12 +2,16 @@
 cd "$1/src"
 if [ $2 != "execute" ]
 then
-    rm -rf ../game/WorldParty* units/*.*o units/*.a units/*.ppu units/*.rsj
-    fpc WorldParty.dpr -FE../game -FUunits -O4 -CfSSE3
+    processor=$(uname -m)
+    platform=$(uname -s)
+    target=../build/fpc-$processor-${platform,,}/
+    mkdir -p $target
+    rm -rf ../game/WorldParty* $target/*.*o $target/*.a $target/*.ppu $target/*.rsj
+    fpc WorldParty.dpr -FE../game -FU$target -O4 -CfSSE3
 fi
-if [ -f units\link.res ]
+if [ -f $target/link.res ]
 then
-    mv units/link.res ../res/
+    mv $target/link.res ../res/
 fi
 if [ -f ../game/WorldParty ]
 then

@@ -39,12 +39,12 @@ uses
     baseunix,
     cthreads,
     cmem,
-    MTProcs
     {$IFNDEF DARWIN}
     syscall,
     {$ENDIF}
     UnixType,
   {$ENDIF}
+  MTProcs,
   SysUtils,
   UCatCovers,
   UCommon,

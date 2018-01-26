@@ -1,26 +1,26 @@
 {
     "name": "Free Pascal compile",
-    "cmd": "\"{PROJECT_PATH}/dists/atom/linux/compile.sh\"",
-    "args": ["\"{PROJECT_PATH}\"", "compile"],
-    "cwd": "\"{PROJECT_PATH}\"",
-    "sh": false,
+    "cmd": "{PROJECT_PATH}/dists/atom/linux/compile.sh",
+    "args": ["{PROJECT_PATH}", "compile"],
+    "cwd": "{PROJECT_PATH}",
+    "sh": true,
     "atomCommandName": "worldparty:compile",
     "errorMatch": ["(?<file>.+)\\((?<line>\\d+)\\,(?<col>\\d+)\\) (?<message>.+)"],
     "targets": {
         "Free Pascal compile and execute": {
-            "cmd": "\"{PROJECT_PATH}/dists/atom/linux/compile.sh\"",
-            "args": ["\"{PROJECT_PATH}\"", "compile-execute"],
+            "cmd": "{PROJECT_PATH}/dists/atom/linux/compile.sh",
+            "args": ["{PROJECT_PATH}", "compile-execute"],
             "cwd": "{PROJECT_PATH}",
-            "sh": false,
+            "sh": true,
             "atomCommandName": "worldparty:compile-execute",
             "errorMatch": ["(?<file>.+)\\((?<line>\\d+)\\,(?<col>\\d+)\\) (?<message>.+)"],
             "keymap": "f10"
         },
         "Free Pascal execute without compile": {
-            "cmd": "\"{PROJECT_PATH}/dists/atom/linux/compile.sh\"",
-            "args": ["\"{PROJECT_PATH}\"", "execute"],
-            "cwd": "\"{PROJECT_PATH}\"",
-            "sh": false,
+            "cmd": "{PROJECT_PATH}/dists/atom/linux/compile.sh",
+            "args": ["{PROJECT_PATH}", "execute"],
+            "cwd": "{PROJECT_PATH}",
+            "sh": true,
             "atomCommandName": "worldparty:execute",
             "errorMatch": ["(?<file>.+)\\((?<line>\\d+)\\,(?<col>\\d+)\\) (?<message>.+)"],
             "keymap": "ctrl-f10"
