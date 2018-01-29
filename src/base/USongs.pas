@@ -141,13 +141,13 @@ uses
 constructor TSongs.Create();
 begin
   inherited Create(false);
-  Self.FreeOnTerminate := true;
+  Self.FreeOnTerminate := false;
   Self.SongList := TList.Create();
 end;
 
 destructor TSongs.Destroy();
 begin
-  FreeAndNil(Self.SongList);
+  // FreeAndNil(Self.SongList);
 
   inherited;
 end;
@@ -160,38 +160,36 @@ var
   Song: TSong;
   Folder: string;
 begin
-  Log.LogBenchmark('--> canciones', 3);
   LoadingSongs := true;
-  while not Terminated and Self.LoadingSongs do //sleep when load finish to can access songlist and don't waste CPU
+  Log.LogStatus('Searching For Songs', 'SongList');
+  //find txt files on directories and add songs
+  for I := 0 to UPathUtils.SongPaths.Count-1 do
   begin
-    Log.LogStatus('Searching For Songs', 'SongList');
-    //find txt files on directories and add songs
-    for I := 0 to UPathUtils.SongPaths.Count-1 do
-    begin
-      Folder := IPath(UPathUtils.SongPaths[I]).ToNative();
-      if Assigned(UGraphic.ScreenMain) then
-        UGraphic.ScreenMain.SetLoadProgress(Format(ULanguage.Language.Translate('SING_LOADING_CHECK_FOLDER'), [Folder]));
-
-      Txts := FileUtil.FindAllFiles(Folder, '*.txt', true);
-      Total := Txts.Count;
-      for J := 0 to Total-1 do
-      begin
-        Song := TSong.Create(Path(Txts.Strings[J]));
-        if Song.Analyse() then
-          Self.SongList.Add(Song);
-
-        if Assigned(UGraphic.ScreenMain) then
-          UGraphic.ScreenMain.SetLoadProgress(IntToStr(J)+'/'+IntToStr(Total)+' ('+IntToStr(Trunc((J*100)/Total))+'%)');
-      end;
-    end;
-    Log.LogStatus('Search Complete', 'SongList');
-    CatSongs.Refresh;
+    Folder := IPath(UPathUtils.SongPaths[I]).ToNative();
     if Assigned(UGraphic.ScreenMain) then
-      UGraphic.ScreenMain.SetLoadProgress(ULanguage.Language.Translate('SING_LOADING_FINISH'));
+      UGraphic.ScreenMain.SetLoadProgress(Format(ULanguage.Language.Translate('SING_LOADING_CHECK_FOLDER'), [Folder]));
 
-    Self.LoadingSongs := false;
-    Sleep(999999999); //of course it isn't the best solution but meanwhile... more than 11 days sleeping :D
+    Txts := FileUtil.FindAllFiles(Folder, '*.txt', true);
+    Total := Txts.Count;
+    for J := 0 to Total-1 do
+    begin
+      Song := TSong.Create(Path(Txts.Strings[J]));
+      if Song.Analyse() then
+        Self.SongList.Add(Song);
+
+      if Assigned(UGraphic.ScreenMain) then
+        UGraphic.ScreenMain.SetLoadProgress(IntToStr(J)+'/'+IntToStr(Total)+' ('+IntToStr(Trunc((J*100)/Total))+'%)');
+    end;
   end;
+  Log.LogStatus('Search Complete', 'SongList');
+  CatSongs.Refresh;
+
+  //wait to generate thumbnails and show message
+  while not Terminated and not Assigned(UGraphic.ScreenSong) do;
+  UGraphic.ScreenSong.GenerateThumbnails();
+  UGraphic.ScreenMain.SetLoadProgress(ULanguage.Language.Translate('SING_LOADING_FINISH'));
+
+  Self.LoadingSongs := false;
 end;
 
 (*
@@ -275,50 +273,53 @@ end;
 procedure TCatSongs.SortSongs();
 begin
   case TSortingType(Ini.Sorting) of
-    sEdition: begin
+    sEdition:
+      begin
         Songs.Sort(sTitle);
         Songs.Sort(sArtist);
         Songs.Sort(sEdition);
       end;
-    sGenre: begin
+    sGenre:
+      begin
         Songs.Sort(sTitle);
         Songs.Sort(sArtist);
         Songs.Sort(sGenre);
       end;
-    sLanguage: begin
+    sLanguage:
+      begin
         Songs.Sort(sTitle);
         Songs.Sort(sArtist);
         Songs.Sort(sLanguage);
       end;
-    sFolder: begin
+    sFolder:
+      begin
         Songs.Sort(sTitle);
         Songs.Sort(sArtist);
         Songs.Sort(sFolder);
       end;
-    sTitle: begin
+    sTitle:
         Songs.Sort(sTitle);
-      end;
-    sArtist: begin
+    sArtist:
+      begin
         Songs.Sort(sTitle);
         Songs.Sort(sArtist);
       end;
-    sArtist2: begin
+    sArtist2:
+      begin
         Songs.Sort(sTitle);
         Songs.Sort(sArtist2);
       end;
-    sYear: begin
+    sYear:
+      begin
         Songs.Sort(sTitle);
         Songs.Sort(sArtist);
         Songs.Sort(sYear);
       end;
-    sDecade: begin
+    sDecade:
+      begin
         Songs.Sort(sTitle);
         Songs.Sort(sArtist);
         Songs.Sort(sYear);
-      end;
-    sPlaylist: begin
-        Songs.Sort(sTitle);
-        Songs.Sort(sArtist);
       end;
   end; // case
 end;

@@ -2939,12 +2939,6 @@ var
 begin
   inherited;
 
-  if (TSortingType(Ini.Sorting) <> sPlaylist) then
-  begin
-    CatSongs.Refresh;
-    GenerateThumbnails();
-  end;
-
   CloseMessage();
 
   if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic]) then

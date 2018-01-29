@@ -6,7 +6,17 @@
     "sh": false,
     "atomCommandName": "worldparty:compile",
     "errorMatch": ["(?<file>.+)\\((?<line>\\d+)\\,(?<col>\\d+)\\) (?<message>.+)"],
+    "keymap": "f9",
     "targets": {
+        "Free Pascal compile debug mode": {
+            "cmd": "{PROJECT_PATH}\\dists\\atom\\windows\\compile.bat",
+            "args": ["{PROJECT_PATH}", "compile-debug"],
+            "cwd": "{PROJECT_PATH}",
+            "sh": false,
+            "atomCommandName": "worldparty:compile-debug",
+            "errorMatch": ["(?<file>.+)\\((?<line>\\d+)\\,(?<col>\\d+)\\) (?<message>.+)"],
+            "keymap": "ctrl-f9"
+        },
         "Free Pascal compile and execute": {
             "cmd": "{PROJECT_PATH}\\dists\\atom\\windows\\compile.bat",
             "args": ["{PROJECT_PATH}", "compile-execute"],
@@ -16,6 +26,15 @@
             "errorMatch": ["(?<file>.+)\\((?<line>\\d+)\\,(?<col>\\d+)\\) (?<message>.+)"],
             "keymap": "f10"
         },
+        "Free Pascal compile debug and execute": {
+            "cmd": "{PROJECT_PATH}\\dists\\atom\\windows\\compile.bat",
+            "args": ["{PROJECT_PATH}", "compile-debug-execute"],
+            "cwd": "{PROJECT_PATH}",
+            "sh": false,
+            "atomCommandName": "worldparty:compile-debug-execute",
+            "errorMatch": ["(?<file>.+)\\((?<line>\\d+)\\,(?<col>\\d+)\\) (?<message>.+)"],
+            "keymap": "ctrl-f10"
+        },
         "Free Pascal execute without compile": {
             "cmd": "{PROJECT_PATH}\\dists\\atom\\windows\\compile.bat",
             "args": ["{PROJECT_PATH}", "execute"],
@@ -23,7 +42,7 @@
             "sh": false,
             "atomCommandName": "worldparty:execute",
             "errorMatch": ["(?<file>.+)\\((?<line>\\d+)\\,(?<col>\\d+)\\) (?<message>.+)"],
-            "keymap": "ctrl-f10"
+            "keymap": "ctrl-f11"
         }
     }
 }
