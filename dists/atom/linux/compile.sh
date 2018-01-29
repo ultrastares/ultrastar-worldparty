@@ -5,7 +5,7 @@ then
     processor=$(uname -m)
     platform=$(uname -s)
     target=../build/fpc-$processor-${platform,,}/
-    rm -rf ../game/WorldParty/* $target
+    rm -rf ../game/WorldParty* $target
     mkdir -p $target
     if [ $2 == "compile-debug" ] || [ $2 == "compile-debug-execute" ]
     then
