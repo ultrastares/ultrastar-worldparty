@@ -31,17 +31,17 @@ interface
 {$I switches.inc}
 
 uses
-  sdl2,
   dglOpenGL,
-  UTexture,
-  TextGL,
-  UConfig,
-  UCommon,
-  ULog,
-  UIni,
   SysUtils,
+  sdl2,
+  TextGL,
+  UDisplay,
+  UCommandLine,
+  UCommon,
   UImage,
-  UMusic,
+  UIni,
+  ULog,
+  UPathUtils,
   UScreenLoading,
   UScreenMain,
   UScreenName,
@@ -84,7 +84,8 @@ uses
   UScreenStatMain,
   UScreenStatDetail,
   {Popup for errors, etc.}
-  UScreenPopup;
+  UScreenPopup,
+  UTexture;
 
 type
   TRecR = record
@@ -330,13 +331,6 @@ procedure OnWindowResized(w,h: integer);
 
 implementation
 
-
-uses
-  Classes,
-  UDisplay,
-  UCommandLine,
-  UPathUtils;
-
 procedure UnloadFontTextures;
 begin
   Log.LogStatus('Kill Fonts', 'UnloadFontTextures');
@@ -440,7 +434,7 @@ const
 procedure Initialize3D(Title: string);
 begin
   InitializeScreen(Title);
-  LoadTextures;
+  LoadTextures();
 
   //screen loading
   ScreenLoading := TScreenLoading.Create;
@@ -451,9 +445,7 @@ begin
   SwapBuffers;
 
   // this would be run in the loadingthread
-  LoadScreens;
-
-  UMusic.InitializeVideo();
+  LoadScreens();
 
   Display.CurrentScreen^.FadeTo(@ScreenMain);
   Log.LogBenchmark('--> Loading Screens', 2);
@@ -633,7 +625,7 @@ NoDoubledResolution:
   SwapBuffers;}
 
   SDL_SetWindowTitle(Screen, PChar(Title));
-  SDL_SetWindowIcon(Screen, LoadImage(ResourcesPath.Append(WINDOW_ICON))); //load icon image (must be 32x32 for win32)
+  SDL_SetWindowIcon(Screen, UImage.LoadImage(UPathUtils.ResourcesPath.Append(WINDOW_ICON))); //load icon image (must be 32x32 for win32)
 end;
 
 function HasWindowState(Flag: integer): boolean;

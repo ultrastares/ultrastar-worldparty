@@ -199,8 +199,8 @@ begin
     // Theme
     Theme.LoadTheme(Ini.Theme, Ini.Color);
 
-    // Sound
-    InitializeSound();
+    UMusic.InitializeSound();
+    UMusic.InitializeVideo();
 
     // Lyrics-engine with media reference timer
     LyricsState := TLyricsState.Create();
