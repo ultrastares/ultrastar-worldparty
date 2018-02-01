@@ -205,18 +205,20 @@ Function Settings
 
 	; localize settings
 	
-	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 17" "Text" "$(page_settings_config_title)"
-	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 10" "Text" "$(page_settings_config_info)"
 	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 1" "Text" "$(page_settings_fullscreen_label)"
-	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 9" "Text" "$(page_settings_fullscreen_info)"
 	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 2" "Text" "$(page_settings_language_label)"
-	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 11" "Text" "$(page_settings_language_info)"
 	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 3" "Text" "$(page_settings_resolution_label)"
+	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 4" "Text" "$(page_settings_tabs_label)"	
+	
+	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 9" "Text" "$(page_settings_fullscreen_info)"
+	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 10" "Text" "$(page_settings_config_info)"
+	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 11" "Text" "$(page_settings_language_info)"
 	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 12" "Text" "$(page_settings_resolution_info)"
-	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 4" "Text" "$(page_settings_tabs_label)"
 	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 13" "Text" "$(page_settings_tabs_info)"
-	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 14" "Text" "$(page_settings_sorting_label)"
-	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 16" "Text" "$(page_settings_sorting_info)"
+	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 14" "Text" "$(page_settings_sorting_label)"	
+
+	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 16" "Text" "$(page_settings_sorting_info)"	
+	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 17" "Text" "$(page_settings_config_title)"
 	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 18" "Text" "$(page_settings_songdir_label)"
 	!insertmacro INSTALLOPTIONS_WRITE "Settings" "Field 19" "Text" "$(page_settings_songdir_info)"
 
@@ -390,7 +392,7 @@ FunctionEnd
 ;-----------------
 Section Install
 
-	;SectionIn RO
+	SectionIn RO
 	SetOutPath $INSTDIR
 	SetOverwrite try
 	
@@ -416,6 +418,9 @@ Section Install
 	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\$(sm_website).lnk" "${homepage}" 
 	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\$(sm_songs).lnk" "$INSTDIR\songs"
 	CreateShortCut "$SMPROGRAMS\$StartMenuFolder\$(sm_uninstall).lnk" "$INSTDIR\${exeuninstall}.exe"
+	
+	; SendTo shortcut
+	;CreateShortCut "$SENDTO\${name}.lnk" "$INSTDIR\${exe}.exe" "-SongPath"
 	
 !insertmacro MUI_STARTMENU_WRITE_END
 

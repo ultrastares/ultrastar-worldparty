@@ -1,11 +1,11 @@
 ﻿; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; UltraStar Deluxe Un/Installer: Variables
+; UltraStar Deluxe WorldParty Un/Installer: Variables
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
 ; Product Information:
 
-!define VersionStr "17.12"
-!define FullVersion "17.12 RC2" 
+!define VersionStr "18.11"
+!define FullVersion "18.11" 
 
 !define installername " Installer"
 !define installerexe "WorldParty ${VersionStr} installer"

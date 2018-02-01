@@ -72,7 +72,7 @@ ${LangFileString} page_un_welcome_title "Bienvenido a la desinstalación de ${na
 
 ${LangFileString} page_settings_subtitle "Configura rápidamente tu ${name}."
 ${LangFileString} page_settings_config_title "Configuración de ${name} (opcional)"
-${LangFileString} page_settings_config_info "Toda la configuración será cambiada más tarde."
+${LangFileString} page_settings_config_info "No te preocupes, puedes cambiar estos valores si quieres más tarde."
 ${LangFileString} page_settings_fullscreen_label "Pantalla completa:"
 ${LangFileString} page_settings_fullscreen_info "¿Ejecutar el juego en ventana o pantalla completa?"
 ${LangFileString} page_settings_language_label "Idioma:"
