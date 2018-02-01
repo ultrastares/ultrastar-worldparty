@@ -25,9 +25,7 @@ unit UScreenOptionsThemes;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
@@ -203,7 +201,7 @@ begin
 
   Theme.OptionsThemes.SelectColor.showArrows := true;
   Theme.OptionsThemes.SelectColor.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsThemes.SelectColor, Ini.Color, IColorTranslated);
+  AddSelectSlide(Theme.OptionsThemes.SelectColor, UIni.Ini.Color, UIni.IColor, 'OPTION_VALUE_');
 
   AddButton(Theme.OptionsThemes.ButtonExit);
   if (Length(Button[0].Text)=0) then

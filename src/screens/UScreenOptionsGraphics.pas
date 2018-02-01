@@ -25,9 +25,7 @@ unit UScreenOptionsGraphics;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
@@ -88,7 +86,7 @@ begin
       SDLK_ESCAPE,
       SDLK_BACKSPACE :
         begin
-          Ini.Save;
+          UIni.Ini.Save;
           AudioPlayback.PlaySound(SoundLib.Back);
           FadeTo(@ScreenOptions);
         end;
@@ -96,10 +94,10 @@ begin
         begin
           if SelInteraction = 6 then
           begin
-            Ini.Save;
+            UIni.Ini.Save;
             AudioPlayback.PlaySound(SoundLib.Back);
 
-            if OldWindowMode <> Ini.FullScreen then UGraphic.UpdateVideoMode()
+            if OldWindowMode <> UIni.Ini.FullScreen then UGraphic.UpdateVideoMode()
             else UGraphic.UpdateResolution();
 
             FadeTo(@ScreenOptions);
@@ -151,29 +149,29 @@ begin
 
   Theme.OptionsGraphics.SelectFullscreen.showArrows := true;
   Theme.OptionsGraphics.SelectFullscreen.oneItemOnly := true;
-  SelectWindowMode := AddSelectSlide(Theme.OptionsGraphics.SelectFullscreen,   Ini.Fullscreen, IFullScreenTranslated);
+  SelectWindowMode := AddSelectSlide(Theme.OptionsGraphics.SelectFullscreen, UIni.Ini.Fullscreen, UIni.IFullScreen, 'OPTION_VALUE_');
 
   Theme.OptionsGraphics.SelectResolution.showArrows := true;
   Theme.OptionsGraphics.SelectResolution.oneItemOnly := true;
-  SelectResolution := AddSelectSlide(Theme.OptionsGraphics.SelectResolution,   Ini.Resolution, IResolution);
+  SelectResolution := AddSelectSlide(Theme.OptionsGraphics.SelectResolution, UIni.Ini.Resolution, UIni.IResolution);
 
   //SelectLoadAnimation Hidden because it is useless atm
-  //AddSelect(Theme.OptionsGraphics.SelectLoadAnimation, Ini.LoadAnimation, ILoadAnimationTranslated);
+  //AddSelect(Theme.OptionsGraphics.SelectLoadAnimation, UIni.Ini.LoadAnimation, UIni.Ini.ILoadAnimation);
   Theme.OptionsGraphics.SelectScreenFade.showArrows := true;
   Theme.OptionsGraphics.SelectScreenFade.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGraphics.SelectScreenFade, Ini.ScreenFade, IScreenFadeTranslated);
+  AddSelectSlide(Theme.OptionsGraphics.SelectScreenFade, UIni.Ini.ScreenFade, UIni.IScreenFade, 'OPTION_VALUE_');
 
   Theme.OptionsGraphics.SelectEffectSing.showArrows := true;
   Theme.OptionsGraphics.SelectEffectSing.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGraphics.SelectEffectSing, Ini.EffectSing, IEffectSingTranslated);
+  AddSelectSlide(Theme.OptionsGraphics.SelectEffectSing, UIni.Ini.EffectSing, UIni.IEffectSing, 'OPTION_VALUE_');
 
   Theme.OptionsGraphics.SelectVisualizer.showArrows := true;
   Theme.OptionsGraphics.SelectVisualizer.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGraphics.SelectVisualizer,   Ini.VisualizerOption, IVisualizerTranslated);
+  AddSelectSlide(Theme.OptionsGraphics.SelectVisualizer, UIni.Ini.VisualizerOption, UIni.IVisualizer, 'OPTION_VALUE_');
 
   Theme.OptionsGraphics.SelectMovieSize.showArrows := true;
   Theme.OptionsGraphics.SelectMovieSize.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGraphics.SelectMovieSize,    Ini.MovieSize, IMovieSizeTranslated);
+  AddSelectSlide(Theme.OptionsGraphics.SelectMovieSize, UIni.Ini.MovieSize, ['HALF', 'FULL_VID', 'FULL_VID_BG'], 'OPTION_VALUE_');
 
   // TODO: Add apply button
   AddButton(Theme.OptionsGraphics.ButtonExit);
@@ -183,53 +181,47 @@ begin
 end;
 
 procedure TScreenOptionsGraphics.OnShow;
-var
-  i: integer;
 begin
   inherited;
 
-  if CurrentWindowMode = Mode_Windowed then Ini.SetResolution(ScreenW, ScreenH);
+  if CurrentWindowMode = Mode_Windowed then
+    UIni.Ini.SetResolution(ScreenW, ScreenH);
 
   UpdateWindowMode();
   UpdateResolution();
-
   Interaction := 0;
 end;
 
 procedure TScreenOptionsGraphics.OnHide;
 begin
   inherited;
-  Ini.ClearCustomResolutions();
+  UIni.Ini.ClearCustomResolutions();
 end;
 
 procedure TScreenOptionsGraphics.OnWindowResized;
 begin
   inherited;
-
   UpdateWindowMode;
+  if CurrentWindowMode = Mode_Windowed then
+    UIni.Ini.SetResolution(ScreenW, ScreenH);
 
-  if CurrentWindowMode = Mode_Windowed then Ini.SetResolution(ScreenW, ScreenH);
   UpdateResolution;
-
 end;
 
 procedure TScreenOptionsGraphics.UpdateWindowMode;
 begin
-
-  UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectFullscreen, SelectWindowMode, IFullScreenTranslated, Ini.FullScreen);
-  OldWindowMode := integer(Ini.FullScreen);
+  UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectFullscreen, SelectWindowMode, UIni.IFullScreen, UIni.Ini.FullScreen, 'OPTION_VALUE_');
+  OldWindowMode := integer(UIni.Ini.FullScreen);
 end;
 
 procedure TScreenOptionsGraphics.UpdateResolution;
 begin
-
-  if Ini.Fullscreen = 2 then
+  if UIni.Ini.Fullscreen = 2 then
     UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectResolution, SelectResolution, IResolutionEmpty, ResolutionEmpty)
-  else if Ini.Fullscreen = 1 then
-    UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectResolution, SelectResolution, IResolutionFullScreen, Ini.ResolutionFullscreen)
+  else if UIni.Ini.Fullscreen = 1 then
+    UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectResolution, SelectResolution, UIni.IResolutionFullScreen, UIni.Ini.ResolutionFullscreen)
   else
-    UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectResolution, SelectResolution, IResolution, Ini.Resolution);
-
+    UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectResolution, SelectResolution, UIni.IResolution, UIni.Ini.Resolution);
 end;
 
 end.

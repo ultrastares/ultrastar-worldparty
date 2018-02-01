@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -25,19 +25,18 @@ unit UScreenOptionsSound;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
 uses
   sdl2,
-  UMenu,
   UDisplay,
-  UMusic,
   UFiles,
   UIni,
+  ULanguage,
+  UMenu,
+  UMusic,
   UThemes;
 
 type
@@ -126,10 +125,14 @@ begin
     else
       SoundLib.PauseBgMusic;
   end;
-  
+
 end;
 
 constructor TScreenOptionsSound.Create;
+var
+  IMusicAutoGainTranslated: array[0..3] of UTF8String;
+  IPreviewFadingTranslated: array[0..5] of UTF8String;
+  I: integer;
 begin
   inherited Create;
 
@@ -137,31 +140,41 @@ begin
 
   Theme.OptionsSound.SelectSlideVoicePassthrough.showArrows := true;
   Theme.OptionsSound.SelectSlideVoicePassthrough.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsSound.SelectSlideVoicePassthrough, Ini.VoicePassthrough, IVoicePassthroughTranslated);
+  AddSelectSlide(Theme.OptionsSound.SelectSlideVoicePassthrough, UIni.Ini.VoicePassthrough, UIni.IVoicePassthrough, 'OPTION_VALUE_');
 
   Theme.OptionsSound.SelectBackgroundMusic.showArrows := true;
   Theme.OptionsSound.SelectBackgroundMusic.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsSound.SelectBackgroundMusic, Ini.BackgroundMusicOption, IBackgroundMusicTranslated);
+  AddSelectSlide(Theme.OptionsSound.SelectBackgroundMusic, UIni.Ini.BackgroundMusicOption, UIni.IBackgroundMusic, 'OPTION_VALUE_');
 
   Theme.OptionsSound.SelectClickAssist.showArrows := true;
   Theme.OptionsSound.SelectClickAssist.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsSound.SelectClickAssist, Ini.ClickAssist, IClickAssistTranslated);
+  AddSelectSlide(Theme.OptionsSound.SelectClickAssist, UIni.Ini.ClickAssist, UIni.IClickAssist, 'OPTION_VALUE_');
 
   Theme.OptionsSound.SelectBeatClick.showArrows := true;
   Theme.OptionsSound.SelectBeatClick.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsSound.SelectBeatClick, Ini.BeatClick, IBeatClickTranslated);
+  AddSelectSlide(Theme.OptionsSound.SelectBeatClick, UIni.Ini.BeatClick, UIni.IBeatClick, 'OPTION_VALUE_');
 
   Theme.OptionsSound.SelectSlideMusicAutoGain.showArrows := true;
   Theme.OptionsSound.SelectSlideMusicAutoGain.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsSound.SelectSlideMusicAutoGain, Ini.MusicAutoGain, IMusicAutoGainTranslated);
+  IMusicAutoGainTranslated := UIni.IMusicAutoGain;
+  for I := 1 to High(UIni.IMusicAutoGain) do
+    IMusicAutoGainTranslated[I] := 'GAIN_'+IMusicAutoGainTranslated[I];
+
+  AddSelectSlide(Theme.OptionsSound.SelectSlideMusicAutoGain, UIni.Ini.MusicAutoGain, IMusicAutoGainTranslated, 'OPTION_VALUE_');
 
   Theme.OptionsSound.SelectSlidePreviewVolume.showArrows := true;
   Theme.OptionsSound.SelectSlidePreviewVolume.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsSound.SelectSlidePreviewVolume, Ini.PreviewVolume, IPreviewVolumeTranslated);
+  AddSelectSlide(Theme.OptionsSound.SelectSlidePreviewVolume, UIni.Ini.PreviewVolume, UIni.IPreviewVolume);
 
   Theme.OptionsSound.SelectSlidePreviewFading.showArrows := true;
   Theme.OptionsSound.SelectSlidePreviewFading.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsSound.SelectSlidePreviewFading, Ini.PreviewFading, IPreviewFadingTranslated);
+  IPreviewFadingTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_OFF');
+  IPreviewFadingTranslated[1] := '1 '+LowerCase(ULanguage.Language.Translate('OPTION_VALUE_SEC'));
+  IPreviewFadingTranslated[2] := '2 '+LowerCase(ULanguage.Language.Translate('OPTION_VALUE_SECS'));
+  IPreviewFadingTranslated[3] := '3 '+LowerCase(ULanguage.Language.Translate('OPTION_VALUE_SECS'));
+  IPreviewFadingTranslated[4] := '4 '+LowerCase(ULanguage.Language.Translate('OPTION_VALUE_SECS'));
+  IPreviewFadingTranslated[5] := '5 '+LowerCase(ULanguage.Language.Translate('OPTION_VALUE_SECS'));
+  AddSelectSlide(Theme.OptionsSound.SelectSlidePreviewFading, UIni.Ini.PreviewFading, IPreviewFadingTranslated);
 
   AddButton(Theme.OptionsSound.ButtonExit);
   if (Length(Button[0].Text) = 0) then

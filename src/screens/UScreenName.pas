@@ -115,6 +115,9 @@ type
       procedure SetPlayerAvatar(Player: integer);
   end;
 
+const
+  PlayerColors: array[0..16] of UTF8String = ('Blue', 'Red', 'Green', 'Yellow', 'Magenta', 'Orange', 'Pink',  'Violet', 'Brown', 'Gray', 'DarkBlue', 'Sky', 'Cyan', 'Flame', 'Orchid', 'Harlequin', 'GreenYellow');
+
 var
   Num: array[0..UIni.IMaxPlayerCount-1]of integer;
 
@@ -637,14 +640,14 @@ begin
 
   PlayerColorButton(Num[PlayerIndex]);
 
-  Max := Length(IPlayerColorTranslated) - Count + 1;
+  Max := Length(PlayerColors) - Count + 1;
   SetLength(ITmp, Max);
 
   APlayerColor := nil;
   SetLength(APlayerColor, Max);
 
   Index := 0;
-  for I := 0 to High(IPlayerColorTranslated) do      //for every color
+  for I := 0 to High(PlayerColors) do      //for every color
   begin
     Used := false;
 
@@ -659,7 +662,7 @@ begin
 
     if not (Used) then
     begin
-      ITmp[Index] := IPlayerColorTranslated[I];
+      ITmp[Index] := ULanguage.Language.Translate('OPTION_VALUE_'+PlayerColors[I]);
       APlayerColor[Index] := I + 1;
       Index := Index + 1;
     end;
@@ -691,11 +694,11 @@ var
 begin
   Count := UIni.IPlayersVals[CountIndex];
 
-  if (ColorP > Length(IPlayerColorTranslated)) then
+  if (ColorP > Length(PlayerColors)) then
     ColorP := NoRepeatColors(1, Interaction, Pos);
 
   if (ColorP <= 0) then
-    ColorP := NoRepeatColors(High(IPlayerColorTranslated), Interaction, Pos);
+    ColorP := NoRepeatColors(High(PlayerColors), Interaction, Pos);
 
   for Z := Count -1 downto 0 do
   begin
@@ -801,11 +804,11 @@ begin
 
   Theme.Name.SelectPlayerColor.oneItemOnly := true;
   Theme.Name.SelectPlayerColor.showArrows := true;
-  PlayerColor := AddSelectSlide(Theme.Name.SelectPlayerColor, ColorIndex, IPlayerColorTranslated);
+  PlayerColor := AddSelectSlide(Theme.Name.SelectPlayerColor, ColorIndex, PlayerColors, 'OPTION_VALUE_');
 
   Theme.Name.SelectPlayerLevel.oneItemOnly := true;
   Theme.Name.SelectPlayerLevel.showArrows := true;
-  PlayerSelectLevel := AddSelectSlide(Theme.Name.SelectPlayerLevel, LevelIndex, IDifficultyTranslated);
+  PlayerSelectLevel := AddSelectSlide(Theme.Name.SelectPlayerLevel, LevelIndex, UIni.IDifficulty, 'OPTION_VALUE_');
 
   isScrolling := false;
 
