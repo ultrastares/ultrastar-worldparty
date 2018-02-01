@@ -35,6 +35,7 @@ uses
   Math,
   dglOpenGL,
   sdl2,
+  ULanguage,
   UPath,
   UMenuBackground,
   UMenuButton,
@@ -125,16 +126,16 @@ type
       procedure AddButtonText(CustomButton: TButton; AddX, AddY: real; ColR, ColG, ColB: real; Font: integer; Size: integer; Align: integer; const AddText: UTF8String); overload;
 
       // select slide
-      function AddSelectSlide(ThemeSelectS: TThemeSelectSlide; var Data: integer; const Values: array of UTF8String): integer; overload;
+      function AddSelectSlide(ThemeSelectS: TThemeSelectSlide; var Data: integer; const Values: array of UTF8String; Prefix: string = ''): integer; overload;
       function AddSelectSlide(X, Y, W, H, SkipX, SBGW, ColR, ColG, ColB, Int, DColR, DColG, DColB, DInt,
         TColR, TColG, TColB, TInt, TDColR, TDColG, TDColB, TDInt,
         SBGColR, SBGColG, SBGColB, SBGInt, SBGDColR, SBGDColG, SBGDColB, SBGDInt,
         STColR, STColG, STColB, STInt, STDColR, STDColG, STDColB, STDInt: real;
         const TexName: IPath; Typ: TTextureType; const SBGName: IPath; SBGTyp: TTextureType;
         const Caption: UTF8String; var Data: integer): integer; overload;
-      procedure AddSelectSlideOption(const AddText: UTF8String); overload;
-      procedure AddSelectSlideOption(SelectNo: cardinal; const AddText: UTF8String); overload;
-      procedure UpdateSelectSlideOptions(ThemeSelectSlide: TThemeSelectSlide; SelectNum: integer; const Values: array of UTF8String; var Data: integer);
+      procedure AddSelectSlideOption(const AddText: UTF8String; Prefix: string = ''); overload;
+      procedure AddSelectSlideOption(SelectNo: cardinal; const AddText: UTF8String; Prefix: string = ''); overload;
+      procedure UpdateSelectSlideOptions(ThemeSelectSlide: TThemeSelectSlide; SelectNum: integer; const Values: array of UTF8String; var Data: integer; Prefix: string = '');
 
 //      function AddWidget(X, Y : UInt16; WidgetSrc : PSDL_Surface): Int16;
 //      procedure ClearWidgets(MinNumber : Int16);
@@ -172,8 +173,8 @@ type
       procedure InteractNextRow; virtual; // this is for the options screen, so button down makes sense
       procedure InteractPrevRow; virtual; // this is for the options screen, so button up makes sense
       procedure AddBox(X, Y, W, H: real);
-	  procedure InteractMainNextRow(ItemsPerRow: integer); virtual; // this is for the main screen, so button down makes sense
-	  procedure InteractMainPrevRow(ItemsPerRow: integer); virtual; // this is for the main screen, so button up makes sense
+      procedure InteractMainNextRow(ItemsPerRow: integer); virtual; // this is for the main screen, so button down makes sense
+      procedure InteractMainPrevRow(ItemsPerRow: integer); virtual; // this is for the main screen, so button up makes sense
   end;
 
 function RGBFloatToInt(R, G, B: double): cardinal;
@@ -197,6 +198,7 @@ const
 implementation
 
 uses
+  StrUtils,
   UCommon,
   UCovers,
   UDisplay,
@@ -1372,7 +1374,7 @@ begin
   end;
 end;
 
-function TMenu.AddSelectSlide(ThemeSelectS: TThemeSelectSlide; var Data: integer; const Values: array of UTF8String): integer;
+function TMenu.AddSelectSlide(ThemeSelectS: TThemeSelectSlide; var Data: integer; const Values: array of UTF8String; Prefix: string = ''): integer;
 var
   SO: integer;
 begin
@@ -1389,7 +1391,7 @@ begin
     Skin.GetTextureFileName(ThemeSelectS.TexSBG), ThemeSelectS.TypSBG,
     ThemeSelectS.Text, Data);
   for SO := 0 to High(Values) do
-    AddSelectSlideOption(Values[SO]);
+    AddSelectSlideOption(Values[SO], Prefix);
 
   SelectsS[High(SelectsS)].Text.Size := ThemeSelectS.TextSize;
   SelectsS[High(SelectsS)].Text.Y := ThemeSelectS.Y + (ThemeSelectS.H /2 ) - (ThemeSelectS.TextSize / 2);
@@ -1565,19 +1567,19 @@ begin
   Result := S;
 end;
 
-procedure TMenu.AddSelectSlideOption(const AddText: UTF8String);
+procedure TMenu.AddSelectSlideOption(const AddText: UTF8String; Prefix: string = '');
 begin
-  AddSelectSlideOption(High(SelectsS), AddText);
+  AddSelectSlideOption(High(SelectsS), AddText, Prefix);
 end;
 
-procedure TMenu.AddSelectSlideOption(SelectNo: cardinal; const AddText: UTF8String);
+procedure TMenu.AddSelectSlideOption(SelectNo: cardinal; const AddText: UTF8String; Prefix: string = '');
 var
   SO: integer;
 begin
   SO := Length(SelectsS[SelectNo].TextOptT);
 
   SetLength(SelectsS[SelectNo].TextOptT, SO + 1);
-  SelectsS[SelectNo].TextOptT[SO] := AddText;
+  SelectsS[SelectNo].TextOptT[SO] := ULanguage.Language.Translate(IfThen(Prefix <> '', ReplaceStr(Prefix+AddText, ' ', '_'), AddText));
 {
   SelectsS[S].SelectedOption := SelectsS[S].SelectOptInt; // refresh
 
@@ -1586,14 +1588,13 @@ begin
 }
 end;
 
-procedure TMenu.UpdateSelectSlideOptions(ThemeSelectSlide: TThemeSelectSlide;
-  SelectNum: integer; const Values: array of UTF8String; var Data: integer);
+procedure TMenu.UpdateSelectSlideOptions(ThemeSelectSlide: TThemeSelectSlide; SelectNum: integer; const Values: array of UTF8String; var Data: integer; Prefix: string = '');
 var
   SO: integer;
 begin
   SetLength(SelectsS[SelectNum].TextOptT, 0);
   for SO := 0 to High(Values) do
-    AddSelectSlideOption(SelectNum, Values[SO]);
+    AddSelectSlideOption(SelectNum, Values[SO], Prefix);
 
   SelectsS[SelectNum].GenLines;
 

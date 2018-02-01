@@ -266,20 +266,19 @@ type
 
       procedure Load();
       procedure Save();
-      procedure SaveNames;
-      procedure SaveLevel;
-      procedure SavePlayerColors;
-      procedure SavePlayerAvatars;
-      procedure SavePlayerLevels;
-      procedure SaveTeamColors;
-      procedure SaveShowWebScore;
-      procedure SaveJukeboxSongMenu;
-
+      procedure SaveNames();
+      procedure SaveLevel();
+      procedure SavePlayerColors();
+      procedure SavePlayerAvatars();
+      procedure SavePlayerLevels();
+      procedure SaveTeamColors();
+      procedure SaveShowWebScore();
+      procedure SaveJukeboxSongMenu();
       procedure SaveSoundFont(Name: string);
       procedure SaveWebcamSettings();
-      procedure SaveNumberOfPlayers;
-      procedure SaveSingTimebarMode;
-      procedure SaveJukeboxTimebarMode;
+      procedure SaveNumberOfPlayers();
+      procedure SaveSingTimebarMode();
+      procedure SaveJukeboxTimebarMode();
 
       { Sets resolution.
         @return (@true when resolution was added, @false otherwise) }
@@ -320,7 +319,7 @@ const
   ITabs:        array[0..1] of UTF8String = ('Off', 'On');
 
 const
-  ISorting:      array[0..9] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade', 'Playlist');
+  ISorting:      array[0..8] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade');
   ISongMenuMode: array[0..6] of UTF8String = ('Roulette', 'Chessboard', 'Carousel', 'Slot Machine', 'Slide', 'List', 'Mosaic');
 
 type
@@ -449,18 +448,7 @@ const
  *}
 
 var
-  ILanguageTranslated:         array of UTF8String;
-
-
   IDifficultyTranslated:       array[0..2] of UTF8String  = ('Easy', 'Medium', 'Hard');
-  ITabsTranslated:             array[0..1] of UTF8String  = ('Off', 'On');
-
-  ISongMenuTranslated:         array[0..6] of UTF8String  = ('Roulette', 'Chessboard', 'Carousel', 'Slot Machine', 'Slide', 'List', 'Mosaic');
-
-  //ISortingTranslated:          array[0..9] of UTF8String  = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade', 'Playlist');
-  ISortingTranslated:          array[0..8] of UTF8String  = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade');
-
-  IShowScoresTranslated:       array[0..2] of UTF8String  = ('Off', 'WhenExists', 'On');
 
   IDebugTranslated:            array[0..1] of UTF8String  = ('Off', 'On');
 
@@ -594,39 +582,9 @@ begin
   else
     ULanguage.Language.ChangeLanguage(ILanguage[Language]);
 
-  SetLength(ILanguageTranslated, Length(ILanguage));
-  for I := 0 to High(ILanguage) do
-	ILanguageTranslated[I] := ILanguage[I];
-
   IDifficultyTranslated[0]            := ULanguage.Language.Translate('OPTION_VALUE_EASY');
   IDifficultyTranslated[1]            := ULanguage.Language.Translate('OPTION_VALUE_MEDIUM');
   IDifficultyTranslated[2]            := ULanguage.Language.Translate('OPTION_VALUE_HARD');
-
-  ITabsTranslated[0]                  := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  ITabsTranslated[1]                  := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  ISongMenuTranslated[0]              := ULanguage.Language.Translate('OPTION_VALUE_ROULETTE');
-  ISongMenuTranslated[1]              := ULanguage.Language.Translate('OPTION_VALUE_CHESSBOARD');
-  ISongMenuTranslated[2]              := ULanguage.Language.Translate('OPTION_VALUE_CAROUSEL');
-  ISongMenuTranslated[3]              := ULanguage.Language.Translate('OPTION_VALUE_SLOTMACHINE');
-  ISongMenuTranslated[4]              := ULanguage.Language.Translate('OPTION_VALUE_SLIDE');
-  ISongMenuTranslated[5]              := ULanguage.Language.Translate('OPTION_VALUE_LIST');
-  ISongMenuTranslated[6]              := ULanguage.Language.Translate('OPTION_VALUE_MOSAIC');
-
-  ISortingTranslated[0]               := ULanguage.Language.Translate('OPTION_VALUE_EDITION');
-  ISortingTranslated[1]               := ULanguage.Language.Translate('OPTION_VALUE_GENRE');
-  ISortingTranslated[2]               := ULanguage.Language.Translate('OPTION_VALUE_LANGUAGE');
-  ISortingTranslated[3]               := ULanguage.Language.Translate('OPTION_VALUE_FOLDER');
-  ISortingTranslated[4]               := ULanguage.Language.Translate('OPTION_VALUE_TITLE');
-  ISortingTranslated[5]               := ULanguage.Language.Translate('OPTION_VALUE_ARTIST');
-  ISortingTranslated[6]               := ULanguage.Language.Translate('OPTION_VALUE_ARTIST2');
-  ISortingTranslated[7]               := ULanguage.Language.Translate('OPTION_VALUE_YEAR');
-  ISortingTranslated[8]               := ULanguage.Language.Translate('OPTION_VALUE_DECADE');
-  //ISortingTranslated[9]               := ULanguage.Language.Translate('OPTION_VALUE_PLAYLIST');
-
-  IShowScoresTranslated[0]            := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IShowScoresTranslated[1]            := ULanguage.Language.Translate('OPTION_VALUE_WHENEXIST');
-  IShowScoresTranslated[2]            := ULanguage.Language.Translate('OPTION_VALUE_ON');
 
   IDebugTranslated[0]                 := ULanguage.Language.Translate('OPTION_VALUE_OFF');
   IDebugTranslated[1]                 := ULanguage.Language.Translate('OPTION_VALUE_ON');
