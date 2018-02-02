@@ -1,21 +1,22 @@
 Ultrastar Deluxe WorldParty
 Copyright (C) 2010-2017 by the following:
 
+"Zup3r_vock"
+"Daniel20"
+"jmfb"
+"TeLiXj"
+
 If you have contributed to this project then you deserve to be on this
 list.  Contact us and we'll add you.
 
-"Zup3r_vock"
-"Daniel20"
-
-
  --> Follow the project at https://github.com/ultrastares/usdxworldparty
 
- --> Support and contact: http://ultrastar-es.org
+ --> Support and contact: https://ultrastar-es.org
 
 ---------------------------------------------------------------------------------
 *Consider that Ultrastar Deluxe Worldparty is a fork of Ultrastar Deluxe.
 Some modifications could be related to their team which is impossible to merge
-with our project. So, please visit their repo to follow all modifications and 
+with our project. So, please visit their repo to follow all modifications and
 the people who are involved. https://github.com/UltraStar-Deluxe/USDX/commits/master
 ---------------------------------------------------------------------------------
 

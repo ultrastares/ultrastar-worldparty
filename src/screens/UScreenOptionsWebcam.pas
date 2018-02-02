@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -25,9 +25,7 @@ unit UScreenOptionsWebcam;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
@@ -179,6 +177,7 @@ end;
 constructor TScreenOptionsWebcam.Create;
 var
   WebcamsIDs: array[0..2] of UTF8String;
+  IWebcamEffectTranslated: array [0..10] of UTF8String = ('NORMAL', 'GRAYSCALE', 'BLACK_WHITE', 'NEGATIVE', 'BINARY_IMAGE', 'DILATE', 'THRESHOLD', 'EDGES', 'GAUSSIAN_BLUR', 'EQUALIZED', 'ERODE');
   SelectWebcam: integer;
 begin
   inherited Create;
@@ -191,35 +190,35 @@ begin
 
   Theme.OptionsWebcam.SelectWebcam.showArrows := true;
   Theme.OptionsWebcam.SelectWebcam.oneItemOnly := true;
-  ID := AddSelectSlide(Theme.OptionsWebcam.SelectWebcam, Ini.WebCamID, WebcamsIDs);
+  ID := AddSelectSlide(Theme.OptionsWebcam.SelectWebcam, UIni.Ini.WebCamID, WebcamsIDs);
 
   Theme.OptionsWebcam.SelectResolution.showArrows := true;
   Theme.OptionsWebcam.SelectResolution.oneItemOnly := true;
-  Resolution := AddSelectSlide(Theme.OptionsWebcam.SelectResolution, Ini.WebcamResolution, IWebcamResolution);
+  Resolution := AddSelectSlide(Theme.OptionsWebcam.SelectResolution, UIni.Ini.WebcamResolution, IWebcamResolution);
 
   Theme.OptionsWebcam.SelectFPS.showArrows := true;
   Theme.OptionsWebcam.SelectFPS.oneItemOnly := true;
-  FPS := AddSelectSlide(Theme.OptionsWebcam.SelectFPS, Ini.WebCamFPS, IWebcamFPS);
+  FPS := AddSelectSlide(Theme.OptionsWebcam.SelectFPS, UIni.Ini.WebCamFPS, IWebcamFPS);
 
   Theme.OptionsWebcam.SelectFlip.showArrows := true;
   Theme.OptionsWebcam.SelectFlip.oneItemOnly := true;
-  Flip := AddSelectSlide(Theme.OptionsWebcam.SelectFlip, Ini.WebCamFlip, IWebcamFlipTranslated);
+  Flip := AddSelectSlide(Theme.OptionsWebcam.SelectFlip, UIni.Ini.WebCamFlip, IWebcamFlip, 'OPTION_VALUE_');
 
   Theme.OptionsWebcam.SelectBrightness.showArrows := true;
   Theme.OptionsWebcam.SelectBrightness.oneItemOnly := true;
-  Brightness := AddSelectSlide(Theme.OptionsWebcam.SelectBrightness, Ini.WebCamBrightness, IWebcamBrightness);
+  Brightness := AddSelectSlide(Theme.OptionsWebcam.SelectBrightness, UIni.Ini.WebCamBrightness, IWebcamBrightness);
 
   Theme.OptionsWebcam.SelectSaturation.showArrows := true;
   Theme.OptionsWebcam.SelectSaturation.oneItemOnly := true;
-  Saturation := AddSelectSlide(Theme.OptionsWebcam.SelectSaturation, Ini.WebCamSaturation, IWebcamSaturation);
+  Saturation := AddSelectSlide(Theme.OptionsWebcam.SelectSaturation, UIni.Ini.WebCamSaturation, IWebcamSaturation);
 
   Theme.OptionsWebcam.SelectHue.showArrows := true;
   Theme.OptionsWebcam.SelectHue.oneItemOnly := true;
-  Hue := AddSelectSlide(Theme.OptionsWebcam.SelectHue, Ini.WebCamHue, IWebcamHue);
+  Hue := AddSelectSlide(Theme.OptionsWebcam.SelectHue, UIni.Ini.WebCamHue, IWebcamHue);
 
   Theme.OptionsWebcam.SelectEffect.showArrows := true;
   Theme.OptionsWebcam.SelectEffect.oneItemOnly := true;
-  Effect := AddSelectSlide(Theme.OptionsWebcam.SelectEffect, Ini.WebCamEffect, IWebcamEffectTranslated);
+  Effect := AddSelectSlide(Theme.OptionsWebcam.SelectEffect, UIni.Ini.WebCamEffect, IWebcamEffectTranslated, 'SING_OPTIONS_WEBCAM_EFFECT_');
 
   AddButton(Theme.OptionsWebcam.ButtonPreVisualization);
 
@@ -284,7 +283,7 @@ begin
   else
     DrawBG;
 
-  DrawFG;
+  Result := DrawFG;
 end;
 
 procedure TScreenOptionsWebcam.ChangeElementAlpha;

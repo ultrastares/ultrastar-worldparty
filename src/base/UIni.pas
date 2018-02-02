@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -72,7 +72,7 @@ const
   CHANNEL_OFF = 0;         // for field ChannelToPlayerMap
   LATENCY_AUTODETECT = -1; // for field Latency
   DEFAULT_RESOLUTION = '800x600';
-  DEFAULT_THEME = 'Modern';
+  DEFAULT_THEME = 'Fantasy';
   IMaxPlayerCount = 12;
   IPlayers:     array[0..6] of UTF8String = ('1', '2', '3', '4', '6', '8', '12');
   IPlayersVals: array[0..6] of integer    = ( 1 ,  2 ,  3 ,  4 ,  6 ,  8 ,  12);
@@ -107,7 +107,7 @@ type
     public
       // Players or Teams colors
       SingColor:      array[0..(IMaxPlayerCount-1)] of integer;
-      
+
       Name:           array[0..15] of UTF8String;
       PlayerColor:    array[0..(IMaxPlayerCount-1)] of integer;
       TeamColor:      array[0..2] of integer;
@@ -132,7 +132,7 @@ type
       Sorting:        integer;
       ShowScores:     integer;
       ShowWebScore:   integer;
-      Debug:          integer;
+
 
       // Graphics
       MaxFramerate:   byte;
@@ -141,12 +141,13 @@ type
       Split:          integer;
       Resolution:     integer;             // Resolution for windowed mode
       ResolutionFullscreen:     integer;   // Resolution for real fullscreen (changing Video mode)
-      Depth:          integer;
+	  LoadAnimation:  integer;
+      EffectSing:     integer;
+      ScreenFade:     integer;
       VisualizerOption: integer;
       FullScreen:     integer;
       TextureSize:    integer;
       SingWindow:     integer;
-      Oscilloscope:   integer;
       // not used
       //Spectrum:       integer;
       //Spectrograph:   integer;
@@ -186,9 +187,9 @@ type
       InputDeviceConfig: array of TInputDeviceConfig;
 
       // Advanced
-      LoadAnimation:  integer;
-      EffectSing:     integer;
-      ScreenFade:     integer;
+
+	  Debug:          integer;
+      Oscilloscope:   integer;
       AskBeforeDel:   integer;
       OnSongClick:    integer;
       LineBonus:      integer;
@@ -265,20 +266,19 @@ type
 
       procedure Load();
       procedure Save();
-      procedure SaveNames;
-      procedure SaveLevel;
-      procedure SavePlayerColors;
-      procedure SavePlayerAvatars;
-      procedure SavePlayerLevels;
-      procedure SaveTeamColors;
-      procedure SaveShowWebScore;
-      procedure SaveJukeboxSongMenu;
-
+      procedure SaveNames();
+      procedure SaveLevel();
+      procedure SavePlayerColors();
+      procedure SavePlayerAvatars();
+      procedure SavePlayerLevels();
+      procedure SaveTeamColors();
+      procedure SaveShowWebScore();
+      procedure SaveJukeboxSongMenu();
       procedure SaveSoundFont(Name: string);
       procedure SaveWebcamSettings();
-      procedure SaveNumberOfPlayers;
-      procedure SaveSingTimebarMode;
-      procedure SaveJukeboxTimebarMode;
+      procedure SaveNumberOfPlayers();
+      procedure SaveSingTimebarMode();
+      procedure SaveJukeboxTimebarMode();
 
       { Sets resolution.
         @return (@true when resolution was added, @false otherwise) }
@@ -319,11 +319,11 @@ const
   ITabs:        array[0..1] of UTF8String = ('Off', 'On');
 
 const
-  ISorting:      array[0..9] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade', 'Playlist');
+  ISorting:      array[0..8] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade');
   ISongMenuMode: array[0..6] of UTF8String = ('Roulette', 'Chessboard', 'Carousel', 'Slot Machine', 'Slide', 'List', 'Mosaic');
 
 type
-  TSortingType = (sEdition, sGenre, sLanguage, sFolder, sTitle, sArtist, sArtist2, sYear, sDecade, sPlaylist);
+  TSortingType = (sEdition, sGenre, sLanguage, sFolder, sTitle, sArtist, sArtist2, sYear, sDecade);
 
 const
   IShowScores:       array[0..2] of UTF8String  = ('Off', 'When exists', 'On');
@@ -334,7 +334,6 @@ const
   IScreens:          array[0..1] of UTF8String  = ('1', '2');
   ISplit:            array[0..1] of UTF8String  = ('Off', 'On');
   IFullScreen:       array[0..2] of UTF8String  = ('Off', 'On', 'Borderless');
-  IDepth:            array[0..1] of UTF8String  = ('16 bit', '32 bit');
   IVisualizer:       array[0..3] of UTF8String  = ('Off', 'WhenNoVideo', 'WhenNoVideoAndImage', 'On');
 
   IBackgroundMusic:  array[0..1] of UTF8String  = ('Off', 'On');
@@ -361,7 +360,7 @@ const
   IThresholdVals:    array[0..3] of single  = (0.05, 0.10,  0.15,  0.20);
 
   IVoicePassthrough: array[0..1] of UTF8String  = ('Off', 'On');
-  
+
   IMusicAutoGain:        array[0..3] of UTF8String  = ('Off', 'Soft', 'Medium', 'Hard');
   IMusicAutoGainVals:    array[0..3] of integer  = (-1, 0, 1, 2);
 
@@ -397,7 +396,7 @@ const
   //for lyric colors
   ILine:             array[0..2] of UTF8String = ('Sing', 'Actual', 'Next');
   IAttribute:        array[0..1] of UTF8String = ('Fill', 'Outline');
-  ISingLineColor:    array[0..20] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
+  ISingLineColor:    array[0..21] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
   IActualLineColor:  array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
   INextLineColor:    array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
   //outline
@@ -405,14 +404,13 @@ const
   IActualLineOColor:  array[0..2] of UTF8String = ('Black', 'White', 'Other');
   INextLineOColor:    array[0..2] of UTF8String = ('Black', 'White', 'Other');
 
-  IHexSingColor: array[0..20] of UTF8String = ('0096FF', '3FBF3F', 'FF3FC0', 'DC0000', 'B43FE6', 'FF9000', 'FFFF00', 'C07F1F', '000000', '00FFE6', 'FF7F66',
-                                                '99FF66', 'CCCCFF', 'FFE6CC', '339999', '9900CC', '336699', 'FF99FF', '8A5C2E', 'FFCC33', '');
+  IHexSingColor: array[0..21] of UTF8String = ('0096FF', '3FBF3F', 'FF3FC0', 'DC0000', 'B43FE6', 'FF9000', 'FFFF00', 'D7006F', 'C07F1F', '000000', '00FFE6', 'FF7F66', '99FF66', 'CCCCFF', 'FFE6CC', '339999', '9900CC', '336699', 'FF99FF', '8A5C2E', 'FFCC33', '');
   IHexGrayColor: array[0..9] of UTF8String = ('000000', '202020', '404040', '606060', '808080', 'A0A0A0', 'C0C0C0', 'D6D6D6', 'FFFFFF', '');
   IHexOColor:    array[0..2] of UTF8String = ('000000', 'FFFFFF', '');
 
   IJukeboxSongMenu: array[0..1] of UTF8String = ('Off', 'On');
 
-  IColor:         array[0..8] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Brown', 'Black');
+  IColor:         array[0..9] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black');
 
   // Advanced
   ILoadAnimation: array[0..1] of UTF8String = ('Off', 'On');
@@ -437,7 +435,7 @@ const
   IJukeboxTimebarMode: array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
 
   // Recording options
-  IChannelPlayer: array[0..6] of UTF8String = ('Off', '1', '2', '3', '4', '5', '6');
+  IChannelPlayer: array[0..12] of UTF8String = ('Off', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
   IMicBoost:      array[0..3] of UTF8String = ('Off', '+6dB', '+12dB', '+18dB');
 
   // Webcam
@@ -450,93 +448,20 @@ const
  *}
 
 var
-  ILanguageTranslated:         array of UTF8String;
-
-
-  IDifficultyTranslated:       array[0..2] of UTF8String  = ('Easy', 'Medium', 'Hard');
-  ITabsTranslated:             array[0..1] of UTF8String  = ('Off', 'On');
-
-  ISongMenuTranslated:         array[0..6] of UTF8String  = ('Roulette', 'Chessboard', 'Carousel', 'Slot Machine', 'Slide', 'List', 'Mosaic');
-
-  //ISortingTranslated:          array[0..9] of UTF8String  = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade', 'Playlist');
-  ISortingTranslated:          array[0..8] of UTF8String  = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade');
-
-  IShowScoresTranslated:       array[0..2] of UTF8String  = ('Off', 'WhenExists', 'On');
-
-  IDebugTranslated:            array[0..1] of UTF8String  = ('Off', 'On');
-
-  IFullScreenTranslated:       array[0..2] of UTF8String  = ('Off', 'On', 'Borderless');
-  IVisualizerTranslated:       array[0..3] of UTF8String  = ('Off', 'WhenNoVideo', 'WhenNoVideoAndImage','On');
-
-  IBackgroundMusicTranslated:  array[0..1] of UTF8String  = ('Off', 'On');
-  ISingWindowTranslated:       array[0..1] of UTF8String  = ('Small', 'Big');
-
-  //SingBar Mod
-  IOscilloscopeTranslated:     array[0..1] of UTF8String  = ('Off', 'On');
-
-  ISpectrumTranslated:         array[0..1] of UTF8String  = ('Off', 'On');
-  ISpectrographTranslated:     array[0..1] of UTF8String  = ('Off', 'On');
-  IMovieSizeTranslated:        array[0..2] of UTF8String  = ('Half', 'Full [Vid]', 'Full [BG+Vid]');
-  IVideoPreviewTranslated:     array[0..1] of UTF8String  = ('Off', 'On');
-  IVideoEnabledTranslated:     array[0..1] of UTF8String  = ('Off', 'On');
-
-  IClickAssistTranslated:      array[0..1] of UTF8String  = ('Off', 'On');
-  IBeatClickTranslated:        array[0..1] of UTF8String  = ('Off', 'On');
-  ISavePlaybackTranslated:     array[0..1] of UTF8String  = ('Off', 'On');
-
-  IVoicePassthroughTranslated: array[0..1] of UTF8String  = ('Off', 'On');
-  
-  IMusicAutoGainTranslated: array[0..3] of UTF8String  = ('Off', 'Soft', 'Medium', 'Hard');
-
-  ISyncToTranslated:           array[0..2] of UTF8String  = ('Music', 'Lyrics', 'Off');
-
-  //Song Preview
-  IPreviewVolumeTranslated:    array[0..10] of UTF8String = ('Off', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%');
-
-  IAudioOutputBufferSizeTranslated: array[0..9] of UTF8String  = ('Auto', '256', '512', '1024', '2048', '4096', '8192', '16384', '32768', '65536');
-
-  IAudioInputBufferSizeTranslated:  array[0..9] of UTF8String  = ('Auto', '256', '512', '1024', '2048', '4096', '8192', '16384', '32768', '65536');
-
-  IPreviewFadingTranslated:    array[0..5] of UTF8String  = ('Off', '1 Sec', '2 Secs', '3 Secs', '4 Secs', '5 Secs');
-
   ILyricsFontTranslated:       array[0..2] of UTF8String = ('Plain', 'OLine1', 'OLine2');
   ILyricsEffectTranslated:     array[0..4] of UTF8String = ('Simple', 'Zoom', 'Slide', 'Ball', 'Shift');
   INoteLinesTranslated:        array[0..1] of UTF8String = ('Off', 'On');
-  IColorTranslated:            array[0..8] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Brown', 'Black');
-  IPlayerColorTranslated:      array[0..15] of UTF8String = ('Blue', 'Red', 'Green', 'Yellow', 'Orange', 'Pink',  'Violet', 'Brown', 'Gray', 'Dark Blue', 'Sky', 'Cyan', 'Flame', 'Orchid', 'Harlequin', 'Lime');
 
   //for lyric colors
   ILineTranslated:             array[0..2] of UTF8String = ('Sing', 'Actual', 'Next');
   IPropertyTranslated:         array[0..1] of UTF8String = ('Fill', 'Outline');
 
-  ISingLineColorTranslated:    array[0..20] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
+  ISingLineColorTranslated:    array[0..21] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
   IActualLineColorTranslated:  array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
   INextLineColorTranslated:    array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
   ISingLineOColorTranslated:   array[0..2] of UTF8String = ('Black', 'White', 'Other');
   IActualLineOColorTranslated: array[0..2] of UTF8String = ('Black', 'White', 'Other');
   INextLineOColorTranslated:   array[0..2] of UTF8String = ('Black', 'White', 'Other');
-
-  // Advanced
-  ILoadAnimationTranslated:    array[0..1] of UTF8String = ('Off', 'On');
-  IEffectSingTranslated:       array[0..1] of UTF8String = ('Off', 'On');
-  IScreenFadeTranslated:       array[0..1] of UTF8String = ('Off', 'On');
-  IAskbeforeDelTranslated:     array[0..1] of UTF8String = ('Off', 'On');
-  IOnSongClickTranslated:      array[0..2] of UTF8String = ('Sing', 'Select Players', 'Open Menu');
-  ILineBonusTranslated:        array[0..1] of UTF8String = ('Off', 'On');
-  IPartyPopupTranslated:       array[0..1] of UTF8String = ('Off', 'On');
-  ISingScoresTranslated:       array[0..1] of UTF8String = ('Off', 'On');
-  ITopScoresTranslated:        array[0..1] of UTF8String = ('All', 'Player');
-
-  IJoypadTranslated:           array[0..1] of UTF8String = ('Off', 'On');
-  IMouseTranslated:            array[0..2] of UTF8String = ('Off', 'On [System Cursor]', 'On [Game Cursor]');
-  IMouseTranslatedLegacy:      array[0..2] of UTF8String = ('Off', 'Hardware Cursor', 'Software Cursor');
-
-  ISingTimebarModeTranslated:      array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
-  IJukeboxTimebarModeTranslated:      array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
-
-  // Recording options
-  IChannelPlayerTranslated:    array[0..IMaxPlayerCount] of UTF8String = ('Off', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
-  IMicBoostTranslated:         array[0..3] of UTF8String = ('Off', '+6dB', '+12dB', '+18dB');
 
   // Network
   ISendNameTranslated:        array[0..1] of UTF8String = ('Off', 'On');
@@ -547,19 +472,13 @@ var
   IAutoScoreHardTranslated:   array of UTF8String;
 
   // Webcam
-  IWebcamFlipTranslated:      array[0..1] of UTF8String = ('Off', 'On');
   IWebcamBrightness: array [0..200] of UTF8String;
   IWebcamSaturation: array [0..200] of UTF8String;
   IWebcamHue:        array [0..360] of UTF8String;
-  IWebcamEffectTranslated:     array [0..10] of UTF8String;
-
-  // Name
-  IPlayerTranslated:      array[0..(IMaxPlayerCount-1)] of UTF8String = ('Player 1', 'Player 2', 'Player 3', 'Player 4', 'Player 5', 'Player 6', 'Player 7', 'Player 8', 'Player 9', 'Player 10', 'Player 11', 'Player 12');
 
   IRed:       array[0..255] of UTF8String;
   IGreen:     array[0..255] of UTF8String;
   IBlue:      array[0..255] of UTF8String;
-
 
 implementation
 
@@ -595,128 +514,12 @@ begin
   else
     ULanguage.Language.ChangeLanguage(ILanguage[Language]);
 
-  SetLength(ILanguageTranslated, Length(ILanguage));
-  for I := 0 to High(ILanguage) do
-  begin
-    ILanguageTranslated[I] := ULanguage.Language.Translate(
-      'OPTION_VALUE_' + UpperCase(ILanguage[I])
-    );
-  end;
-
-  IDifficultyTranslated[0]            := ULanguage.Language.Translate('OPTION_VALUE_EASY');
-  IDifficultyTranslated[1]            := ULanguage.Language.Translate('OPTION_VALUE_MEDIUM');
-  IDifficultyTranslated[2]            := ULanguage.Language.Translate('OPTION_VALUE_HARD');
-
-  ITabsTranslated[0]                  := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  ITabsTranslated[1]                  := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  ISongMenuTranslated[0]              := ULanguage.Language.Translate('OPTION_VALUE_ROULETTE');
-  ISongMenuTranslated[1]              := ULanguage.Language.Translate('OPTION_VALUE_CHESSBOARD');
-  ISongMenuTranslated[2]              := ULanguage.Language.Translate('OPTION_VALUE_CAROUSEL');
-  ISongMenuTranslated[3]              := ULanguage.Language.Translate('OPTION_VALUE_SLOTMACHINE');
-  ISongMenuTranslated[4]              := ULanguage.Language.Translate('OPTION_VALUE_SLIDE');
-  ISongMenuTranslated[5]              := ULanguage.Language.Translate('OPTION_VALUE_LIST');
-  ISongMenuTranslated[6]              := ULanguage.Language.Translate('OPTION_VALUE_MOSAIC');
-
-  ISortingTranslated[0]               := ULanguage.Language.Translate('OPTION_VALUE_EDITION');
-  ISortingTranslated[1]               := ULanguage.Language.Translate('OPTION_VALUE_GENRE');
-  ISortingTranslated[2]               := ULanguage.Language.Translate('OPTION_VALUE_LANGUAGE');
-  ISortingTranslated[3]               := ULanguage.Language.Translate('OPTION_VALUE_FOLDER');
-  ISortingTranslated[4]               := ULanguage.Language.Translate('OPTION_VALUE_TITLE');
-  ISortingTranslated[5]               := ULanguage.Language.Translate('OPTION_VALUE_ARTIST');
-  ISortingTranslated[6]               := ULanguage.Language.Translate('OPTION_VALUE_ARTIST2');
-  ISortingTranslated[7]               := ULanguage.Language.Translate('OPTION_VALUE_YEAR');
-  ISortingTranslated[8]               := ULanguage.Language.Translate('OPTION_VALUE_DECADE');
-  //ISortingTranslated[9]               := ULanguage.Language.Translate('OPTION_VALUE_PLAYLIST');
-
-  IShowScoresTranslated[0]            := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IShowScoresTranslated[1]            := ULanguage.Language.Translate('OPTION_VALUE_WHENEXIST');
-  IShowScoresTranslated[2]            := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IDebugTranslated[0]                 := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IDebugTranslated[1]                 := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IFullScreenTranslated[0]            := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IFullScreenTranslated[1]            := ULanguage.Language.Translate('OPTION_VALUE_ON');
-  IFullScreenTranslated[2]            := ULanguage.Language.Translate('OPTION_VALUE_BORDERLESS');
-
-  IVisualizerTranslated[0]            := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IVisualizerTranslated[1]            := ULanguage.Language.Translate('OPTION_VALUE_WHENNOVIDEO');
-  IVisualizerTranslated[2]            := ULanguage.Language.Translate('OPTION_VALUE_WHENNOVIDEOANDIMAGE');
-  IVisualizerTranslated[3]            := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IBackgroundMusicTranslated[0]       := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IBackgroundMusicTranslated[1]       := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  ISingWindowTranslated[0]            := ULanguage.Language.Translate('OPTION_VALUE_SMALL');
-  ISingWindowTranslated[1]            := ULanguage.Language.Translate('OPTION_VALUE_BIG');
-
-  IOscilloscopeTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IOscilloscopeTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  ISpectrumTranslated[0]              := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  ISpectrumTranslated[1]              := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  ISpectrographTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  ISpectrographTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IMovieSizeTranslated[0]             := ULanguage.Language.Translate('OPTION_VALUE_HALF');
-  IMovieSizeTranslated[1]             := ULanguage.Language.Translate('OPTION_VALUE_FULL_VID');
-  IMovieSizeTranslated[2]             := ULanguage.Language.Translate('OPTION_VALUE_FULL_VID_BG');
-
-  IVideoPreviewTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IVideoPreviewTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IVideoEnabledTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IVideoEnabledTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IClickAssistTranslated[0]           := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IClickAssistTranslated[1]           := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IBeatClickTranslated[0]             := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IBeatClickTranslated[1]             := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  ISavePlaybackTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  ISavePlaybackTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IVoicePassthroughTranslated[0]      := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IVoicePassthroughTranslated[1]      := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IMusicAutoGainTranslated[0]      := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IMusicAutoGainTranslated[1]      := ULanguage.Language.Translate('OPTION_VALUE_GAIN_SOFT');
-  IMusicAutoGainTranslated[2]      := ULanguage.Language.Translate('OPTION_VALUE_GAIN_MEDIUM');
-  IMusicAutoGainTranslated[3]      := ULanguage.Language.Translate('OPTION_VALUE_GAIN_HARD');
-
-  ISyncToTranslated[Ord(stMusic)]     := ULanguage.Language.Translate('OPTION_VALUE_MUSIC');
-  ISyncToTranslated[Ord(stLyrics)]    := ULanguage.Language.Translate('OPTION_VALUE_LYRICS');
-  ISyncToTranslated[Ord(stOff)]       := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-
-  ILyricsFontTranslated[0]            := ULanguage.Language.Translate('OPTION_VALUE_PLAIN');
-  ILyricsFontTranslated[1]            := ULanguage.Language.Translate('OPTION_VALUE_OLINE1');
-  ILyricsFontTranslated[2]            := ULanguage.Language.Translate('OPTION_VALUE_OLINE2');
-
-  ILyricsEffectTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_SIMPLE');
-  ILyricsEffectTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_ZOOM');
-  ILyricsEffectTranslated[2]          := ULanguage.Language.Translate('OPTION_VALUE_SLIDE');
-  ILyricsEffectTranslated[3]          := ULanguage.Language.Translate('OPTION_VALUE_BALL');
-  ILyricsEffectTranslated[4]          := ULanguage.Language.Translate('OPTION_VALUE_SHIFT');
-
-  INoteLinesTranslated[0]             := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  INoteLinesTranslated[1]             := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
   for I := 0 to 255 do
   begin
     IRed[I]   := IntToStr(I);
     IGreen[I] := IntToStr(I);
     IBlue[I]  := IntToStr(I);
   end;
-
-  ILineTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_TO_SING');
-  ILineTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_ACTUAL');
-  ILineTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_NEXT');
-
-  IPropertyTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_FILL');
-  IPropertyTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_OUTLINE');
 
   ISingLineColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLUE');
   ISingLineColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_GREEN');
@@ -725,20 +528,21 @@ begin
   ISingLineColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_VIOLET');
   ISingLineColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_ORANGE');
   ISingLineColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_YELLOW');
-  ISingLineColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
-  ISingLineColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
-  ISingLineColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_TURQUOISE');
-  ISingLineColorTranslated[10] := ULanguage.Language.Translate('OPTION_VALUE_SALMON');
-  ISingLineColorTranslated[11] := ULanguage.Language.Translate('OPTION_VALUE_GREENYELLOW');
-  ISingLineColorTranslated[12] := ULanguage.Language.Translate('OPTION_VALUE_LAVENDER');
-  ISingLineColorTranslated[13] := ULanguage.Language.Translate('OPTION_VALUE_BEIGE');
-  ISingLineColorTranslated[14] := ULanguage.Language.Translate('OPTION_VALUE_TEAL');
-  ISingLineColorTranslated[15] := ULanguage.Language.Translate('OPTION_VALUE_ORCHID');
-  ISingLineColorTranslated[16] := ULanguage.Language.Translate('OPTION_VALUE_STEELBLUE');
-  ISingLineColorTranslated[17] := ULanguage.Language.Translate('OPTION_VALUE_PLUM');
-  ISingLineColorTranslated[18] := ULanguage.Language.Translate('OPTION_VALUE_CHOCOLATE');
-  ISingLineColorTranslated[19] := ULanguage.Language.Translate('OPTION_VALUE_GOLD');
-  ISingLineColorTranslated[20] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
+  ISingLineColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_MAGENTA');
+  ISingLineColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
+  ISingLineColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
+  ISingLineColorTranslated[10] := ULanguage.Language.Translate('OPTION_VALUE_TURQUOISE');
+  ISingLineColorTranslated[11] := ULanguage.Language.Translate('OPTION_VALUE_SALMON');
+  ISingLineColorTranslated[12] := ULanguage.Language.Translate('OPTION_VALUE_GREENYELLOW');
+  ISingLineColorTranslated[13] := ULanguage.Language.Translate('OPTION_VALUE_LAVENDER');
+  ISingLineColorTranslated[14] := ULanguage.Language.Translate('OPTION_VALUE_BEIGE');
+  ISingLineColorTranslated[15] := ULanguage.Language.Translate('OPTION_VALUE_TEAL');
+  ISingLineColorTranslated[16] := ULanguage.Language.Translate('OPTION_VALUE_ORCHID');
+  ISingLineColorTranslated[17] := ULanguage.Language.Translate('OPTION_VALUE_STEELBLUE');
+  ISingLineColorTranslated[18] := ULanguage.Language.Translate('OPTION_VALUE_PLUM');
+  ISingLineColorTranslated[19] := ULanguage.Language.Translate('OPTION_VALUE_CHOCOLATE');
+  ISingLineColorTranslated[20] := ULanguage.Language.Translate('OPTION_VALUE_GOLD');
+  ISingLineColorTranslated[21] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
 
   IActualLineColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
   IActualLineColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +3';
@@ -774,137 +578,6 @@ begin
   INextLineOColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_WHITE');
   INextLineOColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
 
-  IColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLUE');
-  IColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_GREEN');
-  IColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_PINK');
-  IColorTranslated[3] := ULanguage.Language.Translate('OPTION_VALUE_RED');
-  IColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_VIOLET');
-  IColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_ORANGE');
-  IColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_YELLOW');
-  IColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
-  IColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
-
-  IPlayerColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLUE');
-  IPlayerColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_RED');
-  IPlayerColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_GREEN');
-  IPlayerColorTranslated[3] := ULanguage.Language.Translate('OPTION_VALUE_YELLOW');
-  IPlayerColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_ORANGE');
-  IPlayerColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_PINK');
-  IPlayerColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_VIOLET');
-  IPlayerColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
-  IPlayerColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_GRAY');
-  IPlayerColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_DARKBLUE');
-  IPlayerColorTranslated[10] := ULanguage.Language.Translate('OPTION_VALUE_SKY');
-  IPlayerColorTranslated[11] := ULanguage.Language.Translate('OPTION_VALUE_CYAN');
-  IPlayerColorTranslated[12] := ULanguage.Language.Translate('OPTION_VALUE_FLAME');
-  IPlayerColorTranslated[13] := ULanguage.Language.Translate('OPTION_VALUE_ORCHID');
-  IPlayerColorTranslated[14] := ULanguage.Language.Translate('OPTION_VALUE_HARLEQUIN');
-  IPlayerColorTranslated[15] := ULanguage.Language.Translate('OPTION_VALUE_GREENYELLOW');
-
-  // Advanced
-  ILoadAnimationTranslated[0]         := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  ILoadAnimationTranslated[1]         := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IEffectSingTranslated[0]            := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IEffectSingTranslated[1]            := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IScreenFadeTranslated[0]            := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IScreenFadeTranslated[1]            := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IAskbeforeDelTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IAskbeforeDelTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IOnSongClickTranslated[0]           := ULanguage.Language.Translate('OPTION_VALUE_SING');
-  IOnSongClickTranslated[1]           := ULanguage.Language.Translate('OPTION_VALUE_SELECT_PLAYERS');
-  IOnSongClickTranslated[2]           := ULanguage.Language.Translate('OPTION_VALUE_OPEN_MENU');
-
-  ILineBonusTranslated[0]             := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  ILineBonusTranslated[1]             := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IPartyPopupTranslated[0]            := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IPartyPopupTranslated[1]            := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  ISingScoresTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  ISingScoresTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  ITopScoresTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_ALL');
-  ITopScoresTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_PLAYER');
-
-  IJoypadTranslated[0]                := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IJoypadTranslated[1]                := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IMouseTranslated[0]                 := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IMouseTranslated[1]                 := ULanguage.Language.Translate('OPTION_VALUE_SYSTEM_CURSOR');
-  IMouseTranslated[2]                 := ULanguage.Language.Translate('OPTION_VALUE_GAME_CURSOR');
-
-  IMouseTranslatedLegacy[0]           := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IMouseTranslatedLegacy[1]           := ULanguage.Language.Translate('OPTION_VALUE_HARDWARE_CURSOR');
-  IMouseTranslatedLegacy[2]           := ULanguage.Language.Translate('OPTION_VALUE_SOFTWARE_CURSOR');
-
-  ISingTimebarModeTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_CURRENT');
-  ISingTimebarModeTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_REMAINING');
-  ISingTimebarModeTranslated[2]          := ULanguage.Language.Translate('OPTION_VALUE_TOTAL');
-
-  IJukeboxTimebarModeTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_CURRENT');
-  IJukeboxTimebarModeTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_REMAINING');
-  IJukeboxTimebarModeTranslated[2]          := ULanguage.Language.Translate('OPTION_VALUE_TOTAL');
-
-  IAudioOutputBufferSizeTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_AUTO');
-  IAudioOutputBufferSizeTranslated[1] := '256';
-  IAudioOutputBufferSizeTranslated[2] := '512';
-  IAudioOutputBufferSizeTranslated[3] := '1024';
-  IAudioOutputBufferSizeTranslated[4] := '2048';
-  IAudioOutputBufferSizeTranslated[5] := '4096';
-  IAudioOutputBufferSizeTranslated[6] := '8192';
-  IAudioOutputBufferSizeTranslated[7] := '16384';
-  IAudioOutputBufferSizeTranslated[8] := '32768';
-  IAudioOutputBufferSizeTranslated[9] := '65536';
-
-
-  IAudioInputBufferSizeTranslated[0]  := ULanguage.Language.Translate('OPTION_VALUE_AUTO');
-  IAudioInputBufferSizeTranslated[1]  := '256';
-  IAudioInputBufferSizeTranslated[2]  := '512';
-  IAudioInputBufferSizeTranslated[3]  := '1024';
-  IAudioInputBufferSizeTranslated[4]  := '2048';
-  IAudioInputBufferSizeTranslated[5]  := '4096';
-  IAudioInputBufferSizeTranslated[6]  := '8192';
-  IAudioInputBufferSizeTranslated[7]  := '16384';
-  IAudioInputBufferSizeTranslated[8]  := '32768';
-  IAudioInputBufferSizeTranslated[9]  := '65536';
-
-  //Song Preview
-  IPreviewVolumeTranslated[0]         := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IPreviewVolumeTranslated[1]         := '10%';
-  IPreviewVolumeTranslated[2]         := '20%';
-  IPreviewVolumeTranslated[3]         := '30%';
-  IPreviewVolumeTranslated[4]         := '40%';
-  IPreviewVolumeTranslated[5]         := '50%';
-  IPreviewVolumeTranslated[6]         := '60%';
-  IPreviewVolumeTranslated[7]         := '70%';
-  IPreviewVolumeTranslated[8]         := '80%';
-  IPreviewVolumeTranslated[9]         := '90%';
-  IPreviewVolumeTranslated[10]        := '100%';
-
-
-  IPreviewFadingTranslated[0]         :=        ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IPreviewFadingTranslated[1]         := '1 ' + ULanguage.Language.Translate('OPTION_VALUE_SEC');
-  IPreviewFadingTranslated[2]         := '2 ' + ULanguage.Language.Translate('OPTION_VALUE_SECS');
-  IPreviewFadingTranslated[3]         := '3 ' + ULanguage.Language.Translate('OPTION_VALUE_SECS');
-  IPreviewFadingTranslated[4]         := '4 ' + ULanguage.Language.Translate('OPTION_VALUE_SECS');
-  IPreviewFadingTranslated[5]         := '5 ' + ULanguage.Language.Translate('OPTION_VALUE_SECS');
-
-  // Recording options
-  IChannelPlayerTranslated[0]         := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  for I:=1 to IMaxPlayerCount do
-  begin
-    IChannelPlayerTranslated[I]       :=IntToStr(I);
-  end;
-
-  IMicBoostTranslated[0]              := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IMicBoostTranslated[1]              := '+6dB';
-  IMicBoostTranslated[2]              := '+12dB';
-  IMicBoostTranslated[3]              := '+18dB';
-
   // Network
   IAutoModeTranslated[0]         := ULanguage.Language.Translate('OPTION_VALUE_OFF');
   IAutoModeTranslated[1]         := ULanguage.Language.Translate('OPTION_VALUE_SEND');
@@ -915,22 +588,6 @@ begin
     IAutoPlayerTranslated[I]       :=ULanguage.Language.Translate('OPTION_PLAYER_' + IntToStr(I));
   end;
   IAutoPlayerTranslated[12]         := ULanguage.Language.Translate('OPTION_ALL_PLAYERS');
-
-  // Webcam
-  IWebcamFlipTranslated[0]          := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IWebcamFlipTranslated[1]          := ULanguage.Language.Translate('OPTION_VALUE_ON');
-
-  IWebcamEffectTranslated[0] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_NORMAL');
-  IWebcamEffectTranslated[1] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_GRAYSCALE');
-  IWebcamEffectTranslated[2] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_BLACK_WHITE');
-  IWebcamEffectTranslated[3] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_NEGATIVE');
-  IWebcamEffectTranslated[4] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_BINARY_IMAGE');
-  IWebcamEffectTranslated[5] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_DILATE');
-  IWebcamEffectTranslated[6] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_THRESHOLD');
-  IWebcamEffectTranslated[7] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_EDGES');
-  IWebcamEffectTranslated[8] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_GAUSSIAN_BLUR');
-  IWebcamEffectTranslated[9] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_EQUALIZED');
-  IWebcamEffectTranslated[10] := ULanguage.Language.Translate('SING_OPTIONS_WEBCAM_EFFECT_ERODE');
 
   SetLength(IAutoScoreEasyTranslated, 10000);
   SetLength(IAutoScoreMediumTranslated, 10000);
@@ -1222,7 +879,6 @@ begin
   // Split mode
   Split := ReadArrayIndex(ISplit, IniFile, 'Graphics', 'Split', 0);
 
-  // FullScreen
   FullScreen := ReadArrayIndex(IFullScreen, IniFile, 'Graphics', 'FullScreen', IGNORE_INDEX, 'Borderless');
 
   // standard fallback resolutions
@@ -1344,8 +1000,6 @@ begin
   if (Length(IResolution) = 0) or (Resolution < 0) then
   begin
     // if no modes were set, then failback to DEFAULT_RESOLUTION (800x600)
-    // as per http://sourceforge.net/forum/message.php?msg_id=4544965
-    // THANKS : linnex at users.sourceforge.net
     SetLength(IResolution, Length(IResolution) + 1);
     IResolution[High(IResolution)] := DEFAULT_RESOLUTION;
     Resolution := GetArrayIndex(IResolution, DEFAULT_RESOLUTION);
@@ -1355,8 +1009,6 @@ begin
     FullScreen := 0; // default to fullscreen OFF in this case
   end;
 
-  // Depth
-  Depth := ReadArrayIndex(IDepth, IniFile, 'Graphics', 'Depth', IGNORE_INDEX, '32 bit');
 end;
 
 procedure TIni.Load();
@@ -1447,21 +1099,21 @@ begin
       ShowWebScore := 0;
   end;
 
-  // Debug
-  Debug := ReadArrayIndex(IDebug, IniFile, 'Game', 'Debug', 0);
-
   LoadScreenModes(IniFile);
 
   LoadWebcamSettings(IniFile);
+
+    // LoadAnimation
+  LoadAnimation := ReadArrayIndex(ILoadAnimation, IniFile, 'Graphics', 'LoadAnimation', IGNORE_INDEX, 'On');
+
+  // ScreenFade
+  ScreenFade := ReadArrayIndex(IScreenFade, IniFile, 'Graphics', 'ScreenFade', IGNORE_INDEX, 'On');
 
   // TextureSize (aka CachedCoverSize)
   TextureSize := ReadArrayIndex(ITextureSize, IniFile, 'Graphics', 'TextureSize', IGNORE_INDEX, '256');
 
   // SingWindow
   SingWindow := ReadArrayIndex(ISingWindow, IniFile, 'Graphics', 'SingWindow', IGNORE_INDEX, 'Big');
-
-  // Oscilloscope
-  Oscilloscope := ReadArrayIndex(IOscilloscope, IniFile, 'Graphics', 'Oscilloscope', 0);
 
   // Spectrum
   //Spectrum := ReadArrayIndex(ISpectrum, IniFile, 'Graphics', 'Spectrum', IGNORE_INDEX, 'Off');
@@ -1498,14 +1150,14 @@ begin
 
   //AudioRepeat aka VoicePassthrough
   VoicePassthrough := ReadArrayIndex(IVoicePassthrough, IniFile, 'Sound', 'VoicePassthrough', 0);
-  
+
   // ReplayGain aka MusicAutoGain
   MusicAutoGain := ReadArrayIndex(IMusicAutoGain, IniFile, 'Sound', 'MusicAutoGain', 0);
 
   SoundFont := IniFile.ReadString('Sound', 'SoundFont', '');
 
   // Lyrics Font
-  LyricsFont := ReadArrayIndex(ILyricsFont, IniFile, 'Lyrics', 'LyricsFont', 2);
+  LyricsFont := ReadArrayIndex(ILyricsFont, IniFile, 'Lyrics', 'LyricsFont', 0);
 
   // Lyrics Effect
   LyricsEffect := ReadArrayIndex(ILyricsEffect, IniFile, 'Lyrics', 'LyricsEffect', 2);
@@ -1520,11 +1172,12 @@ begin
 
   LoadInputDeviceCfg(IniFile);
 
-  // LoadAnimation
-  LoadAnimation := ReadArrayIndex(ILoadAnimation, IniFile, 'Advanced', 'LoadAnimation', IGNORE_INDEX, 'On');
+    // Debug
+  Debug := ReadArrayIndex(IDebug, IniFile, 'Advanced', 'Debug', 0);
 
-  // ScreenFade
-  ScreenFade := ReadArrayIndex(IScreenFade, IniFile, 'Advanced', 'ScreenFade', IGNORE_INDEX, 'On');
+    // Oscilloscope
+  Oscilloscope := ReadArrayIndex(IOscilloscope, IniFile, 'Advanced', 'Oscilloscope', 0);
+
 
   // Visualizations
   // <mog> this could be of use later..
@@ -1585,7 +1238,7 @@ begin
   if (WebCamResolution = -1) then
     WebcamResolution := 2;
   WebCamFPS := ReadArrayIndex(IWebcamFPS, IniFile, 'Webcam', 'FPS', 4);
-  WebCamFlip := ReadArrayIndex(IWebcamFlipTranslated, IniFile, 'Webcam', 'Flip', IGNORE_INDEX, 'On');
+  WebCamFlip := ReadArrayIndex(IWebcamFlip, IniFile, 'Webcam', 'Flip', IGNORE_INDEX, 'On');
   WebCamBrightness := ReadArrayIndex(IWebcamBrightness, IniFile, 'Webcam', 'Brightness', IGNORE_INDEX, '0');
   WebCamSaturation := ReadArrayIndex(IWebcamSaturation, IniFile, 'Webcam', 'Saturation', IGNORE_INDEX, '0');
   WebCamHue := ReadArrayIndex(IWebcamHue, IniFile, 'Webcam', 'Hue', IGNORE_INDEX, '0');
@@ -1593,7 +1246,7 @@ begin
 
   // Jukebox
   JukeboxFont := ReadArrayIndex(ILyricsFont, IniFile, 'Jukebox', 'LyricsFont', 2);
-  JukeboxEffect := ReadArrayIndex(ILyricsEffect, IniFile, 'Jukebox', 'LyricsEffect', 1);
+  JukeboxEffect := ReadArrayIndex(ILyricsEffect, IniFile, 'Jukebox', 'LyricsEffect', 2);
   JukeboxAlpha := ReadArrayIndex(ILyricsAlpha, IniFile, 'Jukebox', 'LyricsAlpha', 20);
 
   JukeboxSongMenu := ReadArrayIndex(IJukeboxSongMenu, IniFile, 'Jukebox', 'SongMenu', IGNORE_INDEX, 'On');
@@ -1601,12 +1254,12 @@ begin
 
   JukeboxSingLineColor := ReadArrayIndex(IHexSingColor, IniFile, 'Jukebox', 'SingLineColor', High(IHexSingColor));
 
-  // other color
+  // SingLine color
   if (JukeboxSingLineColor = -1) or (JukeboxSingLineColor = High(IHexSingColor)) then
   begin
     JukeboxSingLineColor := High(IHexSingColor);
 
-    HexColor := IniFile.ReadString('Jukebox', 'SingLineColor', IHexSingColor[0]);
+    HexColor := IniFile.ReadString('Jukebox', 'SingLineColor', IHexSingColor[7]);
     Col := HexToRGB(HexColor);
 
     Ini.JukeboxSingLineOtherColorR := Round(Col.R);
@@ -1616,26 +1269,27 @@ begin
 
   JukeboxActualLineColor := ReadArrayIndex(IHexGrayColor, IniFile, 'Jukebox', 'ActualLineColor', High(IHexGrayColor));
 
-  // other color
+  // UpperLine Fill color
   if (JukeboxActualLineColor = -1) or (JukeboxActualLineColor = High(IHexGrayColor)) then
   begin
     JukeboxActualLineColor := High(IHexGrayColor);
 
-    HexColor := IniFile.ReadString('Jukebox', 'ActualLineColor', IHexGrayColor[8]);
+    HexColor := IniFile.ReadString('Jukebox', 'ActualLineColor', 'FFF5EB');
     Col := HexToRGB(HexColor);
 
     Ini.JukeboxActualLineOtherColorR := Round(Col.R);
     Ini.JukeboxActualLineOtherColorG := Round(Col.G);
     Ini.JukeboxActualLineOtherColorB := Round(Col.B);
+
   end;
 
   JukeboxNextLineColor := ReadArrayIndex(IHexGrayColor, IniFile, 'Jukebox', 'NextLineColor', High(IHexGrayColor));
-  // other color
+  // BottomLine Fill color
   if (JukeboxNextLineColor = -1) or (JukeboxNextLineColor = High(IHexGrayColor)) then
   begin
     JukeboxNextLineColor := High(IHexGrayColor);
 
-    HexColor := IniFile.ReadString('Jukebox', 'NextLineColor', IHexGrayColor[6]);
+    HexColor := IniFile.ReadString('Jukebox', 'NextLineColor', IHexGrayColor[5]);
     Col := HexToRGB(HexColor);
 
     Ini.JukeboxNextLineOtherColorR := Round(Col.R);
@@ -1644,7 +1298,7 @@ begin
   end;
 
   JukeboxSingLineOutlineColor := ReadArrayIndex(IHexOColor, IniFile, 'Jukebox', 'SingLineOColor', 0);
-  // other color
+  // SingLine Outline color
   if (JukeboxSingLineOutlineColor = -1) then
   begin
     JukeboxSingLineOutlineColor := High(IHexOColor);
@@ -1658,7 +1312,7 @@ begin
   end;
 
   JukeboxActualLineOutlineColor := ReadArrayIndex(IHexOColor, IniFile, 'Jukebox', 'ActualLineOColor', 0);
-  // other color
+  // UpperLine Outline color
   if (JukeboxActualLineOutlineColor = -1) then
   begin
     JukeboxActualLineOutlineColor := High(IHexOColor);
@@ -1672,7 +1326,7 @@ begin
   end;
 
   JukeboxNextLineOutlineColor := ReadArrayIndex(IHexOColor, IniFile, 'Jukebox', 'NextLineOColor', 0);
-  // other color
+	// BottomLine Outline color
   if (JukeboxNextLineOutlineColor = -1) then
   begin
     JukeboxNextLineOutlineColor := High(IHexOColor);
@@ -1696,14 +1350,15 @@ procedure TIni.Save;
 var
   IniFile: TIniFile;
   HexColor: string;
-  I: integer;
   C: TRGB;
 begin
-  if (Filename.IsFile and Filename.IsReadOnly) then
+  try
   begin
-    Log.LogError('Config-file is read-only', 'TIni.Save');
-    Exit;
-  end;
+    if (Filename.IsFile and Filename.IsReadOnly) then
+    begin
+      Log.LogError('Config-file is read-only', 'TIni.Save');
+      Exit;
+    end;
 
   IniFile := TIniFile.Create(Filename.ToNative);
 
@@ -1728,8 +1383,8 @@ begin
   // Show Scores
   IniFile.WriteString('Game', 'ShowScores', IShowScores[ShowScores]);
 
-  // Debug
-  IniFile.WriteString('Game', 'Debug', IDebug[Debug]);
+  // Joypad
+  IniFile.WriteString('Controller', 'Joypad', IJoypad[Joypad]);
 
   // MaxFramerate
   IniFile.WriteString('Graphics', 'MaxFramerate', IMaxFramerate[MaxFramerate]);
@@ -1750,17 +1405,20 @@ begin
   IniFile.WriteString('Graphics', 'Resolution', GetResolution);
   IniFile.WriteString('Graphics', 'ResolutionFullscreen', GetResolutionFullscreen);
 
-  // Depth
-  IniFile.WriteString('Graphics', 'Depth', IDepth[Depth]);
+    //LoadAnimation
+  IniFile.WriteString('Graphics', 'LoadAnimation', ILoadAnimation[LoadAnimation]);
+
+  //EffectSing
+  IniFile.WriteString('Graphics', 'EffectSing', IEffectSing[EffectSing]);
+
+  //ScreenFade
+  IniFile.WriteString('Graphics', 'ScreenFade', IScreenFade[ScreenFade]);
 
   // TextureSize
   IniFile.WriteString('Graphics', 'TextureSize', ITextureSize[TextureSize]);
 
   // Sing Window
   IniFile.WriteString('Graphics', 'SingWindow', ISingWindow[SingWindow]);
-
-  // Oscilloscope
-  IniFile.WriteString('Graphics', 'Oscilloscope', IOscilloscope[Oscilloscope]);
 
   // Spectrum
   //IniFile.WriteString('Graphics', 'Spectrum', ISpectrum[Spectrum]);
@@ -1800,7 +1458,7 @@ begin
 
   // VoicePasstrough
   IniFile.WriteString('Sound', 'VoicePassthrough', IVoicePassthrough[VoicePassthrough]);
-  
+
   // MusicAutoGain
   IniFile.WriteString('Sound', 'MusicAutoGain', IMusicAutoGain[MusicAutoGain]);
 
@@ -1827,14 +1485,11 @@ begin
 
   SaveInputDeviceCfg(IniFile);
 
-  //LoadAnimation
-  IniFile.WriteString('Advanced', 'LoadAnimation', ILoadAnimation[LoadAnimation]);
+  // Debug
+  IniFile.WriteString('Advanced', 'Debug', IDebug[Debug]);
 
-  //EffectSing
-  IniFile.WriteString('Advanced', 'EffectSing', IEffectSing[EffectSing]);
-
-  //ScreenFade
-  IniFile.WriteString('Advanced', 'ScreenFade', IScreenFade[ScreenFade]);
+  // Oscilloscope
+  IniFile.WriteString('Advanced', 'Oscilloscope', IOscilloscope[Oscilloscope]);
 
   //AskbeforeDel
   IniFile.WriteString('Advanced', 'AskbeforeDel', IAskbeforeDel[AskBeforeDel]);
@@ -1856,9 +1511,6 @@ begin
 
   //SyncTo
   IniFile.WriteString('Advanced', 'SyncTo', ISyncTo[SyncTo]);
-
-  // Joypad
-  IniFile.WriteString('Controller', 'Joypad', IJoypad[Joypad]);
 
   // Mouse
   IniFile.WriteString('Controller', 'Mouse', IMouse[Mouse]);
@@ -1940,9 +1592,16 @@ begin
   else
     HexColor := RGBToHex(JukeboxNextLineOtherOColorR, JukeboxNextLineOtherOColorG, JukeboxNextLineOtherOColorB);
 
-  IniFile.WriteString('Jukebox', 'NextLineOColor', HexColor);
+    IniFile.WriteString('Jukebox', 'NextLineOColor', HexColor);
 
-  IniFile.Free;
+    IniFile.Free;
+
+  end
+  except
+    On e :Exception do begin
+      Log.LogWarn('Saving InputDeviceConfig failed: ' + e.Message, 'UIni.Save');
+    end;
+  end;
 end;
 
 procedure TIni.SaveNames;
@@ -2083,7 +1742,6 @@ end;
 procedure TIni.SaveSoundFont(Name: string);
 var
   IniFile: TIniFile;
-  I: integer;
 begin
   if not Filename.IsReadOnly() then
   begin
@@ -2122,7 +1780,6 @@ end;
 procedure TIni.SaveNumberOfPlayers;
 var
   IniFile: TIniFile;
-  I: integer;
 begin
   if not Filename.IsReadOnly() then
   begin
@@ -2138,7 +1795,6 @@ end;
 procedure TIni.SaveSingTimebarMode;
 var
   IniFile: TIniFile;
-  I: integer;
 begin
   if not Filename.IsReadOnly() then
   begin
@@ -2154,7 +1810,6 @@ end;
 procedure TIni.SaveJukeboxTimebarMode;
 var
   IniFile: TIniFile;
-  I: integer;
 begin
   if not Filename.IsReadOnly() then
   begin

@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -25,9 +25,7 @@ unit UScreenOptionsAdvanced;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
@@ -40,7 +38,7 @@ uses
   UFiles,
   UIni,
   UThemes;
-	
+
 type
 
   TScreenOptionsAdvanced = class(TMenu)
@@ -48,8 +46,8 @@ type
       // interaction IDs
 	  ButtonExitIID: integer;
       SelectJoyPad: integer;
-   
-	  
+
+
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -76,21 +74,21 @@ begin
           Exit;
         end;
     end;
-    
+
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
       SDLK_BACKSPACE :
         begin
-          Ini.Save;
+          UIni.Ini.Save;
           AudioPlayback.PlaySound(SoundLib.Back);
           FadeTo(@ScreenOptions);
         end;
       SDLK_RETURN:
         begin
-          if SelInteraction = 8 then
+          if SelInteraction = 7 then
           begin
-            Ini.Save;
+            UIni.Ini.Save;
             AudioPlayback.PlaySound(SoundLib.Back);
             FadeTo(@ScreenOptions);
           end;
@@ -101,7 +99,7 @@ begin
         InteractPrev;
       SDLK_RIGHT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 7) then
+          if (SelInteraction >= 0) and (SelInteraction <= 6) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractInc;
@@ -109,7 +107,7 @@ begin
         end;
       SDLK_LEFT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 7) then
+          if (SelInteraction >= 0) and (SelInteraction <= 6) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractDec;
@@ -122,47 +120,40 @@ end;
 constructor TScreenOptionsAdvanced.Create;
 begin
   inherited Create;
-  
+
   LoadFromTheme(Theme.OptionsAdvanced);
 
-  //SelectLoadAnimation Hidden because it is useless atm
-  //AddSelect(Theme.OptionsAdvanced.SelectLoadAnimation, Ini.LoadAnimation, ILoadAnimationTranslated);
-  Theme.OptionsAdvanced.SelectScreenFade.showArrows := true;
-  Theme.OptionsAdvanced.SelectScreenFade.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsAdvanced.SelectScreenFade, Ini.ScreenFade, IScreenFadeTranslated);
+  Theme.OptionsAdvanced.SelectDebug.showArrows  := true;
+  Theme.OptionsAdvanced.SelectDebug.oneItemOnly := true;
+  AddSelectSlide(Theme.OptionsAdvanced.SelectDebug, UIni.Ini.Debug, UIni.IDebug, 'OPTION_VALUE_');
 
-  Theme.OptionsAdvanced.SelectEffectSing.showArrows := true;
-  Theme.OptionsAdvanced.SelectEffectSing.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsAdvanced.SelectEffectSing, Ini.EffectSing, IEffectSingTranslated);
-
-  Theme.OptionsAdvanced.SelectJoypad.showArrows := true;
-  Theme.OptionsAdvanced.SelectJoypad.oneItemOnly := true;
-  SelectJoyPad := AddSelectSlide(Theme.OptionsAdvanced.SelectJoypad, Ini.Joypad, IJoypad);
-
+  Theme.OptionsAdvanced.SelectOscilloscope.showArrows := true;
+  Theme.OptionsAdvanced.SelectOscilloscope.oneItemOnly := true;
+  AddSelectSlide(Theme.OptionsAdvanced.SelectOscilloscope, UIni.Ini.Oscilloscope, UIni.IOscilloscope, 'OPTION_VALUE_');
 
   Theme.OptionsAdvanced.SelectOnSongClick.showArrows := true;
   Theme.OptionsAdvanced.SelectOnSongClick.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsAdvanced.SelectOnSongClick, Ini.OnSongClick, IOnSongClickTranslated);
+  AddSelectSlide(Theme.OptionsAdvanced.SelectOnSongClick, UIni.Ini.OnSongClick, UIni.IOnSongClick, 'OPTION_VALUE_');
 
   Theme.OptionsAdvanced.SelectAskbeforeDel.showArrows := true;
   Theme.OptionsAdvanced.SelectAskbeforeDel.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsAdvanced.SelectAskbeforeDel, Ini.AskBeforeDel, IAskbeforeDelTranslated);
+  AddSelectSlide(Theme.OptionsAdvanced.SelectAskbeforeDel, UIni.Ini.AskBeforeDel, UIni.IAskbeforeDel, 'OPTION_VALUE_');
 
   Theme.OptionsAdvanced.SelectPartyPopup.showArrows := true;
   Theme.OptionsAdvanced.SelectPartyPopup.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsAdvanced.SelectPartyPopup, Ini.PartyPopup, IPartyPopupTranslated);
+  AddSelectSlide(Theme.OptionsAdvanced.SelectPartyPopup, UIni.Ini.PartyPopup, UIni.IPartyPopup, 'OPTION_VALUE_');
 
   Theme.OptionsAdvanced.SelectSingScores.showArrows := true;
   Theme.OptionsAdvanced.SelectSingScores.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsAdvanced.SelectSingScores, Ini.SingScores, ISingScoresTranslated);
+  AddSelectSlide(Theme.OptionsAdvanced.SelectSingScores, UIni.Ini.SingScores, UIni.ISingScores, 'OPTION_VALUE_');
 
   Theme.OptionsAdvanced.SelectTopScores.showArrows := true;
   Theme.OptionsAdvanced.SelectTopScores.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsAdvanced.SelectTopScores, Ini.TopScores, ITopScoresTranslated);
+  AddSelectSlide(Theme.OptionsAdvanced.SelectTopScores, UIni.Ini.TopScores, UIni.ITopScores, 'OPTION_VALUE_');
 
   AddButton(Theme.OptionsAdvanced.ButtonExit);
   if (Length(Button[0].Text)=0) then
-    AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
+    AddButtonText(20, 6, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
 
   Interaction := 0;
 end;

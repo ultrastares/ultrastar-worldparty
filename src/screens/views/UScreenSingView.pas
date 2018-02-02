@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,10 +16,9 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
-
 
 unit UScreenSingView;
 
@@ -231,8 +230,6 @@ const
 //ToDo basisbit: check this again
 // Dirty HacK
 procedure TScreenSingView.SwapToScreen(Screen: integer);
-var
-  P, I: integer;
 begin
   { if screens = 2 and playerplay <= 3 the 2nd screen shows the
     textures of screen 1 }
@@ -828,6 +825,18 @@ begin
     Tex_BG_Mid[I]       := Texture.LoadTexture(Skin.GetTextureFileName('NoteBGMid'),   TEXTURE_TYPE_COLORIZED, Color);
     Tex_BG_Right[I]     := Texture.LoadTexture(Skin.GetTextureFileName('NoteBGRight'), TEXTURE_TYPE_COLORIZED, Color);
 
+    Tex_Left_Rap[I]         := Texture.LoadTexture(Skin.GetTextureFileName('GrayLeftRap'),  TEXTURE_TYPE_COLORIZED, Color);
+    Tex_Mid_Rap[I]          := Texture.LoadTexture(Skin.GetTextureFileName('GrayMidRap'),   TEXTURE_TYPE_COLORIZED, Color);
+    Tex_Right_Rap[I]        := Texture.LoadTexture(Skin.GetTextureFileName('GrayRightRap'), TEXTURE_TYPE_COLORIZED, Color);
+
+    Tex_plain_Left_Rap[I]   := Texture.LoadTexture(Skin.GetTextureFileName('NotePlainLeftRap'),  TEXTURE_TYPE_COLORIZED, Color);
+    Tex_plain_Mid_Rap[I]    := Texture.LoadTexture(Skin.GetTextureFileName('NotePlainMidRap'),   TEXTURE_TYPE_COLORIZED, Color);
+    Tex_plain_Right_Rap[I]  := Texture.LoadTexture(Skin.GetTextureFileName('NotePlainRightRap'), TEXTURE_TYPE_COLORIZED, Color);
+
+    Tex_BG_Left_Rap[I]      := Texture.LoadTexture(Skin.GetTextureFileName('NoteBGLeftRap'),  TEXTURE_TYPE_COLORIZED, Color);
+    Tex_BG_Mid_Rap[I]       := Texture.LoadTexture(Skin.GetTextureFileName('NoteBGMidRap'),   TEXTURE_TYPE_COLORIZED, Color);
+    Tex_BG_Right_Rap[I]     := Texture.LoadTexture(Skin.GetTextureFileName('NoteBGRightRap'), TEXTURE_TYPE_COLORIZED, Color);
+
     //## backgrounds for the scores ##
     Tex_ScoreBG[I - 1] := Texture.LoadTexture(Skin.GetTextureFileName('ScoreBG'), TEXTURE_TYPE_COLORIZED, Color);
   end;
@@ -1212,13 +1221,10 @@ var
   DisplayPrefix:          string;
   DisplayMin:             integer;
   DisplaySec:             integer;
-  T:                      integer;
   CurLyricsTime:          real;
   VideoFrameTime:         Extended;
   Line:                   TLyricLine;
   LastWord:               TLyricWord;
-  LineDuet:                   TLyricLine;
-  LastWordDuet:               TLyricWord;
   medley_end:             boolean;
   medley_start_applause:  boolean;
 begin
@@ -1515,7 +1521,6 @@ var
   timeDiff:       real;
   t:              real;
   CountDownText:  UTF8String;
-  Position:       real;
 begin
   if AudioPlayback.Position < GetTimeFromBeat(CurrentSong.Medley.StartBeat) then
   begin
@@ -1594,7 +1599,6 @@ end;
 
 procedure TScreenSingView.MedleyTitleFadeOut();
 var
-  I: integer;
   Alpha: real;
   CTime: cardinal;
 begin
@@ -1735,7 +1739,7 @@ var
 
   x, y, w, h: real;
   CurrentLine: integer;
-  GAPxStart, GAPw: real;
+  GAPxStart: real;
 begin
   x := Theme.Sing.StaticTimeProgress.x;
   y := Theme.Sing.StaticTimeProgress.y;
@@ -1753,14 +1757,14 @@ begin
 
   //calculate total singing seconds of song
   SongStart := 99999999999999;
-  SongEnd := CurrentSong.BPM[0].BPM*TotalTime/60;
+  SongEnd := CurrentSong.BPM*TotalTime/60;
   for CurrentLine := 0 to High(Lines) do //P1 of Duett or standard, P2 of Duett,..
   begin
     numLines := Length(Lines[CurrentLine].Line); //Lyric lines
     if (numLines < 2) then //catch cases which could cause endless loop
       Exit;
-    if SongStart > (Lines[CurrentLine].Line[0].Note[0].Start+(CurrentSong.BPM[0].BPM*CurrentSong.GAP*(1/60/1000))) then
-           SongStart := Lines[CurrentLine].Line[0].Note[0].Start + (CurrentSong.BPM[0].BPM*CurrentSong.GAP*(1/60/1000));
+    if SongStart > (Lines[CurrentLine].Line[0].Note[0].Start+(CurrentSong.BPM*CurrentSong.GAP*(1/60/1000))) then
+           SongStart := Lines[CurrentLine].Line[0].Note[0].Start + (CurrentSong.BPM*CurrentSong.GAP*(1/60/1000));
   end;
   ww := SongEnd - SongStart;
 
@@ -1796,4 +1800,3 @@ begin
 end;
 
 end.
-

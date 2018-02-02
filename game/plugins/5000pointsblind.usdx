@@ -1,5 +1,5 @@
 function plugin_init()
-  register('party mode: 5000pointsblind', '1.00', 'infanf', 'http://www.UltrastarDeluxe.org');
+  register('party mode: 5000pointsblind', '1.00', 'infanf', 'https://ultrastar-es.org');
 
   require('Usdx.Party')
   require('Usdx.ScreenSing');

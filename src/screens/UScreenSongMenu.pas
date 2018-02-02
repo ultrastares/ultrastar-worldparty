@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -362,7 +362,6 @@ begin
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_PLAY');
         Button[1].Text[0].Text := Language.Translate('SONG_MENU_CHANGEPLAYERS');
         Button[2].Text[0].Text := Language.Translate('SONG_MENU_PLAYLIST_ADD');
-        Button[3].Text[0].Text := Language.Translate('SONG_MENU_EDIT');
         Button[4].Text[0].Text := Language.Translate('SONG_MENU_CANCEL');
       end;
 
@@ -854,12 +853,6 @@ begin
               //Dummy
             end;
 
-          6: // button 4
-            begin
-              ScreenSong.OpenEditor;
-              Visible := false;
-            end;
-
           7: // button 5
             begin
               // show main menu
@@ -911,7 +904,7 @@ begin
               Visible := False;
 
             end;
-            
+
           6: //Button 4
             begin
               ScreenSong.StartMedley(5, msCalculated);
@@ -993,12 +986,6 @@ begin
           5: // selectslide 3
             begin
               // dummy
-            end;
-
-          6: // button 4
-            begin
-              ScreenSong.OpenEditor;
-              Visible := false;
             end;
         end;
       end;

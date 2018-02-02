@@ -11,8 +11,8 @@ ${LangFileString} oninit_running "El instalador ya esta funcionando"
 ${LangFileString} oninit_updating "La actualización ya esta funcionando"
 ${LangFileString} oninit_installagain "¿Seguro que quieres reinstalarlo?"
 ${LangFileString} oninit_alreadyinstalled "Ya esta instalado"
-${LangFileString} oninit_closeusdx "No puedo desinstalar ultrastar mientras esta funcionando, ¿quieres cerrarlo?"
-${LangFileString} oninit_updateusdx "¿Quieres actualizar la instalación desde...?"
+${LangFileString} oninit_closeWorldParty "No puedo desinstalar ultrastar mientras esta funcionando, ¿quieres cerrarlo?"
+${LangFileString} oninit_updateWorldParty "¿Quieres actualizar la instalación desde...?"
 ${LangFileString} oninit_uninstall "¿Quieres desinstalar la antigua versión? (recomendado)"
 
 ${LangFileString} update_connect "Estableciendo conexión a internet para comprobar una nueva versión"
@@ -20,6 +20,14 @@ ${LangFileString} button_next "Siguiente"
 ${LangFileString} button_close "Cerrar"
 ${LangFileString} update_information "Puedes comprobar si existe una nueva versión del juego. Si existe una actualización será instalada."
 ${LangFileString} button_check_update "Comprobar"
+
+${LangFileString} delete_components "También borrar los siguientes componentes:"
+${LangFileString} delete_covers "Carátulas"
+${LangFileString} delete_highscores "Puntuaciones"
+${LangFileString} delete_config "configuración"
+${LangFileString} delete_screenshots "Capturas de pantalla"
+${LangFileString} delete_playlists "Listas de reproducción"
+${LangFileString} delete_songs "¿Eliminar canciones? ADVERTENCIA: se borrarán las canciones que estén dentro del directorio songs"
 
 ${LangFileString} update_noinstallation_online "Ninguna versión está instalada. El instalador no puede actualizar tu versión. Comprueba nuestra web ${homepage} para descargar la última versión."
 ${LangFileString} update_noinstallation_offline "Ninguna versión está instalada. El instalador no puede actualizar tu versión. Comprueba nuestra web ${homepage} para descargar la última versión."
@@ -54,17 +62,17 @@ ${LangFileString} update_download_remain_hours " (%u horas restantes)"
 
 ; Welcome Page:
 
-${LangFileString} page_welcome_title_update "Bienvenido al asistente de instalación de UltraStar Deluxe WorldParty"
-${LangFileString} page_welcome_txt_update "El asistente te guiará a través de este proceso. UltraStar Deluxe WorldParty es un juego gratuito y libre, con el que podrás emular a tus artistas favoritos.$\n$\r$\n$\r Para más información, visita nuestra página web oficial:$\n$\r$\n$\r${homepage}$\n$\r"
-${LangFileString} page_welcome_title "Bienvenido a la instalación de UltraStar Deluxe Worldparty"
-${LangFileString} page_welcome_txt "El asistente te guiará a través de este proceso. UltraStar Deluxe WorldParty es un juego gratuito y libre, con el que podrás emular a tus artistas favoritos.$\n$\r$\n$\r Para más información, visita nuestra página web oficial:$\n$\r$\n$\r${homepage}$\n$\r"
-${LangFileString} page_un_welcome_title "Bienvenido a la desinstalación de UltraStar Deluxe Worldparty"
+${LangFileString} page_welcome_title_update "Bienvenido al asistente de instalación de ${name}"
+${LangFileString} page_welcome_txt_update "El asistente te guiará a través de este proceso. ${name} es un juego gratuito y libre, con el que podrás emular a tus artistas favoritos.$\n$\r$\n$\r Para más información, visita nuestra página web oficial:$\n$\r$\n$\r${homepage}$\n$\r"
+${LangFileString} page_welcome_title "Bienvenido a la instalación de ${name}"
+${LangFileString} page_welcome_txt "El asistente te guiará a través de este proceso. ${name} es un juego gratuito y libre, con el que podrás emular a tus artistas favoritos.$\n$\r$\n$\r Para más información, visita nuestra página web oficial:$\n$\r$\n$\r${homepage}$\n$\r"
+${LangFileString} page_un_welcome_title "Bienvenido a la desinstalación de ${name}"
 
 ; Custom Page
 
 ${LangFileString} page_settings_subtitle "Configura rápidamente tu ${name}."
 ${LangFileString} page_settings_config_title "Configuración de ${name} (opcional)"
-${LangFileString} page_settings_config_info "Toda la configuración será cambiada más tarde."
+${LangFileString} page_settings_config_info "No te preocupes, puedes cambiar estos valores si quieres más tarde."
 ${LangFileString} page_settings_fullscreen_label "Pantalla completa:"
 ${LangFileString} page_settings_fullscreen_info "¿Ejecutar el juego en ventana o pantalla completa?"
 ${LangFileString} page_settings_language_label "Idioma:"
@@ -81,7 +89,7 @@ ${LangFileString} page_settings_songdir_info "Elige un directorio adicional para
 ; Finish Page:
 
 ${LangFileString} page_finish_txt "${name} ha sido instalado con éxito.$\r$\n$\r$\nVisita nuestra página web para obtener las últimas noticias y actualizaciones."
-${LangFileString} page_finish_linktxt "Página web"
+${LangFileString} page_finish_linktxt " >>> ${homepage} <<<"
 ${LangFileString} page_finish_desktop "¿Quieres crear un acceso directo?"
 
 ;unused

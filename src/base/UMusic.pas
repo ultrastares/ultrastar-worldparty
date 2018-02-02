@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -147,8 +147,6 @@ type
     Current:    integer;  // for drawing of current line
     High:       integer;  // = High(Line)!
     Number:     integer;
-    Resolution: integer;
-    NotesGAP:   integer;
     ScoreValue: integer;
     Line:       array of TLine;
   end;
@@ -254,7 +252,7 @@ type
       function GetName: string; virtual; abstract;
 
   end;
-  
+
   TReplayGain = class(TSoundFX)
   end;
 
@@ -411,40 +409,40 @@ type
 
       procedure SetScreen(Screen: integer);
       function GetScreen(): integer;
-      
+
       procedure SetScreenPosition(X, Y: double; Z: double = 0.0);
       procedure GetScreenPosition(var X, Y, Z: double);
 
       procedure  SetWidth(Width: double);
        function GetWidth(): double;
-      
+
       procedure  SetHeight(Height: double);
        function GetHeight(): double;
-      
+
       {**
        * Sub-image of the video frame to draw.
        * This can be used for zooming or similar purposes.
        *}
       procedure SetFrameRange(Range: TRectCoords);
       function GetFrameRange(): TRectCoords;
-      
+
       function GetFrameAspect(): real;
-      
+
       procedure SetAspectCorrection(AspectCorrection: TAspectCorrection);
       function GetAspectCorrection(): TAspectCorrection;
-      
+
 
       procedure SetAlpha(Alpha: double);
       function GetAlpha(): double;
-      
+
       procedure SetReflectionSpacing(Spacing: double);
       function GetReflectionSpacing(): double;
 
       procedure GetFrame(Time: Extended);
       procedure Draw();
       procedure DrawReflection();
-       
-       
+
+
       property Screen: integer read GetScreen;
       property Width: double read GetWidth write SetWidth;
       property Height: double read GetHeight write SetHeight;
@@ -1145,9 +1143,7 @@ end;
 function TAudioPlaybackStream.Synchronize(BufferSize: integer; FormatInfo: TAudioFormatInfo): integer;
 var
   TimeDiff: double;
-  FrameDiff: double;
   FrameSkip: integer;
-  ReqFrames: integer;
   MasterClock: real;
   CurPosition: real;
 const

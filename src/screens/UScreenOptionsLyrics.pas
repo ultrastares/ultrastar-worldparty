@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -25,9 +25,7 @@ unit UScreenOptionsLyrics;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
@@ -68,7 +66,7 @@ begin
           Exit;
         end;
     end;
-    
+
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -119,15 +117,15 @@ begin
 
   Theme.OptionsLyrics.SelectLyricsFont.showArrows := true;
   Theme.OptionsLyrics.SelectLyricsFont.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsLyrics.SelectLyricsFont, Ini.LyricsFont, ILyricsFontTranslated);
+  AddSelectSlide(Theme.OptionsLyrics.SelectLyricsFont, UIni.Ini.LyricsFont, UIni.ILyricsFont, 'OPTION_VALUE_');
 
   Theme.OptionsLyrics.SelectLyricsEffect.showArrows := true;
   Theme.OptionsLyrics.SelectLyricsEffect.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsLyrics.SelectLyricsEffect, Ini.LyricsEffect, ILyricsEffectTranslated);
+  AddSelectSlide(Theme.OptionsLyrics.SelectLyricsEffect, UIni.Ini.LyricsEffect, UIni.ILyricsEffect, 'OPTION_VALUE_');
 
   Theme.OptionsLyrics.SelectNoteLines.showArrows := true;
   Theme.OptionsLyrics.SelectNoteLines.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsLyrics.SelectNoteLines, Ini.NoteLines, INoteLinesTranslated);
+  AddSelectSlide(Theme.OptionsLyrics.SelectNoteLines, UIni.Ini.NoteLines, UIni.INoteLines, 'OPTION_VALUE_');
 
   AddButton(Theme.OptionsLyrics.ButtonExit);
   if (Length(Button[0].Text)=0) then

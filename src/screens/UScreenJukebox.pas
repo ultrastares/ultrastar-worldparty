@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -635,7 +635,7 @@ begin
   Interaction       := 0;
   ActualInteraction := 0;
   ListMin           := 0;
-  //RepeatSongList    := false;
+  RepeatSongList    := false;
   RandomMode        := false;
   OrderMode         := true;
   FindSongList      := false;
@@ -1642,7 +1642,7 @@ begin
           if (SongListVisible) then
             SongListVisible := false
           else
-            ScreenPopupCheck.ShowPopup('MSG_END_JUKEBOX', OnEscapeJukebox, 0, false)
+            ScreenPopupCheck.ShowPopup('MSG_END_JUKEBOX', OnEscapeJukebox, nil, false)
         end;
 
         SDLK_BACKSPACE:
@@ -1733,7 +1733,7 @@ begin
         begin
           if (SongListVisible) then
           begin
-            ScreenPopupCheck.ShowPopup('JUKEBOX_DELETE_SONG', OnDeleteSong, 0, false)
+            ScreenPopupCheck.ShowPopup('JUKEBOX_DELETE_SONG', OnDeleteSong, nil, false)
           end;
         end;
 
@@ -2455,7 +2455,6 @@ procedure TScreenJukebox.PlayMusic(ID: integer; ShowList: boolean);
 var
   Index:  integer;
   VideoFile, BgFile: IPath;
-  success: boolean;
   Max: integer;
   CoverPath: IPath;
 begin
@@ -2490,18 +2489,7 @@ begin
 
   fTimebarMode := TTimebarMode(Ini.JukeboxTimebarMode);
 
-  // FIXME: bad style, put the try-except into loadsong() and not here
-  try
-    // check if file is xml
-    if CurrentSong.FileName.GetExtension.ToUTF8 = '.xml' then
-      success := CurrentSong.AnalyseXML and CurrentSong.LoadXMLSong()
-    else
-      success := CurrentSong.Analyse and CurrentSong.LoadSong(false);
-  except
-    success := false;
-  end;
-
-  if (not success) then
+  if not CurrentSong.Analyse() then
   begin
     // error loading song -> go back to previous screen and show some error message
     Display.AbortScreenChange;
@@ -2610,7 +2598,7 @@ begin
   LyricsState.UpdateBeats();
 
   // main text
-  Lyrics.Clear(CurrentSong.BPM[0].BPM, CurrentSong.Resolution);
+  Lyrics.Clear(CurrentSong.BPM);
 
   // initialize lyrics by filling its queue
   while (not Lyrics.IsQueueFull) and
@@ -2862,4 +2850,3 @@ begin
 end;
 
 end.
-

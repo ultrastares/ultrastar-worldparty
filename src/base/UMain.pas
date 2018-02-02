@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -64,6 +64,9 @@ implementation
 uses
   math,
   dglOpenGL,
+  UAvatars,
+  UCatCovers,
+  UCovers,
   UCommandLine,
   UCommon,
   UConfig,
@@ -93,6 +96,7 @@ uses
   ULuaTextGL,
   ULuaParty,
   ULuaScreenSing,
+  USongs,
   UTime,
   UWebcam;
   //UVideoAcinerella;
@@ -108,7 +112,7 @@ begin
     WindowTitle := USDXVersionStr;
 
     Platform.Init;
-    
+
     // Commandline Parameter Parser
     Params := TCMDParams.Create;
 
@@ -127,8 +131,8 @@ begin
 
     // setup separators for parsing
     // Note: ThousandSeparator must be set because of a bug in TIniFile.ReadFloat
-    ThousandSeparator := ',';
-    DecimalSeparator := '.';
+    DefaultFormatSettings.ThousandSeparator := ',';
+    DefaultFormatSettings.DecimalSeparator := '.';
 
     //------------------------------
     // StartUp - create classes and load files
@@ -179,19 +183,27 @@ begin
     Ini := TIni.Create;
     Ini.Load;
 
+    //load and check songs and get covers and category covers
+    UCovers.Covers := TCoverDatabase.Create;
+    UCatCovers.CatCovers := TCatCovers.Create;
+    USongs.CatSongs := TCatSongs.Create;
+    USongs.Songs := TSongs.Create; //in a new thread
+
     // it is possible that this is the first run, create a .ini file if neccessary
     Log.LogStatus('Write Ini', 'Initialization');
     Ini.Save;
 
+    //avatars cache
+    Avatars := TAvatarDatabase.Create;
+
     // Theme
     Theme.LoadTheme(Ini.Theme, Ini.Color);
 
-    // Sound
-    InitializeSound();
+    UMusic.InitializeSound();
+    UMusic.InitializeVideo();
 
     // Lyrics-engine with media reference timer
     LyricsState := TLyricsState.Create();
-
     // Graphics
     Initialize3D(WindowTitle);
 
@@ -208,7 +220,7 @@ begin
     begin
       InitializeJoystick;
     end;
-    
+
     // Webcam
     //Log.LogStatus('WebCam', 'Initialization');
     //Webcam := TWebcam.Create;
@@ -245,7 +257,7 @@ begin
           [BadPlayer]));
       Display.CurrentScreen^.FadeTo( @ScreenOptionsRecord );
     end;
-    
+
     //------------------------------
     // Start Mainloop
     //------------------------------
@@ -330,7 +342,7 @@ begin
         J := J+1;
         if J > 1 then
         begin
-          Report := 'Sorry, an error ocurred! Please report this error to http://ultrastar-es.org/foro Also check the Error.log file in the game folder.' + LineEnding +
+          Report := 'Sorry, an error ocurred! Please report this error to https://ultrastar-es.org/foro Also check the Error.log file in the game folder.' + LineEnding +
             'Stacktrace:' + LineEnding;
           if E <> nil then begin
             Report := Report + 'Exception class: ' + E.ClassName + LineEnding +
@@ -372,6 +384,7 @@ var
   Event:     TSDL_event;
   SimEvent:  TSDL_event;
   KeyCharUnicode: UCS4Char;
+  SimKey: LongWord;
   s1: UTF8String;
   mouseDown: boolean;
   mouseBtn:  integer;
@@ -522,27 +535,33 @@ begin
             except
             end;
 
+			SimKey :=0;
+            if((Event.key.keysym.sym > Low(LongWord)) and (Event.key.keysym.sym < High(LongWord))) then
+            begin
+              SimKey := Event.key.keysym.sym;
+            end;
+
             // if print is pressed -> make screenshot and save to screenshot path
-            if (Event.key.keysym.sym = SDLK_SYSREQ) or (Event.key.keysym.sym = SDLK_PRINTSCREEN) then
+            if (SimKey = SDLK_SYSREQ) or (SimKey = SDLK_PRINTSCREEN) then
               Display.SaveScreenShot
             // if there is a visible popup then let it handle input instead of underlying screen
             // shoud be done in a way to be sure the topmost popup has preference (maybe error, then check)
             else if (ScreenPopupError <> nil) and (ScreenPopupError.Visible) then
-              KeepGoing := ScreenPopupError.ParseInput(Event.key.keysym.sym, KeyCharUnicode, true)
+              KeepGoing := ScreenPopupError.ParseInput(SimKey, KeyCharUnicode, true)
             else if (ScreenPopupInfo <> nil) and (ScreenPopupInfo.Visible) then
-              KeepGoing := ScreenPopupInfo.ParseInput(Event.key.keysym.sym, KeyCharUnicode, true)
+              KeepGoing := ScreenPopupInfo.ParseInput(SimKey, KeyCharUnicode, true)
             else if (ScreenPopupCheck <> nil) and (ScreenPopupCheck.Visible) then
-              KeepGoing := ScreenPopupCheck.ParseInput(Event.key.keysym.sym, KeyCharUnicode, true)
+              KeepGoing := ScreenPopupCheck.ParseInput(SimKey, KeyCharUnicode, true)
             else if (ScreenPopupInsertUser <> nil) and (ScreenPopupInsertUser.Visible) then
-              KeepGoing := ScreenPopupInsertUser.ParseInput(Event.key.keysym.sym, KeyCharUnicode, true)
+              KeepGoing := ScreenPopupInsertUser.ParseInput(SimKey, KeyCharUnicode, true)
             else if (ScreenPopupSendScore <> nil) and (ScreenPopupSendScore.Visible) then
-              KeepGoing := ScreenPopupSendScore.ParseInput(Event.key.keysym.sym, KeyCharUnicode, true)
+              KeepGoing := ScreenPopupSendScore.ParseInput(SimKey, KeyCharUnicode, true)
             else if (ScreenPopupScoreDownload <> nil) and (ScreenPopupScoreDownload.Visible) then
-              KeepGoing := ScreenPopupScoreDownload.ParseInput(Event.key.keysym.sym, KeyCharUnicode, true)
-            else if (Display.ShouldHandleInput(Event.key.keysym.sym, KeyCharUnicode, true, SuppressKey)) then
+              KeepGoing := ScreenPopupScoreDownload.ParseInput(SimKey, KeyCharUnicode, true)
+            else if (Display.ShouldHandleInput(SimKey, KeyCharUnicode, true, SuppressKey)) then
             begin
               // check if screen wants to exit
-              KeepGoing := Display.ParseInput(Event.key.keysym.sym, KeyCharUnicode, true);
+              KeepGoing := Display.ParseInput(SimKey, KeyCharUnicode, true);
 
               // if screen wants to exit
               if not KeepGoing then

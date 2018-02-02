@@ -7,23 +7,25 @@ Thumbs.db
 *.~*
 *.log
 
-# lazarus project files
-*.o
+# lazarus/FPC project files
+*.o*
 *.ppu
 *.a
 *.dcu
+*.rsj
 
 # intermediates
 /build/
 Makefile
 config.log
 config.status
+configure
 __history
 aclocal.m4
 /autom4te.cache/
 link.res
 ppaslink.sh
-/UltraStarDeluxe.app/*
+/.atom-build.json
 
 # source intermediates
 #/src/**/*.cfg

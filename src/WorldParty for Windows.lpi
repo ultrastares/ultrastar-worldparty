@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="9"/>
+    <Version Value="10"/>
     <PathDelim Value="\"/>
     <General>
       <Flags>
@@ -16,7 +16,6 @@
       <XPManifest>
         <DpiAware Value="True"/>
       </XPManifest>
-      <Icon Value="0"/>
     </General>
     <VersionInfo>
       <MajorVersionNr Value="1"/>
@@ -86,10 +85,6 @@
         <Filename Value="base\UDraw.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit9>
-      <Unit10>
-        <Filename Value="base\UEditorLyrics.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit10>
       <Unit11>
         <Filename Value="base\UFiles.pas"/>
         <IsPartOfProject Value="True"/>
@@ -262,18 +257,6 @@
         <Filename Value="menu\UMenuStatic.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit53>
-      <Unit54>
-        <Filename Value="screens\UScreenCredits.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit54>
-      <Unit55>
-        <Filename Value="screens\UScreenEditHeader.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit55>
-      <Unit56>
-        <Filename Value="screens\UScreenEditSub.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit56>
       <Unit57>
         <Filename Value="screens\UScreenLoading.pas"/>
         <IsPartOfProject Value="True"/>
@@ -493,7 +476,7 @@
       <Unit111>
         <Filename Value="lib\bass\delphi\bass.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="Bass"/>
+        <UnitName Value="BASS"/>
       </Unit111>
       <Unit112>
         <Filename Value="webSDK\UWebSDK.pas"/>
@@ -553,7 +536,6 @@
       <Filename Value="..\game\WorldParty"/>
     </Target>
     <SearchPaths>
-      <OtherUnitFiles Value="base;lua;media;menu;screens;lib\dglOpenGL;lib\SDL2;lib\portaudio;lib\ffmpeg;lib\SQLite;lib\other;lib\openCV;webSDK;webSDK\encrypt;$(LazarusDir)\components\lazutils;lib\freetype;lib\bass;lib\Lua;screens\controllers;screens\views;lib\pcre"/>
       <UnitOutputDirectory Value="..\build\fpc-$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
@@ -567,7 +549,7 @@
       <SmartLinkUnit Value="True"/>
       <Checks>
         <OverflowChecks Value="True"/>
-        <StackChecks Value="True"/>
+        <!-- <StackChecks Value="True"/> -->
       </Checks>
       <TargetCPU Value="i386"/>
     </CodeGeneration>
@@ -576,9 +558,15 @@
         <DebugInfoType Value="dsStabs"/>
       </Debugging>
       <LinkSmart Value="True"/>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
     </Linking>
     <Other>
       <Verbosity>
+        <ShowWarn Value="False"/>
         <ShowNotes Value="False"/>
         <ShowHints Value="False"/>
       </Verbosity>
@@ -592,6 +580,12 @@
         <CompileReasons Compile="False" Build="False" Run="False"/>
       </ExecuteAfter>
     </Other>
-    <CompileReasons Run="False"/>
   </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="1">
+      <Item1>
+        <Name Value="EWORLDPARTYParseException"/>
+      </Item1>
+    </Exceptions>
+  </Debugging>
 </CONFIG>

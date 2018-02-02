@@ -80,10 +80,6 @@
         <Filename Value="base\UDraw.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit9>
-      <Unit10>
-        <Filename Value="base\UEditorLyrics.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit10>
       <Unit11>
         <Filename Value="base\UFiles.pas"/>
         <IsPartOfProject Value="True"/>
@@ -260,26 +256,6 @@
         <Filename Value="menu\UMenuStatic.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit54>
-      <Unit55>
-        <Filename Value="screens\UScreenCredits.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit55>
-      <Unit56>
-        <Filename Value="screens\UScreenEdit.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit56>
-      <Unit57>
-        <Filename Value="screens\UScreenEditConvert.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit57>
-      <Unit58>
-        <Filename Value="screens\UScreenEditHeader.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit58>
-      <Unit59>
-        <Filename Value="screens\UScreenEditSub.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit59>
       <Unit60>
         <Filename Value="screens\UScreenLevel.pas"/>
         <IsPartOfProject Value="True"/>

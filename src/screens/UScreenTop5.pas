@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -35,6 +35,8 @@ uses
   SysUtils,
   sdl2,
   UDisplay,
+  ULanguage,
+  ULog,
   UMenu,
   UMusic,
   USongs,
@@ -169,9 +171,10 @@ end;
 
 procedure TScreenTop5.OnShow;
 var
-  I:    integer;
-  PMax: integer;
-  sung: boolean; //score added? otherwise in wasn't sung!
+  I:		integer;
+  PMax:		integer;
+  sung:		boolean; //score added? otherwise in wasn't sung!
+  Report:	string;
 begin
   inherited;
 
@@ -193,9 +196,30 @@ begin
     end;
   end;
 
-  if sung then
-    DataBase.WriteScore(CurrentSong);
-  DataBase.ReadScore(CurrentSong);
+  try
+    if sung then
+    begin
+       DataBase.WriteScore(CurrentSong);
+    end;
+    DataBase.ReadScore(CurrentSong);
+  except
+    on E : Exception do
+    begin
+      Report := 'Writing or reading songscore failed in Top-5-creen. Faulty database file?' + LineEnding +
+      'Stacktrace:' + LineEnding;
+      if E <> nil then
+      begin
+	Report := Report + 'Exception class: ' + E.ClassName + LineEnding +
+	'Message: ' + E.Message + LineEnding;
+      end;
+      Report := Report + BackTraceStrFunc(ExceptAddr);
+      for I := 0 to ExceptFrameCount - 1 do
+      begin
+	Report := Report + LineEnding + BackTraceStrFunc(ExceptFrames[I]);
+      end;
+      Log.LogWarn(Report, 'UScreenTop5.OnShow');
+    end;
+  end;
 
   Text[TextArtistTitle].Text := CurrentSong.Artist + ' - ' + CurrentSong.Title;
 
@@ -223,7 +247,7 @@ begin
     Text[TextDate[I]].Visible := false;
   end;
 
-  Text[TextLevel].Text := IDifficultyTranslated[Ini.PlayerLevel[0]];
+  Text[TextLevel].Text := ULanguage.Language.Translate('OPTION_VALUE_'+IDifficulty[Ini.PlayerLevel[0]]);
 end;
 
 procedure TScreenTop5.DrawScores(difficulty: integer);

@@ -807,15 +807,6 @@
 			sepNavVisRange = "{6847, 865}";
 		};
 	};
-	2CEA2AF00CE3868E0097A5FF /* PseudoThread.pas */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {842, 686}}";
-			sepNavSelRange = "{598, 0}";
-			sepNavVisRange = "{214, 458}";
-			sepNavVisRect = "{{0, 0}, {737, 826}}";
-			sepNavWindowFrame = "{{15, 68}, {776, 955}}";
-		};
-	};
 	2CF3EF210CDE13A0004F5956 /* Messages.pas */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1013, 614}}";
@@ -830,48 +821,6 @@
 			sepNavSelRange = "{1218, 0}";
 			sepNavVisRect = "{{0, 1120}, {834, 610}}";
 			sepNavWindowFrame = "{{200, 248}, {873, 739}}";
-		};
-	};
-	2CF54F430CDA1B2B00627463 /* UScreenCredits.pas */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {695, 19544}}";
-			sepNavSelRange = "{26865, 471}";
-			sepNavVisRange = "{25408, 2367}";
-			sepNavVisRect = "{{0, 1770}, {715, 815}}";
-			sepNavWindowFrame = "{{15, 79}, {754, 944}}";
-		};
-	};
-	2CF54F440CDA1B2B00627463 /* UScreenEdit.pas */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {715, 1610}}";
-			sepNavSelRange = "{34, 0}";
-			sepNavVisRect = "{{0, 0}, {715, 815}}";
-			sepNavWindowFrame = "{{38, 58}, {754, 944}}";
-		};
-	};
-	2CF54F450CDA1B2B00627463 /* UScreenEditConvert.pas */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {842, 8484}}";
-			sepNavSelRange = "{13516, 0}";
-			sepNavVisRange = "{13202, 415}";
-			sepNavVisRect = "{{0, 0}, {715, 815}}";
-			sepNavWindowFrame = "{{15, 79}, {754, 944}}";
-		};
-	};
-	2CF54F460CDA1B2B00627463 /* UScreenEditHeader.pas */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {715, 5180}}";
-			sepNavSelRange = "{59, 0}";
-			sepNavVisRect = "{{0, 0}, {715, 815}}";
-			sepNavWindowFrame = "{{38, 58}, {754, 944}}";
-		};
-	};
-	2CF54F470CDA1B2B00627463 /* UScreenEditSub.pas */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1040, 19236}}";
-			sepNavSelRange = "{37, 0}";
-			sepNavVisRect = "{{0, 0}, {715, 815}}";
-			sepNavWindowFrame = "{{15, 79}, {754, 944}}";
 		};
 	};
 	2CF54F480CDA1B2B00627463 /* UScreenLevel.pas */ = {

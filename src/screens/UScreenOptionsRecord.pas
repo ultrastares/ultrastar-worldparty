@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -100,10 +100,12 @@ type
       procedure   OnHide; override;
   end;
 
-const
-  PeakDecay = 0.2; // strength of peak-decay (reduction after one sec)
+var //slider translation
+  ChannelPlayer: array[0..12] of UTF8String = ('Off', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
+  MicBoost: array[0..3] of UTF8String = ('Off', '+6dB', '+12dB', '+18dB');
 
 const
+  PeakDecay = 0.2; // strength of peak-decay (reduction after one sec)
   BarHeight  = 11; // height of each bar (volume/vu-meter/pitch)
   BarUpperSpacing = 1;  // spacing between a bar-area and the previous widget
   BarLowerSpacing = 3;  // spacing between a bar-area and the next widget
@@ -285,8 +287,7 @@ begin
     Theme.OptionsRecord.SelectSlideInput.showArrows := true;
     Theme.OptionsRecord.SelectSlideInput.oneItemOnly := true;
     // add source-selection slider (InteractionID: 1)
-    SelectInputSourceID := AddSelectSlide(Theme.OptionsRecord.SelectSlideInput,
-        InputDeviceCfg.Input, InputSourceNames);
+    SelectInputSourceID := AddSelectSlide(Theme.OptionsRecord.SelectSlideInput, InputDeviceCfg.Input, InputSourceNames);
 
     // add space for source volume bar
     WidgetYPos := Theme.OptionsRecord.SelectSlideInput.Y +
@@ -305,6 +306,7 @@ begin
     SetLength(SelectSlideChannelID, MaxChannelCount);
     SetLength(SelectSlideChannelTheme, MaxChannelCount);
 
+    ChannelPlayer[0] := ULanguage.Language.Translate('OPTION_VALUE_OFF');
     for ChannelIndex := 0 to MaxChannelCount-1 do
     begin
       // copy reference slide
@@ -326,7 +328,7 @@ begin
 
         // add slider
         SelectSlideChannelID[ChannelIndex] := AddSelectSlide(ChannelTheme^,
-          InputDeviceCfg.ChannelToPlayerMap[ChannelIndex], IChannelPlayerTranslated);
+          InputDeviceCfg.ChannelToPlayerMap[ChannelIndex], ChannelPlayer);
       end
       else
       begin
@@ -334,7 +336,7 @@ begin
 
         // add slider but hide it and assign a dummy variable to it
         SelectSlideChannelID[ChannelIndex] := AddSelectSlide(ChannelTheme^,
-          ChannelToPlayerMapDummy, IChannelPlayerTranslated);
+          ChannelToPlayerMapDummy, ChannelPlayer);
         SelectsS[SelectSlideChannelID[ChannelIndex]].Visible := false;
       end;
     end;
@@ -345,7 +347,8 @@ begin
 
     Theme.OptionsRecord.SelectMicBoost.showArrows := true;
     Theme.OptionsRecord.SelectMicBoost.oneItemOnly := true;
-    AddSelectSlide(Theme.OptionsRecord.SelectMicBoost, Ini.MicBoost, IMicBoostTranslated);
+    MicBoost[0] := ULanguage.Language.Translate('OPTION_VALUE_OFF');
+    AddSelectSlide(Theme.OptionsRecord.SelectMicBoost, Ini.MicBoost, MicBoost);
 
   end;
 
@@ -403,7 +406,7 @@ begin
 
         // show slider
         UpdateSelectSlideOptions(SelectSlideChannelTheme[ChannelIndex],
-          SelectSlideChannelID[ChannelIndex], IChannelPlayerTranslated,
+          SelectSlideChannelID[ChannelIndex], ChannelPlayer,
           InputDeviceCfg.ChannelToPlayerMap[ChannelIndex]);
         SelectsS[SelectSlideChannelID[ChannelIndex]].Visible := true;
       end
@@ -413,7 +416,7 @@ begin
 
         // hide slider and assign a dummy variable to it
         UpdateSelectSlideOptions(SelectSlideChannelTheme[ChannelIndex],
-          SelectSlideChannelID[ChannelIndex], IChannelPlayerTranslated,
+          SelectSlideChannelID[ChannelIndex], ChannelPlayer,
           ChannelToPlayerMapDummy);
         SelectsS[SelectSlideChannelID[ChannelIndex]].Visible := false;
       end;
@@ -444,7 +447,7 @@ begin
   InputDevice.SetVolume(Volume);
   //DebugWriteln('Volume: ' + floattostr(InputDevice.GetVolume));
 
-  // volume must be polled again 
+  // volume must be polled again
   NextVolumePollTime := 0;
 end;
 

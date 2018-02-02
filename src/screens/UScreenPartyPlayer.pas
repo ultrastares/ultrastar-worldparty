@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -80,7 +80,7 @@ type
       function ShouldHandleInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean; out SuppressKey: boolean): boolean; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure OnShow; override;
-      
+
       procedure SetAnimationProgress(Progress: real); override;
       function NoRepeatColors(ColorP:integer; Interaction:integer; Pos:integer):integer;
       procedure TeamColorButton(K: integer; Interact: integer);
@@ -162,7 +162,7 @@ begin
   begin
     Ini.SingColor[I] := Num[I];
     Ini.TeamColor[I] := Num[I];
-    
+
     Party.AddTeam(Button[I * 5].Text[0].Text);
 
     for J := 0 to CountPlayer[I] do
@@ -592,8 +592,8 @@ begin
 end;
 
 procedure TScreenPartyPlayer.SetAnimationProgress(Progress: real);
-var
-  I:    integer;
+// var
+//   I:    integer;
 begin
   {for I := 0 to high(Button) do
     Button[I].Texture.ScaleW := Progress;   }

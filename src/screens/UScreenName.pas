@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -89,7 +89,7 @@ type
       PlayerAvatarButtonMD5: array of UTF8String;
     public
       Goto_SingScreen: boolean; //If true then next Screen in SingScreen
-      
+
       constructor Create; override;
       function ShouldHandleInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean; out SuppressKey: boolean): boolean; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -114,6 +114,9 @@ type
       procedure GenerateAvatars();
       procedure SetPlayerAvatar(Player: integer);
   end;
+
+const
+  PlayerColors: array[0..16] of UTF8String = ('Blue', 'Red', 'Green', 'Yellow', 'Magenta', 'Orange', 'Pink',  'Violet', 'Brown', 'Gray', 'DarkBlue', 'Sky', 'Cyan', 'Flame', 'Orchid', 'Harlequin', 'GreenYellow');
 
 var
   Num: array[0..UIni.IMaxPlayerCount-1]of integer;
@@ -574,7 +577,7 @@ end;
 procedure TScreenName.RefreshPlayers();
 var
   Count, I: integer;
-  Col, DesCol: TRGB;
+  DesCol: TRGB;
 begin
 
   Count := UIni.IPlayersVals[CountIndex];
@@ -637,14 +640,14 @@ begin
 
   PlayerColorButton(Num[PlayerIndex]);
 
-  Max := Length(IPlayerColorTranslated) - Count + 1;
+  Max := Length(PlayerColors) - Count + 1;
   SetLength(ITmp, Max);
 
   APlayerColor := nil;
   SetLength(APlayerColor, Max);
 
   Index := 0;
-  for I := 0 to High(IPlayerColorTranslated) do      //for every color
+  for I := 0 to High(PlayerColors) do      //for every color
   begin
     Used := false;
 
@@ -659,7 +662,7 @@ begin
 
     if not (Used) then
     begin
-      ITmp[Index] := IPlayerColorTranslated[I];
+      ITmp[Index] := ULanguage.Language.Translate('OPTION_VALUE_'+PlayerColors[I]);
       APlayerColor[Index] := I + 1;
       Index := Index + 1;
     end;
@@ -691,11 +694,11 @@ var
 begin
   Count := UIni.IPlayersVals[CountIndex];
 
-  if (ColorP > Length(IPlayerColorTranslated)) then
+  if (ColorP > Length(PlayerColors)) then
     ColorP := NoRepeatColors(1, Interaction, Pos);
 
   if (ColorP <= 0) then
-    ColorP := NoRepeatColors(High(IPlayerColorTranslated), Interaction, Pos);
+    ColorP := NoRepeatColors(High(PlayerColors), Interaction, Pos);
 
   for Z := Count -1 downto 0 do
   begin
@@ -801,11 +804,11 @@ begin
 
   Theme.Name.SelectPlayerColor.oneItemOnly := true;
   Theme.Name.SelectPlayerColor.showArrows := true;
-  PlayerColor := AddSelectSlide(Theme.Name.SelectPlayerColor, ColorIndex, IPlayerColorTranslated);
+  PlayerColor := AddSelectSlide(Theme.Name.SelectPlayerColor, ColorIndex, PlayerColors, 'OPTION_VALUE_');
 
   Theme.Name.SelectPlayerLevel.oneItemOnly := true;
   Theme.Name.SelectPlayerLevel.showArrows := true;
-  PlayerSelectLevel := AddSelectSlide(Theme.Name.SelectPlayerLevel, LevelIndex, IDifficultyTranslated);
+  PlayerSelectLevel := AddSelectSlide(Theme.Name.SelectPlayerLevel, LevelIndex, UIni.IDifficulty, 'OPTION_VALUE_');
 
   isScrolling := false;
 
@@ -848,7 +851,6 @@ end;
 procedure TScreenName.OnShow;
 var
   I: integer;
-  Col: TRGB;
 begin
   inherited;
 
@@ -960,7 +962,7 @@ begin
         Button[B].Y := Theme.Name.PlayerAvatar.Y;
 
         AvatarCurrent := AvatarTarget;
-        
+
         isScrolling := false;
       end
 

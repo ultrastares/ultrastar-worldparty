@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,11 +16,11 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
- 
- 
+
+
 program WorldParty;
 
 {$IFDEF MSWINDOWS}
@@ -62,11 +62,7 @@ uses
   SQLiteTable3  		 in 'lib\SQLite\SQLiteTable3.pas',
   SQLite3       		 in 'lib\SQLite\SQLite3.pas',
   sdl2                   in 'lib\SDL2\sdl2.pas',
-  SDL2_gfx               in 'lib\SDL2\SDL2_gfx.pas',
   SDL2_image             in 'lib\SDL2\SDL2_image.pas',
-  SDL2_mixer             in 'lib\SDL2\SDL2_mixer.pas',
-  SDL2_net               in 'lib\SDL2\SDL2_net.pas',
-  SDL2_ttf               in 'lib\SDL2\SDL2_ttf.pas',
   //new work on current OpenGL implementation
   dglOpenGL              in 'lib\dglOpenGL\dglOpenGL.pas',
   UMediaCore_SDL         in 'media\UMediaCore_SDL.pas',
@@ -139,19 +135,22 @@ uses
   MidiType      in 'lib\midi\MidiType.pas',
   {$ENDIF}
 
-  {$IFDEF MSWINDOWS}
   {$IFDEF FPC}
+  FileUtil in 'lib\Lazarus\fileutil.pas',
+  FPCAdds in 'lib\Lazarus\fpcadds.pas',
+  LazUtilsStrConsts in 'lib\Lazarus\lazutilsstrconsts.pas',
+  LazFileUtils in 'lib\Lazarus\lazfileutils.pas',
+  LazUTF8 in 'lib\Lazarus\lazutf8.pas',
+  LazUTF8Classes in 'lib\Lazarus\lazutf8classes.pas',
+  Masks in 'lib\Lazarus\masks.pas',
+  MTProcs in 'lib\Lazarus\components\multithreadprocs\mtprocs.pas',
+  MTPCPU in 'lib\Lazarus\components\multithreadprocs\mtpcpu.pas',
+  {$ENDIF}
+  {$IFDEF MSWINDOWS}
   // FPC compatibility file for Allocate/DeallocateHWnd
   WinAllocation in 'lib\other\WinAllocation.pas',
   Windows,
   {$ENDIF}
-  {$ENDIF}
-
-  {$IFDEF DARWIN}
-  PseudoThread  in 'macosx\PseudoThread.pas',
-  {$ENDIF}
-
-  pcre          in 'lib\pcre\pcre.pas',
 
   //------------------------------
   //Includes - Lua Support
@@ -193,7 +192,7 @@ uses
   //Includes - base
   //------------------------------
   UConfig           in 'base\UConfig.pas',
-  
+
   UCommon           in 'base\UCommon.pas',
   UGraphic          in 'base\UGraphic.pas',
   UTexture          in 'base\UTexture.pas',
@@ -203,12 +202,10 @@ uses
   URecord           in 'base\URecord.pas',
   UTime             in 'base\UTime.pas',
   USong             in 'base\USong.pas',
-  UXMLSong          in 'base\UXMLSong.pas',
   USongs            in 'base\USongs.pas',
   UIni              in 'base\UIni.pas',
   UImage            in 'base\UImage.pas',
   ULyrics           in 'base\ULyrics.pas',
-  UEditorLyrics     in 'base\UEditorLyrics.pas',
   USkins            in 'base\USkins.pas',
   UThemes           in 'base\UThemes.pas',
   ULog              in 'base\ULog.pas',
@@ -323,15 +320,12 @@ uses
   UScreenOptionsThemes    in 'screens\UScreenOptionsThemes.pas',
   UScreenOptionsRecord    in 'screens\UScreenOptionsRecord.pas',
   UScreenOptionsAdvanced  in 'screens\UScreenOptionsAdvanced.pas',
-  UScreenEditSub          in 'screens\UScreenEditSub.pas',
-  UScreenEditHeader       in 'screens\UScreenEditHeader.pas',
   UScreenOpen             in 'screens\UScreenOpen.pas',
   UScreenTop5             in 'screens\UScreenTop5.pas',
   UScreenSongMenu         in 'screens\UScreenSongMenu.pas',
   UScreenSongJumpto       in 'screens\UScreenSongJumpto.pas',
   UScreenStatMain         in 'screens\UScreenStatMain.pas',
   UScreenStatDetail       in 'screens\UScreenStatDetail.pas',
-  UScreenCredits          in 'screens\UScreenCredits.pas',
   UScreenPopup            in 'screens\UScreenPopup.pas',
 
   //Includes - Screens PartyMode
@@ -407,4 +401,3 @@ begin
     end;
   end;
 end.
-

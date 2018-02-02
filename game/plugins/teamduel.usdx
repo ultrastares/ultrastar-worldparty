@@ -35,7 +35,7 @@ BarPos.Left = 300
 BarPos.Right = 500
 
 function plugin_init()
-  register('party mode: teamduel', '1.00', 'USDX Team', 'http://www.UltrastarDeluxe.org');
+  register('party mode: teamduel', '1.00', 'USDX Team', 'https://ultrastar-es.org');
 
   require('math', 'Usdx.Party', 'Usdx.ScreenSing', 'Usdx.Gl', 'Usdx.TextGl');
   local Mode = {}

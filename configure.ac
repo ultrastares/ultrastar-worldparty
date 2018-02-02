@@ -19,7 +19,7 @@ AC_INIT([WorldParty],
         m4_esyscmd_s([cat VERSION]),
         [https://github.com/ultrastares/usdxworldparty/])
 # specify the website here
-PACKAGE_WEBSITE="http://ultrastar-es.org/"
+PACKAGE_WEBSITE="https://ultrastar-es.org/"
 AC_SUBST(PACKAGE_WEBSITE)
 
 AC_CONFIG_MACRO_DIR([dists/autogen/m4])
@@ -139,8 +139,7 @@ AC_SUBST(USE_OSX_PACKAGING_LIBDIR, $USE_OSX_PACKAGING_LIBDIR)
 AC_CANONICAL_HOST
 
 # find and test the freepascal compiler
-# sets PFLAGS, FPC_
-, FPC_DEBUG, etc.
+# sets PFLAGS, FPC_VERSION, FPC_DEBUG, etc.
 AC_PROG_FPC
 
 if [[ "$FPC_VERSION_MAJOR" -lt 3 ]]; then
@@ -154,10 +153,6 @@ fi
 # find and test the C compiler (for C-libs and wrappers)
 AC_PROG_CC
 AC_LANG([C])
-
-# find and test the C++ compiler (for C-libs and wrappers)
-AC_PROG_CXX
-AC_LANG([C++])
 
 AC_PROG_RANLIB
 
@@ -182,17 +177,6 @@ fi
 # -----------------------------------------
 # check for libraries
 # -----------------------------------------
-
-# find libpng
-# pkgconfig name for 1.2 is "libpng12", for 1.4 "libpng"
-PKG_HAVE([libpng], [libpng12], no)
-if [[ x$libpng_HAVE = xyes ]]; then
-    PKG_VERSION([libpng], [libpng12])
-else
-    # check for the generic .pc file
-    PKG_HAVE([libpng], [libpng >= 1.2], yes)
-    PKG_VERSION([libpng], [libpng >= 1.2])
-fi
 
 # find sdl2
 PKG_HAVE([sdl2], [sdl2], yes)
@@ -234,6 +218,15 @@ else
 fi
 AC_SUBST(lua_LIB_NAME)
 
+AC_MSG_CHECKING([size of lua_Integer])
+PKG_VALUE([lua],[CFLAGS],[cflags],[$lua_LIB_NAME],[C compiler flags for Lua])
+old_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS $lua_CFLAGS"
+AC_COMPUTE_INT([LUA_INTEGER_BITS],[(long)sizeof(lua_Integer)*8],[#include <lua.h>])
+CFLAGS="$old_CFLAGS"
+AC_SUBST(LUA_INTEGER_BITS)
+AC_MSG_RESULT([$LUA_INTEGER_BITS bits])
+
 # find FFMpeg
 # Note: do not use the min/max version parameters with ffmpeg
 # otherwise it might fail in ubuntu due to a wrong version number 
@@ -247,7 +240,14 @@ PKG_HAVE([libavcodec], [libavcodec], check)
 # It only takes the last from the list, assuming that this is the latest 
 # version.
 if [[ x$libavcodec_HAVE = xno -a x$FPC_PLATFORM = xdarwin ]]; then
-    PKG_CONFIG_PATH=`find $FPCDIR/lib/ffmpeg* -name libavcodec.pc | tail -n 1 | xargs dirname`:$PKG_CONFIG_PATH export PKG_CONFIG_PATH
+    if [[ x$enable_osx_fink != x ]]; then
+        PKG_CONFIG_PATH=`find /sw/lib -name libavcodec.pc | tail -n 1 | xargs dirname`:$PKG_CONFIG_PATH
+    elif [[ x$enable_osx_brew != x ]]; then
+        PKG_CONFIG_PATH=`find /usr/local/opt/ffmpeg*/lib /usr/local/lib -name libavcodec.pc | tail -n 1 | xargs dirname`:$PKG_CONFIG_PATH
+    else
+        PKG_CONFIG_PATH=`find $FPCDIR/lib/ffmpeg* -name libavcodec.pc | tail -n 1 | xargs dirname`:$PKG_CONFIG_PATH
+    fi
+    export PKG_CONFIG_PATH
     PKG_HAVE([libavcodec], [libavcodec], yes)
 fi
 PKG_VERSION([libavcodec], [libavcodec])
@@ -274,6 +274,59 @@ PKG_HAVE([libswresample], [libswresample], no)
 PKG_VERSION([libswresample], [libswresample])
 AC_SUBST_DEFINE(HAVE_SWRESAMPLE, $libswresample_HAVE)
 
+# map avutil library version to ffmpeg version
+AC_MSG_CHECKING([version of ffmpeg])
+if   FFMPEG_LIBS_COMPATIBLE([55078100], [57107100], [57083100], [4008100], [2009100]); then
+    FFMPEG_VERSION="3.4"
+elif FFMPEG_LIBS_COMPATIBLE([55034100], [57064100,57093100], [57056100], [4002100], [2003100]); then
+    FFMPEG_VERSION="3.2" # and 3.3
+elif FFMPEG_LIBS_COMPATIBLE([55027100,55028100], [57048101], [57040101], [4001100], [2001100]); then
+    FFMPEG_VERSION="3.1"
+elif FFMPEG_LIBS_COMPATIBLE([55017103,55018100], [57024102,57037100], [57025100], [4000100], [2000101]); then
+    FFMPEG_VERSION="3.0"
+elif FFMPEG_LIBS_COMPATIBLE([54030100], [56060100], [56040101], [3001101], [1002101]); then
+    FFMPEG_VERSION="2.8"
+elif test $libavutil_VERSION_INT -le 54030100 -a $libavutil_VERSION_INT -ge 54027100; then
+    FFMPEG_VERSION="2.7"
+elif test $libavutil_VERSION_INT -eq 54020100; then
+    FFMPEG_VERSION="2.6"
+elif test $libavutil_VERSION_INT -eq 54015100; then
+    FFMPEG_VERSION="2.5"
+elif test $libavutil_VERSION_INT -eq 54007100; then
+    FFMPEG_VERSION="2.4"
+elif test $libavutil_VERSION_INT -eq 52066100; then
+    FFMPEG_VERSION="2.2"
+elif test $libavutil_VERSION_INT -le 52048101 -a $libavutil_VERSION_INT -ge 52048100; then
+    FFMPEG_VERSION="2.1"
+elif test $libavutil_VERSION_INT -le 52038100 -a $libavutil_VERSION_INT -ge 52038000; then
+    FFMPEG_VERSION="2.0"
+elif test $libavutil_VERSION_INT -le 52018100 -a $libavutil_VERSION_INT -ge 52018000; then
+    FFMPEG_VERSION="1.2"
+elif test $libavutil_VERSION_INT -le 52013100 -a $libavutil_VERSION_INT -ge 52013000; then
+    FFMPEG_VERSION="1.1"
+elif test $libavutil_VERSION_INT -le 51073101 -a $libavutil_VERSION_INT -ge 51073000; then
+    FFMPEG_VERSION="1.0"
+elif test $libavutil_VERSION_INT -le 51054100 -a $libavutil_VERSION_INT -ge 51054000; then
+    FFMPEG_VERSION="0.11"
+elif test $libavutil_VERSION_INT -le 51035100 -a $libavutil_VERSION_INT -ge 51034101; then
+    FFMPEG_VERSION="0.10"
+elif test $libavutil_VERSION_INT -eq 51032000; then
+    FFMPEG_VERSION="0.9"
+elif test $libavutil_VERSION_INT -le 51022002 -a $libavutil_VERSION_INT -ge 51009001; then
+    FFMPEG_VERSION="0.8"
+elif test $libavutil_VERSION_INT -eq 50043000; then
+    FFMPEG_VERSION="0.7"
+elif test $libavutil_VERSION_INT -le 50024000 -a $libavutil_VERSION_INT -ge 49000001; then
+    FFMPEG_VERSION="0"
+else
+    AC_MSG_ERROR([
+
+Unsupported ffmpeg version, most recent version supported is 3.3.
+])
+fi
+AX_EXTRACT_VERSION(FFMPEG, $FFMPEG_VERSION)
+AC_SUBST(FFMPEG_VERSION)
+AC_MSG_RESULT(@<:@$FFMPEG_VERSION@:>@)
 
 # find projectM version
 libprojectM_PKG="libprojectM >= 0.98"
@@ -289,6 +342,20 @@ PKG_VALUE([libprojectM], [DATADIR], [variable=pkgdatadir], [$libprojectM_PKG],
 # check if we need the c-wrapper
 if [[ "$libprojectM_VERSION_MAJOR" -ge 1 ]]; then
     libprojectM_USE_CWRAPPER=yes
+    AC_MSG_NOTICE([Need C++ compiler to build libprojectM wrapper])
+    AC_PROG_CXX
+    AC_LANG_PUSH([C++])
+    AC_MSG_CHECKING([if C++ toolchain works])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],[])],,[AC_MSG_FAILURE([C++ compiler does not work])])
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],,[AC_MSG_FAILURE([linking C++ programs does not work])])
+    AC_MSG_RESULT([yes])
+    # Hack to link to libstdc++ through libprojectM where needed
+    # Of course only works if libprojectM is a shared library
+    # --no-copy-dt-needed-entries is the default since Binutils 2.22
+    if test x$ac_cv_prog_ppc_copy_dt_needed_entries = xyes ; then
+        PFLAGS_EXTRA="$PFLAGS_EXTRA -k\"--copy-dt-needed-entries\""
+    fi
+    AC_LANG_POP([C++])
 else
     libprojectM_USE_CWRAPPER=no
 fi
@@ -298,29 +365,6 @@ AC_SUBST(USE_PROJECTM_CWRAPPER, $libprojectM_USE_CWRAPPER)
 PKG_HAVE([portaudio], [portaudio-2.0], yes)
 PKG_VERSION([portaudio], [portaudio-2.0])
 AC_SUBST_DEFINE(HAVE_PORTAUDIO, $portaudio_HAVE)
-
-# find pcre
-libpcre_PKG="libpcre"
-PKG_HAVE([libpcre], [$libpcre_PKG], no)
-PKG_VERSION([libpcre], [$libpcre_PKG])
-AC_SUBST_DEFINE(HAVE_LIBPCRE, $libpcre_HAVE)
-# get libpcre library dir
-PKG_VALUE([libpcre], [LIBDIR], [variable=libdir], [$libpcre_PKG], 
-          [library dir (e.g. /usr/lib, /sw/lib, ...)])
-# we need the soname of the pcre library
-if test x"$libpcre_HAVE" = xyes; then
-    old_LIBS="$LIBS"
-    LIBS="-lpcre"
-    OBJDUMP="objdump"
-    if test x$FPC_PLATFORM = xdarwin; then
-        OBJDUMP="gobjdump"
-    fi
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],
-                   [libpcre_LIBNAME=`$OBJDUMP -p "conftest$EXEEXT" | grep pcre | awk '{print $2}'` dnl '
-                    AC_SUBST([libpcre_LIBNAME],[$libpcre_LIBNAME])],
-                   [AC_MSG_ERROR([failed to link])])
-    LIBS="$old_LIBS"
-fi
 
 # find portmixer
 PKG_HAVE([portmixer], [portmixer], no)

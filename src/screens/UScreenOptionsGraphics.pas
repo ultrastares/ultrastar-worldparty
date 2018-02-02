@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -25,9 +25,7 @@ unit UScreenOptionsGraphics;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
@@ -82,13 +80,13 @@ begin
           Exit;
         end;
     end;
-    
+
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
       SDLK_BACKSPACE :
         begin
-          Ini.Save;
+          UIni.Ini.Save;
           AudioPlayback.PlaySound(SoundLib.Back);
           FadeTo(@ScreenOptions);
         end;
@@ -96,10 +94,10 @@ begin
         begin
           if SelInteraction = 6 then
           begin
-            Ini.Save;
+            UIni.Ini.Save;
             AudioPlayback.PlaySound(SoundLib.Back);
 
-            if OldWindowMode <> Ini.FullScreen then UGraphic.UpdateVideoMode()
+            if OldWindowMode <> UIni.Ini.FullScreen then UGraphic.UpdateVideoMode()
             else UGraphic.UpdateResolution();
 
             FadeTo(@ScreenOptions);
@@ -111,7 +109,7 @@ begin
         InteractPrev;
       SDLK_RIGHT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction < 6) then
+          if (SelInteraction >= 0) and (SelInteraction < 7) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractInc;
@@ -125,7 +123,7 @@ begin
         end;
       SDLK_LEFT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction < 6) then
+          if (SelInteraction >= 0) and (SelInteraction < 7) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractDec;
@@ -151,83 +149,79 @@ begin
 
   Theme.OptionsGraphics.SelectFullscreen.showArrows := true;
   Theme.OptionsGraphics.SelectFullscreen.oneItemOnly := true;
-  SelectWindowMode := AddSelectSlide(Theme.OptionsGraphics.SelectFullscreen,   Ini.Fullscreen, IFullScreenTranslated);
+  SelectWindowMode := AddSelectSlide(Theme.OptionsGraphics.SelectFullscreen, UIni.Ini.Fullscreen, UIni.IFullScreen, 'OPTION_VALUE_');
 
   Theme.OptionsGraphics.SelectResolution.showArrows := true;
   Theme.OptionsGraphics.SelectResolution.oneItemOnly := true;
-  SelectResolution := AddSelectSlide(Theme.OptionsGraphics.SelectResolution,   Ini.Resolution, IResolution);
+  SelectResolution := AddSelectSlide(Theme.OptionsGraphics.SelectResolution, UIni.Ini.Resolution, UIni.IResolution);
 
-  Theme.OptionsGraphics.SelectDepth.showArrows := true;
-  Theme.OptionsGraphics.SelectDepth.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGraphics.SelectDepth,        Ini.Depth, IDepth);
+  //SelectLoadAnimation Hidden because it is useless atm
+  //AddSelect(Theme.OptionsGraphics.SelectLoadAnimation, UIni.Ini.LoadAnimation, UIni.Ini.ILoadAnimation);
+  Theme.OptionsGraphics.SelectScreenFade.showArrows := true;
+  Theme.OptionsGraphics.SelectScreenFade.oneItemOnly := true;
+  AddSelectSlide(Theme.OptionsGraphics.SelectScreenFade, UIni.Ini.ScreenFade, UIni.IScreenFade, 'OPTION_VALUE_');
+
+  Theme.OptionsGraphics.SelectEffectSing.showArrows := true;
+  Theme.OptionsGraphics.SelectEffectSing.oneItemOnly := true;
+  AddSelectSlide(Theme.OptionsGraphics.SelectEffectSing, UIni.Ini.EffectSing, UIni.IEffectSing, 'OPTION_VALUE_');
 
   Theme.OptionsGraphics.SelectVisualizer.showArrows := true;
   Theme.OptionsGraphics.SelectVisualizer.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGraphics.SelectVisualizer,   Ini.VisualizerOption, IVisualizerTranslated);
-
-  Theme.OptionsGraphics.SelectOscilloscope.showArrows := true;
-  Theme.OptionsGraphics.SelectOscilloscope.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGraphics.SelectOscilloscope, Ini.Oscilloscope, IOscilloscopeTranslated);
+  AddSelectSlide(Theme.OptionsGraphics.SelectVisualizer, UIni.Ini.VisualizerOption, UIni.IVisualizer, 'OPTION_VALUE_');
 
   Theme.OptionsGraphics.SelectMovieSize.showArrows := true;
   Theme.OptionsGraphics.SelectMovieSize.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGraphics.SelectMovieSize,    Ini.MovieSize, IMovieSizeTranslated);
+  AddSelectSlide(Theme.OptionsGraphics.SelectMovieSize, UIni.Ini.MovieSize, ['HALF', 'FULL_VID', 'FULL_VID_BG'], 'OPTION_VALUE_');
 
   // TODO: Add apply button
   AddButton(Theme.OptionsGraphics.ButtonExit);
   if (Length(Button[0].Text)=0) then
-    AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
+    AddButtonText(20, 6, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
 
 end;
 
 procedure TScreenOptionsGraphics.OnShow;
-var
-  i: integer;
 begin
   inherited;
 
-  if CurrentWindowMode = Mode_Windowed then Ini.SetResolution(ScreenW, ScreenH);
+  if CurrentWindowMode = Mode_Windowed then
+    UIni.Ini.SetResolution(ScreenW, ScreenH);
 
   UpdateWindowMode();
   UpdateResolution();
-
   Interaction := 0;
 end;
 
 procedure TScreenOptionsGraphics.OnHide;
 begin
   inherited;
-  Ini.ClearCustomResolutions();
+  UIni.Ini.ClearCustomResolutions();
 end;
 
 procedure TScreenOptionsGraphics.OnWindowResized;
 begin
   inherited;
-
   UpdateWindowMode;
+  if CurrentWindowMode = Mode_Windowed then
+    UIni.Ini.SetResolution(ScreenW, ScreenH);
 
-  if CurrentWindowMode = Mode_Windowed then Ini.SetResolution(ScreenW, ScreenH);
   UpdateResolution;
-
 end;
 
 procedure TScreenOptionsGraphics.UpdateWindowMode;
 begin
-
-  UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectFullscreen, SelectWindowMode, IFullScreenTranslated, Ini.FullScreen);
-  OldWindowMode := integer(Ini.FullScreen);
+  UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectFullscreen, SelectWindowMode, UIni.IFullScreen, UIni.Ini.FullScreen, 'OPTION_VALUE_');
+  OldWindowMode := integer(UIni.Ini.FullScreen);
 end;
 
 procedure TScreenOptionsGraphics.UpdateResolution;
 begin
-
-  if Ini.Fullscreen = 2 then
+  if UIni.Ini.Fullscreen = 2 then
     UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectResolution, SelectResolution, IResolutionEmpty, ResolutionEmpty)
-  else if Ini.Fullscreen = 1 then
-    UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectResolution, SelectResolution, IResolutionFullScreen, Ini.ResolutionFullscreen)
+  else if UIni.Ini.Fullscreen = 1 then
+    UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectResolution, SelectResolution, UIni.IResolutionFullScreen, UIni.Ini.ResolutionFullscreen)
   else
-    UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectResolution, SelectResolution, IResolution, Ini.Resolution);
-
+    UpdateSelectSlideOptions(Theme.OptionsGraphics.SelectResolution, SelectResolution, UIni.IResolution, UIni.Ini.Resolution);
 end;
 
 end.

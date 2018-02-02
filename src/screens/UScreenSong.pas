@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -109,6 +109,9 @@ type
       DuetIcon:     cardinal;
       DuetChange:   boolean;
 
+      //Rap Icon
+      RapIcon:     cardinal;
+
       TextCat:   integer;
       StaticCat: integer;
 
@@ -176,6 +179,7 @@ type
       ListMedleyIcon:     array of integer;
       ListCalcMedleyIcon: array of integer;
       ListDuetIcon:       array of integer;
+	  ListRapIcon:        array of integer;
 
       PlayMidi: boolean;
       MidiFadeIn: boolean;
@@ -281,14 +285,12 @@ type
 
       //procedures for Menu
       procedure StartSong;
-      procedure OpenEditor;
       procedure DoJoker(Team: integer);
       procedure SelectPlayers;
 
       procedure OnSongSelect;   // called when song flows movement stops at a song
       procedure OnSongDeSelect; // called before current song is deselected
 
-      procedure UnloadCover(NumberOfButtonInArray: integer);
       procedure LoadCover(NumberOfButtonInArray: integer);
 
       procedure SongScore;
@@ -633,7 +635,7 @@ begin
         // chessboard change row
         SelectPrevRow;
         SetScrollRefresh;
-		
+
       end;
     end;
   end;
@@ -902,12 +904,6 @@ begin
           Exit;
         end;
 
-      Ord('E'):
-        begin
-          OpenEditor;
-          Exit;
-        end;
-
       Ord('S'):
         begin
           if not (SDL_ModState = KMOD_LSHIFT) and (CatSongs.Song[Interaction].Medley.Source>=msTag)
@@ -931,6 +927,7 @@ begin
 
       Ord('R'):
         begin
+			Randomize;
           if (Songs.SongList.Count > 0) and
              (FreeListMode) then
           begin
@@ -1595,7 +1592,7 @@ constructor TScreenSong.Create;
 var
   I, Num, Padding: integer;
   TextArtistY, TextTitleY, TextYearY, StaticMedCY,
-  StaticMedMY, StaticVideoY, StaticDuetY: integer;
+  StaticMedMY, StaticVideoY, StaticDuetY, StaticRapY: integer;
   StaticY: real;
 begin
   inherited Create;
@@ -1620,6 +1617,9 @@ begin
 
   //Duet Icon
   DuetIcon := AddStatic(Theme.Song.DuetIcon);
+
+  //Rap Icon
+  RapIcon := AddStatic(Theme.Song.RapIcon);
 
   //Show Scores
   TextScore       := AddText(Theme.Song.TextScore);
@@ -1669,15 +1669,6 @@ begin
     TextNonParty[i] := AddText(Theme.Song.TextNonParty[i]);
 
   //TextPartyTime := AddText(Theme.Song.TextPartyTime);
-
-  // Song List
-  //Songs.LoadSongList; // moved to the UltraStar unit
-
-  if (TSortingType(Ini.Sorting) <> sPlaylist) then
-  begin
-    CatSongs.Refresh;
-    GenerateThumbnails();
-  end;
 
   // Randomize Patch
   Randomize;
@@ -1763,6 +1754,7 @@ begin
   SetLength(ListMedleyIcon, Num);
   SetLength(ListCalcMedleyIcon, Num);
   SetLength(ListDuetIcon, Num);
+  SetLength(ListRapIcon, Num);
 
   TextArtistY := Theme.Song.TextArtist.Y;
   TextTitleY := Theme.Song.TextTitle.Y;
@@ -1772,6 +1764,7 @@ begin
   StaticMedMY := Theme.Song.MedleyIcon.Y;
   StaticMedCY := Theme.Song.CalculatedMedleyIcon.Y;
   StaticDuetY := Theme.Song.DuetIcon.Y;
+  StaticRapY := Theme.Song.RapIcon.Y;
 
   for I := 0 to Num - 1 do
   begin
@@ -1798,6 +1791,9 @@ begin
 
     Theme.Song.DuetIcon.Y  := StaticDuetY + Padding;
     ListDuetIcon[I] := AddStatic(Theme.Song.DuetIcon);
+
+    Theme.Song.RapIcon.Y  := StaticRapY + Padding;
+    ListRapIcon[I] := AddStatic(Theme.Song.RapIcon);
   end;
 
   MainChessboardMinLine := 0;
@@ -1967,9 +1963,6 @@ end;
 procedure TScreenSong.GenerateThumbnails();
 var
   I: integer;
-  CoverButtonIndex: integer;
-  CoverButton: TButton;
-  Cover: TCover;
   CoverFile: IPath;
   Song: TSong;
 begin
@@ -1981,70 +1974,7 @@ begin
 
   // create all buttons
   for I := 0 to High(CatSongs.Song) do
-  begin
-    CoverButton := nil;
-
-    // create a clickable cover
-    CoverButtonIndex := AddButton(300 + I*250, 140, 200, 200, PATH_NONE, TEXTURE_TYPE_PLAIN, Theme.Song.Cover.Reflections);
-    if (CoverButtonIndex > -1) then
-      CoverButton := Button[CoverButtonIndex];
-    if (CoverButton = nil) then
-      Continue;
-
-    Song := CatSongs.Song[I];
-
-    CoverFile := Song.Path.Append(Song.Cover);
-    if (not CoverFile.IsFile()) then
-      Song.Cover := PATH_NONE;
-
-    if (Song.Cover.IsUnset) then
-      CoverFile := Skin.GetTextureFileName('SongCover');
-
-    // load cover and cache its texture
-    Cover := Covers.FindCover(CoverFile);
-    if (Cover = nil) then
-      Cover := Covers.AddCover(CoverFile);
-
-    // use the cached texture
-    // TODO: this is a workaround until the new song-loading works.
-    // The TCover object should be added to the song-object. The thumbnails
-    // should be loaded each time the song-screen is shown (it is real fast).
-    // This way, we will not waste that much memory and have a link between
-    // song and cover.
-
-    if (Cover <> nil) then
-    begin
-      //Texture.AddTexture(CoverTexture, TEXTURE_TYPE_PLAIN, false);
-      CoverButton.Texture := Cover.GetEmptyTexture();
-      Song.CoverTex := CoverButton.Texture;  //basisbit ToDo 11.11.2015
-      glDeleteTextures(1, @CoverButton.Texture.TexNum);
-      CoverButton.Texture.TexNum := 0;
-      // set selected to false -> the right texture will be displayed
-      CoverButton.Selected := False;
-    end
-    else
-    begin
-      Song.Cover := PATH_NONE;
-      if (Song.Cover.IsUnset) then
-      CoverFile := Skin.GetTextureFileName('SongCover');
-      Log.LogInfo(CoverFile.ToNative(), 'Test');
-      // load cover and cache its texture
-      Cover := Covers.FindCover(CoverFile);
-      if (Cover = nil) then
-        Cover := Covers.AddCover(CoverFile);
-      if (Cover <> nil) then
-      begin
-        //Texture.AddTexture(CoverTexture, TEXTURE_TYPE_PLAIN, false);
-        CoverButton.Texture := Cover.GetPreviewTexture();
-        Song.CoverTex := CoverButton.Texture;  //basisbit ToDo 11.11.2015
-        glDeleteTextures(1, @CoverButton.Texture.TexNum);
-        CoverButton.Texture.TexNum := 0;
-        // set selected to false -> the right texture will be displayed
-        CoverButton.Selected := False;
-      end
-    end;
-    Cover.Free;
-  end;
+    AddButton(300 + I*250, 140, 200, 200, PATH_NONE, TEXTURE_TYPE_PLAIN, Theme.Song.Cover.Reflections);
 
   // reset selection
   if (Length(CatSongs.Song) > 0) then
@@ -2074,8 +2004,6 @@ begin
   DuetChange := false;
 
   CoverTime := 10;
-  //UnloadCover(Interaction);
-
   StopMusicPreview();
   StopVideoPreview();
   PreviewOpened := -1;
@@ -2105,7 +2033,7 @@ end;
 
 procedure TScreenSong.SetScroll;
 var
-  VS, B: integer;
+  VS, B, SongsInCat: integer;
 begin
   VS := CatSongs.VisibleSongs;
   if VS > 0 then
@@ -2132,6 +2060,10 @@ begin
 
       //Set Visibility of Duet Icon
       Statics[DuetIcon].Visible := CatSongs.Song[Interaction].isDuet;
+
+      //Set Visibility of Rap Icon
+      Statics[RapIcon].Visible := CatSongs.Song[Interaction].hasRap;
+
 
       // Set texts
       Text[TextArtist].Text := CatSongs.Song[Interaction].Artist;
@@ -2275,7 +2207,11 @@ begin
     if (Ini.TabsAtStartup = 1) and (CatSongs.CatNumShow = -1) then
     begin
       Text[TextNumber].Text := IntToStr(CatSongs.Song[Interaction].OrderNum) + '/' + IntToStr(CatSongs.CatCount);
-      Text[TextTitle].Text  := '(' + IntToStr(CatSongs.Song[Interaction].CatNumber) + ' ' + Language.Translate('SING_SONGS_IN_CAT') + ')';
+      SongsInCat := CatSongs.Song[Interaction].CatNumber;
+      if (SongsInCat = 1) then
+        Text[TextTitle].Text  := '(' + IntToStr(CatSongs.Song[Interaction].CatNumber) + ' ' + Language.Translate('SING_SONG_IN_CAT') + ')'
+      else
+        Text[TextTitle].Text  := '(' + IntToStr(CatSongs.Song[Interaction].CatNumber) + ' ' + Language.Translate('SING_SONGS_IN_CAT') + ')';
     end
     else if (CatSongs.CatNumShow = -2) then
       Text[TextNumber].Text := IntToStr(CatSongs.VisibleIndex(Interaction)+1) + '/' + IntToStr(VS)
@@ -2399,7 +2335,6 @@ begin
       else
       begin
         Button[B].Visible := false;
-        UnLoadCover(B);
       end;
     end;
   end;
@@ -2580,7 +2515,6 @@ begin
       begin
         Button[B].Visible := false;
         Button[B].Z := 0;
-        UnLoadCover(B);
       end;
 
       Count := Count + 1;
@@ -2589,7 +2523,6 @@ begin
     begin
       Button[B].Visible := false;
       Button[B].Z := 0;
-      UnLoadCover(B);
     end;
 
     Index := Index + 1;
@@ -2638,7 +2571,6 @@ begin
 
       if (Button[B].X < -Theme.Song.Cover.W) or (Button[B].X > 800) then
       begin
-        UnloadCover(B);
         Button[B].Visible := false;
       end
       else
@@ -2713,7 +2645,6 @@ begin
       else
       begin
         Button[B].Visible := false;
-        UnloadCover(B);
       end;
      end;
   end;
@@ -2749,11 +2680,7 @@ begin
       else
         Button[B].X := Theme.Song.Cover.X + (Count - SongCurrent) * Theme.Song.Cover.W - (Count - SongCurrent) * (Theme.Song.Cover.W * Scale - Theme.Song.Cover.Padding);
 
-      if (Button[B].X < -Theme.Song.Cover.W) or (Button[B].X > 800) then
-      begin
-        UnloadCover(B);
-      end
-      else
+      if not (Button[B].X < -Theme.Song.Cover.W) or (Button[B].X > 800) then
         LoadCover(B);
 
       if (B <= Interaction) then
@@ -2871,14 +2798,12 @@ begin
         else
         begin
           Button[B].Visible := false;
-          UnloadCover(B);
         end;
       end
       else
       begin
         Line := Line + 1;
         Button[B].Visible := false;
-        UnloadCover(B);
       end;
     end;
   end;
@@ -2917,6 +2842,7 @@ begin
     Statics[ListMedleyIcon[I]].Visible := false;
     Statics[ListCalcMedleyIcon[I]].Visible := false;
     Statics[ListDuetIcon[I]].Visible := false;
+	Statics[ListRapIcon[I]].Visible := false;
 
     //reset
     StaticsList[I].Texture.TexNum := StaticsList[I].TextureDeSelect.TexNum;
@@ -2984,6 +2910,10 @@ begin
     Statics[ListDuetIcon[I]].Texture.Alpha := Alpha;
     Statics[ListDuetIcon[I]].Visible := CatSongs.Song[SongID[I]].isDuet;
 
+   //Set Visibility of Rap Icon
+    Statics[ListRapIcon[I]].Texture.Alpha := Alpha;
+    Statics[ListRapIcon[I]].Visible := CatSongs.Song[SongID[I]].hasRap;
+
     // Set texts
     Text[ListTextArtist[I]].Alpha := Alpha;
     Text[ListTextArtist[I]].Text := CatSongs.Song[SongID[I]].Artist;
@@ -3042,6 +2972,7 @@ begin
       Statics[ListMedleyIcon[I]].Visible := false;
       Statics[ListCalcMedleyIcon[I]].Visible := false;
       Statics[ListDuetIcon[I]].Visible := false;
+	  Statics[ListRapIcon[I]].Visible := false;
     end;
 
     Text[TextArtist].Visible := true;
@@ -3051,6 +2982,7 @@ begin
     Statics[MedleyIcon].Visible := true;
     Statics[CalcMedleyIcon].Visible := true;
     Statics[DuetIcon].Visible := true;
+	Statics[RapIcon].Visible := true;
   end
   else
   begin
@@ -3065,6 +2997,7 @@ begin
       Statics[ListMedleyIcon[I]].Visible := true;
       Statics[ListCalcMedleyIcon[I]].Visible := true;
       Statics[ListDuetIcon[I]].Visible := true;
+	  Statics[ListRapIcon[I]].Visible := true;
     end;
 
     Text[TextArtist].Visible := false;
@@ -3074,6 +3007,7 @@ begin
     Statics[MedleyIcon].Visible := false;
     Statics[CalcMedleyIcon].Visible := false;
     Statics[DuetIcon].Visible := false;
+	Statics[RapIcon].Visible := false;
   end;
 
   // for duet names
@@ -3518,7 +3452,7 @@ begin
 
     if not ((TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic]) and (PrevInt > Interaction)) then
       Interaction := PrevInt;
-    
+
     if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic]) then
     begin
       if (not Button[Interaction].Visible) then
@@ -3691,7 +3625,7 @@ begin
     PreviewOpened := Interaction;
 
     // preview start is either calculated (by finding the chorus) or pre-set, use it
-    if ((Song.PreviewStart > 0.0) or Song.HasPreview) and InRange(Song.PreviewStart, 0.0, AudioPlayback.Length) then
+    if (Song.PreviewStart > 0.0) and InRange(Song.PreviewStart, 0.0, AudioPlayback.Length) then
       PreviewPos := Song.PreviewStart
     else
     begin // otherwise, fallback to simple preview calculation
@@ -3701,7 +3635,7 @@ begin
     end;
 
     AudioPlayback.Position := PreviewPos;
-  
+
     // set preview volume
     if Ini.PreviewFading = 0 then
     begin
@@ -4148,19 +4082,6 @@ begin
   FadeTo(@ScreenName);
 end;
 
-procedure TScreenSong.OpenEditor;
-begin
-  if (Songs.SongList.Count > 0) and
-     (not CatSongs.Song[Interaction].Main) and
-     (Mode = smNormal) then
-  begin
-    StopMusicPreview();
-    AudioPlayback.PlaySound(SoundLib.Start);
-    CurrentSong := CatSongs.Song[Interaction];
-    FadeTo(@ScreenEditSub);
-  end;
-end;
-
 //Team No of Team (0-5)
 procedure TScreenSong.DoJoker (Team: integer);
 begin
@@ -4175,27 +4096,20 @@ begin
   end;
 end;
 
-//Detailed Cover Unloading. Unloads the Detailed, uncached Cover of the Song Button
-procedure TScreenSong.UnloadCover(NumberOfButtonInArray: integer);
-begin
-  // background texture (garbage disposal)
-  if (not (Button[NumberOfButtonInArray].Texture.TexNum = 0)) and (Button[NumberOfButtonInArray].Texture.Name <> Skin.GetTextureFileName('SongCover')) then
-  begin
-    Texture.UnloadTexture(Button[NumberOfButtonInArray].Texture.Name, TEXTURE_TYPE_PLAIN, false);
-    glDeleteTextures(1, PGLuint(@Button[NumberOfButtonInArray].Texture.TexNum));
-    Button[NumberOfButtonInArray].Texture.TexNum := 0;
-  end;
-end;
-
-//Detailled Cover Loading. Loads the Detailled, uncached Cover of the Song Button
 procedure TScreenSong.LoadCover(NumberOfButtonInArray: integer);
 var
   deb1: string;
+  CoverFile: IPath;
+  Song: TSong;
 begin
-  If (Button[NumberOfButtonInArray].Texture.TexNum = 0) and Assigned(Button[NumberOfButtonInArray].Texture.Name) then
+  if not Assigned(Button[NumberOfButtonInArray].Texture.Name) then
   begin
-    deb1:=Button[NumberOfButtonInArray].Texture.Name.ToWide();
-    Button[NumberOfButtonInArray].Texture := Covers.FindCover(Button[NumberOfButtonInArray].Texture.Name).GetTexture();
+    Song := CatSongs.Song[NumberOfButtonInArray];
+    CoverFile := Song.Path.Append(Song.Cover);
+    if not CoverFile.IsFile() or Song.Cover.IsUnset then
+      CoverFile := Skin.GetTextureFileName('SongCover');
+
+    Button[NumberOfButtonInArray].Texture := Covers.AddCover(CoverFile).GetTexture();
   end;
 end;
 

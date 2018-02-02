@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -25,9 +25,7 @@ unit UScreenOptionsThemes;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
@@ -63,7 +61,7 @@ type
 
 implementation
 
-uses 
+uses
   SysUtils,
   UGraphic,
   UMain,
@@ -203,7 +201,7 @@ begin
 
   Theme.OptionsThemes.SelectColor.showArrows := true;
   Theme.OptionsThemes.SelectColor.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsThemes.SelectColor, Ini.Color, IColorTranslated);
+  AddSelectSlide(Theme.OptionsThemes.SelectColor, UIni.Ini.Color, UIni.IColor, 'OPTION_VALUE_');
 
   AddButton(Theme.OptionsThemes.ButtonExit);
   if (Length(Button[0].Text)=0) then
@@ -251,7 +249,7 @@ begin
     (ActualColor <> Ini.Color) then
   begin
     UGraphic.UnLoadScreens();
-    UGraphic.LoadScreens(USDXVersionStr);
+    UGraphic.LoadScreens();
     Ini.Load;
   end;
 end;
