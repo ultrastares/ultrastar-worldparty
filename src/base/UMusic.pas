@@ -592,7 +592,7 @@ const
 
   BaseSoundFilenames: array[0..LAST_SOUNDID] of IPath = (
     '%SOUNDPATH%/forward sound.mp3',                 // Start
-    '%SOUNDPATH%/back sound.mp3', 	                 // Back
+    '%SOUNDPATH%/back sound.mp3', 	             // Back
     '%SOUNDPATH%/option sound col.mp3',	             // Option
 
   );
@@ -980,7 +980,7 @@ procedure TSoundLibrary.LoadSounds();
 begin
   UnloadSounds();
 
-  Start   := AudioPlayback.OpenSound(SoundPath.Append('forward sound start.mp3'));
+  Start   := AudioPlayback.OpenSound(SoundPath.Append('forward sound.mp3'));
   Back    := AudioPlayback.OpenSound(SoundPath.Append('back sound.mp3'));
   Option  := AudioPlayback.OpenSound(SoundPath.Append('option sound.mp3'));
   BGMusic := AudioPlayback.OpenSound(SoundPath.Append('background track.mp3'));
