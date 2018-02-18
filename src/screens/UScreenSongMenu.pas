@@ -170,7 +170,6 @@ begin
           end
           else
           begin
-            AudioPlayback.PlaySound(SoundLib.Change);
             ScreenSong.SelectNext;
             ScreenSong.SetScrollRefresh;
           end;
@@ -185,7 +184,6 @@ begin
           end
           else
           begin
-            AudioPlayback.PlaySound(SoundLib.Change);
             ScreenSong.SelectPrev;
             ScreenSong.SetScrollRefresh;
           end;

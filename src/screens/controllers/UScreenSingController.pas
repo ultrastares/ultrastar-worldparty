@@ -1189,8 +1189,6 @@ begin
   // FIXME: sets path and filename to ''
   ResetSingTemp;
 
-  PlaylistMedley.ApplausePlayed := false;
-
   if ScreenSong.Mode = smMedley then
   begin
     if length(PlaylistMedley.Song) >= PlaylistMedley.CurrentMedleySong then
@@ -1774,15 +1772,6 @@ begin
   if PlaylistMedley.CurrentMedleySong <= PlaylistMedley.NumMedleySongs then
     for I := 0 to num - 1 do
       PlaylistMedley.Stats[len - 1].Player[I] := Player[I];
-
-  if medley_end and not PlaylistMedley.ApplausePlayed and
-    (PlaylistMedley.CurrentMedleySong<=PlaylistMedley.NumMedleySongs) then
-  begin
-    PlaylistMedley.ApplausePlayed:=true;
-
-    AudioPlayback.Fade(CurrentSong.Medley.FadeOut_time, 0.1);
-    AudioPlayback.PlaySound(SoundLib.Applause);
-  end;
 end;
 
 

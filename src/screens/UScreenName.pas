@@ -425,7 +425,6 @@ begin
 
       SDLK_RIGHT:
         begin
-          AudioPlayback.PlaySound(SoundLib.Change);
 
           if (Interaction in [0, 4, 5]) then
             InteractInc;
@@ -468,7 +467,6 @@ begin
         end;
       SDLK_LEFT:
         begin
-          AudioPlayback.PlaySound(SoundLib.Change);
 
           if (Interaction in [0, 4, 5]) then
             InteractDec;
