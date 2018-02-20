@@ -24,9 +24,7 @@ unit USongs;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE OBJFPC}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
@@ -174,7 +172,7 @@ begin
   for CurrentFolder := 0 to TotalFolder do
   begin
     Folder := IPath(UPathUtils.SongPaths[CurrentFolder]).ToNative();
-    FolderText := '('+IntToStr(CurrentFolder)+'/'+IntToStr(TotalFolder)+') ';
+    FolderText := IfThen(TotalFolder > 1, '('+IntToStr(CurrentFolder)+'/'+IntToStr(TotalFolder)+') ', '');
     Self.ProgressSong.Folder := FolderText+Format(ULanguage.Language.Translate('SING_LOADING_CHECK_FOLDER'), [Folder]);
     Self.ProgressSong.Current := 0;
     Self.ProgressSong.Total := 0;
