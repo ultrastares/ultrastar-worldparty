@@ -160,7 +160,7 @@ end;
 { Create a new thread to load songs and update main screen with progress }
 procedure TSongs.Execute();
 var
-  CurrentFolder, CurrentItem, TotalFolder, TotalItem: integer;
+  CurrentFolder, CurrentItem, TotalFolder: integer;
   Folder: UTF8string;
   FolderText: string;
   Song: TSong;
@@ -178,10 +178,9 @@ begin
     Self.ProgressSong.Total := 0;
 
     Txts := FileUtil.FindAllFiles(Folder, '*.txt', true);
-    TotalItem := Txts.Count-1;
     Self.ProgressSong.Folder := FolderText+Format(ULanguage.Language.Translate('SING_LOADING_LOAD_FOLDER'), [Folder])+': ';
-    Self.ProgressSong.Total := TotalItem;
-    for CurrentItem := 0 to TotalItem do
+    Self.ProgressSong.Total := Txts.Count-1;
+    for CurrentItem := 0 to Self.ProgressSong.Total do
     begin
       Self.ProgressSong.Current := CurrentItem;
       Song := TSong.Create(Path(Txts.Strings[CurrentItem]));
