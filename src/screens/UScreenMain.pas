@@ -214,10 +214,11 @@ begin
     glBegin(GL_QUADS);
     glTexCoord2f(0, 0);
     glVertex2f(x, y);
+    Text[TextProgressSongs].Text := ProgressSong.Folder; //before process songs appear a message of searching songs in folder
     if (ProgressSong.Current > 0) then
     begin
       Progress := ProgressSong.Current / ProgressSong.Total;
-      Text[TextProgressSongs].Text := ProgressSong.Folder+IntToStr(ProgressSong.Current)+'/'+IntToStr(ProgressSong.Total)+' ('+IntToStr(Trunc((ProgressSong.Current*100)/ProgressSong.Total))+'%)';
+      Text[TextProgressSongs].Text := Text[TextProgressSongs].Text+IntToStr(ProgressSong.Current)+'/'+IntToStr(ProgressSong.Total)+' ('+IntToStr(Trunc((ProgressSong.Current*100)/ProgressSong.Total))+'%)';
       glTexCoord2f((width * Progress), 0);
       glVertex2f(x + width * Progress, y);
       glTexCoord2f((width * Progress) , 1);
