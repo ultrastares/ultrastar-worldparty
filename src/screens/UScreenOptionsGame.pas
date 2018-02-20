@@ -37,8 +37,7 @@ uses
 type
   TScreenOptionsGame = class(TMenu)
     private
-      Language: integer;
-      SongMenu: integer;
+      Language, SongMenu, Sorting, Tabs: integer;
       procedure ReloadScreen();
       procedure ReloadScreens();
     protected
@@ -60,6 +59,7 @@ uses
   ULanguage,
   UMusic,
   UScreensong,
+  USongs,
   UThemes;
 
 function TScreenOptionsGame.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
@@ -150,18 +150,25 @@ end;
 procedure TScreenOptionsGame.OnShow;
 begin
   inherited;
-  Self.Language := Ini.Language;
-  Self.SongMenu := Ini.SongMenu;
+  Self.Language := UIni.Ini.Language;
+  Self.SongMenu := UIni.Ini.SongMenu;
+  Self.Sorting := UIni.Ini.Sorting;
+  Self.Tabs := UIni.Ini.Tabs;
   Interaction := 0;
 end;
 
-// Reload all screens, after Language changed
+// Reload all screens, after Language changed or screen song after songmenu, sorting or tabs changed
 procedure TScreenOptionsGame.ReloadScreens();
 begin
   UIni.Ini.Save;
-  if Self.SongMenu <> UIni.Ini.SongMenu then
+  if (Self.SongMenu <> UIni.Ini.SongMenu) or (Self.Sorting <> UIni.Ini.Sorting) or (Self.Tabs <> UIni.Ini.Tabs) then
   begin
-    UThemes.Theme.ThemeSongLoad();
+    if (Self.Sorting <> UIni.Ini.Sorting) or (Self.Tabs <> UIni.Ini.Tabs) then
+      USongs.CatSongs.Refresh();
+
+    if (Self.SongMenu <> UIni.Ini.SongMenu) then
+      UThemes.Theme.ThemeSongLoad();
+
     UGraphic.ScreenSong.Free();
     UGraphic.ScreenSong := TScreenSong.Create();
   end;

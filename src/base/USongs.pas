@@ -552,7 +552,7 @@ begin
   end;
 
   // set CatNumber of last category
-  if (Ini.TabsAtStartup = 1) and (High(Song) >= 1) then
+  if (UIni.Ini.Tabs = 1) and (High(Song) >= 1) then
   begin
     // set number of songs in previous category
     SongIndex := CatIndex - CatNumber;

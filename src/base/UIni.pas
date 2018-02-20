@@ -128,7 +128,6 @@ type
       Language:       integer;
       SongMenu:       integer;
       Tabs:           integer;
-      TabsAtStartup:  integer; //Tabs at Startup fix
       Sorting:        integer;
       ShowScores:     integer;
       ShowWebScore:   integer;
@@ -1069,7 +1068,6 @@ begin
 
   // Tabs
   Tabs := ReadArrayIndex(ITabs, IniFile, 'Game', 'Tabs', 0);
-  TabsAtStartup := Tabs;	//Tabs at Startup fix
 
   // Song Sorting
   Sorting := ReadArrayIndex(ISorting, IniFile, 'Game', 'Sorting', Ord(sTitle));

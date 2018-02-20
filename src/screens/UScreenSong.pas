@@ -521,7 +521,7 @@ begin
       if (TSongMenuMode(Ini.SongMenu) <> smChessboard) and (TSongMenuMode(Ini.SongMenu) <> smMosaic) and (TSongMenuMode(Ini.SongMenu) <> smSlotMachine) then
       begin
         //Cat Change Hack
-        if Ini.TabsAtStartup = 1 then
+        if UIni.Ini.Tabs = 1 then
         begin
 
           I := Interaction;
@@ -582,7 +582,7 @@ begin
       if (TSongMenuMode(Ini.SongMenu) <> smChessboard) and (TSongMenuMode(Ini.SongMenu) <> smMosaic) and (TSongMenuMode(Ini.SongMenu) <> smSlotMachine) then
       begin
         //Cat Change Hack
-        if Ini.TabsAtStartup = 1 then
+        if UIni.Ini.Tabs = 1 then
         begin
           I := Interaction;
           I2 := 0;
@@ -916,7 +916,7 @@ begin
           if (Songs.SongList.Count > 0) and
              (FreeListMode) then
           begin
-            if (SDL_ModState = KMOD_LSHIFT) and (Ini.TabsAtStartup = 1) then // random category
+            if (SDL_ModState = KMOD_LSHIFT) and (UIni.Ini.Tabs = 1) then // random category
             begin
               I2 := 0; // count cats
               for I := 0 to High(CatSongs.Song) do
@@ -947,7 +947,7 @@ begin
                 end;
               end;
             end
-            else if (SDL_ModState = KMOD_LCTRL) and (Ini.TabsAtStartup = 1) then // random in all categories
+            else if (SDL_ModState = KMOD_LCTRL) and (UIni.Ini.Tabs = 1) then // random in all categories
             begin
               repeat
                 I2 := Random(High(CatSongs.Song) + 1);
@@ -1025,7 +1025,7 @@ begin
             Fix := true;
 
             //On Escape goto Cat-List Hack
-            if (Ini.TabsAtStartup = 1) and (CatSongs.CatNumShow <> -1) then
+            if (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow <> -1) then
             begin
 
               //Find Category
@@ -2165,7 +2165,7 @@ begin
     //Set Song Score
     SongScore;
 
-    if (Ini.TabsAtStartup = 1) and (CatSongs.CatNumShow = -1) then
+    if (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow = -1) then
     begin
       Text[TextNumber].Text := IntToStr(CatSongs.Song[Interaction].OrderNum) + '/' + IntToStr(CatSongs.CatCount);
       SongsInCat := CatSongs.Song[Interaction].CatNumber;
@@ -2178,7 +2178,7 @@ begin
       Text[TextNumber].Text := IntToStr(CatSongs.VisibleIndex(Interaction)+1) + '/' + IntToStr(VS)
     else if (CatSongs.CatNumShow = -3) then
       Text[TextNumber].Text := IntToStr(CatSongs.VisibleIndex(Interaction)+1) + '/' + IntToStr(VS)
-    else if (Ini.TabsAtStartup = 1) then
+    else if (UIni.Ini.Tabs = 1) then
     begin
       Text[TextNumber].Text := IntToStr(CatSongs.Song[Interaction].CatNumber)+ '/' + IntToStr(VS);
       if not Interaction = 0 then Text[TextNumber].Text := Text[TextNumber].Text + '/' + IntToStr(CatSongs.Song[Interaction - CatSongs.Song[Interaction].CatNumber].CatNumber);
@@ -3007,7 +3007,7 @@ begin
   if Ini.Players  = 4 then PlayersPlay := 6;
 
   //Cat Mod etc
-  if (Ini.TabsAtStartup = 1) and (CatSongs.CatNumShow = -1) then
+  if (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow = -1) then
   begin
     CatSongs.ShowCategoryList;
 
@@ -3735,7 +3735,7 @@ begin
       smAll:  // all songs just select random song
         begin
           // when tabs are activated then use tab method
-          if (Ini.TabsAtStartup = 1) then
+          if (UIni.Ini.Tabs = 1) then
           begin
             repeat
               I2 := Low(CatSongs.Song) + Random(High(CatSongs.Song) + 1 - Low(CatSongs.Song));
@@ -4352,7 +4352,7 @@ var
   I, Count:      integer;
 begin
   Ini.Sorting := Sorting;
-  Ini.TabsAtStartup := Tabs;
+  UIni.Ini.Tabs := Tabs;
 
   //ClearButtons();
   CatSongs.Refresh;

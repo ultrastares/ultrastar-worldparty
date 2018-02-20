@@ -729,7 +729,7 @@ begin
 
         UpdateJukeboxButtons();
 
-        Button[0].Visible := (Ini.TabsAtStartup = 1);
+        Button[0].Visible := (UIni.Ini.Tabs = 1);
         Button[3].Visible := false;
         Button[4].Visible := true;
 
@@ -742,7 +742,7 @@ begin
 
         Button[4].Text[0].Text := Language.Translate('SONG_MENU_START_JUKEBOX');
 
-        if (Ini.TabsAtStartup = 1) then
+        if (UIni.Ini.Tabs = 1) then
           Interaction := 0
         else
           Interaction := 1;
