@@ -253,7 +253,6 @@ type
       procedure FadeMessage();
       procedure CloseMessage();
 
-      procedure GenerateThumbnails();
       procedure OnShow; override;
       procedure OnShowFinish; override;
       procedure OnHide; override;
@@ -1943,27 +1942,6 @@ begin
   end;
 end;
 
-procedure TScreenSong.GenerateThumbnails();
-var
-  I: integer;
-  CoverFile: IPath;
-  Song: TSong;
-begin
-  if (Length(CatSongs.Song) <= 0) then
-    Exit;
-
-  // set length of button array once instead for every song
-  SetButtonLength(Length(CatSongs.Song));
-
-  // create all buttons
-  for I := 0 to High(CatSongs.Song) do
-    AddButton(300 + I*250, 140, 200, 200, PATH_NONE, TEXTURE_TYPE_PLAIN, Theme.Song.Cover.Reflections);
-
-  // reset selection
-  if (Length(CatSongs.Song) > 0) then
-    Interaction := 0;
-end;
-
 { called when song flows movement stops at a song }
 procedure TScreenSong.OnSongSelect;
 begin
@@ -2921,6 +2899,10 @@ var
   I: integer;
 begin
   inherited;
+
+  if Length(Button) = 0 then //after load songs in thread we must create all buttons songs
+    for I := 0 to High(CatSongs.Song) do
+      AddButton(300 + I*250, 140, 200, 200, PATH_NONE, TEXTURE_TYPE_PLAIN, Theme.Song.Cover.Reflections);
 
   CloseMessage();
 
@@ -4073,7 +4055,6 @@ end;
 
 procedure TScreenSong.LoadCover(NumberOfButtonInArray: integer);
 var
-  deb1: string;
   CoverFile: IPath;
   Song: TSong;
 begin
@@ -4081,7 +4062,7 @@ begin
   begin
     Song := CatSongs.Song[NumberOfButtonInArray];
     CoverFile := Song.Path.Append(Song.Cover);
-    if not CoverFile.IsFile() or Song.Cover.IsUnset then
+    if not CoverFile.IsFile() then
       CoverFile := Skin.GetTextureFileName('SongCover');
 
     Button[NumberOfButtonInArray].Texture := Covers.AddCover(CoverFile).GetTexture();

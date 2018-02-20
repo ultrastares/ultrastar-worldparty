@@ -164,7 +164,6 @@ begin
     UThemes.Theme.ThemeSongLoad();
     UGraphic.ScreenSong.Free();
     UGraphic.ScreenSong := TScreenSong.Create();
-    UGraphic.ScreenSong.GenerateThumbnails();
   end;
   if Self.Language <> UIni.Ini.Language then
   begin
@@ -172,7 +171,6 @@ begin
     UGraphic.UnLoadScreens();
     UThemes.Theme.LoadTheme(UIni.Ini.Theme, UIni.Ini.Color);
     UGraphic.LoadScreens();
-    UGraphic.ScreenSong.GenerateThumbnails();
   end;
   AudioPlayback.PlaySound(SoundLib.Back);
   FadeTo(@ScreenOptions);

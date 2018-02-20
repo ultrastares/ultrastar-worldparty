@@ -58,7 +58,6 @@ type
       Interactions:     array of TInteract;
       SelInteraction:   integer;
 
-      ButtonPos:        integer;
       Button:           array of TButton;
 
       SelectsS:         array of TSelectSlide;
@@ -114,7 +113,6 @@ type
       function AddText(X, Y, W: real; Style: integer; Size, ColR, ColG, ColB: real; Align: integer; const Text_: UTF8String; Reflection_: boolean; ReflectionSpacing_: real; Z : real; Writable: boolean): integer; overload;
 
       // button
-      procedure SetButtonLength(Length: cardinal); //Function that Set Length of Button Array in one Step instead of register new Memory for every Button
       function AddButton(ThemeButton: TThemeButton): integer; overload;
       function AddButton(X, Y, W, H: real; const TexName: IPath): integer; overload;
       function AddButton(X, Y, W, H: real; const TexName: IPath; Typ: TTextureType; Reflection: boolean): integer; overload;
@@ -245,9 +243,6 @@ begin
   SetLength(Statics, 0);
   SetLength(Button, 0);
 
-  //Set ButtonPos to Autoset Length
-  ButtonPos := -1;
-
   Background := nil;
 
   RightMbESC := true;
@@ -269,8 +264,6 @@ begin
   else
     BackImg.TexNum := 0;
 
-   //Set ButtonPos to Autoset Length
-   ButtonPos := -1;
 end;
 
 constructor TMenu.Create(Back: string; W, H: integer);
@@ -843,19 +836,6 @@ begin
   Result := TextNum;
 end;
 
-//Function that Set Length of Button boolean in one Step instead of register new Memory for every Button
-procedure TMenu.SetButtonLength(Length: cardinal);
-begin
-  if (ButtonPos = -1) and (Length > 0) then
-  begin
-    //Set Length of Button
-    SetLength(Button, Length);
-
-    //Set ButtonPos to start with 0
-    ButtonPos := 0;
-  end;
-end;
-
 // Method to add a button in our TMenu. It returns the assigned ButtonNumber
 function TMenu.AddButton(ThemeButton: TThemeButton): integer;
 var
@@ -937,18 +917,9 @@ function TMenu.AddButton(X, Y, W, H, ColR, ColG, ColB, Int, DColR, DColG, DColB,
                          Reflection: boolean;
 			 ReflectionSpacing, DeSelectReflectionSpacing: real): integer;
 begin
-  // adds button
-  //SetLength is used once to reduce Memory usement
-  if (ButtonPos <> -1) then
-  begin
-    Result := ButtonPos;
-    Inc(ButtonPos)
-  end
-  else //Old Method -> Reserve new Memory for every Button
-  begin
-    Result := Length(Button);
-    SetLength(Button, Result + 1);
-  end;
+  // add button
+  Result := Length(Button);
+  SetLength(Button, Result+1);
 
   // colorize hack
   if (Typ = TEXTURE_TYPE_COLORIZED) then

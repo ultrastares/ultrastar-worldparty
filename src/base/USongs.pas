@@ -190,11 +190,6 @@ begin
   end;
   Log.LogStatus('Search Complete', 'SongList');
   CatSongs.Refresh;
-
-  //wait to generate thumbnails and show message
-  while not Terminated and not Assigned(UGraphic.ScreenSong) do;
-
-  UGraphic.ScreenSong.GenerateThumbnails();
   Self.ProgressSong.Folder := '';
 end;
 
