@@ -255,12 +255,15 @@ type
     ButtonStat:       TThemeButton;
     ButtonOptions:    TThemeButton;
     ButtonExit:       TThemeButton;
-	ButtonAbout:      TThemeButton;
+    ButtonAbout:      TThemeButton;
+    ProgressSong: TThemeStatic;
+    ProgressSongsText: TThemeText;
 
     TextDescription:      TThemeText;
     TextDescriptionLong:  TThemeText;
     Description:          array[0..7] of UTF8String;
     DescriptionLong:      array[0..7] of UTF8String;
+
   end;
 
   TThemeName = class(TThemeBasic)
@@ -1668,6 +1671,7 @@ begin
 
       ThemeLoadText(Main.TextDescription, 'MainTextDescription');
       ThemeLoadText(Main.TextDescriptionLong, 'MainTextDescriptionLong');
+      ThemeLoadText(Main.ProgressSongsText, 'MainProgressSongsText');
       ThemeLoadButton(Main.ButtonSolo, 'MainButtonSolo');
       ThemeLoadButton(Main.ButtonMulti, 'MainButtonMulti');
       ThemeLoadButton(Main.ButtonJukebox, 'MainButtonJukebox');
@@ -1675,6 +1679,7 @@ begin
       ThemeLoadButton(Main.ButtonOptions, 'MainButtonOptions');
       ThemeLoadButton(Main.ButtonExit, 'MainButtonExit');
       ThemeLoadButton(Main.ButtonAbout, 'MainButtonAbout');
+      ThemeLoadStatic(Main.ProgressSong, 'MainProgressSong');
 
       //Main Desc Text Translation Start
 

@@ -25,9 +25,7 @@ unit UScreenMain;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE OBJFPC}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
@@ -41,26 +39,25 @@ uses
   UFiles,
   USong,
   UScreenSong,
+  UTexture,
   SysUtils,
   UThemes;
 
 type
-
   TScreenMain = class(TMenu)
 
   public
-    TextDescription:     integer;
-    TextDescriptionLong: integer;
-
     constructor Create; override;
     function ParseInput(PressedKey: Cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
+    function Draw: boolean; override;
     procedure OnShow; override;
     procedure SetInteraction(Num: integer); override;
     procedure SetAnimationProgress(Progress: real); override;
-    procedure SetLoadProgress(Progress: string);
 //	procedure UpdateTextDescriptionFor(IID: integer); virtual;
 
   private
+    TextDescription, TextDescriptionLong, TextProgressSongs: integer;
+    TextureProgressSong: TTexture;
     function CheckSongs(): boolean;
  // ButtonSoloIID, ButtonMultiIID, ButtonJukeboxIID, ButtonStatIID, ButtonOptionsIID, ButtonExitIID, ButtonAboutIID,
 
@@ -71,10 +68,10 @@ type
 implementation
 
 uses
+  dglOpenGL,
   UGraphic,
   UNote,
   UIni,
-  UTexture,
   USongs,
   ULanguage,
   UParty,
@@ -175,8 +172,9 @@ begin
  * Then LoadFromTheme
  * after LoadFromTheme the Buttons and Selects
  *}
-  TextDescription     := AddText(Theme.Main.TextDescription);
+  TextDescription := AddText(Theme.Main.TextDescription);
   TextDescriptionLong := AddText(Theme.Main.TextDescriptionLong);
+  TextProgressSongs := AddText(Theme.Main.ProgressSongsText);
 
   LoadFromTheme(Theme.Main);
 
@@ -189,8 +187,54 @@ begin
   AddButton(Theme.Main.ButtonExit);
 
   AddButton(Theme.Main.ButtonAbout);
-
+  TextureProgressSong := Texture.LoadTexture(Skin.GetTextureFileName(Theme.Main.ProgressSong.Tex));
   Interaction := 0;
+end;
+
+function TScreenMain.Draw: boolean;
+var
+  x, y: integer;
+  width, height: integer;
+  Progress: real;
+  ProgressSong: TProgressSong;
+begin
+  inherited Draw;
+  ProgressSong := USongs.Songs.GetLoadProgress();
+  if ProgressSong.Folder <> '' then
+  begin
+    x := Theme.Main.ProgressSong.X;
+    y := Theme.Main.ProgressSong.Y;
+    width := Theme.Main.ProgressSong.W;
+    height := Theme.Main.ProgressSong.H;
+
+    glColor4f(Theme.Main.ProgressSong.ColR, Theme.Main.ProgressSong.ColG, Theme.Main.ProgressSong.ColB, 1);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBindTexture(GL_TEXTURE_2D, TextureProgressSong.TexNum);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0, 0);
+    glVertex2f(x, y);
+    if (ProgressSong.Current > 0) then
+    begin
+      Progress := ProgressSong.Current / ProgressSong.Total;
+      Text[TextProgressSongs].Text := ProgressSong.Folder+IntToStr(ProgressSong.Current)+'/'+IntToStr(ProgressSong.Total)+' ('+IntToStr(Trunc((ProgressSong.Current*100)/ProgressSong.Total))+'%)';
+      glTexCoord2f((width * Progress), 0);
+      glVertex2f(x + width * Progress, y);
+      glTexCoord2f((width * Progress) , 1);
+      glVertex2f(x + width * Progress, y + height);
+    end;
+    glTexCoord2f(0, 1);
+    glVertex2f(x, y + height);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_BLEND);
+    glcolor4f(1, 0, 0, 1);
+  end
+  else
+  begin
+    SetLength(Statics, 0);
+    Text[TextProgressSongs].Text := ULanguage.Language.Translate('SING_LOADING_FINISH');
+  end;
 end;
 
 procedure TScreenMain.OnShow;
@@ -222,21 +266,15 @@ begin
   Statics[0].Texture.ScaleH := Progress;
 end;
 
-procedure TScreenMain.SetLoadProgress(Progress: string);
-begin
-  Text[3].Text := Progress;
-end;
-
 function TScreenMain.CheckSongs(): boolean;
 begin
   Result := false;
-  if Songs.LoadingSongs then
-    ScreenPopupError.ShowPopup(Language.Translate('ERROR_LOADING_SONGS'))
+  if USongs.Songs.GetLoadProgress().Folder <> '' then
+    UGraphic.ScreenPopupError.ShowPopup(Language.Translate('ERROR_LOADING_SONGS'))
   else if Songs.SongList.Count = 0 then
-    ScreenPopupError.ShowPopup(Language.Translate('ERROR_NO_SONGS'))
+    UGraphic.ScreenPopupError.ShowPopup(Language.Translate('ERROR_NO_SONGS'))
   else
     Result := true;
-
 end;
 
 end.

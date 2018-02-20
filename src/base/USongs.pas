@@ -69,16 +69,23 @@ type
     Length: string;
   end;
 
+  TProgressSong = record
+    Folder: UTF8string;
+    Current: integer;
+    Total: integer;
+  end;
+
   TSongs = class(TThread)
   private
+    ProgressSong: TProgressSong;
   protected
     procedure Execute; override;
   public
-    LoadingSongs: boolean;
     SongList: TList; //array of songs
     Selected: integer; //selected song index
     constructor Create();
     destructor Destroy(); override;
+    function GetLoadProgress(): TProgressSong;
     procedure Sort(OrderType: TSortingType);
   end;
 
@@ -155,30 +162,33 @@ end;
 { Create a new thread to load songs and update main screen with progress }
 procedure TSongs.Execute();
 var
-  I, J, Total : integer;
-  Txts: TStringList;
+  CurrentFolder, CurrentItem, TotalFolder, TotalItem: integer;
+  Folder: UTF8string;
+  FolderText: string;
   Song: TSong;
-  Folder: string;
+  Txts: TStringList;
 begin
-  LoadingSongs := true;
   Log.LogStatus('Searching For Songs', 'SongList');
   //find txt files on directories and add songs
-  for I := 0 to UPathUtils.SongPaths.Count-1 do
+  TotalFolder := UPathUtils.SongPaths.Count-1;
+  for CurrentFolder := 0 to TotalFolder do
   begin
-    Folder := IPath(UPathUtils.SongPaths[I]).ToNative();
-    if Assigned(UGraphic.ScreenMain) then
-      UGraphic.ScreenMain.SetLoadProgress(Format(ULanguage.Language.Translate('SING_LOADING_CHECK_FOLDER'), [Folder]));
+    Folder := IPath(UPathUtils.SongPaths[CurrentFolder]).ToNative();
+    FolderText := '('+IntToStr(CurrentFolder)+'/'+IntToStr(TotalFolder)+') ';
+    Self.ProgressSong.Folder := FolderText+Format(ULanguage.Language.Translate('SING_LOADING_CHECK_FOLDER'), [Folder]);
+    Self.ProgressSong.Current := 0;
+    Self.ProgressSong.Total := 0;
 
     Txts := FileUtil.FindAllFiles(Folder, '*.txt', true);
-    Total := Txts.Count;
-    for J := 0 to Total-1 do
+    TotalItem := Txts.Count-1;
+    Self.ProgressSong.Folder := FolderText+Format(ULanguage.Language.Translate('SING_LOADING_LOAD_FOLDER'), [Folder])+': ';
+    Self.ProgressSong.Total := TotalItem;
+    for CurrentItem := 0 to TotalItem do
     begin
-      Song := TSong.Create(Path(Txts.Strings[J]));
+      Self.ProgressSong.Current := CurrentItem;
+      Song := TSong.Create(Path(Txts.Strings[CurrentItem]));
       if Song.Analyse() then
         Self.SongList.Add(Song);
-
-      if Assigned(UGraphic.ScreenMain) then
-        UGraphic.ScreenMain.SetLoadProgress(IntToStr(J)+'/'+IntToStr(Total)+' ('+IntToStr(Trunc((J*100)/Total))+'%)');
     end;
   end;
   Log.LogStatus('Search Complete', 'SongList');
@@ -186,12 +196,15 @@ begin
 
   //wait to generate thumbnails and show message
   while not Terminated and not Assigned(UGraphic.ScreenSong) do;
-  UGraphic.ScreenSong.GenerateThumbnails();
-  UGraphic.ScreenMain.SetLoadProgress(ULanguage.Language.Translate('SING_LOADING_FINISH'));
 
-  Self.LoadingSongs := false;
+  UGraphic.ScreenSong.GenerateThumbnails();
+  Self.ProgressSong.Folder := '';
 end;
 
+function TSongs.GetLoadProgress(): TProgressSong;
+begin
+  Result := Self.ProgressSong;
+end;
 (*
  * Comparison functions for sorting
  *)
