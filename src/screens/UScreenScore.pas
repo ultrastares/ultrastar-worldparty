@@ -422,7 +422,6 @@ begin
             else
               CurrentRound := 0;
 
-            AudioPlayback.PlaySound(SoundLib.Change);
             RefreshTexts;
 
             if not (Ini.SavePlayback=1) then
@@ -448,7 +447,6 @@ begin
             else
               CurrentRound := Length(PlaylistMedley.Stats)-1;
 
-            AudioPlayback.PlaySound(SoundLib.Change);
             RefreshTexts;
 
             if not (Ini.SavePlayback=1) then

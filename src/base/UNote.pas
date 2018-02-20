@@ -287,7 +287,6 @@ begin
   begin
     if (Ini.BeatClick = 1) and ((LyricsState.CurrentBeatC + 4) mod 4 = 0) then //FIXME after remove resolution and notesgap use 4 as default...
     begin
-      AudioPlayback.PlaySound(SoundLib.Click);
     end;
 
     for Count := 0 to Lines[0].Line[Lines[0].Current].HighNote do
@@ -297,7 +296,6 @@ begin
       begin
         // click assist
         if Ini.ClickAssist = 1 then
-          AudioPlayback.PlaySound(SoundLib.Click);
 
         // drum machine
         (*

@@ -458,7 +458,6 @@ begin
     begin
       if (TSongMenuMode(Ini.SongMenu) <> smList) then
       begin
-        AudioPlayback.PlaySound(SoundLib.Change);
         SelectNext(false);
         SetScrollRefresh;
       end
@@ -496,7 +495,6 @@ begin
     begin
       if (TSongMenuMode(Ini.SongMenu) <> smList) then
       begin
-        AudioPlayback.PlaySound(SoundLib.Change);
         SelectPrev;
         SetScrollRefresh;
       end
@@ -546,9 +544,6 @@ begin
           CatSongs.ClickCategoryButton(Interaction);
           SelectNext;
           FixSelected;
-
-          //Play Music:
-          AudioPlayback.PlaySound(SoundLib.Change);
         end;
         //Cat Change Hack End}
       end
@@ -612,9 +607,6 @@ begin
           CatSongs.ClickCategoryButton(I);
           SelectNext;
           FixSelected;
-
-          //Play Music:
-          AudioPlayback.PlaySound(SoundLib.Change);
         end;
         //Cat Change Hack End}
       end
@@ -703,8 +695,6 @@ begin
               begin
                 SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2, VS);
 
-                AudioPlayback.PlaySound(SoundLib.Change);
-
                 SetScrollRefresh;
                 //Break and Exit
                 Exit;
@@ -724,8 +714,6 @@ begin
                  (UCS4UpperCase(UTF8ToUCS4String(TempStr)[0]) = UpperLetter) then
               begin
                 SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2, VS);
-
-                AudioPlayback.PlaySound(SoundLib.Change);
 
                 SetScrollRefresh;
 
@@ -755,7 +743,6 @@ begin
                (UCS4UpperCase(UTF8ToUCS4String(TempStr)[0]) <> UpperLetter) then
             begin
               SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2, VS);
-              AudioPlayback.PlaySound(SoundLib.Change);
               SetScrollRefresh;
               Exit;
             end;
@@ -773,7 +760,6 @@ begin
                (UCS4UpperCase(UTF8ToUCS4String(TempStr)[0]) <> UpperLetter) then
             begin
               SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2, VS);
-              AudioPlayback.PlaySound(SoundLib.Change);
               SetScrollRefresh;
               Exit;
             end;
@@ -997,7 +983,6 @@ begin
             begin
               SkipTo(Random(CatSongs.VisibleSongs));
             end;
-            AudioPlayback.PlaySound(SoundLib.Change);
 
             SetScrollRefresh;
           end;
@@ -1116,7 +1101,6 @@ begin
               else
               begin
                 StopMusicPreview();
-                AudioPlayback.PlaySound(SoundLib.Back);
 
                 //if (Mode = smPartyTournament) then
                 //  CurrentPartyTime := MAX_TIME - StrToInt(Text[TextPartyTime].Text);
@@ -1135,7 +1119,6 @@ begin
           //When in party Mode then Ask before Close
           else if (Mode = smPartyClassic) then
           begin
-            AudioPlayback.PlaySound(SoundLib.Back);
             CheckFadeTo(@ScreenMain,'MSG_END_PARTY');
           end;
 
@@ -3475,8 +3458,6 @@ var
 begin
   VS := CatSongs.VisibleSongs;
 
-  AudioPlayback.PlaySound(SoundLib.Change);
-
   if VS > 0 then
   begin
 
@@ -3522,8 +3503,6 @@ var
   VS:   integer;
 begin
   VS := CatSongs.VisibleSongs;
-
-  AudioPlayback.PlaySound(SoundLib.Change);
 
   if (VS > 0) then
   begin
@@ -3571,7 +3550,6 @@ var
   NrMiddleSong: integer;
   MaxListLineTmp: real;
 begin
-  AudioPlayback.PlaySound(SoundLib.Change);
   SelectNext;
 
   if (not Button[Interaction].Visible) then
@@ -3583,7 +3561,6 @@ end;
 
 procedure TScreenSong.SelectPrevListRow;
 begin
-  AudioPlayback.PlaySound(SoundLib.Change);
   SelectPrev;
 
   if (not Button[Interaction].Visible) then
@@ -3913,8 +3890,6 @@ begin
           FixSelected2;
         end;
   end;
-
-  AudioPlayback.PlaySound(SoundLib.Change);
   SetScroll;
 end;
 

@@ -425,13 +425,15 @@ begin
 
       SDLK_RIGHT:
         begin
-          AudioPlayback.PlaySound(SoundLib.Change);
 
           if (Interaction in [0, 4, 5]) then
             InteractInc;
 
           if (Interaction = 0) then
-            RefreshPlayers();
+            begin
+				RefreshPlayers();
+				AudioPlayback.PlaySound(SoundLib.Option);
+			end;
 
           if (Interaction = 1) then
           begin //TODO: adapt this to new playersize
@@ -458,24 +460,28 @@ begin
           begin
             RefreshColor();
             SelectsS[PlayerColor].SetSelect(true);
+			AudioPlayback.PlaySound(SoundLib.Option);
           end;
 
           if (Interaction = 5) then
           begin
             PlayerLevel[PlayerIndex] := LevelIndex;
+			AudioPlayback.PlaySound(SoundLib.Option);
           end;
 
         end;
       SDLK_LEFT:
         begin
-          AudioPlayback.PlaySound(SoundLib.Change);
 
           if (Interaction in [0, 4, 5]) then
             InteractDec;
 
           if (Interaction = 0) then
-            RefreshPlayers();
-
+            begin
+				RefreshPlayers();
+				AudioPlayback.PlaySound(SoundLib.Option);
+			end;
+			
           if (Interaction = 1) then
           begin
             if (PlayerIndex > 0) then
@@ -483,7 +489,7 @@ begin
               PlayerIndex := PlayerIndex - 1;
 
               RefreshProfile();
-
+				
               isScrolling := true;
               AvatarTarget := PlayerAvatars[PlayerIndex];
             end;
@@ -495,17 +501,20 @@ begin
             SetAvatarScroll;
             PlayerAvatars[PlayerIndex] := AvatarTarget;
             SetPlayerAvatar(PlayerIndex);
+			
           end;
 
           if (Interaction = 4) then
           begin
             RefreshColor();
             SelectsS[PlayerColor].SetSelect(true);
+			AudioPlayback.PlaySound(SoundLib.Option);
           end;
 
           if (Interaction = 5) then
           begin
             PlayerLevel[PlayerIndex] := LevelIndex;
+			AudioPlayback.PlaySound(SoundLib.Option);
           end;
         end;
 
