@@ -56,7 +56,7 @@ type
   end;
 
 const
-  //Defaul Background for Screens w/o Theme e.g. editor
+  //Defaul Background for Screens w/o Theme
   DEFAULT_BACKGROUND: TThemeBackground = (
     BGType: bgtColor;
     Color:  (R:1; G:1; B:1);
@@ -953,48 +953,6 @@ type
     LowerX, LowerW, LowerY, LowerH  : integer;
   end;
 
-  TThemeEdit = class(TThemeBasic)
-    ButtonConvert:        TThemeButton;
-    ButtonExit:           TThemeButton;
-
-    TextDescription:      TThemeText;
-    TextDescriptionLong:  TThemeText;
-    Description:          array[0..5] of UTF8string;
-    DescriptionLong:      array[0..5] of UTF8string;
-  end;
-
-  TThemeEditSub = class(TThemeBasic)
-      //in editor - headers
-      BackgroundImage:     TThemeStatic;
-      ButtonCurrentLine:   TThemeButton;
-      ButtonCurrentNote:   TThemeButton;
-      // buttons
-      PlayOnly:             TThemeButton;
-      PlayWithNote:         TThemeButton;
-      PlayNote:             TThemeButton;
-      previousseq:          TThemeButton;
-      nextseq:              TThemeButton;
-      undo:                 TThemeButton;
-      gold:                 TThemeButton;
-      freestyle:            TThemeButton;
-
-      SlideTitle:          TThemeSelectSlide;
-      SlideArtist:         TThemeSelectSlide;
-      SlideMP3:            TThemeSelectSlide;
-      SlideCover:          TThemeSelectSlide;
-      SlideBackground:     TThemeSelectSlide;
-      SlideBPM:            TThemeSelectSlide;
-      SlideGAP:            TThemeSelectSlide;
-      SlideStart:          TThemeSelectSlide;
-      SlideDuration:       TThemeSelectSlide;
-      SlideTone:           TThemeSelectSlide;
-      SlideLyric:          TThemeSelectSlide;
-      SelectVolAudio:      TThemeSelectSlide;
-      SelectVolMidi:       TThemeSelectSlide;
-      SelectVolClick:      TThemeSelectSlide;
-      SlideVideoGap:       TThemeSelectSlide;
-  end;
-
   //Error- and Check-Popup
   TThemeError = class(TThemeBasic)
     Button1: TThemeButton;
@@ -1344,9 +1302,6 @@ type
     OptionsNetwork:   TThemeOptionsNetwork;
     OptionsWebcam:    TThemeOptionsWebcam;
     OptionsJukebox:   TThemeOptionsJukebox;
-    //edit
-    Edit:             TThemeEdit;
-    EditSub:          TThemeEditSub;
     //error and check popup
     ErrorPopup:         TThemeError;
     CheckPopup:         TThemeCheck;
@@ -1509,9 +1464,6 @@ begin
   OptionsNetwork := TThemeOptionsNetwork.Create;
   OptionsWebcam := TThemeOptionsWebcam.Create;
   OptionsJukebox := TThemeOptionsJukebox.Create;
-
-  Edit := TThemeEdit.Create;
-  EditSub := TThemeEditSub.Create;
 
   ErrorPopup := TThemeError.Create;
   CheckPopup := TThemeCheck.Create;
@@ -4491,12 +4443,6 @@ begin
 
   freeandnil(OptionsJukebox);
   OptionsJukebox := TThemeOptionsJukebox.Create;
-
-  freeandnil(Edit);
-  Edit := TThemeEdit.Create;
-
-  freeandnil(EditSub);
-  EditSub := TThemeEditSub.Create;
 
   freeandnil(ErrorPopup);
   ErrorPopup := TThemeError.Create;
