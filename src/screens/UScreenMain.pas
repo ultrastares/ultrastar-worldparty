@@ -206,7 +206,7 @@ begin
     y := Theme.Main.ProgressSong.Y;
     width := Theme.Main.ProgressSong.W;
     height := Theme.Main.ProgressSong.H;
-    
+
     Text[TextDescriptionLong].Visible := false;
     glColor4f(Theme.Main.ProgressSong.ColR, Theme.Main.ProgressSong.ColG, Theme.Main.ProgressSong.ColB, 1);
     glEnable(GL_TEXTURE_2D);
@@ -235,7 +235,6 @@ begin
   else
   begin
     SetLength(Statics, 0);
-    Text[TextProgressSongs].Text := ULanguage.Language.Translate('SING_LOADING_FINISH');
     Text[TextDescriptionLong].Visible := true;
     Text[TextProgressSongs].Visible := false;
   end;
