@@ -92,26 +92,19 @@ begin
       SDLK_RETURN:
 	      begin
           //Developers Button
-          if Interaction = 2 then
+          if Interaction = 1 then
           begin
             AudioPlayback.PlaySound(SoundLib.Back);
             ScreenDevelopers.SetOverview('');
             FadeTo(@ScreenDevelopers);
           end;
           //Exit Button Pressed
-          if Interaction = 1 then
+          if Interaction = 0 then
           begin
             AudioPlayback.PlaySound(SoundLib.Back);
             FadeTo(@ScreenMain);
           end;
 
-          // ultrastar deluxe team credits
-          if Interaction = 0 then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Back);
-            ScreenDevelopers.SetOverview('USDX');
-            FadeTo(@ScreenDevelopers);
-          end;
         end;
       SDLK_LEFT:
       begin
@@ -142,7 +135,6 @@ begin
   LoadFromTheme(Theme.AboutMain);
 
   AboutStaticBghelper := AddStatic(Theme.AboutMain.StaticBghelper);
-  AddButton(Theme.AboutMain.ButtonCredits);
   AddButton(Theme.AboutMain.ButtonExit);
   AddButton(Theme.AboutMain.ButtonDevelopers);
 

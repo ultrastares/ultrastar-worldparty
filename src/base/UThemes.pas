@@ -1214,7 +1214,6 @@ type
   TThemeAboutMain = class(TThemeBasic)
   	StaticBghelper:	  TThemeStatic;
     ButtonDevelopers: TThemeButton;
-    ButtonCredits:    TThemeButton;
     ButtonExit:       TThemeButton;
     TextOverview:     TThemeText;
   end;
@@ -2478,7 +2477,6 @@ begin
       // About
       ThemeLoadBasic(AboutMain, 'AboutMain');
       ThemeLoadButton(AboutMain.ButtonDevelopers, 'AboutMainButtonDevelopers');
-      ThemeLoadButton(AboutMain.ButtonCredits, 'AboutMainButtonCredits');
       ThemeLoadButton(AboutMain.ButtonExit, 'AboutMainButtonExit');
       ThemeLoadText (AboutMain.TextOverview, 'AboutMainTextOverview');
 	  ThemeLoadStatic(AboutMain.StaticBghelper, 'AboutMainStatico');
