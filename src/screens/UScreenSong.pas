@@ -233,9 +233,7 @@ type
       function ParseMouseChessboard(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 
       function Draw: boolean; override;
-      function FinishedMusic: boolean;
 
-      procedure WriteMessage(msg: UTF8String);
       procedure FadeMessage();
       procedure CloseMessage();
 
@@ -246,8 +244,6 @@ type
       procedure SelectPrev;
       procedure SelectNextRow;
       procedure SelectPrevRow;
-      procedure SelectNextListRow;
-      procedure SelectPrevListRow;
       procedure SkipTo(Target: cardinal; TargetInteraction: integer = 0; VS: integer = 0);
       procedure FixSelected; //Show Wrong Song when Tabs on Fix
       procedure FixSelected2; //Show Wrong Song when Tabs on Fix
@@ -263,7 +259,6 @@ type
       //Party Mode
       procedure SelectRandomSong;
       procedure SetJoker;
-      procedure SetStatics;
       procedure ColorizeJokers;
       //procedure PartyTimeLimit;
       function PermitCategory(ID: integer): boolean;
@@ -279,9 +274,6 @@ type
       procedure LoadCover(NumberOfButtonInArray: integer);
 
       procedure SongScore;
-
-      //Extensions
-      procedure DrawExtensions;
 
       //Medley
       procedure StartMedley(NumSongs: integer; MinSource: TMedleySource);
@@ -407,16 +399,13 @@ end;
 
 procedure TScreenSong.ResetScrollList();
 begin
-
   if (TSongMenuMode(Ini.SongMenu) = smList) then
   begin
     ListFirstVisibleSongIndex := 0;
     ListMinLine := 0;
     ListLastMinLine := 0;
-
     SetScrollRefresh;
   end;
-
 end;
 
 procedure TScreenSong.ParseInputNextHorizontal(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
@@ -441,17 +430,13 @@ begin
     end
     else
     begin
-      if (TSongMenuMode(Ini.SongMenu) <> smList) then
+      Self.SelectNext();
+      if (TSongMenuMode(Ini.SongMenu) = smList) and (not Button[Interaction].Visible) then
       begin
-        SelectNext(false);
-        SetScrollRefresh;
-      end
-      else
-      begin
-        // list change row
-        SelectNextListRow;
-        SetScrollRefresh;
+        ListLastMinLine := ListMinLine;
+        ListMinLine := ListMinLine + 1;
       end;
+      Self.SetScrollRefresh();
     end;
   end;
 end;
@@ -478,17 +463,13 @@ begin
     end
     else
     begin
-      if (TSongMenuMode(Ini.SongMenu) <> smList) then
+      Self.SelectPrev();
+      if (TSongMenuMode(Ini.SongMenu) = smList) and (not Button[Interaction].Visible) then
       begin
-        SelectPrev;
-        SetScrollRefresh;
-      end
-      else
-      begin
-        // list change row
-        SelectPrevListRow;
-        SetScrollRefresh;
+        ListLastMinLine := ListMinLine;
+        ListMinLine := ListMinLine - 1;
       end;
+      Self.SetScrollRefresh();
     end;
   end;
 end;
@@ -2883,6 +2864,7 @@ end;
 procedure TScreenSong.OnShow;
 var
   I: integer;
+  Visible: boolean;
 begin
   inherited;
 
@@ -2899,23 +2881,18 @@ begin
     Statics[StaticActual].Texture.W := Theme.Song.Cover.SelectW;
     Statics[StaticActual].Texture.H := Theme.Song.Cover.SelectH;
     Statics[StaticActual].Texture.Z := 1;
-
     Statics[StaticActual].Reflection := Theme.Song.Cover.SelectReflection;
     Statics[StaticActual].Reflectionspacing := Theme.Song.Cover.SelectReflectionSpacing;
-
     Statics[StaticActual].Visible := true;
   end
   else
-  begin
     Statics[StaticActual].Visible := false;
-  end;
 
   if (TSongMenuMode(Ini.SongMenu) <> smList) then
   begin
     for I := 0 to High(StaticsList) do
     begin
       StaticsList[StaticList[I]].Visible := false;
-
       Text[ListTextArtist[I]].Visible := false;
       Text[ListTextTitle[I]].Visible  := false;
       Text[ListTextYear[I]].Visible   := false;
@@ -2925,7 +2902,6 @@ begin
       Statics[ListDuetIcon[I]].Visible := false;
       Statics[ListRapIcon[I]].Visible := false;
     end;
-
     Text[TextArtist].Visible := true;
     Text[TextTitle].Visible  := true;
     Text[TextYear].Visible   := true;
@@ -2940,7 +2916,6 @@ begin
     for I := 0 to High(StaticsList) do
     begin
       StaticsList[StaticList[I]].Visible := true;
-
       Text[ListTextArtist[I]].Visible := true;
       Text[ListTextTitle[I]].Visible  := true;
       Text[ListTextYear[I]].Visible   := true;
@@ -2950,7 +2925,6 @@ begin
       Statics[ListDuetIcon[I]].Visible := true;
       Statics[ListRapIcon[I]].Visible := true;
     end;
-
     Text[TextArtist].Visible := false;
     Text[TextTitle].Visible  := false;
     Text[TextYear].Visible   := false;
@@ -2996,14 +2970,12 @@ begin
   if (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow = -1) then
   begin
     CatSongs.ShowCategoryList;
-
     if (TSongMenuMode(Ini.SongMenu) <> smCarousel) and (TSongMenuMode(Ini.SongMenu) <> smSlide) then
       FixSelected;
 
     //Show Cat in Top Left Mod
     HideCatTL;
   end;
-
 
   //Playlist Mode
   if not(Mode = smPartyClassic) then
@@ -3030,8 +3002,23 @@ begin
     ScreenSongMenu.MenuShow(SM_Jukebox);
 
   isScrolling := false;
-  SetJoker;
-  SetStatics;
+  Self.SetJoker();
+
+  //Set Visibility of Party Statics and Text
+  Visible := (Mode = smPartyClassic);
+  for I := 0 to High(StaticParty) do
+    Statics[StaticParty[I]].Visible := Visible;
+
+  for I := 0 to High(TextParty) do
+    Text[TextParty[I]].Visible := Visible;
+
+  //Set Visibility of Non Party Statics and Text
+  Visible := not Visible;
+  for I := 0 to High(StaticNonParty) do
+    Statics[StaticNonParty[I]].Visible := Visible;
+
+  for I := 0 to High(TextNonParty) do
+    Text[TextNonParty[I]].Visible := Visible;
 end;
 
 procedure TScreenSong.OnShowFinish;
@@ -3050,33 +3037,12 @@ end;
 
 procedure TScreenSong.OnHide;
 begin
-
   // turn music volume to 100%
   AudioPlayback.SetVolume(1.0);
 
   // stop preview
   StopMusicPreview();
   StopVideoPreview();
-end;
-
-procedure TScreenSong.DrawExtensions;
-begin
-  //Draw Song Menu
-  if (ScreenSongMenu.Visible) then
-  begin
-    ScreenSongMenu.Draw;
-  end
-  else if (ScreenSongJumpto.Visible) then
-  begin
-    ScreenSongJumpto.Draw;
-  end;
-end;
-
-function TScreenSong.FinishedMusic: boolean;
-begin
-
-  Result := AudioPlayback.Finished;
-
 end;
 
 function TScreenSong.Draw: boolean;
@@ -3256,7 +3222,7 @@ begin
   //We draw Buttons for our own
   for I := 0 to Length(Button) - 1 do
   begin
-    if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smList]) or (((I<>Interaction) or not Assigned(fCurrentVideo) or (VideoAlpha<1) or FinishedMusic)) then
+    if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smList]) or (((I<>Interaction) or not Assigned(fCurrentVideo) or (VideoAlpha<1) or AudioPlayback.Finished)) then
         Button[I].Draw;
   end;
 
@@ -3316,7 +3282,11 @@ begin
 
   Equalizer.Draw;
 
-  DrawExtensions;
+  //Draw Song Menu
+  if ScreenSongMenu.Visible then
+    ScreenSongMenu.Draw
+  else if ScreenSongJumpto.Visible then
+    ScreenSongJumpto.Draw;
 
   //if (Mode = smPartyTournament) then
   //  PartyTimeLimit();
@@ -3512,28 +3482,6 @@ begin
     ChessboardMinLine := ChessboardMinLine - 1;
 end;
 
-procedure TScreenSong.SelectNextListRow;
-begin
-  SelectNext;
-
-  if (not Button[Interaction].Visible) then
-  begin
-    ListLastMinLine := ListMinLine;
-    ListMinLine := ListMinLine + 1;
-  end;
-end;
-
-procedure TScreenSong.SelectPrevListRow;
-begin
-  SelectPrev;
-
-  if (not Button[Interaction].Visible) then
-  begin
-    ListLastMinLine := ListMinLine;
-    ListMinLine := ListMinLine - 1;
-  end;
-end;
-
 procedure TScreenSong.StartMusicPreview();
 var
   Song: TSong;
@@ -3606,11 +3554,7 @@ begin
   if (Ini.VideoPreview=0)  then
     Exit;
 
-  if Assigned(fCurrentVideo) then
-  begin
-    fCurrentVideo.Stop();
-    fCurrentVideo := nil;
-  end;
+  Self.StopVideoPreview();
 
   //if no audio open => exit
   if (PreviewOpened = -1) then
@@ -3972,32 +3916,7 @@ begin
   end;
 end;
 
-procedure TScreenSong.SetStatics;
-var
-  I:       integer;
-  Visible: boolean;
-begin
-  //Set Visibility of Party Statics and Text
-  Visible := (Mode = smPartyClassic);
-
-  for I := 0 to High(StaticParty) do
-    Statics[StaticParty[I]].Visible := Visible;
-
-  for I := 0 to High(TextParty) do
-    Text[TextParty[I]].Visible := Visible;
-
-  //Set Visibility of Non Party Statics and Text
-  Visible := not Visible;
-
-  for I := 0 to High(StaticNonParty) do
-    Statics[StaticNonParty[I]].Visible := Visible;
-
-  for I := 0 to High(TextNonParty) do
-    Text[TextNonParty[I]].Visible := Visible;
-end;
-
 //Procedures for Menu
-
 procedure TScreenSong.StartSong;
 begin
   CatSongs.Selected := Interaction;
@@ -4284,26 +4203,10 @@ begin
 
 end;
 
-
-procedure TScreenSong.WriteMessage(msg: UTF8String);
-begin
-
-  MessageTime := SDL_GetTicks();
-
-  Statics[InfoMessageBG].Texture.Alpha := 1;
-  Text[InfoMessageText].Alpha := 1;
-
-  Statics[InfoMessageBG].Visible := true;
-  Text[InfoMessageText].Visible := true;
-  Text[InfoMessageText].Text := msg;
-
-end;
-
 procedure TScreenSong.FadeMessage();
 var
   factor: real;
 begin
-
   if ((SDL_GetTicks - MessageTime)/1000 > MAX_MESSAGE) then
   begin
     if (MessageTimeFade = 0) then
@@ -4318,7 +4221,6 @@ begin
 
   Statics[InfoMessageBG].Draw;
   Text[InfoMessageText].Draw;
-
 end;
 
 procedure TScreenSong.CloseMessage();
