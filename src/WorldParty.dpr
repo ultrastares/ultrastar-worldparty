@@ -225,7 +225,6 @@ uses
 
   TextGL            in 'base\TextGL.pas',
   UUnicodeUtils     in 'base\UUnicodeUtils.pas',
-  UUnicodeStringHelper in 'base\uunicodestringhelper',
   UFont             in 'base\UFont.pas',
   UTextEncoding     in 'base\UTextEncoding.pas',
 

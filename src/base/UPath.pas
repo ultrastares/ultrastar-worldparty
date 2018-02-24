@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -41,7 +41,7 @@ uses
   LazUTF8Classes,
   {$ENDIF}
   UConfig,
-  UUnicodeStringHelper,
+  UUnicodeUtils,
   SDL2;
 
 type
@@ -78,7 +78,7 @@ type
     procedure UpdateFile; override;
     property UTF8Encoded: boolean READ FUTF8Encoded WRITE FUTF8Encoded;
   end;
-  
+
   {**
    * TBinaryFileStream (inherited from THandleStream)
    *}
@@ -151,8 +151,8 @@ type
 
   {**
    * pdKeep:   Keep path as is, neither remove or append a delimiter
-   * pdAppend: Append a delimiter if path does not have a trailing one 
-   * pdRemove: Remove a trailing delimiter from the path 
+   * pdAppend: Append a delimiter if path does not have a trailing one
+   * pdRemove: Remove a trailing delimiter from the path
    *}
   TPathDelimOption = (pdKeep, pdAppend, pdRemove);
 
@@ -274,7 +274,7 @@ type
 
     {**
      * Splits the path into its components. Path delimiters are not removed from
-     * components. 
+     * components.
      * Example: C:\test\my\dir -> ['C:\', 'test\', 'my\', 'dir']
      *}
     function SplitDirs(): IPathDynArray;
@@ -558,9 +558,9 @@ type
 
 function Path(const PathName: RawByteString; DelimOption: TPathDelimOption): IPath;
 begin
-  if (IsUTF8StringH(PathName)) then
+  if (UUnicodeUtils.IsUTF8String(PathName)) then
     Result := TPathImpl.Create(PathName, DelimOption)
-  else if (IsNativeUTF8H()) then
+  else if (UUnicodeUtils.IsNativeUTF8()) then
     Result := PATH_NONE
   else
     Result := TPathImpl.Create(AnsiToUtf8(PathName), DelimOption);
@@ -619,7 +619,7 @@ begin
       fName[I] := PathDelim;
   end;
 
-  // Include/ExcludeTrailingPathDelimiter need PathDelim as path delimiter 
+  // Include/ExcludeTrailingPathDelimiter need PathDelim as path delimiter
   case DelimOption of
     pdAppend: fName := IncludeTrailingPathDelimiter(fName);
     pdRemove: fName := ExcludeTrailingPathDelimiter(fName);
@@ -661,7 +661,7 @@ end;
 
 function TPathImpl.ToNative(): RawByteString;
 begin
-  if (IsNativeUTF8H()) then
+  if (UUnicodeUtils.IsNativeUTF8()) then
     Result := fName
   else //basisbit hackyhack
     Result := Utf8ToAnsi(fName);

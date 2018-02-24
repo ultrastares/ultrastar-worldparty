@@ -51,7 +51,6 @@ uses
   USongs,
   UTexture,
   UThemes,
-  UUnicodeStringHelper,
   {$IFDEF MSWINDOWS}
   LazUTF8Classes,
   LazUTF8,

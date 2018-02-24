@@ -53,7 +53,6 @@ uses
   UPlatform,
   UTexture,
   UTextEncoding,
-  UUnicodeStringHelper,
   UUnicodeUtils;
 
 type

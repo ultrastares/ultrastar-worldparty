@@ -506,11 +506,6 @@
         <Filename Value="base\UPath.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit118>
-      <Unit119>
-        <Filename Value="base\uunicodestringhelper.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="UUnicodeStringHelper"/>
-      </Unit119>
       <Unit120>
         <Filename Value="base\UFilesystem.pas"/>
         <IsPartOfProject Value="True"/>
