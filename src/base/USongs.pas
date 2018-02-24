@@ -68,7 +68,7 @@ type
   end;
 
   TProgressSong = record
-    Folder: UTF8string;
+    Folder: UTF8String;
     Current: integer;
     Total: integer;
   end;
@@ -161,8 +161,8 @@ end;
 procedure TSongs.Execute();
 var
   CurrentFolder, CurrentItem, TotalFolder: integer;
-  Folder: UTF8string;
-  FolderText: string;
+  Folder: UTF8String;
+  FolderText: UTF8String;
   Song: TSong;
   Txts: TStringList;
 begin
