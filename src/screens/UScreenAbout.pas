@@ -43,7 +43,7 @@ uses
 type
   TScreenAbout = class(TMenu)
     public
-      TextOverview: integer;
+      TextOverview, TextVChecking: integer;
       AboutStaticBghelper: integer;
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -51,6 +51,7 @@ type
       procedure SetAnimationProgress(Progress: real); override;
 
       procedure SetOverview;
+      procedure VersionChecking;
   end;
 
 implementation
@@ -131,6 +132,7 @@ begin
   inherited Create;
 
   TextOverview := AddText(Theme.AboutMain.TextOverview);
+  TextVChecking:= AddText(Theme.AboutMain.TextVChecking);
 
   LoadFromTheme(Theme.AboutMain);
 
@@ -147,6 +149,7 @@ begin
 
   //Set Overview Text:
   SetOverview;
+  VersionChecking; //**** TODO ****
 end;
 
 procedure TScreenAbout.SetOverview;
@@ -158,14 +161,22 @@ begin
   Text[0].Text := Overview;
 end;
 
+procedure TScreenAbout.VersionChecking;
+var
+  versioninfo: UTF8String;
+begin  
+  versioninfo := Language.Translate('ABOUT_CHECK_CHECKING');
+  Text[1].Text := versioninfo;
+end;
+
 procedure TScreenAbout.SetAnimationProgress(Progress: real);
 var
   I: integer;
 begin
   for I := 0 to high(Button) do
     Button[I].Texture.ScaleW := Progress;
-	  Statics[0].Texture.ScaleW := Progress;
-  Statics[0].Texture.ScaleH := Progress;
+	Statics[0].Texture.ScaleW := Progress;
+    Statics[0].Texture.ScaleH := Progress;
 end;
 
 end.
