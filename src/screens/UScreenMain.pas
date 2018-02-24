@@ -187,7 +187,7 @@ begin
   AddButton(Theme.Main.ButtonExit);
 
   AddButton(Theme.Main.ButtonAbout);
-  TextureProgressSong := Texture.LoadTexture(Skin.GetTextureFileName(Theme.Main.ProgressSong.Tex));
+  Self.TextureProgressSong := Texture.LoadTexture(Skin.GetTextureFileName(Theme.Main.ProgressSong.Tex));
   Interaction := 0;
 end;
 
@@ -207,7 +207,7 @@ begin
     width := Theme.Main.ProgressSong.W;
     height := Theme.Main.ProgressSong.H;
 
-    Text[TextDescriptionLong].Visible := false;
+    Self.Text[TextDescriptionLong].Visible := false;
     glColor4f(Theme.Main.ProgressSong.ColR, Theme.Main.ProgressSong.ColG, Theme.Main.ProgressSong.ColB, 1);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
@@ -215,7 +215,7 @@ begin
     glBegin(GL_QUADS);
     glTexCoord2f(0, 0);
     glVertex2f(x, y);
-    Text[TextProgressSongs].Text := ProgressSong.Folder;
+    Self.Text[TextProgressSongs].Text := ProgressSong.Folder;
     if (ProgressSong.Total > 0) then
     begin
       Progress := ProgressSong.Current / ProgressSong.Total;
@@ -234,9 +234,10 @@ begin
   end
   else
   begin
-    SetLength(Statics, 0);
-    Text[TextDescriptionLong].Visible := true;
-    Text[TextProgressSongs].Visible := false;
+    UGraphic.ScreenPopupError.Visible := false;
+    Self.Statics[0].Visible := false;
+    Self.Text[TextProgressSongs].Visible := false;
+    Self.Text[TextDescriptionLong].Visible := true;
   end;
 end;
 
