@@ -1,9 +1,9 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
-	whose names	are too numerous to list here. Please refer to the
-	COPYRIGHT file distributed with this source distribution.
+    UltraStar Deluxe WorldParty is the legal property of its developers,
+    whose names are too numerous to list here. Please refer to the
+    COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program. Check "LICENSE" file. If not, see
-	<http://www.gnu.org/licenses/>.
+    <http://www.gnu.org/licenses/>.
  *}
 
 
@@ -25,22 +25,17 @@ unit UScreenSong;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
 uses
   SysUtils,
   sdl2,
-  UCatCovers,
   UCommon,
   UDataBase,
-  UDisplay,
   UDllManager,
   UPath,
-  UFiles,
   UIni,
   ULanguage,
   ULog,
@@ -51,10 +46,6 @@ uses
   USongs,
   UTexture,
   UThemes,
-  {$IFDEF MSWINDOWS}
-  LazUTF8Classes,
-  LazUTF8,
-  {$ENDIF}
   UTime;
 
 type
@@ -76,7 +67,6 @@ type
       LastVisibleSongIndex: integer;
       FirstVisibleSongIndex: integer;
 
-      ListLastVisibleSongIndex: integer;
       ListFirstVisibleSongIndex: integer;
       MainListFirstVisibleSongIndex: integer;
 
@@ -97,8 +87,8 @@ type
       VideoIcon: cardinal;
 
       //Medley Icons
-	 	  MedleyIcon:     cardinal;
-	 	  CalcMedleyIcon: cardinal;
+      MedleyIcon:     cardinal;
+      CalcMedleyIcon: cardinal;
       TextMedleyArtist:   array of integer;
       TextMedleyTitle:    array of integer;
       TextMedleyNumber:   array of integer;
@@ -121,9 +111,6 @@ type
       CoverFull:    boolean;
       CoverTime:    real;
 
-      CoverX:       integer;
-      CoverY:       integer;
-      CoverW:       integer;
       is_jump:      boolean; // Jump to Song Mod
       is_jump_title:boolean; //Jump to SOng MOd-YTrue if search for Title
 
@@ -178,7 +165,7 @@ type
       ListMedleyIcon:     array of integer;
       ListCalcMedleyIcon: array of integer;
       ListDuetIcon:       array of integer;
-	  ListRapIcon:        array of integer;
+      ListRapIcon:        array of integer;
 
       PlayMidi: boolean;
       MidiFadeIn: boolean;
@@ -670,7 +657,7 @@ begin
     //Jump to Artist/Titel
     if ((SDL_ModState and KMOD_LALT <> 0) and (FreeListMode)) then
     begin
-	if(PressedKey > 1114111) then
+      if(PressedKey > 1114111) then
       begin
         Exit;
       end;
@@ -896,7 +883,7 @@ begin
           else if not MakeMedley and
             (CatSongs.Song[Interaction].Medley.Source>=msCalculated) and
             (Mode = smNormal)then
-			StartMedley(0, msCalculated);
+            StartMedley(0, msCalculated);
         end;
 
       Ord('D'):
@@ -911,7 +898,7 @@ begin
 
       Ord('R'):
         begin
-			Randomize;
+          Randomize;
           if (Songs.SongList.Count > 0) and
              (FreeListMode) then
           begin
@@ -1350,7 +1337,7 @@ begin
     case TSongMenuMode(Ini.SongMenu) of
       smChessboard: Result := ParseMouseChessboard(MouseButton, BtnDown, X, Y);
       smMosaic: Result := ParseMouseChessboard(MouseButton, BtnDown, X, Y);
-	  smSlotMachine: Result := ParseMouseChessboard(MouseButton, BtnDown, X, Y);
+      smSlotMachine: Result := ParseMouseChessboard(MouseButton, BtnDown, X, Y);
       else
         Result := ParseMouseRoulette(MouseButton, BtnDown, X, Y);
     end;
@@ -2802,7 +2789,7 @@ begin
     Statics[ListMedleyIcon[I]].Visible := false;
     Statics[ListCalcMedleyIcon[I]].Visible := false;
     Statics[ListDuetIcon[I]].Visible := false;
-	Statics[ListRapIcon[I]].Visible := false;
+    Statics[ListRapIcon[I]].Visible := false;
 
     //reset
     StaticsList[I].Texture.TexNum := StaticsList[I].TextureDeSelect.TexNum;
@@ -2936,7 +2923,7 @@ begin
       Statics[ListMedleyIcon[I]].Visible := false;
       Statics[ListCalcMedleyIcon[I]].Visible := false;
       Statics[ListDuetIcon[I]].Visible := false;
-	  Statics[ListRapIcon[I]].Visible := false;
+      Statics[ListRapIcon[I]].Visible := false;
     end;
 
     Text[TextArtist].Visible := true;
@@ -2946,7 +2933,7 @@ begin
     Statics[MedleyIcon].Visible := true;
     Statics[CalcMedleyIcon].Visible := true;
     Statics[DuetIcon].Visible := true;
-	Statics[RapIcon].Visible := true;
+    Statics[RapIcon].Visible := true;
   end
   else
   begin
@@ -2961,7 +2948,7 @@ begin
       Statics[ListMedleyIcon[I]].Visible := true;
       Statics[ListCalcMedleyIcon[I]].Visible := true;
       Statics[ListDuetIcon[I]].Visible := true;
-	  Statics[ListRapIcon[I]].Visible := true;
+      Statics[ListRapIcon[I]].Visible := true;
     end;
 
     Text[TextArtist].Visible := false;
@@ -2971,7 +2958,7 @@ begin
     Statics[MedleyIcon].Visible := false;
     Statics[CalcMedleyIcon].Visible := false;
     Statics[DuetIcon].Visible := false;
-	Statics[RapIcon].Visible := false;
+    Statics[RapIcon].Visible := false;
   end;
 
   // for duet names
@@ -3434,7 +3421,7 @@ end;
 
 procedure TScreenSong.SelectNextRow;
 var
-  Skip, SongIndex: integer;
+  Skip, SongIndexRow: integer;
   VS:   integer;
 begin
   VS := CatSongs.VisibleSongs;
@@ -3449,16 +3436,16 @@ begin
     end;
 
     Skip := 0;
-    SongIndex := Interaction;
+    SongIndexRow := Interaction;
 
-    while ((Skip <= Theme.Song.Cover.Cols) and (SongIndex < Length(CatSongs.Song))) do
+    while ((Skip <= Theme.Song.Cover.Cols) and (SongIndexRow < Length(CatSongs.Song))) do
     begin
-      if (CatSongs.Song[SongIndex].Visible) then
+      if (CatSongs.Song[SongIndexRow].Visible) then
       begin
         Inc(Skip);
       end;
 
-      Inc(SongIndex);
+      Inc(SongIndexRow);
     end;
 
     SongTarget := SongTarget + 1;
@@ -3469,8 +3456,8 @@ begin
     end
     else
     begin
-      if (CatSongs.Song[SongIndex - 1].Visible) then
-        Interaction := SongIndex - 1;
+      if (CatSongs.Song[SongIndexRow - 1].Visible) then
+        Interaction := SongIndexRow - 1;
     end;
 
     if (not Button[Interaction].Visible) then
@@ -3480,7 +3467,7 @@ end;
 
 procedure TScreenSong.SelectPrevRow;
 var
-  Skip, SongIndex: integer;
+  Skip, SongIndexRow: integer;
   VS:   integer;
 begin
   VS := CatSongs.VisibleSongs;
@@ -3495,16 +3482,16 @@ begin
     end;
 
     Skip := 0;
-    SongIndex := Interaction;
+    SongIndexRow := Interaction;
 
-    while ((Skip <= Theme.Song.Cover.Cols) and (SongIndex > -1)) do
+    while ((Skip <= Theme.Song.Cover.Cols) and (SongIndexRow > -1)) do
     begin
-      if (CatSongs.Song[SongIndex].Visible) then
+      if (CatSongs.Song[SongIndexRow].Visible) then
       begin
         Inc(Skip);
       end;
 
-      Dec(SongIndex);
+      Dec(SongIndexRow);
     end;
 
     SongTarget := SongTarget - 1;
@@ -3515,8 +3502,8 @@ begin
     end
     else
     begin
-      if (CatSongs.Song[SongIndex + 1].Visible) then
-        Interaction := SongIndex + 1;
+      if (CatSongs.Song[SongIndexRow + 1].Visible) then
+        Interaction := SongIndexRow + 1;
     end;
 
   end;
@@ -3526,10 +3513,6 @@ begin
 end;
 
 procedure TScreenSong.SelectNextListRow;
-var
-  VS, MaxListLine: integer;
-  NrMiddleSong: integer;
-  MaxListLineTmp: real;
 begin
   SelectNext;
 
@@ -3555,8 +3538,6 @@ procedure TScreenSong.StartMusicPreview();
 var
   Song: TSong;
   PreviewPos: real;
-  I: integer;
-  Vol: cardinal;
 begin
   if SongIndex <> -1 then
   begin
