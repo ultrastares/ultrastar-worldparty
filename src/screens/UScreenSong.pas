@@ -240,8 +240,8 @@ type
       procedure OnShow; override;
       procedure OnShowFinish; override;
       procedure OnHide; override;
-      procedure SelectNext(onlyFix: boolean = true);
-      procedure SelectPrev;
+      procedure SelectNext();
+      procedure SelectPrev();
       procedure SelectNextRow;
       procedure SelectPrevRow;
       procedure SkipTo(Target: cardinal; TargetInteraction: integer = 0; VS: integer = 0);
@@ -3193,7 +3193,7 @@ begin
   Result := true;
 end;
 
-procedure TScreenSong.SelectNext(onlyFix: boolean = true);
+procedure TScreenSong.SelectNext();
 var
   Skip: integer;
   VS:   integer;
@@ -3233,15 +3233,8 @@ begin
    // if ((TSongMenuMode(Ini.SongMenu) in [smList]) and (NextInt = 0)) then
    //   SongCurrent := -1;
 
-    if (not onlyFix) then
-    begin
-      if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic]) then
-      begin
-        if (not Button[Interaction].Visible) then
-          ChessboardMinLine := ChessboardMinLine + 1;
-      end;
-    end;
-
+    if (TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smMosaic]) and (not Button[Interaction].Visible) then
+        ChessboardMinLine := ChessboardMinLine + 1;
   end;
 end;
 
