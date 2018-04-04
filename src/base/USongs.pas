@@ -88,6 +88,9 @@ type
   end;
 
   TCatSongs = class
+    private
+      VisibleSongs: integer;
+    public
     Song:       array of TSong; // array of categories with songs
     SongSort:   array of TSong;
 
@@ -104,7 +107,8 @@ type
     procedure ShowCategoryList;                             // Hides all Songs And Show the List of all Categorys
     function FindNextVisible(SearchFrom: integer): integer; // Find Next visible Song
     function FindPreviousVisible(SearchFrom: integer): integer; // Find Previous visible Song
-    function VisibleSongs: integer;                         // returns number of visible songs (for tabs)
+    function GetVisibleSongs(): integer; //returns number of visible songs
+    procedure SetVisibleSongs(); //sets number of visible songs
     function VisibleIndex(Index: integer): integer;         // returns visible song index (skips invisible)
 
     function SetFilter(FilterStr: UTF8String; Filter: TSongFilter): cardinal;
@@ -532,23 +536,14 @@ begin
     // set song's category info
     CurSong.OrderNum := OrderNum; // assigns category
     CurSong.CatNumber := CatNumber;
-
-    if (Ini.Tabs = 0) then
+    Self.VisibleSongs := 0;
+    if UIni.Ini.Tabs = 0 then
     begin
       CurSong.Visible := true;
+      Inc(Self.VisibleSongs);
     end
-    else if (Ini.Tabs = 1) then
-    begin
+    else
       CurSong.Visible := false;
-    end;
-{
-    if (Ini.Tabs = 1) and (Order = 1) then
-    begin
-      //open first tab
-      CurSong.Visible := true;
-    end;
-    CurSong.Visible := true;
-}
   end;
 
   // set CatNumber of last category
@@ -566,30 +561,34 @@ end;
 
 procedure TCatSongs.ShowCategory(Index: integer);
 var
-  S: integer; // song
+  I: integer;
 begin
+  Self.VisibleSongs := 0;
   CatNumShow := Index;
-  for S := 0 to high(CatSongs.Song) do
+  for I := 0 to high(CatSongs.Song) do
   begin
-{
-    if (CatSongs.Song[S].OrderNum = Index) and (not CatSongs.Song[S].Main) then
-      CatSongs.Song[S].Visible := true
+    if (CatSongs.Song[I].OrderNum = Index) and (not CatSongs.Song[I].Main) then
+    begin
+      CatSongs.Song[I].Visible := true;
+      Inc(Self.VisibleSongs);
+    end
     else
-      CatSongs.Song[S].Visible := false;
-}
-//  KMS: This should be the same, but who knows :-)
-    CatSongs.Song[S].Visible := ((CatSongs.Song[S].OrderNum = Index) and (not CatSongs.Song[S].Main));
+      CatSongs.Song[I].Visible := false;
   end;
 end;
 
-procedure TCatSongs.HideCategory(Index: integer); // hides all songs in category
+{hides all songs in category}
+procedure TCatSongs.HideCategory(Index: integer);
 var
-  S: integer; // song
+  I: integer;
 begin
-  for S := 0 to high(CatSongs.Song) do
+  Self.VisibleSongs := 0;
+  for I := 0 to high(CatSongs.Song) do
   begin
-    if not CatSongs.Song[S].Main then
-      CatSongs.Song[S].Visible := false // hides all at now
+    if not CatSongs.Song[I].Main then
+      CatSongs.Song[I].Visible := false // hides all at now
+    else
+      Inc(Self.VisibleSongs);
   end;
 end;
 
@@ -609,17 +608,20 @@ begin
 end;
 
 //Hide Categorys when in Category Hack
-procedure TCatSongs.ShowCategoryList;
+procedure TCatSongs.ShowCategoryList();
 var
-  S: integer;
+  I: integer;
 begin
-  // Hide All Songs Show All Cats
-  for S := 0 to high(CatSongs.Song) do
-    CatSongs.Song[S].Visible := CatSongs.Song[S].Main;
+  Self.VisibleSongs := 0;
+  for I := 0 to high(CatSongs.Song) do //hide all songs and show all cats
+  begin
+    CatSongs.Song[I].Visible := CatSongs.Song[I].Main;
+    if CatSongs.Song[I].Visible then
+      Inc(Self.VisibleSongs);
+  end;
   CatSongs.Selected := CatNumShow; //Show last shown Category
   CatNumShow := -1;
 end;
-//Hide Categorys when in Category Hack End
 
 // Wrong song selected when tabs on bug
 function TCatSongs.FindNextVisible(SearchFrom:integer): integer;// Find next Visible Song
@@ -664,22 +666,21 @@ begin
   end;
 end;
 
-// Wrong song selected when tabs on bug End
-
-(**
- * Returns the number of visible songs.
- *)
-function TCatSongs.VisibleSongs: integer;
+procedure TCatSongs.SetVisibleSongs();
 var
-  SongIndex: integer;
+  I: integer;
 begin
-  Result := 0;
-  for SongIndex := 0 to High(CatSongs.Song) do
-  begin
-    if (CatSongs.Song[SongIndex].Visible) then
-      Inc(Result);
-  end;
+    Self.VisibleSongs := 0;
+    for I := 0 to High(CatSongs.Song) do
+        if (CatSongs.Song[I].Visible) then
+          Inc(Self.VisibleSongs);
 end;
+
+function TCatSongs.GetVisibleSongs(): integer;
+begin
+  Result := Self.VisibleSongs;
+end;
+
 
 (**
  * Returns the index of a song in the subset of all visible songs.
@@ -703,11 +704,9 @@ var
   TmpString: UTF8String;
   WordArray: array of UTF8String;
 begin
-
-  FilterStr := Trim(LowerCase(FilterStr));
-  FilterStr := GetStringWithNoAccents(FilterStr);
-
-  if (FilterStr <> '') then
+  Self.VisibleSongs := 0;
+  FilterStr := UCommon.GetStringWithNoAccents(Trim(LowerCase(FilterStr)));
+  if FilterStr <> '' then
   begin
     Result := 0;
 
@@ -744,8 +743,7 @@ begin
         // Look for every searched word
         for J := 0 to High(WordArray) do
         begin
-          Song[i].Visible := Song[i].Visible and
-                             UTF8ContainsStr(TmpString, WordArray[J])
+          Song[i].Visible := Song[i].Visible and UTF8ContainsStr(TmpString, WordArray[J])
         end;
         if Song[i].Visible then
           Inc(Result);
@@ -764,6 +762,7 @@ begin
     end;
     Result := 0;
   end;
+  Self.VisibleSongs := Result;
 end;
 
 // -----------------------------------------------------------------------------

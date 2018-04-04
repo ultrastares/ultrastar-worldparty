@@ -244,7 +244,7 @@ type
       procedure SelectPrev();
       procedure SelectNextRow;
       procedure SelectPrevRow;
-      procedure SkipTo(Target: cardinal; TargetInteraction: integer = 0; VS: integer = 0);
+      procedure SkipTo(Target: cardinal; TargetInteraction: integer = 0);
       procedure FixSelected; //Show Wrong Song when Tabs on Fix
       procedure FixSelected2; //Show Wrong Song when Tabs on Fix
       procedure ShowCatTL(Cat: integer);// Show Cat in Top left
@@ -329,7 +329,7 @@ procedure TScreenSong.FixSelected;
 var
   I, I2: integer;
 begin
-  if (CatSongs.VisibleSongs > 0) then
+  if (USongs.CatSongs.GetVisibleSongs() > 0) then
   begin
     I2:= 0;
     for I := Low(CatSongs.Song) to High(Catsongs.Song) do
@@ -350,7 +350,7 @@ procedure TScreenSong.FixSelected2;
 var
   I, I2: integer;
 begin
-  if (CatSongs.VisibleSongs > 0) then
+  if (USongs.CatSongs.GetVisibleSongs() > 0) then
   begin
     I2:= 0;
     for I := Low(CatSongs.Song) to High(Catsongs.Song) do
@@ -431,7 +431,7 @@ begin
     else
     begin
       Self.SelectNext();
-      if (TSongMenuMode(Ini.SongMenu) = smList) and (not Button[Interaction].Visible) then
+      if (not Button[Interaction].Visible) then
       begin
         ListLastMinLine := ListMinLine;
         ListMinLine := ListMinLine + 1;
@@ -464,7 +464,7 @@ begin
     else
     begin
       Self.SelectPrev();
-      if (TSongMenuMode(Ini.SongMenu) = smList) and (not Button[Interaction].Visible) then
+      if (not Button[Interaction].Visible) then
       begin
         ListLastMinLine := ListMinLine;
         ListMinLine := ListMinLine - 1;
@@ -611,11 +611,8 @@ var
   TempStr: UTF8String;
   VerifySong, WebList: string;
   Fix: boolean;
-  VS: integer;
 begin
   Result := true;
-
-  VS := CatSongs.VisibleSongs;
 
   //Song Screen Extensions (Jumpto + Menu)
   if (ScreenSongMenu.Visible) then
@@ -659,7 +656,7 @@ begin
               if (Length(TempStr) > 0) and
                  (UCS4UpperCase(UTF8ToUCS4String(TempStr)[0]) = UpperLetter) then
               begin
-                SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2, VS);
+                SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2);
 
                 SetScrollRefresh;
                 //Break and Exit
@@ -679,7 +676,7 @@ begin
               if (Length(TempStr) > 0) and
                  (UCS4UpperCase(UTF8ToUCS4String(TempStr)[0]) = UpperLetter) then
               begin
-                SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2, VS);
+                SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2);
 
                 SetScrollRefresh;
 
@@ -708,7 +705,7 @@ begin
             if (Length(TempStr) > 0) and
                (UCS4UpperCase(UTF8ToUCS4String(TempStr)[0]) <> UpperLetter) then
             begin
-              SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2, VS);
+              SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2);
               SetScrollRefresh;
               Exit;
             end;
@@ -725,7 +722,7 @@ begin
             if (Length(TempStr) > 0) and
                (UCS4UpperCase(UTF8ToUCS4String(TempStr)[0]) <> UpperLetter) then
             begin
-              SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2, VS);
+              SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2);
               SetScrollRefresh;
               Exit;
             end;
@@ -947,7 +944,7 @@ begin
             end
             else // random in one category
             begin
-              SkipTo(Random(CatSongs.VisibleSongs));
+              SkipTo(Random(USongs.CatSongs.GetVisibleSongs()));
             end;
 
             SetScrollRefresh;
@@ -1412,7 +1409,7 @@ begin
     //LMB anywhere starts
     else if (MouseButton = SDL_BUTTON_LEFT) then
     begin
-      if (CatSongs.VisibleSongs =3) or (CatSongs.VisibleSongs = 4) then
+      if (USongs.CatSongs.GetVisibleSongs() = 3) or (USongs.CatSongs.GetVisibleSongs() = 4) then
       begin
         // select the second visible button left from selected
         I := 0;
@@ -1460,7 +1457,7 @@ begin
             Break;
         end;
       end
-      else if (CatSongs.VisibleSongs > 4) then
+      else if (USongs.CatSongs.GetVisibleSongs() > 4) then
       begin
         // select the second visible button left from selected
         I := 0;
@@ -1899,7 +1896,7 @@ var
   DuetPlayer1: UTF8String = '';
   DuetPlayer2: UTF8String = '';
 begin
-  VS := CatSongs.VisibleSongs;
+  VS := USongs.CatSongs.GetVisibleSongs();
   if VS > 0 then
   begin
 
@@ -2079,7 +2076,7 @@ var
   Padding:     real;
   X,AutoWidthCorrection:        real;
 begin
-  VS := CatSongs.VisibleSongs();
+  VS := USongs.CatSongs.GetVisibleSongs();
 
   //calculate Auto-Width-Correction
   AutoWidthCorrection:= (UGraphic.RenderH/UGraphic.ScreenH)*(UGraphic.ScreenW/UGraphic.RenderW); //ToDo basisbit: width for 2-screen-setup
@@ -2174,7 +2171,7 @@ var
   Z, Z2:  real;
   VS:     integer;
 begin
-  VS := CatSongs.VisibleSongs();
+  VS := USongs.CatSongs.GetVisibleSongs();
 
   for B := 0 to High(Button) do
   begin
@@ -2431,7 +2428,7 @@ var
   diff:   real;
   X:      real;
 begin
-  VS := CatSongs.VisibleSongs;
+  VS := USongs.CatSongs.GetVisibleSongs();
 
   for B := Low(Button) to High(Button) do
   begin
@@ -2639,7 +2636,7 @@ end;
 
 procedure TScreenSong.SetListScrollRefresh;
 var
-  B, Count, I, VS:  integer;
+  B, Count, I:  integer;
   SongID: array of integer;
   Alpha: real;
 begin
@@ -2681,9 +2678,8 @@ begin
   Count := 0;
 
   B := ListFirstVisibleSongIndex;
-  VS := CatSongs.VisibleSongs;
 
-  if (ListMinLine <> ListLastMinLine) then //and ((ListMinLine <= VS - Theme.Song.ListCover.Rows)) then// change start
+  if (ListMinLine <> ListLastMinLine) then //and ((ListMinLine <= USongs.CatSongs.GetVisibleSongs() - Theme.Song.ListCover.Rows)) then// change start
   begin
     if (ListLastMinLine < ListMinLine) then
       B := CatSongs.FindNextVisible(B)
@@ -2874,7 +2870,9 @@ begin
 
     //Show Cat in Top Left Mod
     HideCatTL;
-  end;
+  end
+  else //initialize visible songs
+    USongs.CatSongs.SetVisibleSongs();
 
   //Playlist Mode
   if not(Mode = smPartyClassic) then
@@ -2965,7 +2963,7 @@ begin
 
     SongCurrent := SongCurrent + dx*dt;
 
-    if SameValue(SongCurrent, SongTarget, 0.002) and (CatSongs.VisibleSongs > 0) then
+    if SameValue(SongCurrent, SongTarget, 0.002) and (USongs.CatSongs.GetVisibleSongs() > 0) then
     begin
       isScrolling := false;
       SongCurrent := SongTarget;
@@ -2973,21 +2971,7 @@ begin
     end;
   end;
 
-  {   //basisbit todo this block was auskommentiert
-  if SongCurrent > Catsongs.VisibleSongs then
-  begin
-    SongCurrent := SongCurrent - Catsongs.VisibleSongs;
-    SongTarget := SongTarget - Catsongs.VisibleSongs;
-  end;  }
-
-
-  //Log.BenchmarkStart(5);
-
-  // Song Menu Style
   SetScroll;
-
-  //Log.BenchmarkEnd(5);
-  //Log.LogBenchmark('SetScroll4', 5);
 
   if (AudioPlayback.Finished) then
     CoverTime := 0;
@@ -3196,14 +3180,12 @@ end;
 procedure TScreenSong.SelectNext();
 var
   Skip: integer;
-  VS:   integer;
   NextInt: integer;
 begin
-  VS := CatSongs.VisibleSongs;
 
-  if VS > 0 then
+  if USongs.CatSongs.GetVisibleSongs() > 0 then
   begin
-    if (not isScrolling) and (VS > 0) then
+    if (not isScrolling) then
     begin
       isScrolling := true;
       OnSongDeselect;
@@ -3224,29 +3206,23 @@ begin
       Interaction := NextInt;
 
     // try to keep all at the beginning
-    if SongTarget > VS-1 then
+    if SongTarget > USongs.CatSongs.GetVisibleSongs()-1 then
     begin
-      SongTarget := SongTarget - VS;
-      SongCurrent := SongCurrent - VS;
+      SongTarget := SongTarget - USongs.CatSongs.GetVisibleSongs();
+      SongCurrent := SongCurrent - USongs.CatSongs.GetVisibleSongs();
     end;
 
    // if ((TSongMenuMode(Ini.SongMenu) in [smList]) and (NextInt = 0)) then
    //   SongCurrent := -1;
-
-    if (TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smMosaic]) and (not Button[Interaction].Visible) then
-        ChessboardMinLine := ChessboardMinLine + 1;
   end;
 end;
 
 procedure TScreenSong.SelectPrev;
 var
   Skip: integer;
-  VS:   integer;
   PrevInt: integer;
 begin
-  VS := CatSongs.VisibleSongs;
-
-  if (VS > 0) then
+  if (USongs.CatSongs.GetVisibleSongs() > 0) then
   begin
     if (not isScrolling) then
     begin
@@ -3275,8 +3251,8 @@ begin
     // try to keep all at the beginning
     if SongTarget < 0 then
     begin
-      SongTarget := SongTarget + CatSongs.VisibleSongs;
-      SongCurrent := SongCurrent + CatSongs.VisibleSongs;
+      SongTarget := SongTarget + USongs.CatSongs.GetVisibleSongs();
+      SongCurrent := SongCurrent + USongs.CatSongs.GetVisibleSongs();
     end;
   end;
 end;
@@ -3284,14 +3260,11 @@ end;
 procedure TScreenSong.SelectNextRow;
 var
   Skip, SongIndexRow: integer;
-  VS:   integer;
 begin
-  VS := CatSongs.VisibleSongs;
-
-  if VS > 0 then
+  if USongs.CatSongs.GetVisibleSongs() > 0 then
   begin
 
-    if (not isScrolling) and (VS > 0) then
+    if (not isScrolling) then
     begin
       isScrolling := true;
       OnSongDeselect;
@@ -3330,14 +3303,11 @@ end;
 procedure TScreenSong.SelectPrevRow;
 var
   Skip, SongIndexRow: integer;
-  VS:   integer;
 begin
-  VS := CatSongs.VisibleSongs;
-
-  if (VS > 0) then
+  if (USongs.CatSongs.GetVisibleSongs() > 0) then
   begin
 
-    if (not isScrolling) and (VS > 0) then
+    if (not isScrolling) then
     begin
       isScrolling := true;
       OnSongDeselect;
@@ -3387,7 +3357,7 @@ begin
 
   AudioPlayback.Close();
 
-  if CatSongs.VisibleSongs = 0 then
+  if USongs.CatSongs.GetVisibleSongs() = 0 then
     Exit;
 
   Song := CatSongs.Song[Interaction];
@@ -3452,7 +3422,7 @@ begin
   if (PreviewOpened = -1) then
     Exit;
 
-  if CatSongs.VisibleSongs = 0 then
+  if USongs.CatSongs.GetVisibleSongs() = 0 then
     Exit;
 
   Song := CatSongs.Song[Interaction];
@@ -3495,7 +3465,7 @@ begin
   StartVideoPreview();
 end;
 
-procedure TScreenSong.SkipTo(Target: cardinal; TargetInteraction: integer = 0; VS: integer = 0);
+procedure TScreenSong.SkipTo(Target: cardinal; TargetInteraction: integer = 0);
 var
   i: integer;
   MaxLine: real;
@@ -3526,7 +3496,7 @@ begin
       else
         ChessboardMinLine := Round(ChessboardLine);
 
-      MaxLine := (VS - Theme.Song.Cover.Cols * Theme.Song.Cover.Rows) / Theme.Song.Cover.Cols;
+      MaxLine := (USongs.CatSongs.GetVisibleSongs() - Theme.Song.Cover.Cols * Theme.Song.Cover.Rows) / Theme.Song.Cover.Cols;
 
       if (Frac(Maxline) > 0) then
         MaxLine := Round(MaxLine) + 1
@@ -3579,7 +3549,7 @@ begin
             if (Mode = smPartyClassic) then
             begin
               repeat
-                Target := Random(CatSongs.VisibleSongs);
+                Target := Random(USongs.CatSongs.GetVisibleSongs());
 
                 RealTarget := -1;
                 Count := -1;
@@ -3594,9 +3564,9 @@ begin
               until not(CatSongs.Song[RealTarget].isDuet);
             end
             else
-              Target := Random(CatSongs.VisibleSongs);
+              Target := Random(USongs.CatSongs.GetVisibleSongs());
 
-            SkipTo(Target, RealTarget, CatSongs.VisibleSongs);
+            SkipTo(Target, RealTarget);
             //SkipTo(I2 - I);
           end
           // when tabs are deactivated use easy method
@@ -3606,7 +3576,7 @@ begin
             if (Mode = smPartyClassic) then
             begin
               repeat
-                Target := Random(CatSongs.VisibleSongs);
+                Target := Random(USongs.CatSongs.GetVisibleSongs());
 
                 RealTarget := -1;
                 Count := -1;
@@ -3621,7 +3591,7 @@ begin
               until not(CatSongs.Song[RealTarget].isDuet);
             end
             else
-              Target := Random(CatSongs.VisibleSongs);
+              Target := Random(USongs.CatSongs.GetVisibleSongs());
 
             SkipTo(Target);
           end;
@@ -3640,7 +3610,7 @@ begin
           if (Mode = smPartyClassic) then
           begin
             repeat
-              Target := Random(CatSongs.VisibleSongs);
+              Target := Random(USongs.CatSongs.GetVisibleSongs());
 
               RealTarget := -1;
               Count := -1;
@@ -3655,7 +3625,7 @@ begin
             until not(CatSongs.Song[RealTarget].isDuet);
           end
           else
-            Target := Random(CatSongs.VisibleSongs);
+            Target := Random(USongs.CatSongs.GetVisibleSongs());
 
           SkipTo(Target);
         end;
@@ -3667,7 +3637,7 @@ begin
           if (Mode = smPartyClassic) then
           begin
             repeat
-              Target := Random(CatSongs.VisibleSongs);
+              Target := Random(USongs.CatSongs.GetVisibleSongs());
 
               RealTarget := -1;
               Count := -1;
@@ -3682,7 +3652,7 @@ begin
             until not(CatSongs.Song[RealTarget].isDuet);
           end
           else
-            Target := Random(CatSongs.VisibleSongs);
+            Target := Random(USongs.CatSongs.GetVisibleSongs());
 
           SkipTo(Target);
           FixSelected2;
@@ -3919,7 +3889,6 @@ end;
 var
   I: integer;
   VS: integer;
-
 begin
   //Sel3 := 0;
   if (NumSongs > 0) and not MakeMedley then
@@ -3928,7 +3897,7 @@ begin
     if VS < NumSongs then
       PlaylistMedley.NumMedleySongs := VS
     else
-    PlaylistMedley.NumMedleySongs := NumSongs;
+      PlaylistMedley.NumMedleySongs := NumSongs;
 
     //set up Playlist Medley
     SetLength(PlaylistMedley.Song, 0);
