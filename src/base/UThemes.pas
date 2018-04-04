@@ -1216,12 +1216,12 @@ type
     ButtonDevelopers: TThemeButton;
     ButtonExit:       TThemeButton;
     TextOverview:     TThemeText;
-    TextVChecking:    TThemeText;
   end;
 
   //Developers
   TThemeDevelopers = class(TThemeBasic)
     ButtonExit:       TThemeButton;
+
     TextOverview:     TThemeText;
   end;
 
@@ -1232,6 +1232,7 @@ type
     ButtonSongs:      TThemeButton;
     ButtonBands:      TThemeButton;
     ButtonExit:       TThemeButton;
+
     TextOverview:     TThemeText;
   end;
 
@@ -2478,7 +2479,6 @@ begin
       ThemeLoadButton(AboutMain.ButtonDevelopers, 'AboutMainButtonDevelopers');
       ThemeLoadButton(AboutMain.ButtonExit, 'AboutMainButtonExit');
       ThemeLoadText (AboutMain.TextOverview, 'AboutMainTextOverview');
-      ThemeLoadText (AboutMain.TextVChecking, 'AboutMainVChecking');
 	  ThemeLoadStatic(AboutMain.StaticBghelper, 'AboutMainStatico');
 
       ThemeLoadBasic(Developers, 'Developers');
