@@ -1100,7 +1100,7 @@ begin
             if CatSongs.Song[Interaction].Main then
             begin // clicked on Category Button
               MainChessboardMinLine := ChessboardMinLine;
-              ChessboardMinLine := 0;
+              ChessboardMinLine := -1;
 
               MainListMinLine := ListMinLine;
               ListMinLine := 0;
@@ -3214,6 +3214,9 @@ begin
 
    // if ((TSongMenuMode(Ini.SongMenu) in [smList]) and (NextInt = 0)) then
    //   SongCurrent := -1;
+
+    if (TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smMosaic]) and (not Button[Interaction].Visible) then
+      ChessboardMinLine := ChessboardMinLine + 1;
   end;
 end;
 
@@ -3242,11 +3245,8 @@ begin
     if not ((TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic]) and (PrevInt > Interaction)) then
       Interaction := PrevInt;
 
-    if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic]) then
-    begin
-      if (not Button[Interaction].Visible) then
+    if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic]) and (not Button[Interaction].Visible) then
         ChessboardMinLine := ChessboardMinLine - 1;
-    end;
 
     // try to keep all at the beginning
     if SongTarget < 0 then
