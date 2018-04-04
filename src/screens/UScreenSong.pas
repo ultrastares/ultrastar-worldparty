@@ -1886,7 +1886,7 @@ begin
     glDeleteTextures(1, PGLuint(@Button[Interaction].Texture.TexNum));
     Button[Interaction].Texture.TexNum := 0;
   end;
-  Button[Interaction].Texture := Covers.FindCover(Button[Interaction].Texture.Name).GetTexture();}
+  Button[Interaction].Texture := Covers.AddCover(Button[Interaction].Texture.Name).GetTexture();}
   //basisbit todo here
 end;
 
@@ -2361,7 +2361,7 @@ begin
     glDeleteTextures(1, PGLuint(@Statics[StaticActual].Texture.TexNum));
   end;
 
-  Statics[StaticActual].Texture := Covers.FindCover(Button[Interaction].Texture.Name).GetTexture();
+  Statics[StaticActual].Texture := Covers.AddCover(Button[Interaction].Texture.Name).GetTexture();
   Statics[StaticActual].Texture.Alpha := 1;
 
   Statics[StaticActual].Texture.X := Theme.Song.Cover.SelectX;
@@ -2645,7 +2645,7 @@ begin
     glDeleteTextures(1, PGLuint(@Statics[StaticActual].Texture.TexNum));
   end;
 
-  Statics[StaticActual].Texture := Covers.FindCover(Button[Interaction].Texture.Name).GetTexture();
+  Statics[StaticActual].Texture := Covers.AddCover(Button[Interaction].Texture.Name).GetTexture();
   Statics[StaticActual].Texture.Alpha := 1;
 
   Statics[StaticActual].Texture.X := Theme.Song.Cover.SelectX;

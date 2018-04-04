@@ -57,7 +57,6 @@ type
     public
       constructor Create();
       destructor Destroy; override;
-      function FindCover(const Filename: IPath): TCover;
       function AddCover(const Filename: IPath): TCover;
       function GetMaxCoverSize(): integer;
   end;
@@ -129,12 +128,6 @@ end;
 function TCoverDatabase.GetMaxCoverSize(): integer;
 begin
   Result := ITextureSizeVals[Ini.TextureSize];
-end;
-
-{* TODO delete when change UScreenSong calls *}
-function TCoverDatabase.FindCover(const Filename: IPath): TCover;
-begin
-  Result := AddCover(Filename);
 end;
 
 function TCoverDatabase.AddCover(const Filename: IPath): TCover;
