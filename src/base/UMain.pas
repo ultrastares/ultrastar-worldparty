@@ -66,7 +66,6 @@ uses
   dglOpenGL,
   UAvatars,
   UCatCovers,
-  UCovers,
   UCommandLine,
   UCommon,
   UConfig,
@@ -184,7 +183,6 @@ begin
     Ini.Load;
 
     //load and check songs and get covers and category covers
-    UCovers.Covers := TCoverDatabase.Create;
     UCatCovers.CatCovers := TCatCovers.Create;
     USongs.CatSongs := TCatSongs.Create;
     USongs.Songs := TSongs.Create; //in a new thread

@@ -146,7 +146,6 @@ uses
   UCommandLine,
   UCommon,
   UConfig,
-  UCovers,
   UDataBase,
   UGraphic,
   UGraphicClasses,

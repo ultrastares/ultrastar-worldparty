@@ -137,7 +137,6 @@ implementation
 uses
   FileUtil,
   StrUtils,
-  UCovers,
   UFiles,
   UFilesystem,
   UGraphic,

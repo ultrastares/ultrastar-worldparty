@@ -137,7 +137,6 @@ uses
   StrUtils,
   Math,
   ULog,
-  UCovers,
   UThemes,
   UImage;
 

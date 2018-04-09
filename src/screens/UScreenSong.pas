@@ -153,7 +153,7 @@ type
       TextNonParty:   array of cardinal;
 
       // for chessboard songmenu
-      StaticActual: integer;
+      MainCover: integer;
 
       // for list songmenu
       StaticList: array of integer;
@@ -272,6 +272,7 @@ type
       procedure OnSongDeSelect; // called before current song is deselected
 
       procedure LoadCover(NumberOfButtonInArray: integer);
+      procedure LoadMainCover();
 
       procedure SongScore;
 
@@ -298,7 +299,6 @@ implementation
 uses
   Math,
   dglOpenGL,
-  UCovers,
   UGraphic,
   UMain,
   UMenuButton,
@@ -1664,7 +1664,7 @@ begin
     StaticMedley[I] := AddStatic(Theme.Song.StaticMedley[I]);
   end;
 
-  StaticActual := AddStatic(Theme.Song.Cover.SelectX, Theme.Song.Cover.SelectY,
+  Self.MainCover := AddStatic(Theme.Song.Cover.SelectX, Theme.Song.Cover.SelectY,
                             Theme.Song.Cover.SelectW, Theme.Song.Cover.SelectH, PATH_NONE);
 
   Num := Theme.Song.ListCover.Rows;
@@ -2356,22 +2356,7 @@ end;
 
 procedure TScreenSong.SetChessboardScrollRefresh;
 begin
-  if Statics[StaticActual].Texture.Name <> Skin.GetTextureFileName('SongCover') then
-  begin
-    glDeleteTextures(1, PGLuint(@Statics[StaticActual].Texture.TexNum));
-  end;
-
-  Statics[StaticActual].Texture := Covers.AddCover(Button[Interaction].Texture.Name).GetTexture();
-  Statics[StaticActual].Texture.Alpha := 1;
-
-  Statics[StaticActual].Texture.X := Theme.Song.Cover.SelectX;
-  Statics[StaticActual].Texture.Y := Theme.Song.Cover.SelectY;
-  Statics[StaticActual].Texture.W := Theme.Song.Cover.SelectW;
-  Statics[StaticActual].Texture.H := Theme.Song.Cover.SelectH;
-  Statics[StaticActual].Texture.Z := 1;
-
-  Statics[StaticActual].Reflection := Theme.Song.Cover.SelectReflection;
-  Statics[StaticActual].Reflectionspacing := Theme.Song.Cover.SelectReflectionSpacing;
+  Self.LoadMainCover();
 end;
 
 (**
@@ -2640,23 +2625,7 @@ var
   SongID: array of integer;
   Alpha: real;
 begin
-  if Statics[StaticActual].Texture.Name <> Skin.GetTextureFileName('SongCover') then
-  begin
-    glDeleteTextures(1, PGLuint(@Statics[StaticActual].Texture.TexNum));
-  end;
-
-  Statics[StaticActual].Texture := Covers.AddCover(Button[Interaction].Texture.Name).GetTexture();
-  Statics[StaticActual].Texture.Alpha := 1;
-
-  Statics[StaticActual].Texture.X := Theme.Song.Cover.SelectX;
-  Statics[StaticActual].Texture.Y := Theme.Song.Cover.SelectY;
-  Statics[StaticActual].Texture.W := Theme.Song.Cover.SelectW;
-  Statics[StaticActual].Texture.H := Theme.Song.Cover.SelectH;
-  Statics[StaticActual].Texture.Z := 1;
-
-  Statics[StaticActual].Reflection := Theme.Song.Cover.SelectReflection;
-  Statics[StaticActual].Reflectionspacing := Theme.Song.Cover.SelectReflectionSpacing;
-
+  Self.LoadMainCover();
   for I := 0 to High(StaticsList) do
   begin
     Text[ListTextArtist[I]].Text := '';
@@ -2768,20 +2737,6 @@ begin
       AddButton(300 + I*250, 140, 200, 200, PATH_NONE, TEXTURE_TYPE_PLAIN, Theme.Song.Cover.Reflections);
 
   CloseMessage();
-
-  if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic]) then
-  begin
-    Statics[StaticActual].Texture.X := Theme.Song.Cover.SelectX;
-    Statics[StaticActual].Texture.Y := Theme.Song.Cover.SelectY;
-    Statics[StaticActual].Texture.W := Theme.Song.Cover.SelectW;
-    Statics[StaticActual].Texture.H := Theme.Song.Cover.SelectH;
-    Statics[StaticActual].Texture.Z := 1;
-    Statics[StaticActual].Reflection := Theme.Song.Cover.SelectReflection;
-    Statics[StaticActual].Reflectionspacing := Theme.Song.Cover.SelectReflectionSpacing;
-    Statics[StaticActual].Visible := true;
-  end
-  else
-    Statics[StaticActual].Visible := false;
 
   if (TSongMenuMode(Ini.SongMenu) <> smList) then
   begin
@@ -2980,20 +2935,16 @@ begin
   if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smList]) then
   begin
     if not(Assigned(fCurrentVideo)) then
-      Statics[StaticActual].Texture.Alpha := 1
-    else
+      Statics[Self.MainCover].Texture.Alpha := 1
+    else if (CoverTime < 9) then
     begin
-      if (CoverTime < 9) and Assigned(fCurrentVideo) then
-      begin
-
         //Update Fading Time
-        CoverTime := CoverTime + TimeSkip;
+      CoverTime := CoverTime + TimeSkip;
 
-        //Update Fading Texture
-        Statics[StaticActual].Texture.Alpha := 1 - (CoverTime - 1) * 1.5;
-        if Statics[StaticActual].Texture.Alpha < 0 then
-          Statics[StaticActual].Texture.Alpha := 0;
-      end;
+      //Update Fading Texture
+      Statics[Self.MainCover].Texture.Alpha := 1 - (CoverTime - 1) * 1.5;
+      if Statics[Self.MainCover].Texture.Alpha < 0 then
+        Statics[Self.MainCover].Texture.Alpha := 0;
     end;
   end
   else
@@ -3216,7 +3167,8 @@ begin
    //   SongCurrent := -1;
 
     if (TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smMosaic]) and (not Button[Interaction].Visible) then
-      ChessboardMinLine := ChessboardMinLine + 1;
+        ChessboardMinLine := ChessboardMinLine + 1;
+
   end;
 end;
 
@@ -3817,17 +3769,32 @@ end;
 procedure TScreenSong.LoadCover(NumberOfButtonInArray: integer);
 var
   CoverFile: IPath;
-  Song: TSong;
 begin
   if not Assigned(Button[NumberOfButtonInArray].Texture.Name) then
   begin
-    Song := CatSongs.Song[NumberOfButtonInArray];
-    CoverFile := Song.Path.Append(Song.Cover);
+    CoverFile := USongs.CatSongs.Song[NumberOfButtonInArray].Path.Append(USongs.CatSongs.Song[NumberOfButtonInArray].Cover);
     if not CoverFile.IsFile() then
-      CoverFile := Skin.GetTextureFileName('SongCover');
+      CoverFile := USkins.Skin.GetTextureFileName('SongCover');
 
-    Button[NumberOfButtonInArray].Texture := Covers.AddCover(CoverFile).GetTexture();
+    Button[NumberOfButtonInArray].Texture := UTexture.Texture.LoadTexture(CoverFile);
   end;
+end;
+
+procedure TScreenSong.LoadMainCover();
+begin
+  if Statics[Self.MainCover].Texture.Name <> Skin.GetTextureFileName('SongCover') then
+    glDeleteTextures(1, PGLuint(@Statics[Self.MainCover].Texture.TexNum));
+
+  if TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then //to load cover after change line
+    Self.LoadCover(Self.Interaction);
+
+  Statics[Self.MainCover].Texture := UTexture.Texture.LoadTexture(Button[Self.Interaction].Texture.Name);
+  Statics[Self.MainCover].Texture.X := Theme.Song.Cover.SelectX;
+  Statics[Self.MainCover].Texture.Y := Theme.Song.Cover.SelectY;
+  Statics[Self.MainCover].Texture.W := Theme.Song.Cover.SelectW;
+  Statics[Self.MainCover].Texture.H := Theme.Song.Cover.SelectH;
+  Statics[Self.MainCover].Texture.Z := 1;
+  Statics[Self.MainCover].Texture.Alpha := 1;
 end;
 
 procedure TScreenSong.Refresh;

@@ -198,7 +198,6 @@ implementation
 uses
   StrUtils,
   UCommon,
-  UCovers,
   UDisplay,
   UDrawTexture,
   UGraphic,
