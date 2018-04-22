@@ -754,12 +754,13 @@ begin
   end
   else
   begin
-    for i := 0 to High(Song) do
+    for I := 0 to High(Song) do
     begin
-      Song[i].Visible := (Ini.Tabs = 1) = Song[i].Main;
-      CatNumShow := -1;
+      Song[I].Visible := (UIni.Ini.Tabs = 1) = Song[I].Main;
+      if Song[I].Visible then
+        Inc(Result);
     end;
-    Result := 0;
+    CatNumShow := -1;
   end;
   Self.VisibleSongs := Result;
 end;

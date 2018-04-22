@@ -290,8 +290,6 @@ type
 
       procedure ParseInputNextVertical(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
       procedure ParseInputPrevVertical(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
-
-      procedure ResetScrollList;
   end;
 
 implementation
@@ -396,17 +394,6 @@ begin
   Text[TextCat].Text := Theme.Song.TextCat.Text;
 end;
 //Show Cat in Top Left Mod End
-
-procedure TScreenSong.ResetScrollList();
-begin
-  if (TSongMenuMode(Ini.SongMenu) = smList) then
-  begin
-    ListFirstVisibleSongIndex := 0;
-    ListMinLine := 0;
-    ListLastMinLine := 0;
-    SetScrollRefresh;
-  end;
-end;
 
 procedure TScreenSong.ParseInputNextHorizontal(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
 var
@@ -519,9 +506,6 @@ begin
         SelectNextRow;
         SetScrollRefresh;
       end;
-
-   //   ResetScrollList;
-
     end
     else
     begin
@@ -582,9 +566,6 @@ begin
         SelectPrevRow;
         SetScrollRefresh;
       end;
-
-   //   ResetScrollList;
-
     end
     else
     begin
@@ -982,7 +963,8 @@ begin
       SDLK_ESCAPE,
       SDLK_BACKSPACE :
         begin
-          CloseMessage();
+          Self.CloseMessage();
+          Self.HideCatTL();
 
           if (FreeListMode) then
           begin
@@ -1026,9 +1008,6 @@ begin
 
               CatSongs.ShowCategoryList;
 
-              //Show Cat in Top Left Mod
-              HideCatTL;
-
               //Show Wrong Song when Tabs on Fix
               if (Fix) then
               begin
@@ -1048,22 +1027,17 @@ begin
             begin
               //On Escape goto Cat-List Hack End
               //Tabs off and in Search or Playlist -> Go back to Song view
+              Self.StopMusicPreview();
               if (CatSongs.CatNumShow < -1) then
               begin
-                //Atm: Set Empty Filter
                 CatSongs.SetFilter('', fltAll);
-
-                //Show Cat in Top Left Mod
-                HideCatTL;
                 Interaction := 0;
-
-                //Show Wrong Song when Tabs on Fix
-                SelectNext;
-                FixSelected;
+                //it not needed in all modes, for example chessboard
+                Self.SelectNext();
+                Self.FixSelected();
               end
               else
               begin
-                StopMusicPreview();
 
                 //if (Mode = smPartyTournament) then
                 //  CurrentPartyTime := MAX_TIME - StrToInt(Text[TextPartyTime].Text);
@@ -1100,11 +1074,11 @@ begin
             if CatSongs.Song[Interaction].Main then
             begin // clicked on Category Button
               MainChessboardMinLine := ChessboardMinLine;
-              ChessboardMinLine := -1;
+              ChessboardMinLine := 0;
 
               MainListMinLine := ListMinLine;
               ListMinLine := 0;
-
+              ListLastMinLine := 0;
               ListFirstVisibleSongIndex := 0;
 
               //Show Cat in Top Left Mod
@@ -1115,10 +1089,7 @@ begin
               //Show Wrong Song when Tabs on Fix
               SelectNext;
               FixSelected;
-
               SetScrollRefresh;
-
-              ResetScrollList;
             end
             else
             begin // clicked on song
@@ -2822,9 +2793,6 @@ begin
     CatSongs.ShowCategoryList;
     if (TSongMenuMode(Ini.SongMenu) <> smCarousel) and (TSongMenuMode(Ini.SongMenu) <> smSlide) then
       FixSelected;
-
-    //Show Cat in Top Left Mod
-    HideCatTL;
   end
   else //initialize visible songs
     USongs.CatSongs.SetVisibleSongs();

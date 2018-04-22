@@ -92,8 +92,8 @@ begin
         Button[0].Text[0].ColR := Theme.SongJumpto.ButtonSearchText.ColR;
         Button[0].Text[0].ColG := Theme.SongJumpto.ButtonSearchText.ColG;
         Button[0].Text[0].ColB := Theme.SongJumpto.ButtonSearchText.ColB;
-
         Button[0].Text[0].Text := Button[0].Text[0].Text + UCS4ToUTF8String(CharCode);
+        ScreenSong.ChessboardMinLine := 0;
         SetTextFound(CatSongs.SetFilter(Button[0].Text[0].Text, fSelectType));
       end;
     end;
@@ -105,6 +105,7 @@ begin
           if (Interaction = 0) and (Length(Button[0].Text[0].Text) > 0) then
           begin
             Button[0].Text[0].DeleteLastLetter();
+            ScreenSong.ChessboardMinLine := -1;
             SetTextFound(CatSongs.SetFilter(Button[0].Text[0].Text, fSelectType));
           end;
         end;
@@ -118,8 +119,7 @@ begin
           begin
             //ScreenSong.UnLoadDetailedCover;
             Button[0].Text[0].Text := '';
-            CatSongs.SetFilter('', fltAll);
-            SetTextFound(0);
+            SetTextFound(CatSongs.SetFilter('', fltAll));
           end;
         end;
 
@@ -234,20 +234,8 @@ begin
   //Set visSongs
   fVisSongs := Count;
 
-  //Fix SongSelection
-  if (TSongMenuMode(Ini.SongMenu) in [smRoulette, smCarousel, smSlide, smSlotMachine]) then
-  begin
-    ScreenSong.Interaction := high(CatSongs.Song);
-  end;
-
-  if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic]) then
-  begin
-    ScreenSong.Interaction := 0;
-    ScreenSong.ChessboardMinLine := 0;
-    ScreenSong.ListMinLine := 0;
-  end;
-
-  USongs.CatSongs.SetVisibleSongs(); //needed to use USongs.CatSongs.GetVisibleSongs() in ScreenSong methods
+  ScreenSong.Interaction := 0;
+  ScreenSong.ListMinLine := 0;
   ScreenSong.SelectNext;
   ScreenSong.FixSelected;
   ScreenSong.SetScrollRefresh;
