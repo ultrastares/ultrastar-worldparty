@@ -244,7 +244,7 @@ type
       procedure SelectPrev();
       procedure SelectNextRow;
       procedure SelectPrevRow;
-      procedure SkipTo(Target: cardinal; TargetInteraction: integer = 0);
+      procedure SkipTo(Target: cardinal);
       procedure FixSelected; //Show Wrong Song when Tabs on Fix
       procedure FixSelected2; //Show Wrong Song when Tabs on Fix
       procedure ShowCatTL(Cat: integer);// Show Cat in Top left
@@ -297,6 +297,7 @@ implementation
 uses
   Math,
   dglOpenGL,
+  StrUtils,
   UGraphic,
   UMain,
   UMenuButton,
@@ -306,7 +307,8 @@ uses
   UPlaylist,
   UScreenSongMenu,
   USkins,
-  UUnicodeUtils, UMenuStatic;
+  UUnicodeUtils,
+  UMenuStatic;
 
 const
   MAX_TIME = 30;
@@ -316,10 +318,7 @@ const
 // ***** Public methods ****** //
 function TScreenSong.FreeListMode: boolean;
 begin
-  if ((Mode = smNormal) or (Mode = smPartyTournament) or (Mode = smPartyFree) or (Mode = smJukebox)) then
-    Result := true
-  else
-    Result := false;
+  Result := (Mode in [smNormal, smPartyTournament, smPartyFree, smJukebox]);
 end;
 
 //Show Wrong Song when Tabs on Fix
@@ -585,11 +584,11 @@ end;
 // should be checked to know the next window to load;
 function TScreenSong.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
 var
-  I:      integer;
-  I2:     integer;
-  SDL_ModState:  word;
-  UpperLetter: UCS4Char;
-  TempStr: UTF8String;
+  I: integer;
+  I2: integer;
+  SDL_ModState: word;
+  PressedKeyEncoded: UTF8String;
+  Song: USong.TSong;
   VerifySong, WebList: string;
   Fix: boolean;
 begin
@@ -609,116 +608,34 @@ begin
 
   if (PressedDown) then
   begin // Key Down
+    SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
 
-    SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT
-    + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
-
-    //Jump to Artist/Titel
-    if ((SDL_ModState and KMOD_LALT <> 0) and (FreeListMode)) then
+    //jump to artist or title letter
+    if Self.FreeListMode() and ((SDL_ModState = KMOD_LCTRL) or (SDL_ModState = KMOD_LALT)) then
     begin
-      if(PressedKey > 1114111) then
-      begin
-        Exit;
-      end;
-      UpperLetter := UCS4UpperCase(PressedKey);
-
       if (PressedKey in ([SDLK_a..SDLK_z, SDLK_0..SDLK_9])) then
       begin
-        I2 := Length(CatSongs.Song);
-
-        //Jump To Titel
-        if (SDL_ModState = (KMOD_LALT or KMOD_LSHIFT)) then
+        PressedKeyEncoded := UUnicodeUtils.UCS4ToUTF8String(PressedKey);
+        for I2 := 0 to 1 do
         begin
-          for I := 1 to High(CatSongs.Song) do
+          I := 0;
+          for Song in CatSongs.Song do
           begin
-            if (CatSongs.Song[(I + Interaction) mod I2].Visible) then
+            if
+              Song.Visible
+              and (((I2 = 0) and (I > Interaction)) or ((I2 = 1) and (I < Interaction)))
+              and UUnicodeUtils.UTF8StartsText(PressedKeyEncoded, IfThen(SDL_ModState = KMOD_LCTRL, Song.Title, Song.Artist))
+            then
             begin
-              TempStr := CatSongs.Song[(I + Interaction) mod I2].Title;
-              if (Length(TempStr) > 0) and
-                 (UCS4UpperCase(UTF8ToUCS4String(TempStr)[0]) = UpperLetter) then
-              begin
-                SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2);
-
-                SetScrollRefresh;
-                //Break and Exit
-                Exit;
-              end;
-            end;
-          end;
-        end
-        //Jump to Artist
-        else if (SDL_ModState = KMOD_LALT) then
-        begin
-          for I := 1 to High(CatSongs.Song) do
-          begin
-            if (CatSongs.Song[(I + Interaction) mod I2].Visible) then
-            begin
-              TempStr := CatSongs.Song[(I + Interaction) mod I2].Artist;
-              if (Length(TempStr) > 0) and
-                 (UCS4UpperCase(UTF8ToUCS4String(TempStr)[0]) = UpperLetter) then
-              begin
-                SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2);
-
-                SetScrollRefresh;
-
-                //Break and Exit
-                Exit;
-              end;
-            end;
-          end;
-        end;
-      end;
-
-      Exit;
-    end
-    else if (((PressedKey = SDLK_PAGEUP) or (PressedKey = SDLK_PAGEDOWN)) and (FreeListMode)) then
-    begin
-      I2 := Length(CatSongs.Song);
-      //get first letter of artist of currently selected song
-      UpperLetter := UCS4UpperCase(UTF8ToUCS4String(CatSongs.Song[(Interaction) mod I2].Artist)[0]);
-      if (PressedKey = SDLK_PAGEDOWN) then
-      begin
-        for I := 1 to High(CatSongs.Song) do
-        begin
-          if (CatSongs.Song[(I + Interaction) mod I2].Visible) then
-          begin
-            TempStr := CatSongs.Song[(I + Interaction) mod I2].Artist;
-            if (Length(TempStr) > 0) and
-               (UCS4UpperCase(UTF8ToUCS4String(TempStr)[0]) <> UpperLetter) then
-            begin
-              SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2);
-              SetScrollRefresh;
+              Self.SkipTo(I);
               Exit;
             end;
-          end;
-        end;
-      end
-      else if (PressedKey = SDLK_PAGEUP) then
-      begin
-        for I := High(CatSongs.Song) downto 1 do
-        begin
-          if (CatSongs.Song[(I + Interaction) mod I2].Visible) then
-          begin
-            TempStr := CatSongs.Song[(I + Interaction) mod I2].Artist;
-            if (Length(TempStr) > 0) and
-               (UCS4UpperCase(UTF8ToUCS4String(TempStr)[0]) <> UpperLetter) then
-            begin
-              SkipTo(CatSongs.VisibleIndex((I + Interaction) mod I2), (I + Interaction) mod I2);
-              SetScrollRefresh;
-              Exit;
-            end;
+            Inc(I);
           end;
         end;
       end;
       Exit;
     end;
-
-    // **********************
-    // * workaround for LCTRL+R: it should be changed when we have a solution for the
-    // * CTRL+'A'..'Z' problem
-    if (SDL_ModState = KMOD_LCTRL) and (PressedKey = SDLK_R) then
-      CharCode := UCS4Char('R');
-    // **********************
 
     // check normal keys
     case UCS4UpperCase(CharCode) of
@@ -921,11 +838,11 @@ begin
                 Inc(I2);
 
               // choose song
-              SkipTo(I2 - I);
+              Self.SkipTo(I2 - I);
             end
             else // random in one category
             begin
-              SkipTo(Random(USongs.CatSongs.GetVisibleSongs()));
+              Self.SkipTo(Random(USongs.CatSongs.GetVisibleSongs()));
             end;
 
             SetScrollRefresh;
@@ -3385,7 +3302,7 @@ begin
   StartVideoPreview();
 end;
 
-procedure TScreenSong.SkipTo(Target: cardinal; TargetInteraction: integer = 0);
+procedure TScreenSong.SkipTo(Target: cardinal);
 var
   i: integer;
   MaxLine: real;
@@ -3404,7 +3321,7 @@ begin
 
   if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic]) then
   begin
-    Interaction := TargetInteraction;
+    Interaction := Target;
     SongTarget := Interaction;
 
     if not (Button[Interaction].Visible) then
@@ -3432,10 +3349,33 @@ begin
   end;
 end;
 
+
 procedure TScreenSong.SelectRandomSong;
+  procedure SkipToNoDuet();
+  var
+    Count: Integer;
+    RealTarget, Target: cardinal;
+  begin
+    if (Mode = smPartyClassic) then
+    begin
+      repeat
+        Target := Random(USongs.CatSongs.GetVisibleSongs());
+        RealTarget := -1;
+        Count := -1;
+        repeat
+          Inc(RealTarget);
+          if (CatSongs.Song[RealTarget].Visible) then
+            Inc(Count);
+        until (Count = Target);
+      until not(CatSongs.Song[RealTarget].isDuet);
+    end
+    else
+      Target := Random(USongs.CatSongs.GetVisibleSongs());
+
+    Self.SkipTo(Target);
+  end;
 var
   I, I2, Count, RealTarget: integer;
-  Target: cardinal;
 begin
   case PlayListMan.Mode of
       smAll:  // all songs just select random song
@@ -3463,118 +3403,22 @@ begin
 
             CatSongs.ClickCategoryButton(I);
             SelectNext;
-
-            // choose song
-            // duets not playble
-            if (Mode = smPartyClassic) then
-            begin
-              repeat
-                Target := Random(USongs.CatSongs.GetVisibleSongs());
-
-                RealTarget := -1;
-                Count := -1;
-
-                repeat
-                  Inc(RealTarget);
-
-                  if (CatSongs.Song[RealTarget].Visible) then
-                    Inc(Count);
-                until (Count = Target);
-
-              until not(CatSongs.Song[RealTarget].isDuet);
-            end
-            else
-              Target := Random(USongs.CatSongs.GetVisibleSongs());
-
-            SkipTo(Target, RealTarget);
-            //SkipTo(I2 - I);
-          end
-          // when tabs are deactivated use easy method
-          else
-          begin
-            // duets not playble
-            if (Mode = smPartyClassic) then
-            begin
-              repeat
-                Target := Random(USongs.CatSongs.GetVisibleSongs());
-
-                RealTarget := -1;
-                Count := -1;
-
-                repeat
-                  Inc(RealTarget);
-
-                  if (CatSongs.Song[RealTarget].Visible) then
-                    Inc(Count);
-                until (Count = Target);
-
-              until not(CatSongs.Song[RealTarget].isDuet);
-            end
-            else
-              Target := Random(USongs.CatSongs.GetVisibleSongs());
-
-            SkipTo(Target);
           end;
+          SkipToNoDuet();
         end;
       smCategory:  // one category select category and select random song
         begin
-
           CatSongs.ShowCategoryList;
           CatSongs.ClickCategoryButton(PlaylistMan.CurPlayList);
           ShowCatTL(PlaylistMan.CurPlayList);
-
           SelectNext;
           FixSelected2;
-
-          // duets not playble
-          if (Mode = smPartyClassic) then
-          begin
-            repeat
-              Target := Random(USongs.CatSongs.GetVisibleSongs());
-
-              RealTarget := -1;
-              Count := -1;
-
-              repeat
-                Inc(RealTarget);
-
-                if (CatSongs.Song[RealTarget].Visible) then
-                  Inc(Count);
-              until (Count = Target);
-
-            until not(CatSongs.Song[RealTarget].isDuet);
-          end
-          else
-            Target := Random(USongs.CatSongs.GetVisibleSongs());
-
-          SkipTo(Target);
+          SkipToNoDuet();
         end;
       smPlaylist:  // playlist: select playlist and select random song
         begin
           PlaylistMan.SetPlayList(PlaylistMan.CurPlayList);
-
-          // duets not playble
-          if (Mode = smPartyClassic) then
-          begin
-            repeat
-              Target := Random(USongs.CatSongs.GetVisibleSongs());
-
-              RealTarget := -1;
-              Count := -1;
-
-              repeat
-                Inc(RealTarget);
-
-                if (CatSongs.Song[RealTarget].Visible) then
-                  Inc(Count);
-              until (Count = Target);
-
-            until not(CatSongs.Song[RealTarget].isDuet);
-          end
-          else
-            Target := Random(USongs.CatSongs.GetVisibleSongs());
-
-          SkipTo(Target);
+          SkipToNoDuet();
           FixSelected2;
         end;
   end;
