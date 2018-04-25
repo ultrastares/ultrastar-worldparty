@@ -704,11 +704,10 @@ var
   WordArray: array of UTF8String;
 begin
   Self.VisibleSongs := 0;
+  Result := 0;
   FilterStr := UCommon.GetStringWithNoAccents(Trim(LowerCase(FilterStr)));
   if FilterStr <> '' then
   begin
-    Result := 0;
-
     // initialize word array
     SetLength(WordArray, 1);
 
