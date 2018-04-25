@@ -2154,6 +2154,7 @@ begin
 
     if (Button[B].Visible) then
     begin
+      Button[B].SetSelect(true);
       LastVisibleSongIndex := B;
 
       if (First) then
