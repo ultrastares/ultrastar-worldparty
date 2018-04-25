@@ -93,7 +93,6 @@ begin
         Button[0].Text[0].ColG := Theme.SongJumpto.ButtonSearchText.ColG;
         Button[0].Text[0].ColB := Theme.SongJumpto.ButtonSearchText.ColB;
         Button[0].Text[0].Text := Button[0].Text[0].Text + UCS4ToUTF8String(CharCode);
-        ScreenSong.ChessboardMinLine := 0;
         SetTextFound(CatSongs.SetFilter(Button[0].Text[0].Text, fSelectType));
       end;
     end;
@@ -105,7 +104,6 @@ begin
           if (Interaction = 0) and (Length(Button[0].Text[0].Text) > 0) then
           begin
             Button[0].Text[0].DeleteLastLetter();
-            ScreenSong.ChessboardMinLine := -1;
             SetTextFound(CatSongs.SetFilter(Button[0].Text[0].Text, fSelectType));
           end;
         end;

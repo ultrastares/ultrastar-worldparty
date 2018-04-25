@@ -2245,6 +2245,11 @@ end;
 procedure TScreenSong.SetChessboardScrollRefresh;
 begin
   Self.LoadMainCover();
+  if not (Button[Self.Interaction].Visible) then
+    Self.ChessboardMinLine := Max(
+      0,
+      Ceil((USongs.CatSongs.VisibleIndex(Self.Interaction) + 1 - Theme.Song.Cover.Cols * Theme.Song.Cover.Rows) / Theme.Song.Cover.Cols)
+    );
 end;
 
 (**
@@ -3050,10 +3055,6 @@ begin
 
    // if ((TSongMenuMode(Ini.SongMenu) in [smList]) and (NextInt = 0)) then
    //   SongCurrent := -1;
-
-    if (TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smMosaic]) and (not Button[Interaction].Visible) then
-        ChessboardMinLine := ChessboardMinLine + 1;
-
   end;
 end;
 
@@ -3081,9 +3082,6 @@ begin
 
     if not ((TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic]) and (PrevInt > Interaction)) then
       Interaction := PrevInt;
-
-    if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic]) and (not Button[Interaction].Visible) then
-        ChessboardMinLine := ChessboardMinLine - 1;
 
     // try to keep all at the beginning
     if SongTarget < 0 then
@@ -3131,9 +3129,6 @@ begin
       if (CatSongs.Song[SongIndexRow - 1].Visible) then
         Interaction := SongIndexRow - 1;
     end;
-
-    if (not Button[Interaction].Visible) then
-      ChessboardMinLine := ChessboardMinLine + 1;
   end;
 end;
 
@@ -3176,9 +3171,6 @@ begin
     end;
 
   end;
-
-  if (not Button[Interaction].Visible) then
-    ChessboardMinLine := ChessboardMinLine - 1;
 end;
 
 procedure TScreenSong.StartMusicPreview();
@@ -3304,48 +3296,23 @@ end;
 
 procedure TScreenSong.SkipTo(Target: cardinal);
 var
-  i: integer;
-  MaxLine: real;
-  ChessboardLine: real;
+  I: integer;
 begin
-  if (TSongMenuMode(Ini.SongMenu) in [smRoulette, smCarousel, smSlide, smSlotMachine]) then
+  if (TSongMenuMode(UIni.Ini.SongMenu) in [smRoulette, smCarousel, smSlide, smSlotMachine]) then
   begin
-    Interaction := High(CatSongs.Song);
-    SongTarget  := 0;
+    Self.Interaction := High(CatSongs.Song);
+    Self.SongTarget := 0;
+    for I := 0 to Target do
+      Self.SelectNext();
 
-    for i := 1 to Target+1 do
-      SelectNext;
-
-    FixSelected2;
-  end;
-
-  if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic]) then
+    Self.FixSelected2();
+  end
+  else if (TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smList, smMosaic]) then
   begin
-    Interaction := Target;
-    SongTarget := Interaction;
-
-    if not (Button[Interaction].Visible) then
-    begin
-      ChessboardLine := (CatSongs.VisibleIndex(Interaction) - Theme.Song.Cover.Cols * Theme.Song.Cover.Rows) / Theme.Song.Cover.Cols;
-
-      if (Frac(ChessboardLine) > 0) then
-        ChessboardMinLine := Round(ChessboardLine) + 1
-      else
-        ChessboardMinLine := Round(ChessboardLine);
-
-      MaxLine := (USongs.CatSongs.GetVisibleSongs() - Theme.Song.Cover.Cols * Theme.Song.Cover.Rows) / Theme.Song.Cover.Cols;
-
-      if (Frac(Maxline) > 0) then
-        MaxLine := Round(MaxLine) + 1
-      else
-        MaxLine := Round(MaxLine);
-
-      if (ChessboardMinLine > MaxLine) then
-        ChessboardMinLine := Round(MaxLine);
-    end;
-
-    FixSelected;
-    OnSongSelect;
+    Self.Interaction := Target;
+    Self.SongTarget := Self.Interaction;
+    Self.OnSongSelect();
+    Self.SetScrollRefresh();
   end;
 end;
 
