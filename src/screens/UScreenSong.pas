@@ -64,6 +64,9 @@ type
       MainChessboardMinLine: integer;
       MainListMinLine: integer;
 
+      ChessboardMinLine: integer; //current chessboard line
+      ChessboardIncrement: integer; //number of extra lines to advance
+
       LastVisibleSongIndex: integer;
       FirstVisibleSongIndex: integer;
 
@@ -202,7 +205,6 @@ type
       MessageTime: cardinal;
       MessageTimeFade: cardinal;
 
-      ChessboardMinLine: integer;
       ListMinLine: integer;
       ListLastMinLine: integer;
 
@@ -502,8 +504,18 @@ begin
       else
       begin
         // chessboard change row
-        SelectNextRow;
-        SetScrollRefresh;
+        if PressedKey = SDLK_PAGEDOWN then //change a entire page
+        begin
+          Self.ChessboardIncrement := Theme.Song.Cover.Rows - 1;
+          for I := 1 to Theme.Song.Cover.Rows do
+            Self.SelectNextRow();
+        end
+        else //change a single line
+        begin
+          Self.ChessboardIncrement := 0;
+          Self.SelectNextRow();
+        end;
+        Self.SetScrollRefresh();
       end;
     end
     else
@@ -562,8 +574,18 @@ begin
       else
       begin
         // chessboard change row
-        SelectPrevRow;
-        SetScrollRefresh;
+        if PressedKey = SDLK_PAGEUP then //change a entire page
+        begin
+          Self.ChessboardIncrement := Theme.Song.Cover.Rows - 1;
+          for I := 1 to Theme.Song.Cover.Rows do
+            Self.SelectPrevRow();
+        end
+        else //change a single line
+        begin
+          Self.ChessboardIncrement := 0;
+          Self.SelectPrevRow();
+        end;
+        Self.SetScrollRefresh();
       end;
     end
     else
@@ -1081,41 +1103,33 @@ begin
               end;
           end;
         end;
-
-      SDLK_DOWN:
+      SDLK_DOWN, SDLK_PAGEDOWN:
         begin
           LastSelectTime := SDL_GetTicks;
-
           if (TSongMenuMode(Ini.SongMenu) in [smSlotMachine, smList]) then
             ParseInputNextHorizontal(PressedKey, CharCode, PressedDown)
           else
             ParseInputNextVertical(PressedKey, CharCode, PressedDown);
         end;
-
-      SDLK_UP:
+      SDLK_UP, SDLK_PAGEUP:
         begin
           LastSelectTime := SDL_GetTicks;
-
           if (TSongMenuMode(Ini.SongMenu) in [smSlotMachine, smList]) then
             ParseInputPrevHorizontal(PressedKey, CharCode, PressedDown)
           else
             ParseInputPrevVertical(PressedKey, CharCode, PressedDown);
         end;
-
       SDLK_RIGHT:
         begin
           LastSelectTime := SDL_GetTicks;
-
           if (TSongMenuMode(Ini.SongMenu) in [smSlotMachine, smList]) then
             ParseInputNextVertical(PressedKey, CharCode, PressedDown)
           else
             ParseInputNextHorizontal(PressedKey, CharCode, PressedDown);
         end;
-
       SDLK_LEFT:
         begin
           LastSelectTime := SDL_GetTicks;
-
           if (TSongMenuMode(Ini.SongMenu) in [smSlotMachine, smList]) then
             ParseInputPrevVertical(PressedKey, CharCode, PressedDown)
           else
@@ -1633,6 +1647,7 @@ begin
   MainChessboardMinLine := 0;
   MainListMinLine := 0;
 
+  Self.ChessboardIncrement := 0;
   ChessboardMinLine := 0;
   ListMinLine := 0;
 
@@ -2248,7 +2263,7 @@ begin
   if not (Button[Self.Interaction].Visible) then
     Self.ChessboardMinLine := Max(
       0,
-      Ceil((USongs.CatSongs.VisibleIndex(Self.Interaction) + 1 - Theme.Song.Cover.Cols * Theme.Song.Cover.Rows) / Theme.Song.Cover.Cols)
+      Ceil((USongs.CatSongs.VisibleIndex(Self.Interaction) + 1 - Theme.Song.Cover.Cols * Theme.Song.Cover.Rows) / Theme.Song.Cover.Cols) + Self.ChessboardIncrement
     );
 end;
 
