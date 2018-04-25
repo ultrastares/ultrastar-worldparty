@@ -3552,10 +3552,9 @@ begin
   if not Assigned(Button[NumberOfButtonInArray].Texture.Name) then
   begin
     CoverFile := USongs.CatSongs.Song[NumberOfButtonInArray].Path.Append(USongs.CatSongs.Song[NumberOfButtonInArray].Cover);
-    if not CoverFile.IsFile() then
-      CoverFile := USkins.Skin.GetTextureFileName('SongCover');
-
     Button[NumberOfButtonInArray].Texture := UTexture.Texture.LoadTexture(CoverFile);
+    if not Assigned(Button[NumberOfButtonInArray].Texture.Name) then
+      Button[NumberOfButtonInArray].Texture := UTexture.Texture.LoadTexture(USkins.Skin.GetTextureFileName('SongCover'));
   end;
 end;
 
