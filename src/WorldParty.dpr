@@ -211,7 +211,6 @@ uses
   ULog              in 'base\ULog.pas',
   UJoystick         in 'base\UJoystick.pas',
   UDataBase         in 'base\UDataBase.pas',
-  UCovers           in 'base\UCovers.pas',
   UCatCovers        in 'base\UCatCovers.pas',
   UFiles            in 'base\UFiles.pas',
   UGraphicClasses   in 'base\UGraphicClasses.pas',
