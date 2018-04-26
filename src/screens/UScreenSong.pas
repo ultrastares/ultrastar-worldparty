@@ -2142,7 +2142,6 @@ begin
 
     if (Button[B].Visible) then
     begin
-      Button[B].SetSelect(true);
       LastVisibleSongIndex := B;
 
       if (First) then
@@ -2162,6 +2161,7 @@ begin
         LoadCover(B);
         if (Index = Interaction) then
         begin
+          Button[B].SetSelect(true);
           if (LastSelectTime <> 0) then
           begin
             CurrentTick := SDL_GetTicks;
@@ -2189,6 +2189,7 @@ begin
         end
         else
         begin
+          Button[B].SetSelect(false);
           Button[B].H := CoverH;
           Button[B].W := CoverW;
           Button[B].Z := 0.9;
