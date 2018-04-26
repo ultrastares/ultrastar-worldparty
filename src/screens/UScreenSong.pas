@@ -223,9 +223,6 @@ type
 
       procedure SetRouletteScrollRefresh;
       procedure SetChessboardScrollRefresh;
-      procedure SetCarouselScrollRefresh;
-      procedure SetSlotMachineScrollRefresh;
-      procedure SetSlideScrollRefresh;
       procedure SetListScrollRefresh;
 
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -273,7 +270,7 @@ type
       procedure OnSongSelect;   // called when song flows movement stops at a song
       procedure OnSongDeSelect; // called before current song is deselected
 
-      procedure LoadCover(NumberOfButtonInArray: integer);
+      procedure LoadCover(B: integer);
       procedure LoadMainCover();
 
       procedure SongScore;
@@ -1778,9 +1775,6 @@ begin
   case TSongMenuMode(Ini.SongMenu) of
     smRoulette: SetRouletteScrollRefresh;
     smChessboard: SetChessboardScrollRefresh;
-    smCarousel: SetCarouselScrollRefresh;
-    smSlotMachine: SetSlotMachineScrollRefresh;
-    smSlide: SetSlideScrollRefresh;
     smList: SetListScrollRefresh;
     smMosaic: SetChessboardScrollRefresh;
   end;
@@ -1967,9 +1961,6 @@ begin
   end;
 end;
 
-(**
- * Roulette
- *)
 procedure TScreenSong.SetRouletteScroll;
 var
   B:      integer;
@@ -2105,9 +2096,6 @@ begin
   end;
 end;
 
-(**
- * Chessboard
- *)
 procedure TScreenSong.SetChessboardScroll;
 var
   B:      integer;
@@ -2268,215 +2256,120 @@ begin
     );
 end;
 
-(**
- * Carousel
- *)
 procedure TScreenSong.SetCarouselScroll;
 var
   B, Count: integer;
+  X: real;
 begin
-
   Count := 0;
-
-  // line
-  for B := 0 to High(Button) do
+  for B := 0 to High(Self.Button) do
   begin
-    Button[B].Visible := CatSongs.Song[B].Visible;
-
-    if (Button[B].Visible) then
+    Self.Button[B].Visible := USongs.CatSongs.Song[B].Visible;
+    if Self.Button[B].Visible then
     begin
-      Button[B].X := Theme.Song.Cover.X + (Count - SongCurrent) * (Theme.Song.Cover.W + Theme.Song.Cover.Padding);
+      X := Theme.Song.Cover.X + (Count - Self.SongCurrent) * (Theme.Song.Cover.W + Theme.Song.Cover.Padding);
+      if not ((X < -Theme.Song.Cover.W) or (X > 800)) then
+        Self.LoadCover(B);
 
-      if (Button[B].X < -Theme.Song.Cover.W) or (Button[B].X > 800) then
-      begin
-        Button[B].Visible := false;
-      end
-      else
-      begin
-        Button[B].Visible := true;
-        LoadCover(B);
-      end;
-      Button[B].X := Theme.Song.Cover.X + (Count - SongCurrent) * (Theme.Song.Cover.W + Theme.Song.Cover.Padding);
-      Button[B].Y := Theme.Song.Cover.Y;
-      Button[B].W := Theme.Song.Cover.W;
-      Button[B].H := Theme.Song.Cover.H;
-
-      Count := Count + 1;
+      Self.Button[B].X := X; //after load cover to avoid cover flash on change
+      Self.Button[B].Y := Theme.Song.Cover.Y;
+      Self.Button[B].W := Theme.Song.Cover.W;
+      Self.Button[B].H := Theme.Song.Cover.H;
+      Inc(Count);
     end;
   end;
 end;
 
-procedure TScreenSong.SetCarouselScrollRefresh;
-begin
-end;
-
-(**
- * Slot Machine
- *)
 procedure TScreenSong.SetSlotMachineScroll;
 var
-  B:      integer;
-  Angle:  real;
-  Pos:    real;
-  VS:     integer;
-  diff:   real;
-  X:      real;
+  B, VS:      integer;
+  Angle, Pos:  real;
 begin
   VS := USongs.CatSongs.GetVisibleSongs();
-
-  for B := Low(Button) to High(Button) do
+  for B := 0 to High(Self.Button) do
   begin
-    Button[B].Visible := CatSongs.Song[B].Visible; //Adjust Visibility
-    if Button[B].Visible then //Only Change Pos for Visible Buttons
+    Self.Button[B].Visible := USongs.CatSongs.Song[B].Visible;
+    if Self.Button[B].Visible then
     begin
-      Pos := (CatSongs.VisibleIndex(B) - SongCurrent);
+      Pos := (USongs.CatSongs.VisibleIndex(B) - Self.SongCurrent);
       if (Pos < -VS/2) then
         Pos := Pos + VS
       else if (Pos > VS/2) then
         Pos := Pos - VS;
 
-      //fixed Positions
       if (Abs(Pos) < 2.0) then
       begin
-        LoadCover(B);
+        Self.LoadCover(B);
         Angle := Pi * (Pos / 5);
-
-        Button[B].Texture.Alpha := 1 - Abs(Pos/1.5);
-
-        Button[B].H := Abs(Theme.Song.Cover.H * cos(Angle*1.2));
-
-        Button[B].DeSelectReflectionspacing := 15 * Button[B].H/Theme.Song.Cover.H;
-
-        Button[B].Z := 0.05 - Abs(Pos) * 0.01;
-
-        Button[B].X := (Theme.Song.Cover.X  + (Theme.Song.Cover.H - Abs(Theme.Song.Cover.H * cos(Angle))) * 0.8);
-
-        Button[B].W := Button[B].H;
-
-        Diff := (Button[B].H - Theme.Song.Cover.H)/2;
-
-        X := Sin(Angle*1.3)*0.8;
-
-        Button[B].Y := Theme.Song.Cover.Y + Theme.Song.Cover.W * X - Diff;
-
+        Self.Button[B].Texture.Alpha := 1 - Abs(Pos / 1.5);
+        Self.Button[B].H := Abs(Theme.Song.Cover.H * cos(Angle * 1.2));
+        Self.Button[B].W := Self.Button[B].H;
+        Self.Button[B].X := (Theme.Song.Cover.X  + (Theme.Song.Cover.H - Abs(Theme.Song.Cover.H * cos(Angle))) * 0.8);
+        Self.Button[B].Y := Theme.Song.Cover.Y + Theme.Song.Cover.W * (Sin(Angle * 1.3) * 0.8) - ((Self.Button[B].H - Theme.Song.Cover.H) / 2);
+        Self.Button[B].Z := 0.05 - Abs(Pos) * 0.01;
+        Self.Button[B].DeSelectReflectionspacing := 15 * Self.Button[B].H / Theme.Song.Cover.H;
       end
       else
-      begin
-        Button[B].Visible := false;
-      end;
-     end;
-  end;
-end;
-
-procedure TScreenSong.SetSlotMachineScrollRefresh;
-begin
-end;
-
-(**
- * Slide
- *)
-procedure TScreenSong.SetSlideScroll;
-var
-  B, Count, DiffH: integer;
-  Scale:    real;
-begin
-
-  Count := 0;
-  Scale := 0.90;
-  DiffH := 20;
-
-  // line
-  for B := 0 to High(Button) do
-  begin
-    Button[B].Visible := CatSongs.Song[B].Visible;
-
-    if (Button[B].Visible) then
-    begin
-
-      if (B <= Interaction) then
-        Button[B].X := Theme.Song.Cover.X + (Count - SongCurrent) * Theme.Song.Cover.Padding
-      else
-        Button[B].X := Theme.Song.Cover.X + (Count - SongCurrent) * Theme.Song.Cover.W - (Count - SongCurrent) * (Theme.Song.Cover.W * Scale - Theme.Song.Cover.Padding);
-
-      if not (Button[B].X < -Theme.Song.Cover.W) or (Button[B].X > 800) then
-        LoadCover(B);
-
-      if (B <= Interaction) then
-        Button[B].X := Theme.Song.Cover.X + (Count - SongCurrent) * Theme.Song.Cover.Padding
-      else
-        Button[B].X := Theme.Song.Cover.X + (Count - SongCurrent) * Theme.Song.Cover.W - (Count - SongCurrent) * (Theme.Song.Cover.W * Scale - Theme.Song.Cover.Padding);
-
-      Button[B].Y := Theme.Song.Cover.Y;
-      Button[B].W := Theme.Song.Cover.W;
-      Button[B].H := Theme.Song.Cover.H;
-
-      if (B < Interaction) then
-      begin
-        Button[B].Z := B/High(Button);
-
-        Button[B].Texture.RightScale := Scale;
-        Button[B].Texture.LeftScale := 1;
-
-        Button[B].H := Theme.Song.Cover.H - DiffH;
-        Button[B].W := Button[B].W * Scale;
-
-        Button[B].Y := Theme.Song.Cover.Y + DiffH;
-
-        Button[B].Texture.Alpha := 1;
-      end
-      else
-      begin
-        if (B > Interaction) then
-        begin
-          Button[B].Z := 1 - ((Count + 1)/100);
-
-          Button[B].Texture.LeftScale := Scale;
-          Button[B].Texture.RightScale := 1;
-
-          Button[B].H := Theme.Song.Cover.H - DiffH;
-          Button[B].W := Button[B].W * Scale;
-
-          Button[B].Y := Theme.Song.Cover.Y + DiffH;
-
-          Button[B].Texture.Alpha := 1;
-        end
-        else
-        begin
-          Button[B].Z := 1;
-
-          Button[B].Texture.LeftScale := 1;
-          Button[B].Texture.RightScale := 1;
-
-          Button[B].H := Theme.Song.Cover.H;
-          Button[B].W := Theme.Song.Cover.W;
-
-          Button[B].Y := Theme.Song.Cover.Y;
-
-          Button[B].Texture.Alpha := 1;
-          Button[B].Texture.Z := 1;
-        end;
-      end;
-
-      if (Button[B].X < -Button[B].W) or (Button[B].X > 800) then
-      begin
-        Button[B].Visible := false;
-      end
-      else
-        Button[B].Visible := true;
-
-      Count := Count + 1;
+        Self.Button[B].Visible := false;
     end;
   end;
 end;
 
-procedure TScreenSong.SetSlideScrollRefresh;
+procedure TScreenSong.SetSlideScroll;
+var
+  B, Count, DiffH: integer;
+  Scale, X, Z: real;
 begin
+  Count := 0;
+  Scale := 0.90;
+  DiffH := 20;
+  for B := 0 to High(Self.Button) do
+  begin
+    Self.Button[B].Visible := USongs.CatSongs.Song[B].Visible;
+    if Self.Button[B].Visible then
+    begin
+      Z := Theme.SongMenu.SelectSlide1.Z - 0.02; //all covers under arrows
+      X := Theme.Song.Cover.X + (Count - Self.SongCurrent) * Theme.Song.Cover.Padding;
+      Inc(Count);
+      if not ((X < -Theme.Song.Cover.W) or (X > 800)) then
+        Self.LoadCover(B);
+
+      Self.Button[B].X := X; //after load cover to avoid cover flash on change
+      if B = Self.Interaction then
+      begin
+        Self.Button[B].H := Theme.Song.Cover.H;
+        Self.Button[B].W := Theme.Song.Cover.W;
+        Self.Button[B].Y := Theme.Song.Cover.Y;
+        Self.Button[B].Reflection := false;
+        Self.Button[B].Texture.LeftScale := 1;
+        Self.Button[B].Texture.RightScale := 1;
+        Self.Button[B].Z := Z;
+      end
+      else
+      begin
+        Self.Button[B].H := Theme.Song.Cover.H - DiffH;
+        Self.Button[B].W := Theme.Song.Cover.W * Scale;
+        Self.Button[B].Y := Theme.Song.Cover.Y + DiffH;
+        Self.Button[B].Reflection := true;
+        Self.Button[B].SetSelect(false);
+        if B < Self.Interaction then
+        begin
+          Self.Button[B].Texture.LeftScale := 1;
+          Self.Button[B].Texture.RightScale := Scale;
+          Self.Button[B].Z := ((Z * 100 * B) / High(Self.Button)) / 100; //put first covers under following and under arrows
+        end
+        else
+        begin
+          Self.Button[B].Texture.LeftScale := Scale;
+          Self.Button[B].Texture.RightScale := 1;
+          Self.Button[B].Z := 1 - ((Z * 100 * B) / Count) / 100; //put last covers under previous and under arrows
+        end
+      end;
+      Self.Button[B].Visible := not ((Self.Button[B].X < -Self.Button[B].W) or (Self.Button[B].X > 800));
+    end;
+  end;
 end;
 
-
-(**
- * List
- *)
 procedure TScreenSong.SetListScroll;
 var
   B, Line:  integer;
@@ -3358,7 +3251,7 @@ procedure TScreenSong.SelectRandomSong;
     Self.SkipTo(Target);
   end;
 var
-  I, I2, Count, RealTarget: integer;
+  I, I2: integer;
 begin
   case PlayListMan.Mode of
       smAll:  // all songs just select random song
@@ -3561,19 +3454,18 @@ begin
   end;
 end;
 
-procedure TScreenSong.LoadCover(NumberOfButtonInArray: integer);
-var
-  CoverFile: IPath;
+{ Load covers dynamically in a song button }
+procedure TScreenSong.LoadCover(B: integer);
 begin
-  if not Assigned(Button[NumberOfButtonInArray].Texture.Name) then
+  if not Assigned(Self.Button[B].Texture.Name) then
   begin
-    CoverFile := USongs.CatSongs.Song[NumberOfButtonInArray].Path.Append(USongs.CatSongs.Song[NumberOfButtonInArray].Cover);
-    Button[NumberOfButtonInArray].Texture := UTexture.Texture.LoadTexture(CoverFile);
-    if not Assigned(Button[NumberOfButtonInArray].Texture.Name) then
-      Button[NumberOfButtonInArray].Texture := UTexture.Texture.LoadTexture(USkins.Skin.GetTextureFileName('SongCover'));
+    Self.Button[B].Texture := UTexture.Texture.LoadTexture(USongs.CatSongs.Song[B].Path.Append(USongs.CatSongs.Song[B].Cover));
+    if not Assigned(Self.Button[B].Texture.Name) then //the default cover is used if texture assignment failed or don't exist
+      Self.Button[B].Texture := UTexture.Texture.LoadTexture(USkins.Skin.GetTextureFileName('SongCover'));
   end;
 end;
 
+{ Load main cover in some game modes }
 procedure TScreenSong.LoadMainCover();
 begin
   if Statics[Self.MainCover].Texture.Name <> Skin.GetTextureFileName('SongCover') then
