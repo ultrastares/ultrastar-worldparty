@@ -233,10 +233,9 @@ begin
   fVisSongs := Count;
 
   ScreenSong.Interaction := 0;
-  ScreenSong.ListMinLine := 0;
   ScreenSong.SelectNext;
   ScreenSong.FixSelected;
-  ScreenSong.SetScrollRefresh;
+  ScreenSong.SetScroll(true);
 
   //Play Correct Music
   if (ScreenSong.Interaction <> fLastPlayed) or (USongs.CatSongs.GetVisibleSongs() = 0) then

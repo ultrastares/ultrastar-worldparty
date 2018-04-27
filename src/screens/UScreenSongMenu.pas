@@ -171,7 +171,7 @@ begin
           else
           begin
             ScreenSong.SelectNext;
-            ScreenSong.SetScrollRefresh;
+            ScreenSong.SetScroll(true);
           end;
         end;
       SDLK_LEFT:
@@ -185,7 +185,7 @@ begin
           else
           begin
             ScreenSong.SelectPrev;
-            ScreenSong.SetScrollRefresh;
+            ScreenSong.SetScroll(true);
           end;
         end;
 
