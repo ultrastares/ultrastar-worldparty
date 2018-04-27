@@ -1942,97 +1942,72 @@ end;
 
 procedure TScreenSong.SetRouletteScroll;
 var
-  B:      integer;
-  Angle:    real;
-  Pos:    real;
-  VS:     integer;
-  Padding:     real;
-  X,AutoWidthCorrection:        real;
+  I: integer = 0;
+  VS: integer;
+  B: TButton;
+  Angle, AutoWidthCorrection, Padding, Pos: real;
 begin
   VS := USongs.CatSongs.GetVisibleSongs();
-
-  //calculate Auto-Width-Correction
   AutoWidthCorrection:= (UGraphic.RenderH/UGraphic.ScreenH)*(UGraphic.ScreenW/UGraphic.RenderW); //ToDo basisbit: width for 2-screen-setup
   if Screens > 1 then
    AutoWidthCorrection:= AutoWidthCorrection / 2;
-  //LoadCover(Interaction);
-  // Update positions of all buttons
-  for B := 0 to High(Button) do
+
+  for B in Button do
   begin
-    Button[B].Visible := CatSongs.Song[B].Visible; // adjust visibility
-    if Button[B].Visible then // Only change pos for visible buttons
+    B.Visible := CatSongs.Song[I].Visible; // adjust visibility
+    if B.Visible then // Only change pos for visible buttons
     begin
       // Pos is the distance to the centered cover in the range [-VS/2..+VS/2]
-      Pos := (CatSongs.VisibleIndex(B) - SongCurrent);
-      if (Pos < -VS/2) then
+      Pos := I - SongCurrent;
+      if (Pos < -VS / 2) then
         Pos := Pos + VS
-      else if (Pos > VS/2) then
+      else if (Pos > VS / 2) then
         Pos := Pos - VS;
 
       // Avoid overlapping of the front covers.
       // Use an alternate position for the five front covers.
       if (Abs(Pos) < 2.5) then
       begin
-        LoadCover(B);
+        Self.LoadCover(I);
         Angle := Pi * (Pos / Min(VS, 5)); // Range: (-1/4*Pi .. +1/4*Pi)
-
-        Button[B].H := Abs(Theme.Song.Cover.H * AutoWidthCorrection * cos(Angle*0.8));
-        Button[B].W := Abs(Theme.Song.Cover.W * cos(Angle*0.8));
-
-        //Button[B].Reflectionspacing := 15 * Button[B].H/Theme.Song.Cover.H;
-        Button[B].DeSelectReflectionspacing := 15 * Button[B].H/Theme.Song.Cover.H;
-
-        Padding := (Button[B].W - Theme.Song.Cover.W)/2;
-        X := Sin(Angle*1.3) * 0.9 * 1.6;
-
-        Button[B].X := Theme.Song.Cover.X + Theme.Song.Cover.W * X - Padding;
-        Button[B].Y := ((Theme.Song.Cover.Y) + ((Theme.Song.Cover.H) - Abs(Theme.Song.Cover.H * cos(Angle))) * 0.5) - (Button[B].H - (Button[B].H/AutoWidthCorrection));
-        Button[B].Z := 0.95 - Abs(Pos) * 0.01;
-
-        if VS < 5 then
-        begin
-          Button[B].Texture.Alpha := 1 - Abs(Pos) / VS  * 2;
-        end
-        else
-          Button[B].Texture.Alpha := 1;
+        B.H := Abs(Theme.Song.Cover.H * AutoWidthCorrection * Cos(Angle * 0.8));
+        B.W := Abs(Theme.Song.Cover.W * Cos(Angle * 0.8));
+        // B.Reflectionspacing := 15 * B.H / Theme.Song.Cover.H;
+        B.DeSelectReflectionspacing := 15 * B.H / Theme.Song.Cover.H;
+        B.X := Theme.Song.Cover.X + Theme.Song.Cover.W * Sin(Angle * 1.3) * 0.9 * 1.6 - (B.W - Theme.Song.Cover.W) / 2;
+        B.Y := ((Theme.Song.Cover.Y) + ((Theme.Song.Cover.H) - Abs(Theme.Song.Cover.H * Cos(Angle))) * 0.5) - (B.H - (B.H / AutoWidthCorrection));
+        B.Z := 0.95 - Abs(Pos) * 0.01;
+        B.Texture.Alpha := IfThen(VS < 5, 1 - Abs(Pos) / VS * 2, 1);
       end
-      { only draw 3 visible covers in the background
-        (the 3 that are on the opposite of the front covers}
-      (*else if (VS > 7) and (Abs(Pos) > floor(VS/2) - 1.5) then
+      //only draw 5 visible covers in the background (the 5 that are on the opposite of the front covers
+      else if (VS > 9) and (Abs(Pos) > Floor(VS / 2) - 2.5) then
       begin
-        LoadCover(B);
+        Self.LoadCover(I);
         // Transform Pos to range [-1..-3/4, +3/4..+1]
-        { the 3 covers at the back will show up in the gap between the
+        { the 5 covers at the back will show up in the gap between the
           front cover and its neighbors
           one cover will be hiddenbehind the front cover,
           but this will not be a lack of performance ;) }
         if Pos < 0 then
-          Pos := (Pos - 2 + ceil(VS/2))/8 - 0.75
+          Pos := (Pos - 2 + Ceil(VS / 2)) / 8 - 0.75
         else
-          Pos := (Pos + 2 - floor(VS/2))/8 + 0.75;
+          Pos := (Pos + 2 - Floor(VS / 2)) / 8 + 0.75;
 
         // angle in radians [-2Pi..-Pi, +Pi..+2Pi]
-        Angle := 2*Pi * Pos;
-
-        Button[B].H := 0.6*(Theme.Song.Cover.H-Abs(Theme.Song.Cover.H * cos(Angle/2)*0.8));
-        Button[B].W := 0.6*(Theme.Song.Cover.W-Abs(Theme.Song.Cover.W * cos(Angle/2)*0.8));
-
-        //Padding := (Button[B].H - Theme.Song.Cover.H)/2;
-
-        Button[B].X :=  Theme.Song.Cover.X+Theme.Song.Cover.W/2-Button[b].W/2+Theme.Song.Cover.W/320*((Theme.Song.Cover.W)*sin(Angle/2)*1.52);
-        Button[B].Y := Theme.Song.Cover.Y  - (Button[B].H - Theme.Song.Cover.H)*0.75;
-        Button[B].Z := (0.4 - Abs(Pos/4)) -0.00001; //z < 0.49999 is behind the cover 1 is in front of the covers
-
-        Button[B].Texture.Alpha := 1;
-
-        //Button[B].Reflectionspacing := 15 * Button[B].H/Theme.Song.Cover.H;
-        Button[B].DeSelectReflectionspacing := 15 * Button[B].H/Theme.Song.Cover.H;
-      end*)
-      { all other covers are not visible }
+        Angle := 2 * Pi * Pos;
+        B.H := 0.6 * (Theme.Song.Cover.H - Abs(Theme.Song.Cover.H * Cos(Angle / 2) * 0.8));
+        B.W := 0.6 * (Theme.Song.Cover.W - Abs(Theme.Song.Cover.W * Cos(Angle / 2) * 0.8));
+        B.X := Theme.Song.Cover.X + Theme.Song.Cover.W / 2 - B.W / 2 + Theme.Song.Cover.W / 320 * (Theme.Song.Cover.W * Sin(Angle / 2) * 1.52);
+        B.Y := Theme.Song.Cover.Y - (B.H - Theme.Song.Cover.H) * 0.75;
+        B.Z := (0.4 - Abs(Pos / 4)) - 0.00001; //z < 0.49999 is behind the cover 1 is in front of the covers
+        B.Texture.Alpha := 1;
+        //B.Reflectionspacing := 15 * B.H / Theme.Song.Cover.H;
+        B.DeSelectReflectionspacing := 15 * B.H / Theme.Song.Cover.H;
+      end
       else
-      begin
-        Button[B].Visible := false;
-      end;
+        B.Visible := false;
+
+      Inc(I)
     end;
   end;
 end;
