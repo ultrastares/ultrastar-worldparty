@@ -81,13 +81,9 @@ uses
 const
   ITEMS_PER_ROW = 3;   // Number of buttons for row of buttons in Main menu.
 
-function TScreenMain.ParseInput(PressedKey: Cardinal; CharCode: UCS4Char;
-  PressedDown: boolean): boolean;
-var
-  SDL_ModState: word;
+function TScreenMain.ParseInput(PressedKey: Cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
 begin
   Result := true;
-  SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT + KMOD_RALT);
   if (PressedDown) then
   begin
     //check normal keys
@@ -239,6 +235,7 @@ begin
     Self.Text[TextProgressSongs].Visible := false;
     Self.Text[TextDescriptionLong].Visible := true;
   end;
+  Result := true;
 end;
 
 procedure TScreenMain.OnShow;

@@ -610,7 +610,7 @@ var
   SDL_ModState: word;
   PressedKeyEncoded: UTF8String;
   Song: USong.TSong;
-  VerifySong, WebList: string;
+  WebList: string;
   Fix: boolean;
 begin
   Result := true;
@@ -881,9 +881,7 @@ begin
             for I:= 0 to High(Database.NetworkUser) do
             begin
               DllMan.LoadWebsite(I);
-              VerifySong := DllMan.WebsiteVerifySong(CatSongs.Song[Interaction].MD5);
-
-              if (VerifySong = 'OK_SONG') then
+              if (DllMan.WebsiteVerifySong(WideString(CatSongs.Song[Interaction].MD5)) = 'OK_SONG') then
                 WebList := Database.NetworkUser[I].Website + #13
             end;
 
@@ -1945,7 +1943,7 @@ var
   I: integer = 0;
   VS: integer;
   B: TButton;
-  Angle, AutoWidthCorrection, Padding, Pos: real;
+  Angle, AutoWidthCorrection, Pos: real;
 begin
   VS := USongs.CatSongs.GetVisibleSongs();
   AutoWidthCorrection:= (UGraphic.RenderH/UGraphic.ScreenH)*(UGraphic.ScreenW/UGraphic.RenderW); //ToDo basisbit: width for 2-screen-setup
