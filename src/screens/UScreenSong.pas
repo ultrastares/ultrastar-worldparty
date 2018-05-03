@@ -2249,40 +2249,42 @@ begin
       X := Theme.Song.Cover.X + (VisibleIndex - Self.SongCurrent) * Theme.Song.Cover.Padding;
       Inc(VisibleIndex);
       if not ((X < -Theme.Song.Cover.W) or (X > 800)) then
+      begin
         Self.LoadCover(B);
-
-      Self.Button[B].X := X; //after load cover to avoid cover flash on change
-      if B = Self.Interaction then
-      begin
-        Self.Button[B].H := Theme.Song.Cover.H;
-        Self.Button[B].W := Theme.Song.Cover.W;
-        Self.Button[B].Y := Theme.Song.Cover.Y;
-        Self.Button[B].Reflection := false;
-        Self.Button[B].Texture.LeftScale := 1;
-        Self.Button[B].Texture.RightScale := 1;
-        Self.Button[B].Z := Z;
-      end
-      else
-      begin
-        Self.Button[B].H := Theme.Song.Cover.H - DiffH;
-        Self.Button[B].W := Theme.Song.Cover.W * Scale;
-        Self.Button[B].Y := Theme.Song.Cover.Y + DiffH;
-        Self.Button[B].Reflection := true;
-        Self.Button[B].SetSelect(false);
-        if B < Self.Interaction then
+        Self.Button[B].X := X; //after load cover to avoid cover flash on change
+        if B = Self.Interaction then
         begin
+          Self.Button[B].H := Theme.Song.Cover.H;
+          Self.Button[B].W := Theme.Song.Cover.W;
+          Self.Button[B].Y := Theme.Song.Cover.Y;
+          Self.Button[B].Reflection := false;
           Self.Button[B].Texture.LeftScale := 1;
-          Self.Button[B].Texture.RightScale := Scale;
-          Self.Button[B].Z := ((Z * 100 * B) / High(Self.Button)) / 100; //put first covers under following and under arrows
+          Self.Button[B].Texture.RightScale := 1;
+          Self.Button[B].Z := Z;
         end
         else
         begin
-          Self.Button[B].Texture.LeftScale := Scale;
-          Self.Button[B].Texture.RightScale := 1;
-          Self.Button[B].Z := 1 - ((Z * 100 * B) / VisibleIndex) / 100; //put last covers under previous and under arrows
-        end
-      end;
-      Self.Button[B].Visible := not ((Self.Button[B].X < -Self.Button[B].W) or (Self.Button[B].X > 800));
+          Self.Button[B].H := Theme.Song.Cover.H - DiffH;
+          Self.Button[B].W := Theme.Song.Cover.W * Scale;
+          Self.Button[B].Y := Theme.Song.Cover.Y + DiffH;
+          Self.Button[B].Reflection := true;
+          Self.Button[B].SetSelect(false);
+          if B < Self.Interaction then
+          begin
+            Self.Button[B].Texture.LeftScale := 1;
+            Self.Button[B].Texture.RightScale := Scale;
+            Self.Button[B].Z := Z - (Self.Interaction - B) * 0.01; //put first covers under following and under arrows
+          end
+          else
+          begin
+            Self.Button[B].Texture.LeftScale := Scale;
+            Self.Button[B].Texture.RightScale := 1;
+            Self.Button[B].Z := Z - (B - Self.Interaction) * 0.01; //put last covers under previous and under arrows
+          end
+        end;
+      end
+      else //hide preload covers
+        Self.Button[B].Visible := false;
     end;
   end;
 end;
