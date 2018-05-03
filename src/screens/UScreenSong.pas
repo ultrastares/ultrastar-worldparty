@@ -2566,7 +2566,9 @@ begin
 
     SongCurrent := SongCurrent + dx*dt;
 
-    if (Self.SongCurrent <> Self.SongTarget) and SameValue(Self.SongCurrent, Self.SongTarget, 0.002) and (USongs.CatSongs.GetVisibleSongs() > 0) then
+    if (Self.SongCurrent = Self.SongTarget) then //if occurs an incomplete scroll add one chance to complete well
+      SongCurrent := SongTarget - 0.002
+    else if SameValue(Self.SongCurrent, Self.SongTarget, 0.002) and (USongs.CatSongs.GetVisibleSongs() > 0) then
     begin
       isScrolling := false;
       SongCurrent := SongTarget;
@@ -2768,8 +2770,7 @@ begin
   for I := 0 to Length(Text) - 1 do
     Text[I].Draw;
 
-  if Self.Covers = 0 then
-    Equalizer.Draw;
+  Equalizer.Draw;
 
   //Draw Song Menu
   if ScreenSongMenu.Visible then
