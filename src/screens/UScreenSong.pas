@@ -74,6 +74,7 @@ type
 
       LastSelectMouse: integer;
       LastSelectTime: integer;
+      Covers: integer; //number of covers to preload
 
       procedure StartMusicPreview();
       procedure StartVideoPreview();
@@ -1641,6 +1642,7 @@ begin
     ListRapIcon[I] := AddStatic(Theme.Song.RapIcon);
   end;
 
+  Self.Covers := 0;
   Self.PageLines := 0;
   Self.MinLine := 0;
 
@@ -1648,7 +1650,6 @@ begin
 
   LastSelectMouse := 0;
   LastSelectTime := 0;
-
 end;
 
 procedure TScreenSong.ColorDuetNameSingers();
@@ -2521,6 +2522,7 @@ begin
   DuetChange := false;
   isScrolling := true;
   CoverTime := 10;
+  Self.Covers := High(USongs.CatSongs.Song);
   //if (Mode = smPartyTournament) then
   //  PartyTime := SDL_GetTicks();
 end;
@@ -2562,9 +2564,15 @@ begin
       SongCurrent := SongTarget;
       OnSongSelect;
     end;
-  end;
+  end
+  else if Self.Covers > 0 then //preload covers if not exists a user interaction
+    for I := Self.Covers downto Max(0, Self.Covers - 3) do
+    begin
+      Self.LoadCover(I);
+      Dec(Self.Covers);
+    end;
 
-  SetScroll;
+  Self.SetScroll();
 
   if (AudioPlayback.Finished) then
     CoverTime := 0;
@@ -2752,7 +2760,8 @@ begin
   for I := 0 to Length(Text) - 1 do
     Text[I].Draw;
 
-  Equalizer.Draw;
+  if Self.Covers = 0 then
+    Equalizer.Draw;
 
   //Draw Song Menu
   if ScreenSongMenu.Visible then
