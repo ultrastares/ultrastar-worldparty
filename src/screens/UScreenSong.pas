@@ -3326,7 +3326,7 @@ begin
   if Statics[Self.MainCover].Texture.Name <> Skin.GetTextureFileName('SongCover') then
     glDeleteTextures(1, PGLuint(@Statics[Self.MainCover].Texture.TexNum));
 
-  if TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then //to load cover after change line
+  if TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smMosaic] then //to load cover after change line
     Self.LoadCover(Self.Interaction);
 
   Statics[Self.MainCover].Texture := UTexture.Texture.LoadTexture(Button[Self.Interaction].Texture.Name);
