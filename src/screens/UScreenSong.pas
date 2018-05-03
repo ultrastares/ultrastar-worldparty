@@ -1941,7 +1941,7 @@ end;
 
 procedure TScreenSong.SetRouletteScroll;
 var
-  I: integer = 0;
+  I, VisibleIndex: integer;
   VS: integer;
   B: TButton;
   Angle, AutoWidthCorrection, Pos: real;
@@ -1951,13 +1951,16 @@ begin
   if Screens > 1 then
    AutoWidthCorrection:= AutoWidthCorrection / 2;
 
+  I := 0;
+  VisibleIndex := 0;
   for B in Button do
   begin
     B.Visible := CatSongs.Song[I].Visible; // adjust visibility
     if B.Visible then // Only change pos for visible buttons
     begin
       // Pos is the distance to the centered cover in the range [-VS/2..+VS/2]
-      Pos := I - SongCurrent;
+      Pos := VisibleIndex - Self.SongCurrent;
+      Inc(VisibleIndex);
       if (Pos < -VS / 2) then
         Pos := Pos + VS
       else if (Pos > VS / 2) then
@@ -2005,9 +2008,8 @@ begin
       end
       else
         B.Visible := false;
-
-      Inc(I)
     end;
+    Inc(I);
   end;
 end;
 
@@ -2169,40 +2171,44 @@ end;
 
 procedure TScreenSong.SetCarouselScroll;
 var
-  B, Count: integer;
+  B, VisibleIndex: integer;
   X: real;
 begin
-  Count := 0;
+  VisibleIndex := 0;
   for B := 0 to High(Self.Button) do
   begin
     Self.Button[B].Visible := USongs.CatSongs.Song[B].Visible;
     if Self.Button[B].Visible then
     begin
-      X := Theme.Song.Cover.X + (Count - Self.SongCurrent) * (Theme.Song.Cover.W + Theme.Song.Cover.Padding);
+      X := Theme.Song.Cover.X + (VisibleIndex - Self.SongCurrent) * (Theme.Song.Cover.W + Theme.Song.Cover.Padding);
+      Inc(VisibleIndex);
       if not ((X < -Theme.Song.Cover.W) or (X > 800)) then
-        Self.LoadCover(B);
+        Self.LoadCover(B)
+      else //hide preload covers
+        Self.Button[B].Visible := false;
 
       Self.Button[B].X := X; //after load cover to avoid cover flash on change
       Self.Button[B].Y := Theme.Song.Cover.Y;
       Self.Button[B].W := Theme.Song.Cover.W;
       Self.Button[B].H := Theme.Song.Cover.H;
-      Inc(Count);
     end;
   end;
 end;
 
 procedure TScreenSong.SetSlotMachineScroll;
 var
-  B, VS:      integer;
+  B, VS, VisibleIndex: integer;
   Angle, Pos:  real;
 begin
   VS := USongs.CatSongs.GetVisibleSongs();
+  VisibleIndex := 0;
   for B := 0 to High(Self.Button) do
   begin
     Self.Button[B].Visible := USongs.CatSongs.Song[B].Visible;
     if Self.Button[B].Visible then
     begin
-      Pos := (USongs.CatSongs.VisibleIndex(B) - Self.SongCurrent);
+      Pos := (VisibleIndex - Self.SongCurrent);
+      Inc(VisibleIndex);
       if (Pos < -VS/2) then
         Pos := Pos + VS
       else if (Pos > VS/2) then
@@ -2228,10 +2234,10 @@ end;
 
 procedure TScreenSong.SetSlideScroll;
 var
-  B, Count, DiffH: integer;
+  B, VisibleIndex, DiffH: integer;
   Scale, X, Z: real;
 begin
-  Count := 0;
+  VisibleIndex := 0;
   Scale := 0.90;
   DiffH := 20;
   for B := 0 to High(Self.Button) do
@@ -2240,8 +2246,8 @@ begin
     if Self.Button[B].Visible then
     begin
       Z := Theme.SongMenu.SelectSlide1.Z - 0.02; //all covers under arrows
-      X := Theme.Song.Cover.X + (Count - Self.SongCurrent) * Theme.Song.Cover.Padding;
-      Inc(Count);
+      X := Theme.Song.Cover.X + (VisibleIndex - Self.SongCurrent) * Theme.Song.Cover.Padding;
+      Inc(VisibleIndex);
       if not ((X < -Theme.Song.Cover.W) or (X > 800)) then
         Self.LoadCover(B);
 
@@ -2273,7 +2279,7 @@ begin
         begin
           Self.Button[B].Texture.LeftScale := Scale;
           Self.Button[B].Texture.RightScale := 1;
-          Self.Button[B].Z := 1 - ((Z * 100 * B) / Count) / 100; //put last covers under previous and under arrows
+          Self.Button[B].Z := 1 - ((Z * 100 * B) / VisibleIndex) / 100; //put last covers under previous and under arrows
         end
       end;
       Self.Button[B].Visible := not ((Self.Button[B].X < -Self.Button[B].W) or (Self.Button[B].X > 800));
@@ -2558,7 +2564,7 @@ begin
 
     SongCurrent := SongCurrent + dx*dt;
 
-    if SameValue(SongCurrent, SongTarget, 0.002) and (USongs.CatSongs.GetVisibleSongs() > 0) then
+    if (Self.SongCurrent <> Self.SongTarget) and SameValue(Self.SongCurrent, Self.SongTarget, 0.002) and (USongs.CatSongs.GetVisibleSongs() > 0) then
     begin
       isScrolling := false;
       SongCurrent := SongTarget;
