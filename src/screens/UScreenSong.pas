@@ -1213,9 +1213,8 @@ begin
   begin
 
     case TSongMenuMode(Ini.SongMenu) of
-      smChessboard: Result := ParseMouseChessboard(MouseButton, BtnDown, X, Y);
-      smMosaic: Result := ParseMouseChessboard(MouseButton, BtnDown, X, Y);
-      smSlotMachine: Result := ParseMouseChessboard(MouseButton, BtnDown, X, Y);
+      smChessboard, smMosaic, smSlotMachine, smList:
+        Result := ParseMouseChessboard(MouseButton, BtnDown, X, Y);
       else
         Result := ParseMouseRoulette(MouseButton, BtnDown, X, Y);
     end;
