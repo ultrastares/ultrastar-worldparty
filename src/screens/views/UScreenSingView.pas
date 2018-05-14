@@ -1752,25 +1752,25 @@ begin
   x := x + GAPxStart; //move x to the right by Song-Gap-Seconds
 
   //width
-  //LastLine := Lines[0].Line[Length(Lines[0].Line) - 1];
+  //LastLine := CurrentSong.Lines[0].Line[Length(CurrentSong.Lines[0].Line) - 1];
   w := w - GAPxStart;
 
   //calculate total singing seconds of song
   SongStart := 99999999999999;
   SongEnd := CurrentSong.BPM*TotalTime/60;
-  for CurrentLine := 0 to High(Lines) do //P1 of Duett or standard, P2 of Duett,..
+  for CurrentLine := 0 to High(CurrentSong.Lines) do //P1 of Duett or standard, P2 of Duett,..
   begin
-    numLines := Length(Lines[CurrentLine].Line); //Lyric lines
+    numLines := Length(CurrentSong.Lines[CurrentLine].Line); //Lyric lines
     if (numLines < 2) then //catch cases which could cause endless loop
       Exit;
-    if SongStart > (Lines[CurrentLine].Line[0].Note[0].Start+(CurrentSong.BPM*CurrentSong.GAP*(1/60/1000))) then
-           SongStart := Lines[CurrentLine].Line[0].Note[0].Start + (CurrentSong.BPM*CurrentSong.GAP*(1/60/1000));
+    if SongStart > (CurrentSong.Lines[CurrentLine].Line[0].Note[0].Start+(CurrentSong.BPM*CurrentSong.GAP*(1/60/1000))) then
+           SongStart := CurrentSong.Lines[CurrentLine].Line[0].Note[0].Start + (CurrentSong.BPM*CurrentSong.GAP*(1/60/1000));
   end;
   ww := SongEnd - SongStart;
 
-  for CurrentLine := 0 to High(Lines) do //for P1 of Duett-lyrics or standard-lyrics, P2 of Duett,..
+  for CurrentLine := 0 to High(CurrentSong.Lines) do //for P1 of Duett-lyrics or standard-lyrics, P2 of Duett,..
   begin
-    numLines := Length(Lines[CurrentLine].Line); //Lyric lines
+    numLines := Length(CurrentSong.Lines[CurrentLine].Line); //Lyric lines
     if (numLines < 2) then //catch cases which could cause endless loop
       Exit;
     //set color to player.color
@@ -1782,11 +1782,11 @@ begin
     glbegin(gl_quads);
     for line := 0 to numLines - 1 do
     begin
-      if (Lines[CurrentLine].Line[line].Note = nil) or (ww < Lines[CurrentLine].Line[line].Note[Lines[CurrentLine].Line[line].HighNote].Start) then Continue;
-      pos := (Lines[CurrentLine].Line[line].Note[0].Start)/ww*w;
-      br := (Lines[CurrentLine].Line[line].Note[Lines[CurrentLine].Line[line].HighNote].Start +
-                Lines[CurrentLine].Line[line].Note[Lines[CurrentLine].Line[line].HighNote].Length -
-                Lines[CurrentLine].Line[line].Note[0].Start ) / ww*w; //br = last note of sentence position + its length - first note of sentence position
+      if (CurrentSong.Lines[CurrentLine].Line[line].Note = nil) or (ww < CurrentSong.Lines[CurrentLine].Line[line].Note[CurrentSong.Lines[CurrentLine].Line[line].HighNote].Start) then Continue;
+      pos := (CurrentSong.Lines[CurrentLine].Line[line].Note[0].Start)/ww*w;
+      br := (CurrentSong.Lines[CurrentLine].Line[line].Note[CurrentSong.Lines[CurrentLine].Line[line].HighNote].Start +
+                CurrentSong.Lines[CurrentLine].Line[line].Note[CurrentSong.Lines[CurrentLine].Line[line].HighNote].Length -
+                CurrentSong.Lines[CurrentLine].Line[line].Note[0].Start ) / ww*w; //br = last note of sentence position + its length - first note of sentence position
 
        //draw a square
         glVertex2f(x+pos, y); //left top

@@ -66,11 +66,7 @@ procedure ResetSingTemp;
 var
   Count:  integer;
 begin
-  SetLength(Lines, Length(Player));
   for Count := 0 to High(Player) do begin
-    SetLength(Lines[Count].Line, 1);
-    SetLength(Lines[Count].Line[0].Note, 0);
-    Lines[Count].Line[0].Lyric := '';
     Player[Count].Score := 0;
     Player[Count].LengthNote := 0;
     Player[Count].HighNote := -1;

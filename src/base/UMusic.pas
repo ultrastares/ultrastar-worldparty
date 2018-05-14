@@ -628,7 +628,6 @@ type
 
 var
   // TODO: JB --- THESE SHOULD NOT BE GLOBAL
-  Lines: array of TLines;
   LyricsState: TLyricsState;
   SoundLib: TSoundLibrary;
 

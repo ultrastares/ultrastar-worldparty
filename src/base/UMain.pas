@@ -187,6 +187,15 @@ begin
     USongs.CatSongs := TCatSongs.Create;
     USongs.Songs := TSongs.Create; //in a new thread
 
+    // Theme
+    UThemes.Theme.LoadTheme(Ini.Theme, Ini.Color);
+
+    // Graphics
+    UGraphic.Initialize3D(WindowTitle);
+
+    UMusic.InitializeSound();
+    UMusic.InitializeVideo();
+
     // it is possible that this is the first run, create a .ini file if neccessary
     Log.LogStatus('Write Ini', 'Initialization');
     Ini.Save;
@@ -194,16 +203,8 @@ begin
     //avatars cache
     Avatars := TAvatarDatabase.Create;
 
-    // Theme
-    Theme.LoadTheme(Ini.Theme, Ini.Color);
-
-    UMusic.InitializeSound();
-    UMusic.InitializeVideo();
-
     // Lyrics-engine with media reference timer
     LyricsState := TLyricsState.Create();
-    // Graphics
-    Initialize3D(WindowTitle);
 
     // Playlist Manager
     Log.LogStatus('Playlist Manager', 'Initialization');

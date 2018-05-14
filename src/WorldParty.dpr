@@ -146,6 +146,7 @@ uses
   MTProcs in 'lib\Lazarus\components\multithreadprocs\mtprocs.pas',
   MTPCPU in 'lib\Lazarus\components\multithreadprocs\mtpcpu.pas',
   {$ENDIF}
+  CpuCount in 'lib\other\cpucount.pas',
   {$IFDEF MSWINDOWS}
   // FPC compatibility file for Allocate/DeallocateHWnd
   WinAllocation in 'lib\other\WinAllocation.pas',

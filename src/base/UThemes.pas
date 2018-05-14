@@ -256,7 +256,6 @@ type
     ButtonOptions:    TThemeButton;
     ButtonExit:       TThemeButton;
     ButtonAbout:      TThemeButton;
-    ProgressSong: TThemeStatic;
     ProgressSongsText: TThemeText;
 
     TextDescription:      TThemeText;
@@ -1630,7 +1629,6 @@ begin
       ThemeLoadButton(Main.ButtonOptions, 'MainButtonOptions');
       ThemeLoadButton(Main.ButtonExit, 'MainButtonExit');
       ThemeLoadButton(Main.ButtonAbout, 'MainButtonAbout');
-      ThemeLoadStatic(Main.ProgressSong, 'MainProgressSong');
 
       //Main Desc Text Translation Start
 

@@ -183,57 +183,26 @@ begin
   AddButton(Theme.Main.ButtonExit);
 
   AddButton(Theme.Main.ButtonAbout);
-  Self.TextureProgressSong := Texture.LoadTexture(Skin.GetTextureFileName(Theme.Main.ProgressSong.Tex));
   Interaction := 0;
 end;
 
 function TScreenMain.Draw: boolean;
 var
-  x, y: integer;
-  width, height: integer;
-  Progress: real;
   ProgressSong: TProgressSong;
 begin
   inherited Draw;
   ProgressSong := USongs.Songs.GetLoadProgress();
   if ProgressSong.Folder <> '' then
   begin
-    x := Theme.Main.ProgressSong.X;
-    y := Theme.Main.ProgressSong.Y;
-    width := Theme.Main.ProgressSong.W;
-    height := Theme.Main.ProgressSong.H;
-
     Self.Text[TextDescriptionLong].Visible := false;
-    glColor4f(Theme.Main.ProgressSong.ColR, Theme.Main.ProgressSong.ColG, Theme.Main.ProgressSong.ColB, 1);
-    glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
-    glBindTexture(GL_TEXTURE_2D, TextureProgressSong.TexNum);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);
-    glVertex2f(x, y);
-    Self.Text[TextProgressSongs].Text := ProgressSong.Folder;
-    if (ProgressSong.Total > 0) then
-    begin
-      Progress := ProgressSong.Current / ProgressSong.Total;
-      Text[TextProgressSongs].Text := Text[TextProgressSongs].Text+IntToStr(ProgressSong.Current)+'/'+IntToStr(ProgressSong.Total)+' ('+IntToStr(Trunc((ProgressSong.Current*100)/ProgressSong.Total))+'%)';
-      glTexCoord2f((width * Progress), 0);
-      glVertex2f(x + width * Progress, y);
-      glTexCoord2f((width * Progress) , 1);
-      glVertex2f(x + width * Progress, y + height);
-    end;
-    glTexCoord2f(0, 1);
-    glVertex2f(x, y + height);
-    glEnd();
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_BLEND);
-    glcolor4f(1, 0, 0, 1);
+    Self.Text[TextProgressSongs].Text := ProgressSong.Folder+': '+IntToStr(ProgressSong.Total);
   end
   else
   begin
-    UGraphic.ScreenPopupError.Visible := false;
-    Self.Statics[0].Visible := false;
-    Self.Text[TextProgressSongs].Visible := false;
     Self.Text[TextDescriptionLong].Visible := true;
+    Self.Text[TextProgressSongs].Visible := false;
+    if (ProgressSong.Total > 0) then
+      UGraphic.ScreenPopupError.Visible := false;
   end;
   Result := true;
 end;

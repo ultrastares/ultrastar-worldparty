@@ -49,6 +49,7 @@ uses
   UCommon,
   UFilesystem,
   ULog,
+  UMusic, //needed for TLines
   UPath,
   UPlatform,
   UTexture,
@@ -149,6 +150,7 @@ type
     CatNumber:  integer; // Count of Songs in Category for Cats and Number of Song in Category for Songs
 
     LastError: AnsiString;
+    Lines: array of TLines;
     function  GetErrorLineNo: integer;
     property  ErrorLineNo: integer read GetErrorLineNo;
 
@@ -185,7 +187,6 @@ uses
   UIni,
   UPathUtils,
   USongs,
-  UMusic,  //needed for Lines
   UNote;   //needed for Player
 
 const
