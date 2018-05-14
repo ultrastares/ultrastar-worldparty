@@ -1084,9 +1084,12 @@ begin
 
   try
     Result := Self.ReadTxTHeader() and Self.LoadSong(DuetChange);
-    UNote.CurrentSong := Self;
-    if (not Self.isDuet) and (Self.Medley.Source = msNone) then //TODO needed a little bit more work to find refrains in duets
-      Self.FindRefrain();
+    if Result then
+    begin
+      UNote.CurrentSong := Self;
+      if (not Self.isDuet) and (Self.Medley.Source = msNone) then //TODO needed a little bit more work to find refrains in duets
+        Self.FindRefrain();
+    end;
   except
     Log.LogError('Reading headers from file failed. File incomplete or not Ultrastar txt?: ' + Self.Path.Append(Self.FileName).ToUTF8(true));
   end;
