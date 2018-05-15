@@ -151,6 +151,7 @@ implementation
 
 uses
   FileUtil,
+  Math,
   StrUtils,
   UFiles,
   UFilesystem,
