@@ -70,6 +70,7 @@ type
   TProgressSong = record
     Folder: UTF8String;
     Total: integer;
+    Finished: boolean;
   end;
 
   TSongsParse = class(TThread)
@@ -265,6 +266,7 @@ begin
   Log.BenchmarkStart(2);
   Log.LogStatus('Searching For Songs', 'SongList');
   Self.ProgressSong.Total := 0;
+  Self.ProgressSong.Finished := false;
   for I := 0 to UPathUtils.SongPaths.Count - 1 do //find txt files on directories and add songs
   begin
     Self.ProgressSong.Folder := Format(ULanguage.Language.Translate('SING_LOADING_SONGS'), [IPath(UPathUtils.SongPaths[I]).ToNative()]);
@@ -276,6 +278,7 @@ begin
   Log.LogStatus('Search Complete', 'SongList');
   CatSongs.Refresh;
   Self.ProgressSong.Folder := '';
+  Self.ProgressSong.Finished := true;
   Log.LogBenchmark('Song loading', 2);
 end;
 

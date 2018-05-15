@@ -86,6 +86,7 @@ type
 
       PlayerAvatarButton: array of integer;
       PlayerAvatarButtonMD5: array of UTF8String;
+      PreloadCovers: boolean; //flag to stop to preload covers when exists an user interaction
     public
       Goto_SingScreen: boolean; //If true then next Screen in SingScreen
 
@@ -139,8 +140,8 @@ var
   I: integer;
   Btn: integer;
 begin
+  Self.PreloadCovers := false;
   Result := true;
-
   inherited ParseMouse(MouseButton, BtnDown, X, Y);
 
   // transfer mousecords to the 800x600 raster we use to draw
@@ -282,9 +283,8 @@ begin
   Result := true;
   if (PressedDown) then
   begin // Key Down
-
-    SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT
-    + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
+    Self.PreloadCovers := false;
+    SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
 
     if (not Button[PlayerName].Selected) then
     begin
@@ -819,7 +819,7 @@ begin
   PlayerSelectLevel := AddSelectSlide(Theme.Name.SelectPlayerLevel, LevelIndex, UIni.IDifficulty, 'OPTION_VALUE_');
 
   isScrolling := false;
-
+  Self.PreloadCovers := true;
   GenerateAvatars();
 
   NumVisibleAvatars := Theme.Name.PlayerScrollAvatar.NumAvatars;
@@ -1069,7 +1069,11 @@ begin
       isScrolling := false;
       AvatarCurrent := AvatarTarget;
     end;
-  end;
+  end
+  else if Self.PreloadCovers then //start to preload covers slowly if don't exists user interaction
+    UGraphic.ScreenSong.LoadCovers()
+  else //enable again after user interaction
+    Self.PreloadCovers := true;
 
   SetAvatarScroll;
 

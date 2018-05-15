@@ -75,9 +75,11 @@ type
       LastSelectMouse: integer;
       LastSelectTime: integer;
       Covers: integer; //number of covers to preload
-
+      PreloadCovers: boolean; //flag to stop to preload covers when exists an user interaction
       procedure StartMusicPreview();
       procedure StartVideoPreview();
+      procedure LoadCover(B: integer);
+      procedure LoadMainCover();
     public
       TextArtist:   integer;
       TextTitle:    integer;
@@ -227,6 +229,7 @@ type
       procedure FadeMessage();
       procedure CloseMessage();
 
+      procedure AddButtons();
       procedure OnShow; override;
       procedure OnShowFinish; override;
       procedure OnHide; override;
@@ -261,9 +264,7 @@ type
       procedure OnSongSelect;   // called when song flows movement stops at a song
       procedure OnSongDeSelect; // called before current song is deselected
 
-      procedure LoadCover(B: integer);
-      procedure LoadMainCover();
-
+      procedure LoadCovers();
       procedure SongScore;
 
       //Medley
@@ -632,6 +633,7 @@ begin
 
   if (PressedDown) then
   begin // Key Down
+    Self.PreloadCovers := false;
     SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
 
     //jump to artist or title letter
@@ -1194,7 +1196,7 @@ end;
 
 function TScreenSong.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 begin
-
+  Self.PreloadCovers := false;
   // transfer mousecords to the 800x600 raster we use to draw
   X := Round((X / (ScreenW / Screens)) * RenderW);
   if (X > RenderW) then
@@ -1444,6 +1446,9 @@ var
 begin
   inherited Create;
 
+  Self.AddButtons();
+  Self.Covers := High(USongs.CatSongs.Song);
+  Self.PreloadCovers := true;
   LoadFromTheme(Theme.Song);
 
   TextArtist := AddText(Theme.Song.TextArtist);
@@ -1643,7 +1648,6 @@ begin
     ListRapIcon[I] := AddStatic(Theme.Song.RapIcon);
   end;
 
-  Self.Covers := 0;
   Self.PageLines := 0;
   Self.MinLine := 0;
 
@@ -2379,7 +2383,15 @@ begin
   Self.LoadMainCover();
 end;
 
-procedure TScreenSong.OnShow;
+procedure TScreenSong.AddButtons();
+var
+  I: integer;
+begin
+  for I := Length(Button) to High(USongs.CatSongs.Song) do
+    Self.AddButton(300 + I * 250, 140, 200, 200, PATH_NONE, TEXTURE_TYPE_PLAIN, Theme.Song.Cover.Reflections);
+end;
+
+procedure TScreenSong.OnShow();
 var
   I: integer;
   Visible: boolean;
@@ -2392,11 +2404,14 @@ begin
     UGraphic.ScreenPopupScoreDownload := TScreenPopupScoreDownload.Create();
   end;
 
-  if Length(Button) = 0 then //after load songs in thread we must create all buttons songs
-    for I := 0 to High(CatSongs.Song) do
-      AddButton(300 + I*250, 140, 200, 200, PATH_NONE, TEXTURE_TYPE_PLAIN, Theme.Song.Cover.Reflections);
+  //add more buttons if needed because this screen can be created before finish loading songs if meanwhile use options screens
+  if Length(Self.Button) < High(USongs.CatSongs.Song) then
+  begin
+    Self.AddButtons();
+    Self.Covers := Length(Self.Button);
+  end;
 
-  CloseMessage();
+  Self.CloseMessage();
 
   if (TSongMenuMode(Ini.SongMenu) <> smList) then
   begin
@@ -2537,7 +2552,6 @@ begin
   DuetChange := false;
   isScrolling := true;
   CoverTime := 10;
-  Self.Covers := High(USongs.CatSongs.Song);
   //if (Mode = smPartyTournament) then
   //  PartyTime := SDL_GetTicks();
 end;
@@ -2582,12 +2596,10 @@ begin
       OnSongSelect;
     end;
   end
-  else if Self.Covers > 0 then //preload covers if not exists a user interaction
-    for I := Self.Covers downto Max(0, Self.Covers - 3) do
-    begin
-      Self.LoadCover(I);
-      Dec(Self.Covers);
-    end;
+  else if Self.PreloadCovers then //start to preload covers slowly if don't exists user interaction
+    Self.LoadCovers()
+  else //enable again after user interaction
+    Self.PreloadCovers := true;
 
   Self.SetScroll();
 
@@ -3314,6 +3326,16 @@ begin
     SelectRandomSong;
     SetJoker;
   end;
+end;
+
+{ Preload covers on draw if not exists a user interaction }
+procedure TScreenSong.LoadCovers();
+begin
+  if Self.Covers > 0 then
+  begin
+    Self.LoadCover(Self.Covers);
+    Dec(Self.Covers);
+  end
 end;
 
 { Load covers dynamically in a song button }

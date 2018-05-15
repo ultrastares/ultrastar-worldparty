@@ -30,38 +30,32 @@ interface
 {$I switches.inc}
 
 uses
-  ULog,
   MD5,
-  UMenu,
   sdl2,
+  SysUtils,
   UDisplay,
-  UMusic,
   UFiles,
+  UMenu,
+  UMusic,
+  ULog,
   USong,
   UTexture,
-  SysUtils,
   UThemes;
 
 type
   TScreenMain = class(TMenu)
-
-  public
-    constructor Create(); override;
-    function ParseInput(PressedKey: Cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
-    function Draw: boolean; override;
-    procedure OnShow; override;
-    procedure SetInteraction(Num: integer); override;
-    procedure SetAnimationProgress(Progress: real); override;
-//	procedure UpdateTextDescriptionFor(IID: integer); virtual;
-
-  private
-    TextDescription, TextDescriptionLong, TextProgressSongs: integer;
-    TextureProgressSong: TTexture;
-    function CheckSongs(): boolean;
- // ButtonSoloIID, ButtonMultiIID, ButtonJukeboxIID, ButtonStatIID, ButtonOptionsIID, ButtonExitIID, ButtonAboutIID,
-
- // MapIIDtoDescID: array of integer;
-
+    public
+      constructor Create(); override;
+      function ParseInput(PressedKey: Cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
+      function ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean; override;
+      function Draw: boolean; override;
+      procedure OnShow; override;
+      procedure SetInteraction(Num: integer); override;
+      procedure SetAnimationProgress(Progress: real); override;
+    private
+      TextDescription, TextDescriptionLong, TextProgressSongs: integer;
+      PreloadCovers: boolean; //flag to stop to preload covers when exists an user interaction
+      function CheckSongs(): boolean;
   end;
 
 implementation
@@ -91,7 +85,7 @@ begin
   Result := true;
   if (PressedDown) then
   begin
-
+    Self.PreloadCovers := false;
     //check normal keys
     case UCS4UpperCase(CharCode) of
       Ord('Q'):
@@ -107,7 +101,7 @@ begin
         Result := false;
       SDLK_RETURN:
         begin
-          if (Interaction < 3) and (not Assigned(UGraphic.ScreenSong)) then
+          if (Interaction < 3) and (not Assigned(UGraphic.ScreenSong)) then //loaded in draw, but a fast interaction can finish here in crash
             UGraphic.ScreenSong := TScreenSong.Create();
 
           //reset
@@ -192,6 +186,11 @@ begin
   end
 end;
 
+function TScreenMain.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
+begin
+  Result := inherited;
+  Self.PreloadCovers := false;
+end;
 
 constructor TScreenMain.Create();
 begin
@@ -220,6 +219,7 @@ begin
 
   AddButton(Theme.Main.ButtonAbout);
   Interaction := 0;
+  Self.PreloadCovers := true;
 end;
 
 function TScreenMain.Draw: boolean;
@@ -228,17 +228,24 @@ var
 begin
   inherited Draw;
   ProgressSong := USongs.Songs.GetLoadProgress();
-  if ProgressSong.Folder <> '' then
+  if not ProgressSong.Finished then //while song loading show progress
   begin
     Self.Text[TextDescriptionLong].Visible := false;
     Self.Text[TextProgressSongs].Text := ProgressSong.Folder+': '+IntToStr(ProgressSong.Total);
   end
-  else
+  else //after finish song loading, return to normal mode, close popup and start to preload covers
   begin
     Self.Text[TextDescriptionLong].Visible := true;
     Self.Text[TextProgressSongs].Visible := false;
     if ProgressSong.Total > 0 then
       UGraphic.ScreenPopupError.Visible := false;
+
+    if not Assigned(UGraphic.ScreenSong) then
+      UGraphic.ScreenSong := TScreenSong.Create()
+    else if Self.PreloadCovers then //start to preload covers slowly if don't exists user interaction
+      UGraphic.ScreenSong.LoadCovers()
+    else //enable again after user interaction
+      Self.PreloadCovers := true;
   end;
   Result := true;
 end;

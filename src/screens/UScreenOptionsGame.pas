@@ -164,14 +164,17 @@ begin
   UIni.Ini.Save;
   if (Self.SongMenu <> UIni.Ini.SongMenu) or (Self.Sorting <> UIni.Ini.Sorting) or (Self.Tabs <> UIni.Ini.Tabs) then
   begin
-    if (Self.Sorting <> UIni.Ini.Sorting) or (Self.Tabs <> UIni.Ini.Tabs) then
+    if ((Self.Sorting <> UIni.Ini.Sorting) or (Self.Tabs <> UIni.Ini.Tabs)) and USongs.Songs.GetLoadProgress().Finished then
       USongs.CatSongs.Refresh();
 
     if (Self.SongMenu <> UIni.Ini.SongMenu) then
       UThemes.Theme.ThemeSongLoad();
 
-    FreeAndNil(UGraphic.ScreenSong);
-    UGraphic.ScreenSong := TScreenSong.Create();
+    if USongs.Songs.GetLoadProgress().Finished then
+    begin
+      FreeAndNil(UGraphic.ScreenSong);
+      UGraphic.ScreenSong := TScreenSong.Create();
+    end;
   end;
   if Self.Language <> UIni.Ini.Language then
   begin
