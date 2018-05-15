@@ -56,14 +56,15 @@ type
 implementation
 
 uses
+  Classes,
+  UCommon,
   UGraphic,
   UDataBase,
+  ULanguage,
+  ULog,
+  UScreenDevelopers,
   USongs,
   USong,
-  ULanguage,
-  UCommon,
-  Classes,
-  ULog,
   UUnicodeUtils;
 
 function TScreenAbout.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
@@ -144,6 +145,8 @@ end;
 procedure TScreenAbout.OnShow;
 begin
   inherited;
+  if not Assigned(UGraphic.ScreenDevelopers) then //load the screen only the first time
+    UGraphic.ScreenDevelopers := TScreenDevelopers.Create();
 
   //Set Overview Text:
   SetOverview;

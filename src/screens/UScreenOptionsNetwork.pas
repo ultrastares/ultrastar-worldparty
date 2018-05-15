@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -65,7 +65,7 @@ type
     EncryptPassword: UTF8String;
 
     InsertButton: integer;
-    
+
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -79,10 +79,11 @@ type
 implementation
 
 uses
+  SysUtils,
   UGraphic,
   ULanguage,
-  UUnicodeUtils,
-  SysUtils;
+  UScreenPopup,
+  UUnicodeUtils;
 
 var
   Receive_String: widestring;
@@ -499,6 +500,8 @@ var
   I, J: integer;
 begin
   inherited;
+  if not Assigned(UGraphic.ScreenPopupInsertUser) then //load the screen only the first time
+    UGraphic.ScreenPopupInsertUser := TScreenPopupInsertUser.Create();
 
   CurrentWebsiteIndex := 0;
   CurrentUserIndex := 0;
@@ -532,7 +535,6 @@ begin
   end;
 
   Interaction := 0;
-
 end;
 
 procedure TScreenOptionsNetwork.UpdateUsernameList(ResetIndex: boolean);
@@ -668,4 +670,3 @@ begin
 end;
 
 end.
-

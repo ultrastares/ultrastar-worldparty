@@ -38,7 +38,6 @@ uses
   UMusic,
   UFiles,
   USong,
-  UScreenSong,
   UTexture,
   SysUtils,
   UThemes;
@@ -47,7 +46,7 @@ type
   TScreenMain = class(TMenu)
 
   public
-    constructor Create; override;
+    constructor Create(); override;
     function ParseInput(PressedKey: Cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
     function Draw: boolean; override;
     procedure OnShow; override;
@@ -75,7 +74,13 @@ uses
   USongs,
   ULanguage,
   UParty,
-  USkins,
+  UScreenName,
+  UScreenSong,
+  UScreenPartyOptions,
+  UScreenJukeboxPlaylist,
+  UScreenOptions,
+  UScreenStatMain,
+  UScreenAbout,
   UUnicodeUtils;
 
 const
@@ -86,6 +91,7 @@ begin
   Result := true;
   if (PressedDown) then
   begin
+
     //check normal keys
     case UCS4UpperCase(CharCode) of
       Ord('Q'):
@@ -101,47 +107,77 @@ begin
         Result := false;
       SDLK_RETURN:
         begin
+          if (Interaction < 3) and (not Assigned(UGraphic.ScreenSong)) then
+            UGraphic.ScreenSong := TScreenSong.Create();
+
           //reset
           Party.bPartyGame := false;
           case Interaction of
             0: //solo
+            begin
+              if Self.CheckSongs then
               begin
-                if Self.CheckSongs then
-                begin
-                  if (Ini.Players >= 0) and (Ini.Players <= 3) then
-                    UNote.PlayersPlay := Ini.Players + 1;
-                  if (Ini.Players = 4) then
-                    UNote.PlayersPlay := 6;
+                UGraphic.ScreenSong.Mode := smNormal;
+                if (Ini.Players >= 0) and (Ini.Players <= 3) then
+                  UNote.PlayersPlay := Ini.Players + 1;
+                if (Ini.Players = 4) then
+                  UNote.PlayersPlay := 6;
 
-                  if Ini.OnSongClick = sSelectPlayer then
-                    FadeTo(@ScreenSong)
-                  else
-                  begin
-                    ScreenName.Goto_SingScreen := false;
-                    FadeTo(@ScreenName, SoundLib.Start);
-                  end;
+                if Ini.OnSongClick = sSelectPlayer then
+                  FadeTo(@ScreenSong)
+                else
+                begin
+                  if not Assigned(UGraphic.ScreenName) then
+                    UGraphic.ScreenName := TScreenName.Create();
+
+                  ScreenName.Goto_SingScreen := false;
+                  FadeTo(@ScreenName, SoundLib.Start);
                 end;
               end;
+            end;
             1: //party
+            begin
+              if Self.CheckSongs then
               begin
-                if Self.CheckSongs then
-                begin
-                  Party.bPartyGame := true;
-                  FadeTo(@ScreenPartyOptions, SoundLib.Start);
-                end
-              end;
+                if not Assigned(UGraphic.ScreenPartyOptions) then //load the screens only the first time
+                  UGraphic.ScreenPartyOptions := TScreenPartyOptions.Create();
+
+                Party.bPartyGame := true;
+                FadeTo(@ScreenPartyOptions, SoundLib.Start);
+              end
+            end;
             2: //jukebox
+            begin
+              if not Assigned(UGraphic.ScreenJukeboxPlaylist) then //load the screens only the first time
+                UGraphic.ScreenJukeboxPlaylist := TScreenJukeboxPlaylist.Create();
+
               if Self.CheckSongs then
                 FadeTo(@ScreenJukeboxPlaylist, SoundLib.Start);
+            end;
             3: //stats
+            begin
+              if not Assigned(UGraphic.ScreenStatMain) then //load the screens only the first time
+                UGraphic.ScreenStatMain := TScreenStatMain.Create();
+
               if Self.CheckSongs then
                 FadeTo(@ScreenStatMain, SoundLib.Start);
+            end;
             4: //options
-              FadeTo(@ScreenOptions, SoundLib.Start);
+            begin
+              if not Assigned(UGraphic.ScreenOptions) then //load the screens only the first time
+                UGraphic.ScreenOptions := TScreenOptions.Create();
+
+              FadeTo(@UGraphic.ScreenOptions, SoundLib.Start);
+            end;
             5: //exit
               Result := false;
             6: //about
+            begin
+              if not Assigned(UGraphic.ScreenAbout) then //load the screens only the first time
+                UGraphic.ScreenAbout := TScreenAbout.Create();
+
               FadeTo(@ScreenAbout, SoundLib.Start);
+            end;
           end;
         end;
       SDLK_DOWN:
@@ -157,9 +193,9 @@ begin
 end;
 
 
-constructor TScreenMain.Create;
+constructor TScreenMain.Create();
 begin
-  inherited Create;
+  inherited Create();
 {**
  * Attention ^^:
  * New Creation Order needed because of LoadFromTheme
@@ -201,7 +237,7 @@ begin
   begin
     Self.Text[TextDescriptionLong].Visible := true;
     Self.Text[TextProgressSongs].Visible := false;
-    if (ProgressSong.Total > 0) then
+    if ProgressSong.Total > 0 then
       UGraphic.ScreenPopupError.Visible := false;
   end;
   Result := true;
@@ -212,8 +248,6 @@ begin
   inherited;
 
   SoundLib.StartBgMusic;
-
-  ScreenSong.Mode := smNormal;
 
  {**
   * Clean up TPartyGame here

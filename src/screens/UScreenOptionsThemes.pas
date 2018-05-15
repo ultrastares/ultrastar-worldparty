@@ -67,6 +67,7 @@ uses
   UMain,
   UPathUtils,
   UUnicodeUtils,
+  UScreenOptions,
   USkins;
 
 function TScreenOptionsThemes.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
@@ -250,6 +251,8 @@ begin
   begin
     UGraphic.UnLoadScreens();
     UGraphic.LoadScreens();
+    UGraphic.ScreenOptions := TScreenOptions.Create();
+    UGraphic.ScreenOptionsThemes := TScreenOptionsThemes.Create();
     Ini.Load;
   end;
 end;

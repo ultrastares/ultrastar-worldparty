@@ -80,14 +80,23 @@ implementation
 
 uses
   UGraphic,
-  UMain,
   UIni,
-  UTexture,
   ULanguage,
+  UMain,
   UParty,
-  USong,
   UPlaylist,
+  UScreenPartyNewRound,
+  UScreenPartyScore,
+  UScreenPartyWin,
+  UScreenPartyPlayer,
+  UScreenPartyRounds,
+  UScreenPartyTournamentRounds,
+  UScreenPartyTournamentPlayer,
+  UScreenPartyTournamentOptions,
+  UScreenPartyTournamentWin,
+  USong,
   USongs,
+  UTexture,
   UUnicodeUtils;
 
 function TScreenPartyOptions.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
@@ -333,7 +342,14 @@ end;
 procedure TScreenPartyOptions.OnShow;
 begin
   inherited;
-
+  if not Assigned(UGraphic.ScreenPartyNewRound) then //load the screens only the first time
+  begin
+    UGraphic.ScreenPartyNewRound := TScreenPartyNewRound.Create();
+    UGraphic.ScreenPartyScore := TScreenPartyScore.Create();
+    UGraphic.ScreenPartyWin := TScreenPartyWin.Create();
+    UGraphic.ScreenPartyPlayer := TScreenPartyPlayer.Create();
+    UGraphic.ScreenPartyRounds := TScreenPartyRounds.Create();
+  end;
   Party.Clear;
 
   // check if there are loaded modes
@@ -411,6 +427,13 @@ procedure TScreenPartyOptions.InitTournament;
 begin
   ScreenSong.Mode := smPartyTournament;
   AudioPlayback.PlaySound(SoundLib.Start);
+  if not Assigned(UGraphic.ScreenPartyTournamentRounds) then //load the screens only the first time
+  begin
+    UGraphic.ScreenPartyTournamentRounds := TScreenPartyTournamentRounds.Create();
+    UGraphic.ScreenPartyTournamentPlayer := TScreenPartyTournamentPlayer.Create();
+    UGraphic.ScreenPartyTournamentOptions := TScreenPartyTournamentOptions.Create();
+    UGraphic.ScreenPartyTournamentWin := TScreenPartyTournamentWin.Create();
+  end;
   FadeTo(@ScreenPartyTournamentPlayer);
 end;
 

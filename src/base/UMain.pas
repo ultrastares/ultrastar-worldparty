@@ -141,46 +141,35 @@ begin
     // without SDL_INIT_TIMER SDL_GetTicks() might return strange values
     SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, '1');
     SDL_Init(SDL_INIT_VIDEO or SDL_INIT_TIMER);
-    //SDL_EnableUnicode(1);  //not necessary in SDL2 any more
 
     // create luacore first so other classes can register their events
     LuaCore := TLuaCore.Create;
-
 
     USTime := TTime.Create;
     VideoBGTimer := TRelativeTimer.Create;
 
     // Language
-    Log.LogStatus('Initialize Paths', 'Initialization');
     InitializePaths;
+    Log.BenchmarkStart(1);
     Log.SetLogFileLevel(50);
-    Log.LogStatus('Load Language', 'Initialization');
     Language := TLanguage.Create;
-
-    // add const values:
     Language.AddConst('US_VERSION', USDXVersionStr);
 
     // Skin
-    Log.BenchmarkStart(1);
-    Log.LogStatus('Loading Skin List', 'Initialization');
     Skin := TSkin.Create;
-
-    Log.LogStatus('Loading Theme List', 'Initialization');
     Theme := TTheme.Create;
-    Log.LogStatus('Website-Manager', 'Initialization');
-    DLLMan := TDLLMan.Create;   // Load WebsiteList
-    Log.LogStatus('DataBase System', 'Initialization');
-    DataBase := TDataBaseSystem.Create;
 
+    DLLMan := TDLLMan.Create;   // Load WebsiteList
+    DataBase := TDataBaseSystem.Create;
     if (Params.ScoreFile.IsUnset) then
       DataBase.Init(Platform.GetGameUserPath.Append('Ultrastar.db'))
     else
       DataBase.Init(Params.ScoreFile);
 
     // Ini + Paths
-    Log.LogStatus('Load Ini', 'Initialization');
-    Ini := TIni.Create;
-    Ini.Load;
+    UIni.Ini := TIni.Create();
+    UIni.Ini.Load();
+    UIni.Ini.Save(); // it is possible that this is the first run, create a .ini file if neccessary
 
     //load and check songs and get covers and category covers
     UCatCovers.CatCovers := TCatCovers.Create;
@@ -190,28 +179,22 @@ begin
     // Theme
     UThemes.Theme.LoadTheme(Ini.Theme, Ini.Color);
 
+    //avatars cache
+    UAvatars.Avatars := TAvatarDatabase.Create();
+
     // Graphics
     UGraphic.Initialize3D(WindowTitle);
 
     UMusic.InitializeSound();
     UMusic.InitializeVideo();
 
-    // it is possible that this is the first run, create a .ini file if neccessary
-    Log.LogStatus('Write Ini', 'Initialization');
-    Ini.Save;
-
-    //avatars cache
-    Avatars := TAvatarDatabase.Create;
-
     // Lyrics-engine with media reference timer
     LyricsState := TLyricsState.Create();
 
     // Playlist Manager
-    Log.LogStatus('Playlist Manager', 'Initialization');
     PlaylistMan := TPlaylistManager.Create;
 
     // GoldenStarsTwinkleMod
-    Log.LogStatus('Effect Manager', 'Initialization');
     GoldenRec := TEffectManager.Create;
 
     // Joypad
@@ -257,10 +240,11 @@ begin
       Display.CurrentScreen^.FadeTo( @ScreenOptionsRecord );
     end;
 
+    Log.LogBenchmark('Main load', 1);
+
     //------------------------------
     // Start Mainloop
     //------------------------------
-    Log.LogStatus('Main Loop', 'Initialization');
     MainLoop;
 
   {$IFNDEF Debug}

@@ -208,26 +208,11 @@ var
   Tex_BG_Mid_Rap:      array[1..UIni.IMaxPlayerCount] of TTexture;   //rename to tex_noteglow_mid
   Tex_BG_Right_Rap:    array[1..UIni.IMaxPlayerCount] of TTexture;   //rename to tex_noteglow_right
 
-  Tex_Note_Star:  TTexture;
-  Tex_Note_Perfect_Star: TTexture;
-
-
-  Tex_Ball:       TTexture;
   Tex_Lyric_Help_Bar: TTexture;
   FullScreen:     boolean;
 
   Tex_TimeProgress: TTexture;
   Tex_JukeboxTimeProgress: TTexture;
-
-  //Sing Bar Mod
-  Tex_SingBar_Back:  TTexture;
-  Tex_SingBar_Bar:  TTexture;
-  Tex_SingBar_Front:  TTexture;
-  //end Singbar Mod
-
-  //PhrasenBonus - Line Bonus Mod
-  Tex_SingLineBonusBack: array[0..8] of TTexture;
-  //End PhrasenBonus - Line Bonus Mod
 
   //ScoreBG Texs
   Tex_ScoreBG: array [0..UIni.IMaxPlayerCount-1] of TTexture;
@@ -243,15 +228,6 @@ var
     Tex_Score_NoteBarRound_Lightest : array [1..UIni.IMaxPlayerCount] of TTexture;
 
     Tex_Score_Ratings               : array [0..7] of TTexture;  //stores all possible rating result images
-
-  // arrows for SelectSlide
-    Tex_SelectS_ArrowL:  TTexture;
-    Tex_SelectS_ArrowR:  TTexture;
-
-  // textures for software mouse cursor
-    Tex_Cursor_Unpressed: TTexture;
-    Tex_Cursor_Pressed:   TTexture;
-
 
   PboSupported: boolean;
 
@@ -338,94 +314,14 @@ begin
 end;
 
 procedure LoadTextures;
-var
-  P:       integer;
-  R, G, B: real;
-  Col:     integer;
 begin
-  Log.LogStatus('Loading Textures', 'LoadTextures');
+  TextGL.BuildFonts; //font textures
   Texture := TTextureUnit.Create;
   Texture.Limit := 1920; //currently, Full HD is all we want. switch to 64bit target before going further up
-  Log.LogStatus('Loading Textures - A', 'LoadTextures');
-
-  Tex_Note_Perfect_Star := Texture.LoadTexture(Skin.GetTextureFileName('NotePerfectStar'), TEXTURE_TYPE_TRANSPARENT, 0);
-  Tex_Note_Star         := Texture.LoadTexture(Skin.GetTextureFileName('NoteStar') ,       TEXTURE_TYPE_TRANSPARENT, $FFFFFF);
-  Tex_Ball              := Texture.LoadTexture(Skin.GetTextureFileName('Ball'),            TEXTURE_TYPE_TRANSPARENT, $FF00FF);
-  Tex_Lyric_Help_Bar    := Texture.LoadTexture(Skin.GetTextureFileName('LyricHelpBar'),    TEXTURE_TYPE_TRANSPARENT, 0);
-
-  Tex_SelectS_ArrowL    := Texture.LoadTexture(Skin.GetTextureFileName('Select_ArrowLeft'),    TEXTURE_TYPE_TRANSPARENT, 0);
-  Tex_SelectS_ArrowR    := Texture.LoadTexture(Skin.GetTextureFileName('Select_ArrowRight'),    TEXTURE_TYPE_TRANSPARENT, 0);
-
-  Tex_Cursor_Unpressed  := Texture.LoadTexture(Skin.GetTextureFileName('Cursor'), TEXTURE_TYPE_TRANSPARENT, 0);
-
-  if (Skin.GetTextureFileName('Cursor_Pressed').IsSet) then
-    Tex_Cursor_Pressed    := Texture.LoadTexture(Skin.GetTextureFileName('Cursor_Pressed'), TEXTURE_TYPE_TRANSPARENT, 0)
-  else
-    Tex_Cursor_Pressed.TexNum := 0;
-
-  //TimeBar mod
-  Tex_TimeProgress := Texture.LoadTexture(Skin.GetTextureFileName('TimeBar'));
-  Tex_JukeboxTimeProgress := Texture.LoadTexture(Skin.GetTextureFileName('JukeboxTimeBar'));
-  //eoa TimeBar mod
-
-  //SingBar Mod
-  Tex_SingBar_Back  := Texture.LoadTexture(Skin.GetTextureFileName('SingBarBack'),  TEXTURE_TYPE_PLAIN, 0);
-  Tex_SingBar_Bar   := Texture.LoadTexture(Skin.GetTextureFileName('SingBarBar'),   TEXTURE_TYPE_PLAIN, 0);
-  Tex_SingBar_Front := Texture.LoadTexture(Skin.GetTextureFileName('SingBarFront'), TEXTURE_TYPE_PLAIN, 0);
-  //end Singbar Mod
-
-  Log.LogStatus('Loading Textures - B', 'LoadTextures');
-
-  //Line Bonus PopUp
-  for P := 0 to 8 do
-    begin
-      Case P of
-        0: begin
-          R := 1;
-          G := 0;
-          B := 0;
-        end;
-        1..3: begin
-          R := 1;
-          G := (P * 0.25);
-          B := 0;
-        end;
-        4: begin
-          R := 1;
-          G := 1;
-          B := 0;
-        end;
-        5..7: begin
-          R := 1-((P-4)*0.25);
-          G := 1;
-          B := 0;
-        end;
-        8: begin
-          R := 0;
-          G := 1;
-          B := 0;
-        end;
-        else begin
-          R := 1;
-          G := 0;
-          B := 0;
-        end;
-
-      End;
-
-      Col := $10000 * Round(R*255) + $100 * Round(G*255) + Round(B*255);
-      Tex_SingLineBonusBack[P] :=  Texture.LoadTexture(Skin.GetTextureFileName('LineBonusBack'), TEXTURE_TYPE_COLORIZED, Col);
-    end;
-
-    Log.LogStatus('Loading Textures - C', 'LoadTextures');
-
-    //## rating pictures that show a picture according to your rate ##
-    for P := 0 to 7 do begin
-      Tex_Score_Ratings[P] := Texture.LoadTexture(Skin.GetTextureFileName('Rating_'+IntToStr(P)), TEXTURE_TYPE_TRANSPARENT, 0);
-  end;
-
-  TextGL.BuildFonts; //font textures
-  Log.LogStatus('Loading Textures - Done', 'LoadTextures');
+  //TODO this textures must be loaded in file that use it, but need more OOP to do this...
+  Tex_Lyric_Help_Bar := Texture.LoadTexture('LyricHelpBar', TEXTURE_TYPE_TRANSPARENT);
+  Tex_TimeProgress := Texture.LoadTexture('TimeBar');
+  Tex_JukeboxTimeProgress := Texture.LoadTexture('JukeboxTimeBar');
 end;
 
 const
@@ -448,8 +344,6 @@ begin
   LoadScreens();
 
   Display.CurrentScreen^.FadeTo(@ScreenMain);
-  Log.LogBenchmark('--> Loading Screens', 2);
-  Log.LogStatus('Finish', 'Initialize3D');
 end;
 
 procedure SwapBuffers;
@@ -793,49 +687,14 @@ begin
   end;
 end;
 
+{ Load common screens }
 procedure LoadScreens;
 begin
+  ScreenOpen := TScreenOpen.Create();
+  ScreenPopupCheck := TScreenPopupCheck.Create();
+  ScreenPopupError := TScreenPopupError.Create();
+  ScreenPopupInfo := TScreenPopupInfo.Create();
   ScreenMain := TScreenMain.Create;
-  ScreenName := TScreenName.Create;
-  ScreenSong := TScreenSong.Create;
-  ScreenSongMenu := TScreenSongMenu.Create;
-  ScreenJukebox := TScreenJukebox.Create;
-  ScreenJukeboxOptions := TScreenJukeboxOptions.Create;
-  ScreenJukeboxPlaylist := TScreenJukeboxPlaylist.Create;
-  ScreenTop5 := TScreenTop5.Create;
-  ScreenOptions := TScreenOptions.Create;
-  ScreenOptionsGame := TScreenOptionsGame.Create;
-  ScreenOptionsGraphics := TScreenOptionsGraphics.Create;
-  ScreenOptionsSound := TScreenOptionsSound.Create;
-  ScreenOptionsLyrics := TScreenOptionsLyrics.Create;
-  ScreenOptionsThemes := TScreenOptionsThemes.Create;
-  ScreenOptionsRecord := TScreenOptionsRecord.Create;
-  ScreenOptionsAdvanced := TScreenOptionsAdvanced.Create;
-  ScreenOptionsNetwork := TScreenOptionsNetwork.Create;
-  ScreenOptionsWebcam := TScreenOptionsWebcam.Create;
-  ScreenOptionsJukebox := TScreenOptionsJukebox.Create;
-  ScreenOpen := TScreenOpen.Create;
-  ScreenAbout := TScreenAbout.Create;
-  ScreenDevelopers := TScreenDevelopers.Create;
-  ScreenSongJumpto := TScreenSongJumpto.Create;
-  ScreenPopupCheck := TScreenPopupCheck.Create;
-  ScreenPopupError := TScreenPopupError.Create;
-  ScreenPopupInfo := TScreenPopupInfo.Create;
-  ScreenPopupInsertUser := TScreenPopupInsertUser.Create;
-  ScreenPopupSendScore := TScreenPopupSendScore.Create;
-  ScreenPopupScoreDownload := TScreenPopupScoreDownload.Create;
-  ScreenPartyNewRound := TScreenPartyNewRound.Create;
-  ScreenPartyScore := TScreenPartyScore.Create;
-  ScreenPartyWin := TScreenPartyWin.Create;
-  ScreenPartyOptions := TScreenPartyOptions.Create;
-  ScreenPartyPlayer := TScreenPartyPlayer.Create;
-  ScreenPartyRounds := TScreenPartyRounds.Create;
-  ScreenPartyTournamentRounds := TScreenPartyTournamentRounds.Create;
-  ScreenPartyTournamentPlayer := TScreenPartyTournamentPlayer.Create;
-  ScreenPartyTournamentOptions := TScreenPartyTournamentOptions.Create;
-  ScreenPartyTournamentWin := TScreenPartyTournamentWin.Create;
-  ScreenStatMain := TScreenStatMain.Create;
-  ScreenStatDetail := TScreenStatDetail.Create;
 end;
 
 procedure ShowStatus(Status: string);
@@ -843,50 +702,51 @@ begin
   ScreenMain.Text[3].Text := Status;
 end;
 
+{ Free screen variables in all cases, with an instance or not }
 procedure UnloadScreens;
 begin
-  ScreenMain.Free;
-  ScreenName.Free;
-  ScreenSong.Free;
-  ScreenScore.Free;
-  ScreenOptions.Free;
-  ScreenOptionsGame.Free;
-  ScreenOptionsGraphics.Free;
-  ScreenOptionsSound.Free;
-  ScreenOptionsLyrics.Free;
-  ScreenOptionsThemes.Free;
-  ScreenOptionsRecord.Free;
-  ScreenOptionsAdvanced.Free;
-  ScreenOptionsNetwork.Free;
-  ScreenOptionsWebcam.Free;
-  ScreenOptionsJukebox.Free;
-  ScreenJukebox.Free;
-  ScreenJukeboxOptions.Free;
-  ScreenJukeboxPlaylist.Free;
-  ScreenTop5.Free;
-  ScreenOpen.Free;
-  ScreenAbout.Free;
-  ScreenDevelopers.Free;
-  ScreenSongMenu.Free;
-  ScreenSongJumpto.Free;
-  ScreenPopupCheck.Free;
-  ScreenPopupError.Free;
-  ScreenPopupInfo.Free;
-  ScreenPopupInsertUser.Free;
-  ScreenPopupSendScore.Free;
-  ScreenPopupScoreDownload.Free;
-  ScreenPartyNewRound.Free;
-  ScreenPartyScore.Free;
-  ScreenPartyWin.Free;
-  ScreenPartyOptions.Free;
-  ScreenPartyPlayer.Free;
-  ScreenPartyRounds.Free;
-  ScreenPartyTournamentRounds.Free;
-  ScreenPartyTournamentPlayer.Free;
-  ScreenPartyTournamentOptions.Free;
-  ScreenPartyTournamentWin.Free;
-  ScreenStatMain.Free;
-  ScreenStatDetail.Free;
+  FreeAndNil(ScreenMain);
+  FreeAndNil(ScreenName);
+  FreeAndNil(ScreenSong);
+  FreeAndNil(ScreenScore);
+  FreeAndNil(ScreenOptions);
+  FreeAndNil(ScreenOptionsGame);
+  FreeAndNil(ScreenOptionsGraphics);
+  FreeAndNil(ScreenOptionsSound);
+  FreeAndNil(ScreenOptionsLyrics);
+  FreeAndNil(ScreenOptionsThemes);
+  FreeAndNil(ScreenOptionsRecord);
+  FreeAndNil(ScreenOptionsAdvanced);
+  FreeAndNil(ScreenOptionsNetwork);
+  FreeAndNil(ScreenOptionsWebcam);
+  FreeAndNil(ScreenOptionsJukebox);
+  FreeAndNil(ScreenJukebox);
+  FreeAndNil(ScreenJukeboxOptions);
+  FreeAndNil(ScreenJukeboxPlaylist);
+  FreeAndNil(ScreenTop5);
+  FreeAndNil(ScreenOpen);
+  FreeAndNil(ScreenAbout);
+  FreeAndNil(ScreenDevelopers);
+  FreeAndNil(ScreenSongMenu);
+  FreeAndNil(ScreenSongJumpto);
+  FreeAndNil(ScreenPopupCheck);
+  FreeAndNil(ScreenPopupError);
+  FreeAndNil(ScreenPopupInfo);
+  FreeAndNil(ScreenPopupInsertUser);
+  FreeAndNil(ScreenPopupSendScore);
+  FreeAndNil(ScreenPopupScoreDownload);
+  FreeAndNil(ScreenPartyNewRound);
+  FreeAndNil(ScreenPartyScore);
+  FreeAndNil(ScreenPartyWin);
+  FreeAndNil(ScreenPartyOptions);
+  FreeAndNil(ScreenPartyPlayer);
+  FreeAndNil(ScreenPartyRounds);
+  FreeAndNil(ScreenPartyTournamentRounds);
+  FreeAndNil(ScreenPartyTournamentPlayer);
+  FreeAndNil(ScreenPartyTournamentOptions);
+  FreeAndNil(ScreenPartyTournamentWin);
+  FreeAndNil(ScreenStatMain);
+  FreeAndNil(ScreenStatDetail);
 end;
 
 end.

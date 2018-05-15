@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,10 +16,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
- 
+
 unit UScreenScore;
 
 interface
@@ -216,17 +216,18 @@ implementation
 uses
   UAvatars,
   UGraphic,
-  UScreenSong,
-  UMenuStatic,
-  UTime,
-  USkins,
-  ULog,
   ULanguage,
+  ULog,
+  UMenuStatic,
   UNote,
-  USong,
   UPathUtils,
-  UUnicodeUtils,
-  UScreenPopup;
+  USkins,
+  USong,
+  UScreenTop5,
+  UScreenPopup,
+  UScreenSong,
+  UTime,
+  UUnicodeUtils;
 
 {
  *****************************
@@ -262,7 +263,7 @@ begin
   end;
 
   SendStatus := DllMan.WebsiteSendScore(SendInfo);
-  
+
   case SendStatus of
     0: ScreenPopupError.ShowPopup(Language.Translate('WEBSITE_NO_CONNECTION'));
     2: ScreenPopupError.ShowPopup(Language.Translate('WEBSITE_LOGIN_ERROR'));
@@ -875,6 +876,10 @@ begin
 
     //## the bars that visualize the score ##
 
+    //rating pictures that show a picture according to your rate
+    for I := 0 to 7 do
+      Tex_Score_Ratings[I] := UTexture.Texture.LoadTexture('Rating_'+IntToStr(I), TEXTURE_TYPE_TRANSPARENT);
+
     //NoteBar ScoreBar
     LoadColor(R, G, B, 'P' + IntToStr(Player) + 'Dark');
     Col2 := $10000 * Round(R*255) + $100 * Round(G*255) + Round(B*255);
@@ -1089,6 +1094,11 @@ var
   V: array[1..UIni.IMaxPlayerCount] of boolean; // visibility array
   ArrayStartModifier: integer;
 begin
+  if not Assigned(UGraphic.ScreenPopupSendScore) then //load the screens only the first time
+  begin
+    UGraphic.ScreenPopupSendScore := TScreenPopupSendScore.Create();
+    UGraphic.ScreenTop5 := TScreenTop5.Create();
+  end;
 
   FinishScreenDraw := false;
 
@@ -1503,7 +1513,7 @@ begin
     glBindTexture(GL_TEXTURE_2D, Tex_Score_Ratings[Rating].TexNum);
 
     glColor3f(1.0, 1.0, 1.0);
-      
+
     glEnable(GL_TEXTURE_2D);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);

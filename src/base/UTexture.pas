@@ -116,8 +116,8 @@ type
       procedure AddTexture(var Tex: TTexture; Typ: TTextureType; Color: cardinal; Cache: boolean = false); overload;
       function GetTexture(const Name: IPath; Typ: TTextureType; FromCache: boolean = false): TTexture; overload;
       function GetTexture(const Name: IPath; Typ: TTextureType; Col: LongWord; FromCache: boolean = false): TTexture; overload;
-      function LoadTexture(const Identifier: IPath; Typ: TTextureType; Col: LongWord): TTexture; overload;
-      function LoadTexture(const Identifier: IPath): TTexture; overload;
+      function LoadTexture(const Identifier: UTF8String; Typ: TTextureType = TEXTURE_TYPE_PLAIN; Col: LongWord = 0): TTexture; overload;
+      function LoadTexture(const Identifier: IPath; Typ: TTextureType = TEXTURE_TYPE_PLAIN; Col: LongWord = 0): TTexture; overload;
       function CreateTexture(Data: PChar; const Name: IPath; Width, Height: word; BitsPerPixel: byte): TTexture;
       procedure UnloadTexture(const Name: IPath; Typ: TTextureType; FromCache: boolean); overload;
       procedure UnloadTexture(const Name: IPath; Typ: TTextureType; Col: cardinal; FromCache: boolean); overload;
@@ -134,11 +134,12 @@ implementation
 
 uses
   DateUtils,
-  StrUtils,
   Math,
+  StrUtils,
+  UImage,
   ULog,
-  UThemes,
-  UImage;
+  USkins,
+  UThemes;
 
 procedure AdjustPixelFormat(var TexSurface: PSDL_Surface; Typ: TTextureType);
 var
@@ -224,9 +225,9 @@ begin
   TextureDatabase.AddTexture(Tex, Typ, Color, Cache);
 end;
 
-function TTextureUnit.LoadTexture(const Identifier: IPath): TTexture;
+function TTextureUnit.LoadTexture(const Identifier: UTF8String; Typ: TTextureType; Col: LongWord): TTexture;
 begin
-  Result := LoadTexture(Identifier, TEXTURE_TYPE_PLAIN, 0);
+  Result := Self.LoadTexture(USkins.Skin.GetTextureFileName(Identifier), Typ, Col);
 end;
 
 function TTextureUnit.LoadTexture(const Identifier: IPath; Typ: TTextureType; Col: LongWord): TTexture;
@@ -301,7 +302,7 @@ begin
   glTexImage2D( //load data into gl texture
     GL_TEXTURE_2D,
     0,
-    IfThen((Typ = TEXTURE_TYPE_TRANSPARENT) or (Typ = TEXTURE_TYPE_COLORIZED), GL_RGBA, 3),
+    IfThen((Typ = TEXTURE_TYPE_TRANSPARENT) or (Typ = TEXTURE_TYPE_COLORIZED), GL_RGBA, 3), //idk why 3, maybe is a constant...
     newWidth,
     newHeight,
     0,

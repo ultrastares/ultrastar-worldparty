@@ -2038,6 +2038,8 @@ end;
 procedure TScreenJukebox.OnShow;
 begin
   inherited;
+  if not Assigned(UGraphic.ScreenJukeboxOptions) then //load the screen only the first time
+    UGraphic.ScreenJukeboxOptions := TScreenJukeboxOptions.Create();
 
   Log.LogStatus('Begin', 'OnShow');
 

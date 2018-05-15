@@ -295,7 +295,9 @@ uses
   UAudioPlaybackBase,
   UParty,
   UPlaylist,
+  UScreenPopup,
   UScreenSongMenu,
+  UScreenSongJumpto,
   USkins,
   UUnicodeUtils,
   UMenuStatic;
@@ -2383,6 +2385,12 @@ var
   Visible: boolean;
 begin
   inherited;
+  if not Assigned(UGraphic.ScreenSongMenu) then //load the screens only the first time
+  begin
+    UGraphic.ScreenSongMenu := TScreenSongMenu.Create();
+    UGraphic.ScreenSongJumpto := TScreenSongJumpto.Create();
+    UGraphic.ScreenPopupScoreDownload := TScreenPopupScoreDownload.Create();
+  end;
 
   if Length(Button) = 0 then //after load songs in thread we must create all buttons songs
     for I := 0 to High(CatSongs.Song) do

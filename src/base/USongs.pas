@@ -261,6 +261,7 @@ var
   I: integer;
   Song: TSong;
 begin
+  Log.BenchmarkStart(2);
   Log.LogStatus('Searching For Songs', 'SongList');
   Self.ProgressSong.Total := 0;
   for I := 0 to UPathUtils.SongPaths.Count - 1 do //find txt files on directories and add songs
@@ -274,6 +275,7 @@ begin
   Log.LogStatus('Search Complete', 'SongList');
   CatSongs.Refresh;
   Self.ProgressSong.Folder := '';
+  Log.LogBenchmark('Song loading', 2);
 end;
 
 function TSongs.GetLoadProgress(): TProgressSong;

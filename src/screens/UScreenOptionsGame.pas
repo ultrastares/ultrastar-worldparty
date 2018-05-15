@@ -59,6 +59,7 @@ uses
   ULanguage,
   UMusic,
   UScreensong,
+  UScreenOptions,
   USongs,
   UThemes;
 
@@ -169,7 +170,7 @@ begin
     if (Self.SongMenu <> UIni.Ini.SongMenu) then
       UThemes.Theme.ThemeSongLoad();
 
-    UGraphic.ScreenSong.Free();
+    FreeAndNil(UGraphic.ScreenSong);
     UGraphic.ScreenSong := TScreenSong.Create();
   end;
   if Self.Language <> UIni.Ini.Language then
@@ -178,6 +179,8 @@ begin
     UGraphic.UnLoadScreens();
     UThemes.Theme.LoadTheme(UIni.Ini.Theme, UIni.Ini.Color);
     UGraphic.LoadScreens();
+    UGraphic.ScreenOptions := TScreenOptions.Create();
+    UGraphic.ScreenOptionsGame := TScreenOptionsGame.Create();
   end;
   AudioPlayback.PlaySound(SoundLib.Back);
   FadeTo(@ScreenOptions);

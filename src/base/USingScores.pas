@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -142,6 +142,14 @@ type
       // current and previous call of draw
       TimePassed: Cardinal;
 
+      //Sing Bar Mod
+      Tex_SingBar_Back:  TTexture;
+      Tex_SingBar_Bar:  TTexture;
+      Tex_SingBar_Front:  TTexture;
+
+      //PhrasenBonus - Line Bonus Mod
+      Tex_SingLineBonusBack: array[0..8] of TTexture;
+
       // draws a popup by pointer
       procedure DrawPopUp(const PopUp: PScorePopUp);
 
@@ -234,18 +242,22 @@ type
 implementation
 
 uses
-  SysUtils,
   Math,
   sdl2,
+  SysUtils,
   TextGL,
+  UGraphic,
   ULog,
   UNote,
-  UGraphic;
+  USkins;
 
 {**
  * sets some standard settings
  *}
 constructor TSingScores.Create;
+var
+  I: integer;
+  R, G: real;
 begin
   inherited;
 
@@ -257,7 +269,7 @@ begin
   Visible   := true;
   Enabled   := true;
   RBVisible := true;
-  
+
   // clear position index
   oPositionCount := 0;
   oPlayerCount   := 0;
@@ -279,6 +291,44 @@ begin
   Settings.RatingBar_BG_Tex.TexNum   := 0;
   Settings.RatingBar_FG_Tex.TexNum   := 0;
   Settings.RatingBar_Bar_Tex.TexNum  := 0;
+
+  //SingBar Mod
+  Self.Tex_SingBar_Back := UTexture.Texture.LoadTexture('SingBarBack');
+  Self.Tex_SingBar_Bar := UTexture.Texture.LoadTexture('SingBarBar');
+  Self.Tex_SingBar_Front := UTexture.Texture.LoadTexture('SingBarFront');
+
+  //line Bonus PopUp
+  for I := 0 to 8 do
+  begin
+    case I of
+      1..3:
+      begin
+        R := 1;
+        G := I * 0.25;
+      end;
+      4:
+      begin
+        R := 1;
+        G := 1;
+      end;
+      5..7:
+      begin
+        R := 1 - ((I - 4) * 0.25);
+        G := 1;
+      end;
+      8:
+      begin
+        R := 0;
+        G := 1;
+      end;
+      else
+      begin
+        R := 1;
+        G := 0;
+      end;
+    end;
+    Self.Tex_SingLineBonusBack[I] := UTexture.Texture.LoadTexture('LineBonusBack', TEXTURE_TYPE_COLORIZED, $10000 * Round(R * 255) + $100 * Round(G * 255));
+  end;
 end;
 
 {**
@@ -570,7 +620,7 @@ function TSingScores.GetPopUpPoints(const Index: integer): integer;
     CurPopUp: PScorePopUp;
 begin
   Result := 0;
-  
+
   CurPopUp := FirstPopUp;
   while (CurPopUp <> nil) do
   begin

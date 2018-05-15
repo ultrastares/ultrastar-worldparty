@@ -45,7 +45,6 @@ uses
   UNote,
   UScreenScore,
   UScreenSingController,
-  UScreenTop5,
   ULog,
   UTexture,
   UThemes;
@@ -481,7 +480,7 @@ begin
 				RefreshPlayers();
 				AudioPlayback.PlaySound(SoundLib.Option);
 			end;
-			
+
           if (Interaction = 1) then
           begin
             if (PlayerIndex > 0) then
@@ -489,7 +488,7 @@ begin
               PlayerIndex := PlayerIndex - 1;
 
               RefreshProfile();
-				
+
               isScrolling := true;
               AvatarTarget := PlayerAvatars[PlayerIndex];
             end;
@@ -501,7 +500,7 @@ begin
             SetAvatarScroll;
             PlayerAvatars[PlayerIndex] := AvatarTarget;
             SetPlayerAvatar(PlayerIndex);
-			
+
           end;
 
           if (Interaction = 4) then
