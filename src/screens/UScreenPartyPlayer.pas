@@ -77,7 +77,6 @@ type
       Player12Name: cardinal;
 
       constructor Create; override;
-      function ShouldHandleInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean; out SuppressKey: boolean): boolean; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure OnShow; override;
 
@@ -212,24 +211,6 @@ begin
   end;
 end;
 
-function TScreenPartyPlayer.ShouldHandleInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean; out SuppressKey: boolean): boolean;
-begin
-  Result := inherited;
-  // only suppress special keys for now
-  case PressedKey of
-    // Templates for Names Mod
-    SDLK_F1, SDLK_F2, SDLK_F3, SDLK_F4, SDLK_F5, SDLK_F6, SDLK_F7, SDLK_F8, SDLK_F9, SDLK_F10, SDLK_F11, SDLK_F12:
-     if (Button[Interactions[Interaction].Num].Selected) then
-     begin
-       SuppressKey := true;
-     end
-     else
-     begin
-       Result := false;
-     end;
-  end;
-end;
-
 function TScreenPartyPlayer.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
   var
     SDL_ModState:  word;
@@ -251,16 +232,7 @@ function TScreenPartyPlayer.ParseInput(PressedKey: cardinal; CharCode: UCS4Char;
       SelectsS[Interactions[Interaction].Num].Visible) or
       (Button[Interactions[Interaction].Num].Visible);
   end;
-  procedure HandleNameTemplate(const index: integer);
-  var
-    isAlternate: boolean;
-  begin
-    isAlternate := (SDL_ModState = KMOD_LSHIFT) or (SDL_ModState = KMOD_RSHIFT);
-    isAlternate := isAlternate or (SDL_ModState = KMOD_LALT); // legacy key combination
 
-    if isAlternate then Ini.NameTemplate[index] := Button[Interactions[Interaction].Num].Text[0].Text
-    else Button[Interactions[Interaction].Num].Text[0].Text := Ini.NameTemplate[index];
-  end;
 begin
   Result := true;
 
@@ -285,19 +257,6 @@ begin
 
     // check special keys
     case PressedKey of
-      // Templates for Names Mod
-      SDLK_F1: HandleNameTemplate(0);
-      SDLK_F2: HandleNameTemplate(1);
-      SDLK_F3: HandleNameTemplate(2);
-      SDLK_F4: HandleNameTemplate(3);
-      SDLK_F5: HandleNameTemplate(4);
-      SDLK_F6: HandleNameTemplate(5);
-      SDLK_F7: HandleNameTemplate(6);
-      SDLK_F8: HandleNameTemplate(7);
-      SDLK_F9: HandleNameTemplate(8);
-      SDLK_F10: HandleNameTemplate(9);
-      SDLK_F11: HandleNameTemplate(10);
-      SDLK_F12: HandleNameTemplate(11);
 
       SDLK_BACKSPACE:
         begin
