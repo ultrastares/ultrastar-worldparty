@@ -101,7 +101,7 @@ type
   end;
 
 var //slider translation
-  ChannelPlayer: array[0..12] of UTF8String = ('Off', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
+  ChannelPlayer: array[0..6] of UTF8String = ('Off', '1', '2', '3', '4', '5', '6');
   MicBoost: array[0..3] of UTF8String = ('Off', '+6dB', '+12dB', '+18dB');
 
 const
@@ -143,26 +143,6 @@ begin
         begin
           Result := false;
           Exit;
-        end;
-      Ord('+'):
-        begin
-          // FIXME: add a nice volume-slider instead
-          // or at least provide visualization and acceleration if the user holds the key pressed.
-          ChangeVolume(0.02);
-        end;
-      Ord('-'):
-        begin
-          // FIXME: add a nice volume-slider instead
-          // or at least provide visualization and acceleration if the user holds the key pressed.
-          ChangeVolume(-0.02);
-        end;
-      Ord('T'):
-        begin
-          if ((SDL_GetModState() and KMOD_SHIFT) <> 0) then
-            Ini.ThresholdIndex := (Ini.ThresholdIndex + Length(IThresholdVals) - 1) mod Length(IThresholdVals)
-          else
-            Ini.ThresholdIndex := (Ini.ThresholdIndex + 1) mod Length(IThresholdVals);
-          UpdateSelectSlideOptions(Theme.OptionsRecord.SelectThreshold, SelectThresholdID, IThreshold, Ini.ThresholdIndex);
         end;
     end;
 
@@ -341,7 +321,7 @@ begin
       end;
     end;
 
-    Theme.OptionsRecord.SelectThreshold.showArrows := true; //basisbit TODO
+    Theme.OptionsRecord.SelectThreshold.showArrows := true; 
     Theme.OptionsRecord.SelectThreshold.oneItemOnly := true;
     SelectThresholdID := AddSelectSlide(Theme.OptionsRecord.SelectThreshold, Ini.ThresholdIndex, IThreshold);
 
