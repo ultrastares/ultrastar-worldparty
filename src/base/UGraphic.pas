@@ -44,7 +44,7 @@ uses
   UPathUtils,
   UScreenLoading,
   UScreenMain,
-  UScreenName,
+  UScreenPlayerSelection,
   UScreenOptions,
   UScreenOptionsGame,
   UScreenOptionsGraphics,

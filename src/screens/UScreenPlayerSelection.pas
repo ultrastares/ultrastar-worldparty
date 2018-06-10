@@ -21,7 +21,7 @@
  *}
 
 
-unit UScreenName;
+unit UScreenPlayerSelection;
 
 interface
 

@@ -68,7 +68,7 @@ uses
   USongs,
   ULanguage,
   UParty,
-  UScreenName,
+  UScreenPlayerSelection,
   UScreenSong,
   UScreenPartyOptions,
   UScreenJukeboxPlaylist,
