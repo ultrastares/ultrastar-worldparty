@@ -176,7 +176,7 @@ begin
 
       if InRegion(X, Y, Button[PlayerAvatarButton[Btn]].GetMouseOverArea) then
       begin
-        Interaction := 2;
+        Interaction := 5;
 
         ParseInput(SDLK_LEFT, 0, true);
         ParseInput(SDLK_LEFT, 0, true);
@@ -189,7 +189,7 @@ begin
 
       if InRegion(X, Y, Button[PlayerAvatarButton[Btn]].GetMouseOverArea) then
       begin
-        Interaction := 2;
+        Interaction := 5;
 
         ParseInput(SDLK_LEFT, 0, true);
       end;
@@ -201,7 +201,7 @@ begin
 
       if InRegion(X, Y, Button[PlayerAvatarButton[Btn]].GetMouseOverArea) then
       begin
-        Interaction := 2;
+        Interaction := 5;
 
         ParseInput(SDLK_RIGHT, 0, true);
       end;
