@@ -374,17 +374,11 @@ begin
       SDLK_RIGHT:
         begin
 
-          if (Interaction in [0, 4, 5]) then
+          if (Interaction in [1, 3, 4]) then
             InteractInc;
 
-          if (Interaction = 0) then
-            begin
-				RefreshPlayers();
-				AudioPlayback.PlaySound(SoundLib.Option);
-			end;
-
-          if (Interaction = 1) then
-          begin //TODO: adapt this to new playersize
+          if (Interaction = 0) then // Player selection
+            begin //TODO: adapt this to new playersize
               if (PlayerIndex < UIni.IPlayersVals[CountIndex]-1) then
             begin
               PlayerIndex := PlayerIndex + 1;
@@ -396,7 +390,27 @@ begin
             end;
           end;
 
-          if (Interaction = 2) then
+          if (Interaction = 1) then //Number of players
+            begin
+				RefreshPlayers();
+				AudioPlayback.PlaySound(SoundLib.Option);
+			end;
+
+          if (Interaction = 3) then //Player color
+          begin
+            RefreshColor();
+            SelectsS[PlayerColor].SetSelect(true);
+			AudioPlayback.PlaySound(SoundLib.Option);
+          end;
+
+
+          if (Interaction = 4) then //level color
+          begin
+            PlayerLevel[PlayerIndex] := LevelIndex;
+			AudioPlayback.PlaySound(SoundLib.Option);
+          end;
+
+          if (Interaction = 5) then  //avatar selection
           begin
             SelectNext;
             SetAvatarScroll;
@@ -404,33 +418,15 @@ begin
             SetPlayerAvatar(PlayerIndex);
           end;
 
-          if (Interaction = 4) then
-          begin
-            RefreshColor();
-            SelectsS[PlayerColor].SetSelect(true);
-			AudioPlayback.PlaySound(SoundLib.Option);
-          end;
-
-          if (Interaction = 5) then
-          begin
-            PlayerLevel[PlayerIndex] := LevelIndex;
-			AudioPlayback.PlaySound(SoundLib.Option);
-          end;
 
         end;
       SDLK_LEFT:
         begin
 
-          if (Interaction in [0, 4, 5]) then
+          if (Interaction in [1, 3, 4]) then
             InteractDec;
 
           if (Interaction = 0) then
-            begin
-				RefreshPlayers();
-				AudioPlayback.PlaySound(SoundLib.Option);
-			end;
-
-          if (Interaction = 1) then
           begin
             if (PlayerIndex > 0) then
             begin
@@ -443,7 +439,28 @@ begin
             end;
           end;
 
-          if (Interaction = 2) then
+
+          if (Interaction = 1) then
+            begin
+				RefreshPlayers();
+				AudioPlayback.PlaySound(SoundLib.Option);
+			end;
+
+          if (Interaction = 3) then
+          begin
+            RefreshColor();
+            SelectsS[PlayerColor].SetSelect(true);
+			AudioPlayback.PlaySound(SoundLib.Option);
+          end;
+
+          if (Interaction = 4) then
+          begin
+            PlayerLevel[PlayerIndex] := LevelIndex;
+			AudioPlayback.PlaySound(SoundLib.Option);
+          end;
+
+
+          if (Interaction = 5) then
           begin
             SelectPrev;
             SetAvatarScroll;
@@ -452,18 +469,6 @@ begin
 
           end;
 
-          if (Interaction = 4) then
-          begin
-            RefreshColor();
-            SelectsS[PlayerColor].SetSelect(true);
-			AudioPlayback.PlaySound(SoundLib.Option);
-          end;
-
-          if (Interaction = 5) then
-          begin
-            PlayerLevel[PlayerIndex] := LevelIndex;
-			AudioPlayback.PlaySound(SoundLib.Option);
-          end;
         end;
 
     end;
@@ -740,6 +745,8 @@ begin
 
   LoadFromTheme(Theme.Name);
 
+  PlayerSelect := AddButton(Theme.Name.PlayerSelectCurrent);
+
   Theme.Name.SelectPlayersCount.oneItemOnly := true;
   Theme.Name.SelectPlayersCount.showArrows := true;
   PlayersCount := AddSelectSlide(Theme.Name.SelectPlayersCount, CountIndex, IPlayers);
@@ -751,10 +758,6 @@ begin
     PlayerCurrentText[I] := AddText(Theme.Name.PlayerSelectText[I]);
   end;
 
-  PlayerSelect := AddButton(Theme.Name.PlayerSelectCurrent);
-
-  PlayerAvatar := AddButton(Theme.Name.PlayerButtonAvatar);
-  PlayerAvatarIID := High(Interactions);
 
   PlayerName := AddButton(Theme.Name.PlayerButtonName);
   Button[PlayerName].Text[0].Writable := true;
@@ -766,6 +769,9 @@ begin
   Theme.Name.SelectPlayerLevel.oneItemOnly := true;
   Theme.Name.SelectPlayerLevel.showArrows := true;
   PlayerSelectLevel := AddSelectSlide(Theme.Name.SelectPlayerLevel, LevelIndex, UIni.IDifficulty, 'OPTION_VALUE_');
+
+  PlayerAvatar := AddButton(Theme.Name.PlayerButtonAvatar);
+  PlayerAvatarIID := High(Interactions);
 
   isScrolling := false;
   Self.PreloadCovers := true;
