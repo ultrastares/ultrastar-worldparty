@@ -932,25 +932,25 @@ begin
         begin
           if (PlayersPlay = 3) or (PlayersPlay = 6) then
           begin
-            //if (PlayersPlay = 3) then
+            if (PlayersPlay = 3) then
               Col := GetLyricBarColor(Ini.SingColor[CP]);
 
-            //if (PlayersPlay = 6) then
-            //  Col := GetLyricBarColor(CP + 1);
+            if (PlayersPlay = 6) then
+              Col := GetLyricBarColor(CP + 1);
           end
           else
           begin
             if ScreenAct = 1 then
-              Col := GetLyricBarColor(Ini.SingColor[CP])
+              Col := GetLyricColor(Ini.JukeboxSingLineColor)
             else
-              Col := GetLyricBarColor(Ini.SingColor[CP + 2]);
+              Col := GetLyricColor(Ini.JukeboxSingLineColor);
           end;
         end;
       end
       else
-       // Col := GetLyricBarColor(1);
+        Col := GetLyricColor(Ini.JukeboxSingLineColor);
 
-      glColor4f(255,255, 255, BarAlpha);
+      glColor4f(Col.R, Col.G, Col.B, BarAlpha);
 
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glBindTexture(GL_TEXTURE_2D, Tex_Lyric_Help_Bar.TexNum);
