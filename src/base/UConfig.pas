@@ -125,7 +125,7 @@ const
    * Current version of UltraStar Deluxe WorldParty
    *)
    USDX_VERSION_MAJOR   = 18;
-   USDX_VERSION_MINOR   = 6;
+   USDX_VERSION_MINOR   = 9;
    USDX_VERSION_RELEASE = '';
    USDX_VERSION_STATE   = '';
    USDX_STRING = 'UltraStar Deluxe WorldParty';
