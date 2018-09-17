@@ -54,26 +54,13 @@ type
   TScreenSong = class(TMenu)
     private
       Equalizer: Tms_Equalizer;
-
-      PreviewOpened: Integer; // interaction of the Song that is loaded for preview music
-                              // -1 if nothing is opened
-
-      isScrolling: boolean;   // true if song flow is about to move
-
+      PreviewOpened: Integer; //interaction of the song that is loaded for preview music -1 if nothing is opened
+      IsScrolling: boolean;   //true if song flow is about to move
       fCurrentVideo: IVideo;
-
       MinLine: integer; //current chessboard line
-      PageLines: integer; //number of extra lines to advance
       LastMinLine: integer; //used on list mode
-
-      LastVisibleSongIndex: integer;
-      FirstVisibleSongIndex: integer;
-
       ListFirstVisibleSongIndex: integer;
       MainListFirstVisibleSongIndex: integer;
-
-      LastSelectMouse: integer;
-      LastSelectTime: integer;
       Covers: integer; //number of covers to preload
       PreloadCovers: boolean; //flag to stop to preload covers when exists an user interaction
       procedure StartMusicPreview();
@@ -410,18 +397,11 @@ begin
     end
     else
     begin
-      if PressedKey = SDLK_PAGEDOWN then //change a entire page
+      for I := 1 to IfThen(PressedKey = SDLK_PAGEDOWN, Theme.Song.Cover.Rows, 1) do
       begin
-        Self.PageLines := Theme.Song.Cover.Rows - 1;
-        for I := 1 to Theme.Song.Cover.Rows do
-          Self.SelectNext();
-      end
-      else //change a single line
-      begin
-        Self.PageLines := 0;
         Self.SelectNext();
+        Self.SetScroll(true)
       end;
-      Self.SetScroll(true)
     end;
   end;
 end;
@@ -449,18 +429,11 @@ begin
     end
     else
     begin
-      if PressedKey = SDLK_PAGEUP then //change a entire page
+      for I := 1 to IfThen(PressedKey = SDLK_PAGEUP, Theme.Song.Cover.Rows, 1) do
       begin
-        Self.PageLines := Theme.Song.Cover.Rows - 1;
-        for I := 1 to Theme.Song.Cover.Rows do
-          Self.SelectPrev();
-      end
-      else //change a single line
-      begin
-        Self.PageLines := 0;
         Self.SelectPrev();
+        Self.SetScroll(true)
       end;
-      Self.SetScroll(true)
     end;
   end;
 end;
@@ -505,21 +478,11 @@ begin
         //Cat Change Hack End}
       end
       else
-      begin
-        // chessboard change row
-        if PressedKey = SDLK_PAGEDOWN then //change a entire page
+        for I := 1 to IfThen(PressedKey = SDLK_PAGEDOWN, Theme.Song.Cover.Rows, 1) do
         begin
-          Self.PageLines := Theme.Song.Cover.Rows - 1;
-          for I := 1 to Theme.Song.Cover.Rows do
-            Self.SelectNextRow();
-        end
-        else //change a single line
-        begin
-          Self.PageLines := 0;
           Self.SelectNextRow();
+          Self.SetScroll(true)
         end;
-        Self.SetScroll(true)
-      end;
     end
     else
     begin
@@ -575,21 +538,11 @@ begin
         //Cat Change Hack End}
       end
       else
-      begin
-        // chessboard change row
-        if PressedKey = SDLK_PAGEUP then //change a entire page
+        for I := 1 to IfThen(PressedKey = SDLK_PAGEUP, Theme.Song.Cover.Rows, 1) do
         begin
-          Self.PageLines := Theme.Song.Cover.Rows - 1;
-          for I := 1 to Theme.Song.Cover.Rows do
-            Self.SelectPrevRow();
-        end
-        else //change a single line
-        begin
-          Self.PageLines := 0;
           Self.SelectPrevRow();
+          Self.SetScroll(true)
         end;
-        Self.SetScroll(true)
-      end;
     end
     else
     begin
@@ -945,7 +898,7 @@ begin
 
               //Stop Music
               //StopMusicPreview();
-              OnSongDeSelect;
+              Self.OnSongDeSelect();
 
               CatSongs.ShowCategoryList;
 
@@ -1007,9 +960,6 @@ begin
       SDLK_RETURN:
         begin
           CloseMessage();
-
-          LastSelectTime := SDL_GetTicks;
-
           if (Songs.SongList.Count > 0) then
           begin
             if CatSongs.Song[Interaction].Main then
@@ -1104,7 +1054,6 @@ begin
         end;
       SDLK_DOWN, SDLK_PAGEDOWN:
         begin
-          LastSelectTime := SDL_GetTicks;
           if (TSongMenuMode(Ini.SongMenu) in [smSlotMachine, smList]) then
             ParseInputNextHorizontal(PressedKey, CharCode, PressedDown)
           else
@@ -1112,7 +1061,6 @@ begin
         end;
       SDLK_UP, SDLK_PAGEUP:
         begin
-          LastSelectTime := SDL_GetTicks;
           if (TSongMenuMode(Ini.SongMenu) in [smSlotMachine, smList]) then
             ParseInputPrevHorizontal(PressedKey, CharCode, PressedDown)
           else
@@ -1120,7 +1068,6 @@ begin
         end;
       SDLK_RIGHT:
         begin
-          LastSelectTime := SDL_GetTicks;
           if (TSongMenuMode(Ini.SongMenu) in [smSlotMachine, smList]) then
             ParseInputNextVertical(PressedKey, CharCode, PressedDown)
           else
@@ -1128,7 +1075,6 @@ begin
         end;
       SDLK_LEFT:
         begin
-          LastSelectTime := SDL_GetTicks;
           if (TSongMenuMode(Ini.SongMenu) in [smSlotMachine, smList]) then
             ParseInputPrevVertical(PressedKey, CharCode, PressedDown)
           else
@@ -1263,29 +1209,15 @@ begin
 
   end
   else
-  begin
-
-    // hover cover
+  begin //hover cover
     for B := 0 to High(Button) do
-    begin
-      if (Button[B].Visible) then
+      if Button[B].Visible and InRegion(X, Y, Button[B].GetMouseOverArea) and (Interaction <> B) then
       begin
-        if InRegion(X, Y, Button[B].GetMouseOverArea) then
-        begin
-          if (Interaction <> B) then
-          begin
-            // play current hover
-            isScrolling := false;
-            OnSongDeSelect;
-            Interaction := B;
-            Self.SetScroll(true);
-            LastSelectMouse := SDL_GetTicks;
-            LastSelectTime := SDL_GetTicks;
-          end;
-        end;
+        Self.Interaction := B;
+        Self.SongTarget := B;
+        Self.OnSongDeSelect();
+        Self.SetScroll();
       end;
-    end;
-
   end;
 end;
 
@@ -1528,7 +1460,7 @@ begin
   Equalizer := Tms_Equalizer.Create(AudioPlayback, Theme.Song.Equalizer);
 
   PreviewOpened := -1;
-  isScrolling := false;
+  Self.IsScrolling := false;
 
   fCurrentVideo := nil;
 
@@ -1648,13 +1580,9 @@ begin
     ListRapIcon[I] := AddStatic(Theme.Song.RapIcon);
   end;
 
-  Self.PageLines := 0;
   Self.MinLine := 0;
 
   ListFirstVisibleSongIndex := 0;
-
-  LastSelectMouse := 0;
-  LastSelectTime := 0;
 end;
 
 procedure TScreenSong.ColorDuetNameSingers();
@@ -1745,6 +1673,8 @@ end;
 { called when song flows movement stops at a song }
 procedure TScreenSong.OnSongSelect;
 begin
+  Self.SongTarget := Self.Interaction;
+  Self.IsScrolling := false;
   if (Ini.PreviewVolume <> 0) then
   begin
     StartMusicPreview;
@@ -1760,6 +1690,7 @@ end;
 { called before current song is deselected }
 procedure TScreenSong.OnSongDeSelect;
 begin
+  Self.IsScrolling := true;
   DuetChange := false;
 
   CoverTime := 10;
@@ -1774,7 +1705,7 @@ var
   DuetPlayer1: UTF8String = '';
   DuetPlayer2: UTF8String = '';
 begin
-  if not (force or Self.isScrolling) then //to avoid unnecessary modifications if nothing changes
+  if not (force or Self.IsScrolling) then //to avoid unnecessary modifications if nothing changes
     Exit;
 
   VS := USongs.CatSongs.GetVisibleSongs();
@@ -2020,158 +1951,70 @@ end;
 
 procedure TScreenSong.SetChessboardScroll;
 var
-  B:      integer;
-  GridY, GridX, FactorH, FactorW: real;
-  CoverH, CoverW, ZoomH, ZoomW, CurrentTick: integer;
-  Padding:     integer;
-  MaxRow, MaxCol, Line, LastLine, Index, Count: integer;
-  CorrectX: real;
-  First: boolean;
+  B, CoverH, CoverW, MaxRow, MaxCol, Line, Index, Count: integer;
 begin
-  Padding := Theme.Song.Cover.Padding;
-  GridX := Theme.Song.Cover.X;
-  GridY := Theme.Song.Cover.Y;
-
   CoverH := Theme.Song.Cover.H;
   CoverW := Theme.Song.Cover.W;
-
-  ZoomH := Theme.Song.Cover.ZoomThumbH;
-  ZoomW := Theme.Song.Cover.ZoomThumbW;
-
-  FactorH := Theme.Song.Cover.ZoomThumbH;
-  FactorW := Theme.Song.Cover.ZoomThumbW;
-
-  MaxRow := Theme.Song.Cover.Rows + Self.MinLine;
+  MaxRow := Theme.Song.Cover.Rows;
   MaxCol := Theme.Song.Cover.Cols;
-
+  Line := 0;
   Index := 0;
-  LastLine := 0;
   Count := 0;
-  First := true;
-  CorrectX := 0;
 
-  // new song select by mouse
-  if (LastSelectMouse <> 0) and (SDL_GetTicks > LastSelectMouse + MAX_TIME_MOUSE_SELECT) then
+  for B := 0 to High(Self.Button) do
   begin
-    LastSelectMouse := 0;
-    OnSongSelect;
-  end;
-
-  // Update positions of all buttons
-  for B := 0 to High(Button) do
-  begin
-    Button[B].Visible := CatSongs.Song[B].Visible; // adjust visibility
-
-    if (Button[B].Visible) then
-    begin
-      LastVisibleSongIndex := B;
-
-      if (First) then
-      begin
-        FirstVisibleSongIndex := B;
-        First := false;
-      end;
-    end;
-
+    Self.Button[B].Visible := USongs.CatSongs.Song[B].Visible;
     Line := Count div MaxCol;
-
-    if (Button[B].Visible) and (Line < MaxRow) then // Only change pos for visible buttons
+    if Self.Button[B].Visible and (Line < (MaxRow + Self.MinLine)) then //only change position for visible buttons
     begin
-
-      if (Line >= Self.MinLine) then
+      if Line >= Self.MinLine then
       begin
-        LoadCover(B);
-        if (Index = Interaction) then
+        Self.LoadCover(B);
+        Self.Button[B].X := Theme.Song.Cover.X + (CoverW + Theme.Song.Cover.Padding) * (Count mod MaxCol);
+        Self.Button[B].Y := Theme.Song.Cover.Y + (CoverH + Theme.Song.Cover.Padding) * (Line - Self.MinLine);
+        if Index = Interaction then
         begin
-          Button[B].SetSelect(true);
-          if (LastSelectTime <> 0) then
+          if Self.Button[B].H < Theme.Song.Cover.ZoomThumbH then //zoom effect in 10 steps
           begin
-            CurrentTick := SDL_GetTicks;
-            FactorH := CoverH + (1/((ZoomH - CoverH)/(CurrentTick - LastSelectTime)*0.6));
-            FactorW := CoverW + (1/((ZoomW - CoverW)/(CurrentTick - LastSelectTime)*0.6));
+            Self.Button[B].H := Self.Button[B].H + ((Theme.Song.Cover.ZoomThumbH - CoverH) / 10);
+            Self.Button[B].W := Self.Button[B].W + ((Theme.Song.Cover.ZoomThumbW - CoverW) / 10);
           end
-          else
-          begin
-            FactorH := ZoomH;
-            FactorW := ZoomW;
-          end;
+          else //finished zoom effect
+            Self.OnSongSelect();
 
-          if (FactorH > ZoomH) then
-            FactorH := ZoomH;
-
-          if (FactorW > ZoomW) then
-            FactorW := ZoomW;
-
-          if (FactorW = ZoomW) and (FactorH = ZoomH) then
-            LastSelectTime := 0;
-
-          Button[B].H := FactorH;
-          Button[B].W := FactorW;
-          Button[B].Z := 1;
+          Self.Button[B].X := Self.Button[B].X - (Self.Button[B].W - CoverW) / 2;
+          Self.Button[B].Y := Self.Button[B].Y - (Self.Button[B].H - CoverH) / 2;
+          Self.Button[B].Z := 1;
         end
         else
         begin
-          Button[B].SetSelect(false);
-          Button[B].H := CoverH;
-          Button[B].W := CoverW;
-          Button[B].Z := 0.9;
-        end;
-
-        Button[B].Reflection := false;
-
-        if (Count = 0) or (Line <> LastLine) then
-        begin
-          Button[B].X := GridX;
+          Self.Button[B].SetSelect(false);
+          Self.Button[B].H := CoverH;
+          Self.Button[B].W := CoverW;
+          Self.Button[B].Z := 0.9;
         end
-        else
-        begin
-          Button[B].X := CorrectX + CoverW + Padding;
-        end;
-
-        CorrectX := Button[B].X;
-
-        if (Index = Interaction) then
-          Button[B].X := Button[B].X - (FactorW - CoverW)/2;
-
-        if (Line = Self.MinLine)then
-        begin
-          Button[B].Y := GridY;
-
-          if (Index = Interaction) then
-            Button[B].Y := Button[B].Y - (FactorH - CoverH)/2;
-        end
-        else
-        begin
-          Button[B].Y := GridY + (CoverH + Padding) * (Line - Self.MinLine);
-
-          if (Index = Interaction) then
-            Button[B].Y := Button[B].Y - (FactorH - CoverH)/2;
-        end;
-
-        LastLine := Line;
       end
-      else
+      else //hide not visible songs upper than MinLine + MaxRow
       begin
-        Button[B].Visible := false;
-        Button[B].Z := 0;
+        Self.Button[B].Visible := false;
+        Self.Button[B].Z := 0;
       end;
-
-      Count := Count + 1;
+      Inc(Count);
     end
-    else
+    else //hide not visible songs lower than MinLine
     begin
-      Button[B].Visible := false;
-      Button[B].Z := 0;
+      Self.Button[B].Visible := false;
+      Self.Button[B].Z := 0;
     end;
-
-    Index := Index + 1;
+    Inc(Index);
   end;
   Self.LoadMainCover();
-  if not (Button[Self.Interaction].Visible) then
-    Self.MinLine := Max(
-      0,
-      Ceil((USongs.CatSongs.VisibleIndex(Self.Interaction) + 1 - Theme.Song.Cover.Cols * Theme.Song.Cover.Rows) / Theme.Song.Cover.Cols) + Self.PageLines
-    );
+  if not Self.Button[Self.Interaction].Visible then
+  begin
+    Self.MinLine := Ceil((USongs.CatSongs.VisibleIndex(Self.Interaction) + 1 - MaxCol * MaxRow) / MaxCol);
+    if (Line - Self.MinLine) > MaxRow then //to decrease line when push up (or pag up) key
+      Self.MinLine += MaxRow - 1;
+  end;
 end;
 
 procedure TScreenSong.SetCarouselScroll;
@@ -2305,7 +2148,7 @@ begin
     Self.MinLine := Current
   //move down in the tail of list or in the rest of it
   else if (Current - Theme.Song.Cover.Rows >= Self.MinLine) and ((Current > USongs.CatSongs.GetVisibleSongs() - Theme.Song.Cover.Rows) or (Current > Self.LastMinLine)) then
-    Self.MinLine := Current - Theme.Song.Cover.Rows + 1 + Self.PageLines;
+    Self.MinLine := Current - Theme.Song.Cover.Rows + 1;
 
   Self.LastMinLine := Self.MinLine;
 
@@ -2388,7 +2231,7 @@ var
   I: integer;
 begin
   for I := Length(Button) to High(USongs.CatSongs.Song) do
-    Self.AddButton(300 + I * 250, 140, 200, 200, PATH_NONE, TEXTURE_TYPE_PLAIN, Theme.Song.Cover.Reflections);
+    Self.AddButton(Theme.Song.Cover.X, Theme.Song.Cover.Y, Theme.Song.Cover.W, Theme.Song.Cover.H, PATH_NONE, TEXTURE_TYPE_PLAIN, Theme.Song.Cover.Reflections);
 end;
 
 procedure TScreenSong.OnShow();
@@ -2527,7 +2370,7 @@ begin
   if (ScreenSong.Mode = smJukebox) and (Ini.PartyPopup = 1) then
     ScreenSongMenu.MenuShow(SM_Jukebox);
 
-  isScrolling := false;
+  Self.IsScrolling := false;
   Self.SetJoker();
 
   //Set Visibility of Party Statics and Text
@@ -2550,7 +2393,7 @@ end;
 procedure TScreenSong.OnShowFinish;
 begin
   DuetChange := false;
-  isScrolling := true;
+  Self.IsScrolling := true;
   CoverTime := 10;
   //if (Mode = smPartyTournament) then
   //  PartyTime := SDL_GetTicks();
@@ -2577,7 +2420,7 @@ begin
 
   FadeMessage();
 
-  if isScrolling then
+  if Self.IsScrolling and (TSongMenuMode(UIni.Ini.SongMenu) <> smChessboard) then
   begin
     dx := SongTarget - SongCurrent;
     dt := TimeSkip * 7;
@@ -2590,11 +2433,7 @@ begin
     if (Self.SongCurrent = Self.SongTarget) then //if occurs an incomplete scroll add one chance to complete well
       SongCurrent := SongTarget - 0.002
     else if SameValue(Self.SongCurrent, Self.SongTarget, 0.002) and (USongs.CatSongs.GetVisibleSongs() > 0) then
-    begin
-      isScrolling := false;
-      SongCurrent := SongTarget;
-      OnSongSelect;
-    end;
+      Self.OnSongSelect();
   end
   else if Self.PreloadCovers then //start to preload covers slowly if don't exists user interaction
     Self.LoadCovers()
@@ -2811,11 +2650,8 @@ begin
 
   if USongs.CatSongs.GetVisibleSongs() > 0 then
   begin
-    if (not isScrolling) then
-    begin
-      isScrolling := true;
-      OnSongDeselect;
-    end;
+    if not Self.IsScrolling then
+      Self.OnSongDeselect();
 
     Skip := 1;
 
@@ -2849,11 +2685,8 @@ var
 begin
   if (USongs.CatSongs.GetVisibleSongs() > 0) then
   begin
-    if (not isScrolling) then
-    begin
-      isScrolling := true;
-      OnSongDeselect;
-    end;
+    if not Self.IsScrolling then
+      Self.OnSongDeselect();
 
     Skip := 1;
 
@@ -2881,12 +2714,8 @@ var
 begin
   if USongs.CatSongs.GetVisibleSongs() > 0 then
   begin
-
-    if (not isScrolling) then
-    begin
-      isScrolling := true;
-      OnSongDeselect;
-    end;
+    if not Self.IsScrolling then
+      Self.OnSongDeselect();
 
     Skip := 0;
     SongIndexRow := Interaction;
@@ -2901,17 +2730,9 @@ begin
       Inc(SongIndexRow);
     end;
 
-    SongTarget := SongTarget + 1;
-
-    if (Skip <= Theme.Song.Cover.Cols) then
-    begin
-      Interaction := LastVisibleSongIndex;
-    end
-    else
-    begin
-      if (CatSongs.Song[SongIndexRow - 1].Visible) then
-        Interaction := SongIndexRow - 1;
-    end;
+    Self.SongTarget += 1;
+    if (USongs.CatSongs.Song[SongIndexRow - 1].Visible) then
+      Self.Interaction := SongIndexRow - 1;
   end;
 end;
 
@@ -2921,12 +2742,8 @@ var
 begin
   if (USongs.CatSongs.GetVisibleSongs() > 0) then
   begin
-
-    if (not isScrolling) then
-    begin
-      isScrolling := true;
-      OnSongDeselect;
-    end;
+    if not Self.IsScrolling then
+      Self.OnSongDeselect();
 
     Skip := 0;
     SongIndexRow := Interaction;
@@ -2941,18 +2758,9 @@ begin
       Dec(SongIndexRow);
     end;
 
-    SongTarget := SongTarget - 1;
-
-    if (Skip <= Theme.Song.Cover.Cols) then
-    begin
-      Interaction := FirstVisibleSongIndex;
-    end
-    else
-    begin
-      if (CatSongs.Song[SongIndexRow + 1].Visible) then
-        Interaction := SongIndexRow + 1;
-    end;
-
+    SongTarget -= 1;
+    if (USongs.CatSongs.Song[SongIndexRow + 1].Visible) then
+      Self.Interaction := SongIndexRow + 1;
   end;
 end;
 
@@ -3093,7 +2901,6 @@ begin
   else if (TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smList, smMosaic]) then
   begin
     Self.Interaction := Target;
-    Self.SongTarget := Self.Interaction;
     Self.OnSongSelect();
     Self.SetScroll(true);
   end;
