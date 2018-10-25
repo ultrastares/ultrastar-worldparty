@@ -139,8 +139,8 @@ begin
           case Mode of
             0: InitClassic;
             1: InitFree;
-          //  2: InitChallenge; // hidden for the moment. Check again in the future
-            2: InitTournament; // Relocated
+            2: InitTournament; 
+           // 3: InitChallenge; // hidden for the moment. Check again in the future
           end;
 
         end;
