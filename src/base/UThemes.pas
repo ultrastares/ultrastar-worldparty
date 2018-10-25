@@ -1334,7 +1334,7 @@ type
     Playlist:         TThemePlaylist;
 
     ILevel: array[0..2] of UTF8String;
-    IMode:  array[0..3] of UTF8String;
+    IMode:  array[0..2] of UTF8String; 
 
     constructor Create;
 
@@ -2537,8 +2537,8 @@ begin
       //Fill IMode
       IMode[0] := Language.Translate('PARTY_MODE_CLASSIC');
       IMode[1] := Language.Translate('PARTY_MODE_CLASSIC_FREE');
-      IMode[2] := Language.Translate('PARTY_MODE_CHALLENGE');
-      IMode[3] := Language.Translate('PARTY_MODE_TOURNAMENT');
+      IMode[2] := Language.Translate('PARTY_MODE_TOURNAMENT');
+      //IMode[3] := Language.Translate('PARTY_MODE_CHALLENGE'); //Hidden for the moment. Check in the future
     end;
 
     ThemeIni.Free;

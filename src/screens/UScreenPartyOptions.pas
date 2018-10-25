@@ -139,8 +139,8 @@ begin
           case Mode of
             0: InitClassic;
             1: InitFree;
-            2: InitChallenge;
-            3: InitTournament;
+          //  2: InitChallenge; // hidden for the moment. Check again in the future
+            2: InitTournament; // Relocated
           end;
 
         end;
@@ -315,7 +315,14 @@ begin
           IPlaylist2[0] := 'No Categories found';
         end;
       end;
-    2:
+
+    2: 
+      begin
+        SetLength(IPlaylist2, 1);
+        IPlaylist2[0] := '---';
+      end;
+      
+   { 3: //Challenge mode desactivated for the moment
       begin
         if (Length(PlaylistMan.Playlists) > 0) then
         begin
@@ -327,12 +334,7 @@ begin
           SetLength(IPlaylist2, 1);
           IPlaylist2[0] := 'No Playlists found';
         end;
-      end;
-    3:
-      begin
-        SetLength(IPlaylist2, 1);
-        IPlaylist2[0] := '---';
-      end;
+      end; }
   end;
 
   Playlist2 := 0;
