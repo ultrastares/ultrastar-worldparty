@@ -252,9 +252,9 @@ procedure TScreenPartyOptions.FillLevel;
 begin
   SetLength(ILevel, 3);
 
-  ILevel[0] := Language.Translate('SING_EASY');
-  ILevel[1] := Language.Translate('SING_MEDIUM');
-  ILevel[2] := Language.Translate('SING_HARD');
+  ILevel[0] := Language.Translate('OPTION_VALUE_EASY');
+  ILevel[1] := Language.Translate('OPTION_VALUE_MEDIUM');
+  ILevel[2] := Language.Translate('OPTION_VALUE_HARD');
 end;
 
 procedure TScreenPartyOptions.SetPlaylists;
