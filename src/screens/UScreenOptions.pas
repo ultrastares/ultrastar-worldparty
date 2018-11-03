@@ -51,7 +51,7 @@ type
       ButtonInputIID,
       ButtonLyricsIID,
       ButtonThemesIID,
-      ButtonRecordIID,
+      ButtonMicrophonesIID,
       ButtonAdvancedIID,
       ButtonNetworkIID,
       ButtonWebcamIID,
@@ -82,7 +82,7 @@ uses
   UScreenOptionsSound,
   UScreenOptionsLyrics,
   UScreenOptionsThemes,
-  UScreenOptionsRecord,
+  UScreenOptionsMicrophones,
   UScreenOptionsAdvanced,
   UScreenOptionsNetwork,
   UScreenOptionsWebcam,
@@ -155,13 +155,13 @@ begin
           AudioPlayback.PlaySound(SoundLib.Start);
           FadeTo(@ScreenOptionsThemes);
         end
-        else if Interaction = ButtonRecordIID then
+        else if Interaction = ButtonMicrophonesIID then
         begin
-          if not Assigned(UGraphic.ScreenOptionsRecord) then
-            UGraphic.ScreenOptionsRecord := TScreenOptionsRecord.Create();
+          if not Assigned(UGraphic.ScreenOptionsMicrophones) then
+            UGraphic.ScreenOptionsMicrophones := TScreenOptionsMicrophones.Create();
 
           AudioPlayback.PlaySound(SoundLib.Start);
-          FadeTo(@ScreenOptionsRecord);
+          FadeTo(@ScreenOptionsMicrophones);
         end
         else if Interaction = ButtonAdvancedIID then
         begin
@@ -248,7 +248,7 @@ begin
 
   AddButtonChecked(Theme.Options.ButtonLyrics, OPTIONS_DESC_INDEX_LYRICS,  ButtonLyricsIID);
   AddButtonChecked(Theme.Options.ButtonThemes, OPTIONS_DESC_INDEX_THEMES,  ButtonThemesIID);
-  AddButtonChecked(Theme.Options.ButtonRecord, OPTIONS_DESC_INDEX_RECORD,  ButtonRecordIID);
+  AddButtonChecked(Theme.Options.ButtonMicrophones, OPTIONS_DESC_INDEX_MICROPHONES,  ButtonMicrophonesIID);
   AddButtonChecked(Theme.Options.ButtonAdvanced, OPTIONS_DESC_INDEX_ADVANCED,  ButtonAdvancedIID);
   AddButtonChecked(Theme.Options.ButtonNetwork, OPTIONS_DESC_INDEX_NETWORK,  ButtonNetworkIID);
 
@@ -263,7 +263,7 @@ end;
 procedure TScreenOptions.OnShow;
 begin
   inherited;
-  // continue possibly stopped bg-music (stopped in record options)
+  // continue possibly stopped bg-music (stopped in Microphones options)
   SoundLib.StartBgMusic;
 end;
 

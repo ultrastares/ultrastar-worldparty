@@ -70,7 +70,7 @@ const
   OPTIONS_DESC_INDEX_SOUND     = 3;
   OPTIONS_DESC_INDEX_LYRICS    = 4;
   OPTIONS_DESC_INDEX_THEMES    = 5;
-  OPTIONS_DESC_INDEX_RECORD    = 6;
+  OPTIONS_DESC_INDEX_MICROPHONES    = 6;
   OPTIONS_DESC_INDEX_ADVANCED  = 7;
   OPTIONS_DESC_INDEX_NETWORK   = 8;
   OPTIONS_DESC_INDEX_WEBCAM    = 9;
@@ -818,17 +818,17 @@ type
   end;
 
   TThemeOptions = class(TThemeBasic)
-    ButtonGame:       TThemeButton;
-    ButtonGraphics:   TThemeButton;
-    ButtonSound:      TThemeButton;
-    ButtonLyrics:     TThemeButton;
-    ButtonThemes:     TThemeButton;
-    ButtonRecord:     TThemeButton;
-    ButtonAdvanced:   TThemeButton;
-    ButtonNetwork:    TThemeButton;
-    ButtonWebcam:     TThemeButton;
-    ButtonJukebox:    TThemeButton;
-    ButtonExit:       TThemeButton;
+    ButtonGame:        TThemeButton;
+    ButtonGraphics:    TThemeButton;
+    ButtonSound:       TThemeButton;
+    ButtonLyrics:      TThemeButton;
+    ButtonThemes:      TThemeButton;
+    ButtonMicrophones: TThemeButton;
+    ButtonAdvanced:    TThemeButton;
+    ButtonNetwork:     TThemeButton;
+    ButtonWebcam:      TThemeButton;
+    ButtonJukebox:     TThemeButton;
+    ButtonExit:        TThemeButton;
 
     TextDescription:      TThemeText;
     Description:          array[0..10] of UTF8String;
@@ -882,7 +882,7 @@ type
     ButtonExit:         TThemeButton;
   end;
 
-  TThemeOptionsRecord = class(TThemeBasic)
+  TThemeOptionsMicrophones = class(TThemeBasic)
     SelectSlideCard:       TThemeSelectSlide;
     SelectSlideInput:      TThemeSelectSlide;
     SelectSlideChannel:    TThemeSelectSlide;
@@ -1295,7 +1295,7 @@ type
     OptionsSound:     TThemeOptionsSound;
     OptionsLyrics:    TThemeOptionsLyrics;
     OptionsThemes:    TThemeOptionsThemes;
-    OptionsRecord:    TThemeOptionsRecord;
+    OptionsMicrophones:    TThemeOptionsMicrophones;
     OptionsAdvanced:  TThemeOptionsAdvanced;
     OptionsNetwork:   TThemeOptionsNetwork;
     OptionsWebcam:    TThemeOptionsWebcam;
@@ -1457,7 +1457,7 @@ begin
   OptionsSound := TThemeOptionsSound.Create;
   OptionsLyrics := TThemeOptionsLyrics.Create;
   OptionsThemes := TThemeOptionsThemes.Create;
-  OptionsRecord := TThemeOptionsRecord.Create;
+  OptionsMicrophones := TThemeOptionsMicrophones.Create;
   OptionsAdvanced := TThemeOptionsAdvanced.Create;
   OptionsNetwork := TThemeOptionsNetwork.Create;
   OptionsWebcam := TThemeOptionsWebcam.Create;
@@ -2137,18 +2137,18 @@ begin
       // Options
       ThemeLoadBasic(Options, 'Options');
 
-      ThemeLoadButton(Options.ButtonGame,     'OptionsButtonGame');
-      ThemeLoadButton(Options.ButtonGraphics, 'OptionsButtonGraphics');
-      ThemeLoadButton(Options.ButtonSound,    'OptionsButtonSound');
+      ThemeLoadButton(Options.ButtonGame,        'OptionsButtonGame');
+      ThemeLoadButton(Options.ButtonGraphics,    'OptionsButtonGraphics');
+      ThemeLoadButton(Options.ButtonSound,       'OptionsButtonSound');
 
-      ThemeLoadButton(Options.ButtonLyrics,   'OptionsButtonLyrics');
-      ThemeLoadButton(Options.ButtonThemes,   'OptionsButtonThemes');
-      ThemeLoadButton(Options.ButtonRecord,   'OptionsButtonRecord');
-      ThemeLoadButton(Options.ButtonAdvanced, 'OptionsButtonAdvanced');
-      ThemeLoadButton(Options.ButtonNetwork,  'OptionsButtonNetwork');
-      ThemeLoadButton(Options.ButtonWebcam,   'OptionsButtonWebcam');
-      ThemeLoadButton(Options.ButtonJukebox,  'OptionsButtonJukebox');
-      ThemeLoadButton(Options.ButtonExit,     'OptionsButtonExit');
+      ThemeLoadButton(Options.ButtonLyrics,      'OptionsButtonLyrics');
+      ThemeLoadButton(Options.ButtonThemes,      'OptionsButtonThemes');
+      ThemeLoadButton(Options.ButtonMicrophones, 'OptionsButtonMicrophones');
+      ThemeLoadButton(Options.ButtonAdvanced,    'OptionsButtonAdvanced');
+      ThemeLoadButton(Options.ButtonNetwork,     'OptionsButtonNetwork');
+      ThemeLoadButton(Options.ButtonWebcam,      'OptionsButtonWebcam');
+      ThemeLoadButton(Options.ButtonJukebox,     'OptionsButtonJukebox');
+      ThemeLoadButton(Options.ButtonExit,        'OptionsButtonExit');
 
       // Note: always update the indexes constant on top of this unit when changing the order (see OPTIONS_DESC_INDEX_*)
       Options.Description[OPTIONS_DESC_INDEX_BACK] := Language.Translate('SING_OPTIONS_EXIT');
@@ -2157,7 +2157,7 @@ begin
       Options.Description[OPTIONS_DESC_INDEX_SOUND] := Language.Translate('SING_OPTIONS_SOUND_DESC');
       Options.Description[OPTIONS_DESC_INDEX_LYRICS] := Language.Translate('SING_OPTIONS_LYRICS_DESC');
       Options.Description[OPTIONS_DESC_INDEX_THEMES] := Language.Translate('SING_OPTIONS_THEMES_DESC');
-      Options.Description[OPTIONS_DESC_INDEX_RECORD] := Language.Translate('SING_OPTIONS_RECORD_DESC');
+      Options.Description[OPTIONS_DESC_INDEX_MICROPHONES] := Language.Translate('SING_OPTIONS_MICROPHONES_DESC');
       Options.Description[OPTIONS_DESC_INDEX_ADVANCED] := Language.Translate('SING_OPTIONS_ADVANCED_DESC');
       Options.Description[OPTIONS_DESC_INDEX_NETWORK] := Language.Translate('SING_OPTIONS_NETWORK_DESC');
       Options.Description[OPTIONS_DESC_INDEX_WEBCAM] := Language.Translate('SING_OPTIONS_WEBCAM_DESC');
@@ -2221,15 +2221,15 @@ begin
       ThemeLoadSelectSlide(OptionsThemes.SelectColor, 'OptionsThemesSelectColor');
       ThemeLoadButton(OptionsThemes.ButtonExit,       'OptionsThemesButtonExit');
 
-      // Options Record
-      ThemeLoadBasic(OptionsRecord, 'OptionsRecord');
+      // Options Microphones
+      ThemeLoadBasic(OptionsMicrophones, 'OptionsMicrophones');
 
-      ThemeLoadSelectSlide(OptionsRecord.SelectSlideCard,     'OptionsRecordSelectSlideCard');
-      ThemeLoadSelectSlide(OptionsRecord.SelectSlideInput,    'OptionsRecordSelectSlideInput');
-      ThemeLoadSelectSlide(OptionsRecord.SelectSlideChannel,  'OptionsRecordSelectSlideChannel');
-      ThemeLoadSelectSlide(OptionsRecord.SelectThreshold,     'OptionsRecordSelectThreshold');
-      ThemeLoadSelectSlide(OptionsRecord.SelectMicBoost,      'OptionsRecordSelectMicBoost');
-      ThemeLoadButton(OptionsRecord.ButtonExit,               'OptionsRecordButtonExit');
+      ThemeLoadSelectSlide(OptionsMicrophones.SelectSlideCard,     'OptionsMicrophonesSelectSlideCard');
+      ThemeLoadSelectSlide(OptionsMicrophones.SelectSlideInput,    'OptionsMicrophonesSelectSlideInput');
+      ThemeLoadSelectSlide(OptionsMicrophones.SelectSlideChannel,  'OptionsMicrophonesSelectSlideChannel');
+      ThemeLoadSelectSlide(OptionsMicrophones.SelectThreshold,     'OptionsMicrophonesSelectThreshold');
+      ThemeLoadSelectSlide(OptionsMicrophones.SelectMicBoost,      'OptionsMicrophonesSelectMicBoost');
+      ThemeLoadButton(OptionsMicrophones.ButtonExit,               'OptionsMicrophonesButtonExit');
 
       //Options Advanced
       ThemeLoadBasic(OptionsAdvanced, 'OptionsAdvanced');
@@ -4426,8 +4426,8 @@ begin
   freeandnil(OptionsThemes);
   OptionsThemes := TThemeOptionsThemes.Create;
 
-  freeandnil(OptionsRecord);
-  OptionsRecord := TThemeOptionsRecord.Create;
+  freeandnil(OptionsMicrophones);
+  OptionsMicrophones := TThemeOptionsMicrophones.Create;
 
   freeandnil(OptionsAdvanced);
   OptionsAdvanced := TThemeOptionsAdvanced.Create;

@@ -317,7 +317,7 @@ uses
   UScreenOptionsSound     in 'screens\UScreenOptionsSound.pas',
   UScreenOptionsLyrics    in 'screens\UScreenOptionsLyrics.pas',
   UScreenOptionsThemes    in 'screens\UScreenOptionsThemes.pas',
-  UScreenOptionsRecord    in 'screens\UScreenOptionsRecord.pas',
+  UScreenOptionsMicrophones    in 'screens\UScreenOptionsMicrophones.pas',
   UScreenOptionsAdvanced  in 'screens\UScreenOptionsAdvanced.pas',
   UScreenOpen             in 'screens\UScreenOpen.pas',
   UScreenTop5             in 'screens\UScreenTop5.pas',

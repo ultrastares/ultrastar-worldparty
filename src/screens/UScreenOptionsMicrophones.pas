@@ -21,7 +21,7 @@
  *}
 
 
-unit UScreenOptionsRecord;
+unit UScreenOptionsMicrophones;
 
 interface
 
@@ -49,7 +49,7 @@ type
     Time: cardinal;
   end;
 
-  TScreenOptionsRecord = class(TMenu)
+  TScreenOptionsMicrophones = class(TMenu)
     private
       // max. count of input-channels determined for all devices
       MaxChannelCount: integer;
@@ -132,7 +132,7 @@ uses
   UUnicodeUtils,
   ULog;
 
-function TScreenOptionsRecord.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
+function TScreenOptionsMicrophones.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
 begin
   Result := true;
   if (PressedDown) then
@@ -197,7 +197,7 @@ begin
   end;
 end;
 
-function TScreenOptionsRecord.ValidateSettings: boolean;
+function TScreenOptionsMicrophones.ValidateSettings: boolean;
 var
   BadPlayer: integer;
 begin
@@ -215,7 +215,7 @@ begin
   end;
 end;
 
-constructor TScreenOptionsRecord.Create;
+constructor TScreenOptionsMicrophones.Create;
 var
   DeviceIndex:  integer;
   SourceIndex:  integer;
@@ -228,7 +228,7 @@ var
 begin
   inherited Create;
 
-  LoadFromTheme(Theme.OptionsRecord);
+  LoadFromTheme(Theme.OptionsMicrophones);
 
   // set CurrentDeviceIndex to a valid device
   if (Length(AudioInputProcessor.DeviceList) > 0) then
@@ -253,9 +253,9 @@ begin
       InputDeviceNames[DeviceIndex] := AudioInputProcessor.DeviceList[DeviceIndex].Name;
     end;
     // add device-selection slider (InteractionID: 0)
-    Theme.OptionsRecord.SelectSlideCard.showArrows := true;
-    Theme.OptionsRecord.SelectSlideCard.oneItemOnly := true;
-    AddSelectSlide(Theme.OptionsRecord.SelectSlideCard, CurrentDeviceIndex, InputDeviceNames);
+    Theme.OptionsMicrophones.SelectSlideCard.showArrows := true;
+    Theme.OptionsMicrophones.SelectSlideCard.oneItemOnly := true;
+    AddSelectSlide(Theme.OptionsMicrophones.SelectSlideCard, CurrentDeviceIndex, InputDeviceNames);
 
     // init source-selection slider
     SetLength(InputSourceNames, Length(InputDevice.Source));
@@ -264,14 +264,14 @@ begin
       InputSourceNames[SourceIndex] := InputDevice.Source[SourceIndex].Name;
     end;
 
-    Theme.OptionsRecord.SelectSlideInput.showArrows := true;
-    Theme.OptionsRecord.SelectSlideInput.oneItemOnly := true;
+    Theme.OptionsMicrophones.SelectSlideInput.showArrows := true;
+    Theme.OptionsMicrophones.SelectSlideInput.oneItemOnly := true;
     // add source-selection slider (InteractionID: 1)
-    SelectInputSourceID := AddSelectSlide(Theme.OptionsRecord.SelectSlideInput, InputDeviceCfg.Input, InputSourceNames);
+    SelectInputSourceID := AddSelectSlide(Theme.OptionsMicrophones.SelectSlideInput, InputDeviceCfg.Input, InputSourceNames);
 
     // add space for source volume bar
-    WidgetYPos := Theme.OptionsRecord.SelectSlideInput.Y +
-                  Theme.OptionsRecord.SelectSlideInput.H +
+    WidgetYPos := Theme.OptionsMicrophones.SelectSlideInput.Y +
+                  Theme.OptionsMicrophones.SelectSlideInput.H +
                   SourceBarsTotalHeight;
 
     // find max. channel count of all devices
@@ -291,7 +291,7 @@ begin
     begin
       // copy reference slide
       SelectSlideChannelTheme[ChannelIndex] :=
-        Theme.OptionsRecord.SelectSlideChannel;
+        Theme.OptionsMicrophones.SelectSlideChannel;
       // set current channel-theme
       ChannelTheme := @SelectSlideChannelTheme[ChannelIndex];
       // adjust vertical position
@@ -321,19 +321,19 @@ begin
       end;
     end;
 
-    Theme.OptionsRecord.SelectThreshold.showArrows := true; 
-    Theme.OptionsRecord.SelectThreshold.oneItemOnly := true;
-    SelectThresholdID := AddSelectSlide(Theme.OptionsRecord.SelectThreshold, Ini.ThresholdIndex, IThreshold);
+    Theme.OptionsMicrophones.SelectThreshold.showArrows := true; 
+    Theme.OptionsMicrophones.SelectThreshold.oneItemOnly := true;
+    SelectThresholdID := AddSelectSlide(Theme.OptionsMicrophones.SelectThreshold, Ini.ThresholdIndex, IThreshold);
 
-    Theme.OptionsRecord.SelectMicBoost.showArrows := true;
-    Theme.OptionsRecord.SelectMicBoost.oneItemOnly := true;
+    Theme.OptionsMicrophones.SelectMicBoost.showArrows := true;
+    Theme.OptionsMicrophones.SelectMicBoost.oneItemOnly := true;
     MicBoost[0] := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-    AddSelectSlide(Theme.OptionsRecord.SelectMicBoost, Ini.MicBoost, MicBoost);
+    AddSelectSlide(Theme.OptionsMicrophones.SelectMicBoost, Ini.MicBoost, MicBoost);
 
   end;
 
   // add Exit-button
-  AddButton(Theme.OptionsRecord.ButtonExit);
+  AddButton(Theme.OptionsMicrophones.ButtonExit);
   if (Length(Button[0].Text) = 0) then
     AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
   // store InteractionID
@@ -346,14 +346,14 @@ begin
   Interaction := 0;
 end;
 
-procedure TScreenOptionsRecord.UpdateInputDevice;
+procedure TScreenOptionsMicrophones.UpdateInputDevice;
 var
   SourceIndex: integer;
   InputDevice: TAudioInputDevice;
   InputDeviceCfg: PInputDeviceConfig;
   ChannelIndex: integer;
 begin
-  //Log.LogStatus('Update input-device', 'TScreenOptionsRecord.UpdateCard') ;
+  //Log.LogStatus('Update input-device', 'TScreenOptionsMicrophones.UpdateCard') ;
 
   StopPreview();
 
@@ -373,7 +373,7 @@ begin
     begin
       InputSourceNames[SourceIndex] := InputDevice.Source[SourceIndex].Name;
     end;
-    UpdateSelectSlideOptions(Theme.OptionsRecord.SelectSlideInput, SelectInputSourceID,
+    UpdateSelectSlideOptions(Theme.OptionsMicrophones.SelectSlideInput, SelectInputSourceID,
         InputSourceNames, InputDeviceCfg.Input);
 
     // update channel-to-player mapping sliders
@@ -406,7 +406,7 @@ begin
   StartPreview();
 end;
 
-procedure TScreenOptionsRecord.ChangeVolume(VolumeChange: single);
+procedure TScreenOptionsMicrophones.ChangeVolume(VolumeChange: single);
 var
   InputDevice: TAudioInputDevice;
   Volume: single;
@@ -431,7 +431,7 @@ begin
   NextVolumePollTime := 0;
 end;
 
-procedure TScreenOptionsRecord.OnShow;
+procedure TScreenOptionsMicrophones.OnShow;
 var
   ChannelIndex: integer;
 begin
@@ -452,7 +452,7 @@ begin
   UpdateInputDevice();
 end;
 
-procedure TScreenOptionsRecord.OnHide;
+procedure TScreenOptionsMicrophones.OnHide;
 var
   ChannelIndex: integer;
 begin
@@ -465,7 +465,7 @@ begin
   SetLength(ChannelPeak, 0);
 end;
 
-procedure TScreenOptionsRecord.StartPreview;
+procedure TScreenOptionsMicrophones.StartPreview;
 var
   ChannelIndex: integer;
   Device: TAudioInputDevice;
@@ -489,7 +489,7 @@ begin
   end;
 end;
 
-procedure TScreenOptionsRecord.StopPreview;
+procedure TScreenOptionsMicrophones.StopPreview;
 var
   ChannelIndex: integer;
   Device: TAudioInputDevice;
@@ -505,7 +505,7 @@ begin
   PreviewDeviceIndex := -1;
 end;
 
-procedure TScreenOptionsRecord.DrawVolume(x, y, Width, Height: single);
+procedure TScreenOptionsMicrophones.DrawVolume(x, y, Width, Height: single);
 var
   x1, y1, x2, y2: single;
   VolBarInnerWidth: integer;
@@ -577,7 +577,7 @@ begin
   glDisable(GL_BLEND);
 end;
 
-procedure TScreenOptionsRecord.DrawVUMeter(const State: TDrawState; x, y, Width, Height: single);
+procedure TScreenOptionsMicrophones.DrawVUMeter(const State: TDrawState; x, y, Width, Height: single);
 var
   x1, y1, x2, y2: single;
   Volume, PeakVolume: single;
@@ -666,7 +666,7 @@ begin
   glDisable(GL_BLEND);
 end;
 
-procedure TScreenOptionsRecord.DrawPitch(const State: TDrawState; x, y, Width, Height: single);
+procedure TScreenOptionsMicrophones.DrawPitch(const State: TDrawState; x, y, Width, Height: single);
 var
   x1, y1, x2, y2: single;
   i: integer;
@@ -757,7 +757,7 @@ begin
   glPrint(ToneString);
 end;
 
-function TScreenOptionsRecord.Draw: boolean;
+function TScreenOptionsMicrophones.Draw: boolean;
 var
   Device: TAudioInputDevice;
   DeviceCfg: PInputDeviceConfig;

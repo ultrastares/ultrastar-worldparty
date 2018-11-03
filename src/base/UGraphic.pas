@@ -51,7 +51,7 @@ uses
   UScreenOptionsSound,
   UScreenOptionsLyrics,
   UScreenOptionsThemes,
-  UScreenOptionsRecord,
+  UScreenOptionsMicrophones,
   UScreenOptionsAdvanced,
   UScreenOptionsNetwork,
   UScreenOptionsWebcam,
@@ -143,7 +143,7 @@ var
   ScreenOptionsSound:     TScreenOptionsSound;
   ScreenOptionsLyrics:    TScreenOptionsLyrics;
   ScreenOptionsThemes:    TScreenOptionsThemes;
-  ScreenOptionsRecord:    TScreenOptionsRecord;
+  ScreenOptionsMicrophones:    TScreenOptionsMicrophones;
   ScreenOptionsAdvanced:  TScreenOptionsAdvanced;
   ScreenOptionsNetwork:   TScreenOptionsNetwork;
   ScreenOptionsWebcam:    TScreenOptionsWebcam;
@@ -715,7 +715,7 @@ begin
   FreeAndNil(ScreenOptionsSound);
   FreeAndNil(ScreenOptionsLyrics);
   FreeAndNil(ScreenOptionsThemes);
-  FreeAndNil(ScreenOptionsRecord);
+  FreeAndNil(ScreenOptionsMicrophones);
   FreeAndNil(ScreenOptionsAdvanced);
   FreeAndNil(ScreenOptionsNetwork);
   FreeAndNil(ScreenOptionsWebcam);
