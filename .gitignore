@@ -36,6 +36,7 @@ ppaslink.sh
 /src/paths.inc
 /src/WorldParty-*.lps
 /src/WorldParty.res
+/scr/backup/
 
 # dev files
 /backup/
