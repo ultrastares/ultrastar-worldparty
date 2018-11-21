@@ -146,6 +146,8 @@ type
 
       // for chessboard songmenu
       MainCover: integer;
+      SongSelectionUp: integer;
+      SongSelectionDown: integer;
 
       // for list songmenu
       StaticList: array of integer;
@@ -204,18 +206,11 @@ type
       procedure SetSlotMachineScroll;
       procedure SetSlideScroll;
       procedure SetListScroll;
-
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
-
       function ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean; override;
-      function ParseMouseRoulette(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
-      function ParseMouseChessboard(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
-
       function Draw: boolean; override;
-
       procedure FadeMessage();
       procedure CloseMessage();
-
       procedure AddButtons();
       procedure OnShow; override;
       procedure OnShowFinish; override;
@@ -233,7 +228,6 @@ type
       procedure Refresh;//(GiveStats: boolean); //Refresh Song Sorting
       procedure ChangeSorting(Tabs: integer; Duet: boolean; Sorting: integer);
       procedure ChangeMusic;
-
       function FreeListMode: boolean;
 
       //Party Mode
@@ -1141,210 +1135,59 @@ begin
 end;
 
 function TScreenSong.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
-begin
-  Self.PreloadCovers := false;
-  // transfer mousecords to the 800x600 raster we use to draw
-  X := Round((X / (ScreenW / Screens)) * RenderW);
-  if (X > RenderW) then
-    X := X - RenderW;
-  Y := Round((Y / ScreenH) * RenderH);
-
-  if (ScreenSongMenu.Visible) then
-  begin
-    Result := ScreenSongMenu.ParseMouse(MouseButton, BtnDown, X, Y);
-    exit;
-  end
-  else if (ScreenSongJumpTo.Visible) then
-  begin
-    Result := ScreenSongJumpTo.ParseMouse(MouseButton, BtnDown, X, Y);
-    exit;
-  end
-  else // no extension visible
-  begin
-
-    case TSongMenuMode(Ini.SongMenu) of
-      smChessboard, smMosaic, smSlotMachine, smList:
-        Result := ParseMouseChessboard(MouseButton, BtnDown, X, Y);
-      else
-        Result := ParseMouseRoulette(MouseButton, BtnDown, X, Y);
-    end;
-
-  end;
-end;
-
-function TScreenSong.ParseMouseChessboard(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 var
   B: integer;
 begin
   Result := true;
+  Self.PreloadCovers := false;
 
-  if (BtnDown) then
+  //transfer mousecords to the 800x600 raster we use to draw
+  Y := Round((Y / ScreenH) * RenderH);
+  X := Round((X / (ScreenW / Screens)) * RenderW);
+  if (X > RenderW) then
+    X := X - RenderW;
+
+  if UGraphic.ScreenSongMenu.Visible then
+    Result := UGraphic.ScreenSongMenu.ParseMouse(MouseButton, BtnDown, X, Y)
+  else if UGraphic.ScreenSongJumpTo.Visible then
+    Result := UGraphic.ScreenSongJumpTo.ParseMouse(MouseButton, BtnDown, X, Y)
+  else if BtnDown then
   begin
-    //if RightMbESC is set, send ESC keypress
-    if RightMbESC and (MouseButton = SDL_BUTTON_RIGHT) then
-      Result:=ParseInput(SDLK_ESCAPE, 0, true)
-
-    //song scrolling with mousewheel
-    else if (MouseButton = SDL_BUTTON_WHEELDOWN) then
-      ParseInput(SDLK_DOWN, 0, true)
-
-    else if (MouseButton = SDL_BUTTON_WHEELUP) then
-      ParseInput(SDLK_UP, 0, true)
-
-    else
-    begin
-
-      // click cover
-      for B := 0 to High(Button) do
+    case MouseButton of
+      SDL_BUTTON_LEFT:
       begin
-        if (Button[B].Visible) then
-        begin
-          if InRegion(X, Y, Button[B].GetMouseOverArea) then
-          begin
-            ParseInput(SDLK_RETURN, 0, true)
-          end;
-        end;
-      end;
-    end;
+        for B := 0 to High(Self.Button) do
+          if Self.Button[B].Visible and (Self.Button[B].Z > 0.9) and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) then //z to roulette mode fix
+            if Self.Interaction = B then
+              Self.ParseInput(SDLK_RETURN, 0, true)
+            else
+              Self.SkipTo(B);
 
+        if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionUp].GetMouseOverArea()) then //arrow to page up
+          Self.ParseInput(SDLK_PAGEUP, 0, true)
+        else if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionDown].GetMouseOverArea()) then //arrow to page down
+          Self.ParseInput(SDLK_PAGEDOWN, 0, true);
+      end;
+      SDL_BUTTON_RIGHT: //go back
+        if Self.RightMbESC then
+          Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
+      SDL_BUTTON_MIDDLE: //open song menu
+        Self.ParseInput(0, Ord('M'), true);
+      SDL_BUTTON_WHEELDOWN: //next song
+        Self.SelectNext();
+      SDL_BUTTON_WHEELUP: //previous song
+        Self.SelectPrev();
+    end;
   end
-  else
-  begin //hover cover
-    for B := 0 to High(Button) do
-      if Button[B].Visible and InRegion(X, Y, Button[B].GetMouseOverArea) and (Interaction <> B) then
+  else if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then //hover cover
+    for B := 0 to High(Self.Button) do
+      if Self.Button[B].Visible and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) and (Self.Interaction <> B) then
       begin
         Self.Interaction := B;
         Self.SongTarget := B;
         Self.OnSongDeSelect();
         Self.SetScroll();
       end;
-  end;
-end;
-
-function TScreenSong.ParseMouseRoulette(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
-var
-    I, J: Integer;
-    Btn: Integer;
-begin
-  Result := true;
-
-  if (BtnDown) then
-  begin
-    //if RightMbESC is set, send ESC keypress
-    if RightMbESC and (MouseButton = SDL_BUTTON_RIGHT) then
-      Result:=ParseInput(SDLK_ESCAPE, 0, true)
-
-    //song scrolling with mousewheel
-    else if (MouseButton = SDL_BUTTON_WHEELDOWN) then
-      ParseInput(SDLK_RIGHT, 0, true)
-
-    else if (MouseButton = SDL_BUTTON_WHEELUP) then
-      ParseInput(SDLK_LEFT, 0, true)
-
-    //LMB anywhere starts
-    else if (MouseButton = SDL_BUTTON_LEFT) then
-    begin
-      if (USongs.CatSongs.GetVisibleSongs() = 3) or (USongs.CatSongs.GetVisibleSongs() = 4) then
-      begin
-        // select the second visible button left from selected
-        I := 0;
-        Btn := Interaction;
-        while (I < 1) do
-        begin
-          Dec(Btn);
-          if (Btn < 0) then
-            Btn := High(CatSongs.Song);
-
-          if (CatSongs.Song[Btn].Visible) then
-            Inc(I);
-        end;
-
-        // test the 3 front buttons for click
-        for I := 0 to 2 do
-        begin
-          if InRegion(X, Y, Button[Btn].GetMouseOverArea) then
-          begin
-            // song cover clicked
-            if (I = 1) then
-            begin // Selected Song clicked -> start singing
-              ParseInput(SDLK_RETURN, 0, true);
-            end
-            else
-            begin // one of the other 4 covers in the front clicked -> select it
-              J := I - 1;
-              while (J < 0) do
-              begin
-                ParseInput(SDLK_LEFT, 0, true);
-                Inc(J);
-              end;
-
-              while (J > 0) do
-              begin
-                ParseInput(SDLK_RIGHT, 0, true);
-                Dec(J);
-              end;
-            end;
-            Break;
-          end;
-
-          Btn := CatSongs.FindNextVisible(Btn);
-          if (Btn = -1) then
-            Break;
-        end;
-      end
-      else if (USongs.CatSongs.GetVisibleSongs() > 4) then
-      begin
-        // select the second visible button left from selected
-        I := 0;
-        Btn := Interaction;
-        while (I < 2) do
-        begin
-          Dec(Btn);
-          if (Btn < 0) then
-            Btn := High(CatSongs.Song);
-
-          if (CatSongs.Song[Btn].Visible) then
-            Inc(I);
-        end;
-
-        // test the 5 front buttons for click
-        for I := 0 to 4 do
-        begin
-
-          if InRegion(X, Y, Button[Btn].GetMouseOverArea) then
-          begin
-            // song cover clicked
-            if (I = 2) then
-            begin // Selected Song clicked -> start singing
-              ParseInput(SDLK_RETURN, 0, true);
-            end
-            else
-            begin // one of the other 4 covers in the front clicked -> select it
-              J := I - 2;
-              while (J < 0) do
-              begin
-                ParseInput(SDLK_LEFT, 0, true);
-                Inc(J);
-              end;
-
-              while (J > 0) do
-              begin
-                ParseInput(SDLK_RIGHT, 0, true);
-                Dec(J);
-              end;
-            end;
-            Break;
-          end;
-
-          Btn := CatSongs.FindNextVisible(Btn);
-          if (Btn = -1) then
-            Break;
-        end;
-      end
-      else
-        ParseInput(SDLK_RETURN, 0, true);
-    end;
-  end;
 end;
 
 procedure TScreenSong.ColorizeJokers;
@@ -1502,8 +1345,15 @@ begin
     StaticMedley[I] := AddStatic(Theme.Song.StaticMedley[I]);
   end;
 
-  Self.MainCover := AddStatic(Theme.Song.Cover.SelectX, Theme.Song.Cover.SelectY,
-                            Theme.Song.Cover.SelectW, Theme.Song.Cover.SelectH, PATH_NONE);
+  Self.MainCover := AddStatic(
+    Theme.Song.Cover.SelectX,
+    Theme.Song.Cover.SelectY,
+    Theme.Song.Cover.SelectW,
+    Theme.Song.Cover.SelectH,
+    PATH_NONE
+  );
+  Self.SongSelectionUp := Self.AddStatic(UThemes.Theme.Song.SongSelectionUp);
+  Self.SongSelectionDown := Self.AddStatic(UThemes.Theme.Song.SongSelectionDown);
 
   Num := Theme.Song.ListCover.Rows;
 
@@ -2035,10 +1885,11 @@ begin
       else //hide preload covers
         Self.Button[B].Visible := false;
 
+      Self.Button[B].H := Theme.Song.Cover.H;
+      Self.Button[B].W := Theme.Song.Cover.W;
       Self.Button[B].X := X; //after load cover to avoid cover flash on change
       Self.Button[B].Y := Theme.Song.Cover.Y;
-      Self.Button[B].W := Theme.Song.Cover.W;
-      Self.Button[B].H := Theme.Song.Cover.H;
+      Self.Button[B].Z := 0.95; //more than 0.9 to be clicked with mouse and less than 1 to hide reflection
     end;
   end;
 end;
@@ -2071,7 +1922,7 @@ begin
         Self.Button[B].W := Self.Button[B].H;
         Self.Button[B].X := (Theme.Song.Cover.X  + (Theme.Song.Cover.H - Abs(Theme.Song.Cover.H * cos(Angle))) * 0.8);
         Self.Button[B].Y := Theme.Song.Cover.Y + Theme.Song.Cover.W * (Sin(Angle * 1.3) * 0.8) - ((Self.Button[B].H - Theme.Song.Cover.H) / 2);
-        Self.Button[B].Z := 0.05 - Abs(Pos) * 0.01;
+        Self.Button[B].Z := 1;
         Self.Button[B].DeSelectReflectionspacing := 15 * Self.Button[B].H / Theme.Song.Cover.H;
       end
       else

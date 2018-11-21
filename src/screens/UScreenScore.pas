@@ -501,7 +501,7 @@ begin
   else
     SetInteraction(-1);
 
-  if (MouseButton = SDL_BUTTON_LEFT) and BtnDown then
+  if (MouseButton in [SDL_BUTTON_RIGHT, SDL_BUTTON_LEFT]) and BtnDown then
     ParseInput(SDLK_RETURN, 0, true);
 
 end;

@@ -316,6 +316,9 @@ type
     TextCat:          TThemeText;
     StaticCat:        TThemeStatic;
 
+    SongSelectionUp: TThemeStatic;
+    SongSelectionDown: TThemeStatic;
+
     //Cover Mod
     Cover: record
       Reflections: boolean;
@@ -1334,7 +1337,7 @@ type
     Playlist:         TThemePlaylist;
 
     ILevel: array[0..2] of UTF8String;
-    IMode:  array[0..2] of UTF8String; 
+    IMode:  array[0..2] of UTF8String;
 
     constructor Create;
 
@@ -4219,6 +4222,9 @@ begin
   //Show Cat in TopLeft Mod
   ThemeLoadStatic(Song.StaticCat, 'Song' + prefix + 'StaticCat');
   ThemeLoadText(Song.TextCat, 'Song' + prefix + 'TextCat');
+
+  Self.ThemeLoadStatic(Self.Song.SongSelectionUp, 'Song' + prefix + 'Static1');
+  Self.ThemeLoadStatic(Self.Song.SongSelectionDown, 'Song' + prefix + 'Static2');
 
   //Load Cover Pos and Size from Theme Mod
   Song.Cover.X := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'X', 300);
