@@ -621,14 +621,7 @@ begin
     // set song's category info
     CurSong.OrderNum := OrderNum; // assigns category
     CurSong.CatNumber := CatNumber;
-    Self.VisibleSongs := 0;
-    if UIni.Ini.Tabs = 0 then
-    begin
-      CurSong.Visible := true;
-      Inc(Self.VisibleSongs);
-    end
-    else
-      CurSong.Visible := false;
+    CurSong.Visible := UIni.Ini.Tabs = 0;
   end;
 
   // set CatNumber of last category
