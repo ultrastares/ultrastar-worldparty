@@ -1577,8 +1577,8 @@ begin
       Statics[VideoIcon].Visible := CatSongs.Song[Interaction].Video.IsSet;
 
       // Set visibility of medley icons
-      Statics[MedleyIcon].Visible := (CatSongs.Song[Interaction].Medley.Source = msTag);
-      Statics[CalcMedleyIcon].Visible := (CatSongs.Song[Interaction].Medley.Source = msCalculated);
+      Statics[MedleyIcon].Visible := (CatSongs.Song[Interaction].Medley.Source = msTag) and not CatSongs.Song[Interaction].isDuet;
+      Statics[CalcMedleyIcon].Visible := (CatSongs.Song[Interaction].Medley.Source = msCalculated) and not CatSongs.Song[Interaction].isDuet;
 
       //Set Visibility of Duet Icon
       Statics[DuetIcon].Visible := CatSongs.Song[Interaction].isDuet;
@@ -2055,9 +2055,9 @@ begin
         Self.Statics[ListVideoIcon[I]].Texture.Alpha := Alpha;
         Self.Statics[ListVideoIcon[I]].Visible := USongs.CatSongs.Song[B].Video.IsSet;
         Self.Statics[ListMedleyIcon[I]].Texture.Alpha := Alpha;
-        Self.Statics[ListMedleyIcon[I]].Visible := (USongs.CatSongs.Song[B].Medley.Source = msTag);
+        Self.Statics[ListMedleyIcon[I]].Visible := (USongs.CatSongs.Song[B].Medley.Source = msTag) and not CatSongs.Song[Interaction].isDuet;
         Self.Statics[ListCalcMedleyIcon[I]].Texture.Alpha := Alpha;
-        Self.Statics[ListCalcMedleyIcon[I]].Visible := (USongs.CatSongs.Song[B].Medley.Source = msCalculated);
+        Self.Statics[ListCalcMedleyIcon[I]].Visible := (USongs.CatSongs.Song[B].Medley.Source = msCalculated) and not CatSongs.Song[Interaction].isDuet;
         Self.Statics[ListDuetIcon[I]].Texture.Alpha := Alpha;
         Self.Statics[ListDuetIcon[I]].Visible := USongs.CatSongs.Song[B].isDuet;
         Self.Statics[ListRapIcon[I]].Texture.Alpha := Alpha;
