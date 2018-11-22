@@ -2102,7 +2102,7 @@ begin
   if Length(Self.Button) < High(USongs.CatSongs.Song) then
   begin
     Self.AddButtons();
-    Self.Covers := Length(Self.Button);
+    Self.Covers := Length(Self.Button) - 1;
   end;
 
   Self.CloseMessage();
