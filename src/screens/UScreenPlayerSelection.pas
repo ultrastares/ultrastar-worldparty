@@ -248,7 +248,6 @@ begin
   begin // Key Down
     Self.PreloadCovers := false;
     SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
-
     if (not Button[PlayerName].Selected) then
     begin
       // check normal keys
@@ -260,22 +259,21 @@ begin
           end;
       end;
     end
-    else if (Interaction = 3) and (IsPrintableChar(CharCode)) then
+    else if (Interaction = 2) and (IsPrintableChar(CharCode)) then //pass printable chars to button
     begin
-      // pass printable chars to button
-      Button[PlayerName].Text[0].Text := Button[PlayerName].Text[0].Text +
-                                          UCS4ToUTF8String(CharCode);
-
-      PlayerNames[PlayerIndex] := Button[PlayerName].Text[0].Text;
+      if Length(Button[PlayerName].Text[0].Text) < 12 then
+      begin
+        Button[PlayerName].Text[0].Text := Button[PlayerName].Text[0].Text +UCS4ToUTF8String(CharCode);
+        PlayerNames[PlayerIndex] := Button[PlayerName].Text[0].Text;
+      end;
       Exit;
     end;
-
     // check special keys
     case PressedKey of
 
       SDLK_BACKSPACE:
         begin
-          if (Interaction = 3) then
+          if (Interaction = 2) then
           begin
             Button[PlayerName].Text[0].DeleteLastLetter();
             PlayerNames[PlayerIndex] := Button[PlayerName].Text[0].Text;
@@ -345,7 +343,6 @@ begin
           //
 
           AudioPlayback.PlaySound(SoundLib.Start);
-
           if GoTo_SingScreen then
           begin
             FadeTo(@ScreenSing);

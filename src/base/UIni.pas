@@ -73,9 +73,9 @@ const
   LATENCY_AUTODETECT = -1; // for field Latency
   DEFAULT_RESOLUTION = '800x600';
   DEFAULT_THEME = 'Fantasy';
-  IMaxPlayerCount = 12;
-  IPlayers:     array[0..6] of UTF8String = ('1', '2', '3', '4', '6', '8', '12');
-  IPlayersVals: array[0..6] of integer    = ( 1 ,  2 ,  3 ,  4 ,  6 ,  8 ,  12);
+  IMaxPlayerCount = 12; //TODO change to 6 and fix UScreenPlayerSelection RETURN key
+  IPlayers: array[0..4] of UTF8String = ('1', '2', '3', '4', '6');
+  IPlayersVals: array[0..4] of integer = (1, 2, 3, 4, 6);
 
 type
 
@@ -434,7 +434,7 @@ const
   IJukeboxTimebarMode: array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
 
   // Recording options
-  IChannelPlayer: array[0..12] of UTF8String = ('Off', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12');
+  IChannelPlayer: array[0..6] of UTF8String = ('Off', '1', '2', '3', '4', '5', '6');
   IMicBoost:      array[0..3] of UTF8String = ('Off', '+6dB', '+12dB', '+18dB');
 
   // Webcam
@@ -465,7 +465,7 @@ var
   // Network
   ISendNameTranslated:        array[0..1] of UTF8String = ('Off', 'On');
   IAutoModeTranslated:        array[0..2] of UTF8String = ('Off', 'Send', 'Guardar');
-  IAutoPlayerTranslated:      array[0..IMaxPlayerCount] of UTF8String = ('Player 1', 'Player 2', 'Player 3', 'Player 4', 'Player 5', 'Player 6', 'Player 7', 'Player 8', 'Player 9', 'Player 10', 'Player 11', 'Player 12', 'All');
+  IAutoPlayerTranslated: array[0..6] of UTF8String = ('Player 1', 'Player 2', 'Player 3', 'Player 4', 'Player 5', 'Player 6', 'All');
   IAutoScoreEasyTranslated:   array of UTF8String;
   IAutoScoreMediumTranslated: array of UTF8String;
   IAutoScoreHardTranslated:   array of UTF8String;
@@ -583,10 +583,9 @@ begin
   IAutoModeTranslated[2]         := ULanguage.Language.Translate('OPTION_VALUE_SAVE');
 
   for I:=0 to IMaxPlayerCount-1 do
-  begin
     IAutoPlayerTranslated[I]       :=ULanguage.Language.Translate('OPTION_PLAYER_' + IntToStr(I));
-  end;
-  IAutoPlayerTranslated[12]         := ULanguage.Language.Translate('OPTION_ALL_PLAYERS');
+
+  IAutoPlayerTranslated[IMaxPlayerCount] := ULanguage.Language.Translate('OPTION_ALL_PLAYERS');
 
   SetLength(IAutoScoreEasyTranslated, 10000);
   SetLength(IAutoScoreMediumTranslated, 10000);
