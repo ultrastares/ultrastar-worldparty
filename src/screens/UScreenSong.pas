@@ -2749,11 +2749,10 @@ begin
 
     Self.FixSelected2();
   end
-  else if (TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smList, smMosaic]) then
+  else if (TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smList, smMosaic]) then //TODO it fails with tabs on
   begin
-    Self.Interaction := Target;
-    Self.OnSongSelect();
-    Self.SetScroll(true);
+    Self.Interaction := Target - 1;
+    Self.SelectNext();
   end;
 end;
 
