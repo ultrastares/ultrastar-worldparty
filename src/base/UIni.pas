@@ -582,10 +582,11 @@ begin
   IAutoModeTranslated[1]         := ULanguage.Language.Translate('OPTION_VALUE_SEND');
   IAutoModeTranslated[2]         := ULanguage.Language.Translate('OPTION_VALUE_SAVE');
 
-  for I:=0 to IMaxPlayerCount-1 do
+  //TODO change 6 with IMaxPlayerCount when change 12 value in this variable
+  for I:=0 to 6-1 do
     IAutoPlayerTranslated[I]       :=ULanguage.Language.Translate('OPTION_PLAYER_' + IntToStr(I));
 
-  IAutoPlayerTranslated[IMaxPlayerCount] := ULanguage.Language.Translate('OPTION_ALL_PLAYERS');
+  IAutoPlayerTranslated[6] := ULanguage.Language.Translate('OPTION_ALL_PLAYERS');
 
   SetLength(IAutoScoreEasyTranslated, 10000);
   SetLength(IAutoScoreMediumTranslated, 10000);
