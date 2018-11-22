@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -266,12 +266,12 @@ begin
   end;
 end;
 
-procedure TScreenOptionsJukebox.UpdatePropertyList;
+procedure TScreenOptionsJukebox.UpdatePropertyList; // >>>>> FIX ME <<<<<
 var
   IProperty: array of UTF8String;
   I: integer;
 begin
-
+{
   if (SelectsS[FontSelect].SelectedOption <> 0) then
   begin
     SetLength(IProperty, Length(IPropertyTranslated));
@@ -287,6 +287,7 @@ begin
   end;
 
   UpdateSelectSlideOptions(Theme.OptionsJukebox.SelectProperty, PropertySelect, IProperty, Ini.JukeboxProperty);
+  }
 end;
 
 procedure TScreenOptionsJukebox.InteractInc;
@@ -467,11 +468,11 @@ begin
 
   Theme.OptionsJukebox.SelectLyricsFont.showArrows := true;
   Theme.OptionsJukebox.SelectLyricsFont.oneItemOnly := true;
-  FontSelect := AddSelectSlide(Theme.OptionsJukebox.SelectLyricsFont, Ini.JukeboxFont, ILyricsFontTranslated);
+  AddSelectSlide(Theme.OptionsJukebox.SelectLyricsFont, UIni.Ini.JukeboxFont, UIni.ILyricsFont, 'OPTION_VALUE_');
 
   Theme.OptionsJukebox.SelectLyricsEffect.showArrows := true;
   Theme.OptionsJukebox.SelectLyricsEffect.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsJukebox.SelectLyricsEffect, Ini.JukeboxEffect, ILyricsEffectTranslated);
+  AddSelectSlide(Theme.OptionsJukebox.SelectLyricsEffect, UIni.Ini.JukeboxEffect, UIni.ILyricsEffect, 'OPTION_VALUE_');
 
   Theme.OptionsJukebox.SelectLyricsAlpha.showArrows := true;
   Theme.OptionsJukebox.SelectLyricsAlpha.oneItemOnly := true;
@@ -479,15 +480,15 @@ begin
 
   Theme.OptionsJukebox.SelectLine.showArrows := true;
   Theme.OptionsJukebox.SelectLine.oneItemOnly := true;
-  LineSelect := AddSelectSlide(Theme.OptionsJukebox.SelectLine, Ini.JukeboxLine, ILineTranslated);
+  LineSelect := AddSelectSlide(Theme.OptionsJukebox.SelectLine, UIni.Ini.JukeboxLine, UIni.ILineTranslated, 'OPTION_VALUE_');
 
   Theme.OptionsJukebox.SelectProperty.showArrows := true;
   Theme.OptionsJukebox.SelectProperty.oneItemOnly := true;
-  PropertySelect := AddSelectSlide(Theme.OptionsJukebox.SelectProperty, Ini.JukeboxProperty, IPropertyTranslated);
+  AddSelectSlide(Theme.OptionsJukebox.SelectProperty, UIni.Ini.JukeboxProperty, UIni.IPropertyTranslated, 'OPTION_VALUE_');
 
   Theme.OptionsJukebox.SelectColor.showArrows := true;
   Theme.OptionsJukebox.SelectColor.oneItemOnly := true;
-  LineColorSelect := AddSelectSlide(Theme.OptionsJukebox.SelectColor, Ini.JukeboxSingLineColor, ISingLineColorTranslated);
+  LineColorSelect := AddSelectSlide(Theme.OptionsJukebox.SelectColor, UIni.Ini.JukeboxSingLineColor, UIni.ISingLineColorTranslated, 'OPTION_VALUE_');
 
   Theme.OptionsJukebox.SelectR.showArrows := false;
   Theme.OptionsJukebox.SelectR.oneItemOnly := true;

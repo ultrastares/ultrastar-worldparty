@@ -266,7 +266,7 @@
         <IsPartOfProject Value="True"/>
       </Unit58>
       <Unit59>
-        <Filename Value="screens\UScreenName.pas"/>
+        <Filename Value="screens\UScreenPlayerSelection.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit59>
       <Unit60>
@@ -294,7 +294,7 @@
         <IsPartOfProject Value="True"/>
       </Unit65>
       <Unit66>
-        <Filename Value="screens\UScreenOptionsRecord.pas"/>
+        <Filename Value="screens\UScreenOptionsMicrophones.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit66>
       <Unit67>
@@ -506,11 +506,6 @@
         <Filename Value="base\UPath.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit118>
-      <Unit119>
-        <Filename Value="base\uunicodestringhelper.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="UUnicodeStringHelper"/>
-      </Unit119>
       <Unit120>
         <Filename Value="base\UFilesystem.pas"/>
         <IsPartOfProject Value="True"/>

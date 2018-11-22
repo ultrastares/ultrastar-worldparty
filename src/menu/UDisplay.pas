@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -31,15 +31,16 @@ interface
 {$I switches.inc}
 
 uses
-  UCommon,
+  dglOpenGL,
   Math,
   sdl2,
-  dglOpenGL,
   SysUtils,
+  UCommon,
+  UHookableEvent,
   UMenu,
-  UPath,
   UMusic,
-  UHookableEvent;
+  UPath,
+  UTexture;
 
 type
   TDisplay = class
@@ -57,7 +58,7 @@ type
 
       FadeTex:       array[0..1] of GLuint;
       TexW, TexH:    Cardinal;
- 
+
       FPSCounter:    cardinal;
       NextFPSSwap:   cardinal;
 
@@ -77,6 +78,9 @@ type
 
       Console_Draw:         boolean;
       Console_ScrollOffset: integer;
+      // textures for software mouse cursor
+      Tex_Cursor_Unpressed: TTexture;
+      Tex_Cursor_Pressed:   TTexture;
       procedure DrawDebugInformation;
       procedure DrawDebugConsole;
 
@@ -107,7 +111,7 @@ type
       procedure InitFadeTextures();
 
       procedure ToggleConsole;
-      
+
       procedure SaveScreenShot;
 
       function  Draw: boolean;
@@ -168,18 +172,17 @@ const
 implementation
 
 uses
-  TextGL,
   StrUtils,
+  TextGL,
   UCommandLine,
   UGraphic,
   UIni,
   UImage,
+  ULanguage,
   ULog,
   UMain,
-  UTexture,
-  UTime,
-  ULanguage,
-  UPathUtils;
+  UPathUtils,
+  UTime;
 
 constructor TDisplay.Create;
 begin
@@ -217,6 +220,9 @@ begin
   Cursor_Fade     := false;
   Cursor_HiddenByScreen := true;
   Cursor_Update   := false;
+
+  Tex_Cursor_Unpressed := UTexture.Texture.LoadTexture('Cursor', TEXTURE_TYPE_TRANSPARENT, 0);
+  Tex_Cursor_Pressed := UTexture.Texture.LoadTexture('Cursor_Pressed', TEXTURE_TYPE_TRANSPARENT, 0);
 end;
 
 destructor TDisplay.Destroy;
@@ -321,7 +327,7 @@ begin
       begin
         FadeEnabled := false;
       end;
-      
+
       if (FadeEnabled and not FadeFailed) then
       begin
         // create fading texture if we're just starting
@@ -616,12 +622,7 @@ begin
       glEnable(GL_TEXTURE_2D);
       glEnable(GL_BLEND);
       glDisable(GL_DEPTH_TEST);
-
-      if (Cursor_Pressed) and (Tex_Cursor_Pressed.TexNum > 0) then
-        glBindTexture(GL_TEXTURE_2D, Tex_Cursor_Pressed.TexNum)
-      else
-        glBindTexture(GL_TEXTURE_2D, Tex_Cursor_Unpressed.TexNum);
-
+      glBindTexture(GL_TEXTURE_2D, IfThen(Cursor_Pressed, Tex_Cursor_Pressed.TexNum, Tex_Cursor_Unpressed.TexNum));
       glBegin(GL_QUADS);
         glTexCoord2f(0, 0);
         glVertex2f(DrawX, Cursor_Y);
@@ -705,7 +706,7 @@ begin
     // and call the OnShow procedure of the previous screen
     // because it was already called by default fade procedure
     NextScreen.OnShow;
-    
+
   end;
 end;
 

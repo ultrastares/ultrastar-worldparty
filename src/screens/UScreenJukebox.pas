@@ -2038,6 +2038,8 @@ end;
 procedure TScreenJukebox.OnShow;
 begin
   inherited;
+  if not Assigned(UGraphic.ScreenJukeboxOptions) then //load the screen only the first time
+    UGraphic.ScreenJukeboxOptions := TScreenJukeboxOptions.Create();
 
   Log.LogStatus('Begin', 'OnShow');
 
@@ -2371,8 +2373,8 @@ begin
     (not Lyrics.IsQueueFull) do
   begin
     // add the next line to the queue or a dummy if no more lines are available
-    if (Lyrics.LineCounter <= High(Lines[0].Line)) then
-      Lyrics.AddLine(@Lines[0].Line[Lyrics.LineCounter])
+    if (Lyrics.LineCounter <= High(CurrentSong.Lines[0].Line)) then
+      Lyrics.AddLine(@CurrentSong.Lines[0].Line[Lyrics.LineCounter])
     else
       Lyrics.AddLine(nil);
   end;
@@ -2602,9 +2604,9 @@ begin
 
   // initialize lyrics by filling its queue
   while (not Lyrics.IsQueueFull) and
-        (Lyrics.LineCounter <= High(Lines[0].Line)) do
+        (Lyrics.LineCounter <= High(CurrentSong.Lines[0].Line)) do
   begin
-    Lyrics.AddLine(@Lines[0].Line[Lyrics.LineCounter]);
+    Lyrics.AddLine(@CurrentSong.Lines[0].Line[Lyrics.LineCounter]);
   end;
 
   Max := 9;

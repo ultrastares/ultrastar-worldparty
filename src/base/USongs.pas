@@ -24,9 +24,7 @@ unit USongs;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE OBJFPC}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
@@ -44,7 +42,7 @@ uses
     {$ENDIF}
     UnixType,
   {$ENDIF}
-  MTProcs,
+  CpuCount,
   SysUtils,
   UCatCovers,
   UCommon,
@@ -69,20 +67,46 @@ type
     Length: string;
   end;
 
+  TProgressSong = record
+    Folder: UTF8String;
+    Total: integer;
+    Finished: boolean;
+  end;
+
+  TSongsParse = class(TThread)
+    private
+      Event: PRTLEvent; //event to fire parsing songs
+      Txt: integer; //number of txts parsed
+      Txts: TThreadList; //list to store all parsed songs as TSong object
+    protected
+      procedure Execute; override;
+    public
+      constructor Create();
+      destructor Destroy(); override;
+      procedure AddSong(const TxtFile: IPath);
+  end;
+
   TSongs = class(TThread)
-  private
-  protected
-    procedure Execute; override;
-  public
-    LoadingSongs: boolean;
-    SongList: TList; //array of songs
-    Selected: integer; //selected song index
-    constructor Create();
-    destructor Destroy(); override;
-    procedure Sort(OrderType: TSortingType);
+    private
+      ProgressSong: TProgressSong;
+      Threads: array of TSongsParse; //threads to parse songs
+      Thread: integer; //current thread
+      procedure FindTxts(const Dir: IPath);
+    protected
+      procedure Execute; override;
+    public
+      SongList: TList; //array of songs
+      Selected: integer; //selected song index
+      constructor Create();
+      destructor Destroy(); override;
+      function GetLoadProgress(): TProgressSong;
+      procedure Sort(OrderType: TSortingType);
   end;
 
   TCatSongs = class
+    private
+      VisibleSongs: integer;
+    public
     Song:       array of TSong; // array of categories with songs
     SongSort:   array of TSong;
 
@@ -99,15 +123,16 @@ type
     procedure ShowCategoryList;                             // Hides all Songs And Show the List of all Categorys
     function FindNextVisible(SearchFrom: integer): integer; // Find Next visible Song
     function FindPreviousVisible(SearchFrom: integer): integer; // Find Previous visible Song
-    function VisibleSongs: integer;                         // returns number of visible songs (for tabs)
+    function GetVisibleSongs(): integer; //returns number of visible songs
+    procedure SetVisibleSongs(); //sets number of visible songs
     function VisibleIndex(Index: integer): integer;         // returns visible song index (skips invisible)
 
     function SetFilter(FilterStr: UTF8String; Filter: TSongFilter): cardinal;
   end;
 
 var
-  Songs:    TSongs;    // all songs
-  CatSongs: TCatSongs; // categorized songs
+  Songs: TSongs; //all songs
+  CatSongs: TCatSongs; //categorized songs
 
 const
   IN_ACCESS        = $00000001; //* File was accessed */
@@ -127,8 +152,8 @@ implementation
 
 uses
   FileUtil,
+  Math,
   StrUtils,
-  UCovers,
   UFiles,
   UFilesystem,
   UGraphic,
@@ -138,60 +163,129 @@ uses
   UPathUtils,
   UUnicodeUtils;
 
+constructor TSongsParse.Create();
+begin
+  inherited Create(false);
+  Self.FreeOnTerminate := true;
+  Self.Txts := TThreadList.Create();
+  Self.Txt := 0;
+  Self.Event := RTLEventCreate();
+end;
+
+destructor TSongsParse.Destroy();
+begin
+  RTLeventDestroy(Self.Event);
+  Self.Txts.Destroy();
+  inherited;
+end;
+
+procedure TSongsParse.Execute();
+var
+  Song: TSong;
+  List: TList;
+  I: integer;
+begin
+  while not Self.Terminated do
+  begin
+    RtlEventWaitFor(Self.Event);
+    List := Self.Txts.LockList();
+    try
+      for I := Self.Txt to List.Count - 1 do //start to parse from the last position
+      begin
+        Song := TSong(List.Items[I]);
+        if Song.Analyse() then
+          Inc(Self.Txt)
+        else
+          Self.Txts.Remove(Song);
+      end;
+    finally
+      Self.Txts.UnlockList();
+    end;
+  end;
+end;
+
+procedure TSongsParse.AddSong(const TxtFile: IPath);
+begin
+  Self.Txts.Add(TSong.Create(TxtFile));
+  RtlEventSetEvent(Self.Event);
+end;
+
 constructor TSongs.Create();
+var
+  I: integer;
 begin
   inherited Create(false);
   Self.FreeOnTerminate := false;
   Self.SongList := TList.Create();
+  Self.Thread := 0;
+  Setlength(Self.Threads, Max(1, CpuCount.GetLogicalCpuCount() - 2)); //total - main and songs threads
+  for I := 0 to High(Self.Threads) do
+    Self.Threads[I] := TSongsParse.Create();
 end;
 
 destructor TSongs.Destroy();
+var
+  I: integer;
 begin
-  // FreeAndNil(Self.SongList);
+  for I := 0 to High(Self.Threads) do
+    Self.Threads[I].Terminate();
 
   inherited;
+end;
+
+{ Search for all files and directories }
+procedure TSongs.FindTxts(const Dir: IPath);
+var
+  Iter: IFileIterator;
+  FileInfo: TFileInfo;
+begin
+  Iter := FileSystem.FileFind(Dir.Append('*'), faAnyFile);
+  while Iter.HasNext do //content of current folder
+  begin
+    FileInfo := Iter.Next; //get file info
+    if ((FileInfo.Attr and faDirectory) <> 0) and (not (FileInfo.Name.ToUTF8()[1] = '.')) then //if is a directory try to find more
+      Self.FindTxts(Dir.Append(FileInfo.Name))
+    else if FileInfo.Name.GetExtension().ToNative() = '.txt' then //if is a txt file send to a thread to parse it
+    begin
+      Inc(Self.ProgressSong.Total);
+      Self.Threads[Self.Thread].AddSong(Dir.Append(FileInfo.Name));
+      if Self.Thread = High(Self.Threads) then //each txt to one thread
+        Self.Thread := 0
+      else
+        Inc(Self.Thread)
+    end
+  end;
 end;
 
 { Create a new thread to load songs and update main screen with progress }
 procedure TSongs.Execute();
 var
-  I, J, Total : integer;
-  Txts: TStringList;
+  I: integer;
   Song: TSong;
-  Folder: string;
 begin
-  LoadingSongs := true;
+  Log.BenchmarkStart(2);
   Log.LogStatus('Searching For Songs', 'SongList');
-  //find txt files on directories and add songs
-  for I := 0 to UPathUtils.SongPaths.Count-1 do
+  Self.ProgressSong.Total := 0;
+  Self.ProgressSong.Finished := false;
+  for I := 0 to UPathUtils.SongPaths.Count - 1 do //find txt files on directories and add songs
   begin
-    Folder := IPath(UPathUtils.SongPaths[I]).ToNative();
-    if Assigned(UGraphic.ScreenMain) then
-      UGraphic.ScreenMain.SetLoadProgress(Format(ULanguage.Language.Translate('SING_LOADING_CHECK_FOLDER'), [Folder]));
-
-    Txts := FileUtil.FindAllFiles(Folder, '*.txt', true);
-    Total := Txts.Count;
-    for J := 0 to Total-1 do
-    begin
-      Song := TSong.Create(Path(Txts.Strings[J]));
-      if Song.Analyse() then
-        Self.SongList.Add(Song);
-
-      if Assigned(UGraphic.ScreenMain) then
-        UGraphic.ScreenMain.SetLoadProgress(IntToStr(J)+'/'+IntToStr(Total)+' ('+IntToStr(Trunc((J*100)/Total))+'%)');
-    end;
+    Self.ProgressSong.Folder := Format(ULanguage.Language.Translate('SING_LOADING_SONGS'), [IPath(UPathUtils.SongPaths[I]).ToNative()]);
+    Self.FindTxts(IPath(UPathUtils.SongPaths[I]));
   end;
+  for I := 0 to High(Self.Threads) do //add all songs parsed to main list
+    Self.SongList.AddList(Self.Threads[I].Txts.LockList());
+
   Log.LogStatus('Search Complete', 'SongList');
   CatSongs.Refresh;
-
-  //wait to generate thumbnails and show message
-  while not Terminated and not Assigned(UGraphic.ScreenSong) do;
-  UGraphic.ScreenSong.GenerateThumbnails();
-  UGraphic.ScreenMain.SetLoadProgress(ULanguage.Language.Translate('SING_LOADING_FINISH'));
-
-  Self.LoadingSongs := false;
+  Self.ProgressSong.Folder := '';
+  Self.ProgressSong.Finished := true;
+  Log.LogBenchmark('Song loading', 2);
 end;
 
+function TSongs.GetLoadProgress(): TProgressSong;
+begin
+  Result := Self.ProgressSong;
+end;
 (*
  * Comparison functions for sorting
  *)
@@ -527,27 +621,11 @@ begin
     // set song's category info
     CurSong.OrderNum := OrderNum; // assigns category
     CurSong.CatNumber := CatNumber;
-
-    if (Ini.Tabs = 0) then
-    begin
-      CurSong.Visible := true;
-    end
-    else if (Ini.Tabs = 1) then
-    begin
-      CurSong.Visible := false;
-    end;
-{
-    if (Ini.Tabs = 1) and (Order = 1) then
-    begin
-      //open first tab
-      CurSong.Visible := true;
-    end;
-    CurSong.Visible := true;
-}
+    CurSong.Visible := UIni.Ini.Tabs = 0;
   end;
 
   // set CatNumber of last category
-  if (Ini.TabsAtStartup = 1) and (High(Song) >= 1) then
+  if (UIni.Ini.Tabs = 1) and (High(Song) >= 1) then
   begin
     // set number of songs in previous category
     SongIndex := CatIndex - CatNumber;
@@ -561,30 +639,34 @@ end;
 
 procedure TCatSongs.ShowCategory(Index: integer);
 var
-  S: integer; // song
+  I: integer;
 begin
+  Self.VisibleSongs := 0;
   CatNumShow := Index;
-  for S := 0 to high(CatSongs.Song) do
+  for I := 0 to high(CatSongs.Song) do
   begin
-{
-    if (CatSongs.Song[S].OrderNum = Index) and (not CatSongs.Song[S].Main) then
-      CatSongs.Song[S].Visible := true
+    if (CatSongs.Song[I].OrderNum = Index) and (not CatSongs.Song[I].Main) then
+    begin
+      CatSongs.Song[I].Visible := true;
+      Inc(Self.VisibleSongs);
+    end
     else
-      CatSongs.Song[S].Visible := false;
-}
-//  KMS: This should be the same, but who knows :-)
-    CatSongs.Song[S].Visible := ((CatSongs.Song[S].OrderNum = Index) and (not CatSongs.Song[S].Main));
+      CatSongs.Song[I].Visible := false;
   end;
 end;
 
-procedure TCatSongs.HideCategory(Index: integer); // hides all songs in category
+{hides all songs in category}
+procedure TCatSongs.HideCategory(Index: integer);
 var
-  S: integer; // song
+  I: integer;
 begin
-  for S := 0 to high(CatSongs.Song) do
+  Self.VisibleSongs := 0;
+  for I := 0 to high(CatSongs.Song) do
   begin
-    if not CatSongs.Song[S].Main then
-      CatSongs.Song[S].Visible := false // hides all at now
+    if not CatSongs.Song[I].Main then
+      CatSongs.Song[I].Visible := false // hides all at now
+    else
+      Inc(Self.VisibleSongs);
   end;
 end;
 
@@ -604,17 +686,20 @@ begin
 end;
 
 //Hide Categorys when in Category Hack
-procedure TCatSongs.ShowCategoryList;
+procedure TCatSongs.ShowCategoryList();
 var
-  S: integer;
+  I: integer;
 begin
-  // Hide All Songs Show All Cats
-  for S := 0 to high(CatSongs.Song) do
-    CatSongs.Song[S].Visible := CatSongs.Song[S].Main;
+  Self.VisibleSongs := 0;
+  for I := 0 to high(CatSongs.Song) do //hide all songs and show all cats
+  begin
+    CatSongs.Song[I].Visible := CatSongs.Song[I].Main;
+    if CatSongs.Song[I].Visible then
+      Inc(Self.VisibleSongs);
+  end;
   CatSongs.Selected := CatNumShow; //Show last shown Category
   CatNumShow := -1;
 end;
-//Hide Categorys when in Category Hack End
 
 // Wrong song selected when tabs on bug
 function TCatSongs.FindNextVisible(SearchFrom:integer): integer;// Find next Visible Song
@@ -659,22 +744,21 @@ begin
   end;
 end;
 
-// Wrong song selected when tabs on bug End
-
-(**
- * Returns the number of visible songs.
- *)
-function TCatSongs.VisibleSongs: integer;
+procedure TCatSongs.SetVisibleSongs();
 var
-  SongIndex: integer;
+  I: integer;
 begin
-  Result := 0;
-  for SongIndex := 0 to High(CatSongs.Song) do
-  begin
-    if (CatSongs.Song[SongIndex].Visible) then
-      Inc(Result);
-  end;
+    Self.VisibleSongs := 0;
+    for I := 0 to High(CatSongs.Song) do
+        if (CatSongs.Song[I].Visible) then
+          Inc(Self.VisibleSongs);
 end;
+
+function TCatSongs.GetVisibleSongs(): integer;
+begin
+  Result := Self.VisibleSongs;
+end;
+
 
 (**
  * Returns the index of a song in the subset of all visible songs.
@@ -698,14 +782,11 @@ var
   TmpString: UTF8String;
   WordArray: array of UTF8String;
 begin
-
-  FilterStr := Trim(LowerCase(FilterStr));
-  FilterStr := GetStringWithNoAccents(FilterStr);
-
-  if (FilterStr <> '') then
+  Self.VisibleSongs := 0;
+  Result := 0;
+  FilterStr := UCommon.GetStringWithNoAccents(Trim(LowerCase(FilterStr)));
+  if FilterStr <> '' then
   begin
-    Result := 0;
-
     // initialize word array
     SetLength(WordArray, 1);
 
@@ -739,8 +820,7 @@ begin
         // Look for every searched word
         for J := 0 to High(WordArray) do
         begin
-          Song[i].Visible := Song[i].Visible and
-                             UTF8ContainsStr(TmpString, WordArray[J])
+          Song[i].Visible := Song[i].Visible and UTF8ContainsStr(TmpString, WordArray[J])
         end;
         if Song[i].Visible then
           Inc(Result);
@@ -752,13 +832,15 @@ begin
   end
   else
   begin
-    for i := 0 to High(Song) do
+    for I := 0 to High(Song) do
     begin
-      Song[i].Visible := (Ini.Tabs = 1) = Song[i].Main;
-      CatNumShow := -1;
+      Song[I].Visible := (UIni.Ini.Tabs = 1) = Song[I].Main;
+      if Song[I].Visible then
+        Inc(Result);
     end;
-    Result := 0;
+    CatNumShow := -1;
   end;
+  Self.VisibleSongs := Result;
 end;
 
 // -----------------------------------------------------------------------------

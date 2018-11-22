@@ -77,8 +77,6 @@ const
   SM_Refresh_Scores   = 64 or 6;
   SM_Song             = 64 or 8;
   SM_Medley           = 64 or 16;
-  SM_Sorting          = 64 or 32;
-  SM_Extra            = 64 or 64;
   SM_Jukebox          = 64 or 128;
 
 var
@@ -170,9 +168,8 @@ begin
           end
           else
           begin
-            AudioPlayback.PlaySound(SoundLib.Change);
             ScreenSong.SelectNext;
-            ScreenSong.SetScrollRefresh;
+            ScreenSong.SetScroll(true);
           end;
         end;
       SDLK_LEFT:
@@ -185,9 +182,8 @@ begin
           end
           else
           begin
-            AudioPlayback.PlaySound(SoundLib.Change);
             ScreenSong.SelectPrev;
-            ScreenSong.SetScrollRefresh;
+            ScreenSong.SetScroll(true);
           end;
         end;
 
@@ -328,21 +324,17 @@ begin
         Button[0].Visible := true;
         Button[1].Visible := ((Length(PlaylistMedley.Song) > 0) or (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone));
         Button[2].Visible := true;
-        Button[3].Visible := true;
-        Button[4].Visible := true;
+        Button[3].Visible := false;
+        Button[4].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
         SelectsS[2].Visible := false;
 
-        // need because of no web dll
-        Button[2].Selectable := true;
-
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_SONG');
         Button[1].Text[0].Text := Language.Translate('SONG_MENU_MEDLEY');
-        Button[2].Text[0].Text := Language.Translate('SONG_MENU_SORTING');
-        Button[3].Text[0].Text := Language.Translate('SONG_MENU_REFRESH_SCORES');
-        Button[4].Text[0].Text := Language.Translate('SONG_MENU_EXTRA');
+        Button[2].Text[0].Text := Language.Translate('SONG_MENU_REFRESH_SCORES');
+        
       end;
     SM_Song:
       begin
@@ -352,7 +344,7 @@ begin
         Button[0].Visible := true;
         Button[1].Visible := true;
         Button[2].Visible := true;
-        Button[3].Visible := true;
+        Button[3].Visible := false;
         Button[4].Visible := true;
 
         SelectsS[0].Visible := false;
@@ -390,47 +382,6 @@ begin
         Button[4].Text[0].Text := Language.Translate('SONG_MENU_CANCEL');
       end;
 
-    SM_Sorting:
-      begin
-        CurMenu := sMenu;
-        Text[0].Text := Language.Translate('SONG_MENU_NAME_SORTING');
-
-        Button[0].Visible := false;
-        Button[1].Visible := false;
-        Button[2].Visible := false;
-        Button[3].Visible := true;
-        Button[4].Visible := true;
-
-        SelectsS[0].Visible := true;
-        SelectsS[1].Visible := true;
-        SelectsS[2].Visible := true;
-
-        SetLength(ISelections1, 2);
-        ISelections1[0] := Language.Translate('SONG_MENU_SORTING_TABS_OFF');
-        ISelections1[1] := Language.Translate('SONG_MENU_SORTING_TABS_ON');
-
-        SetLength(ISelections2, 2);
-        ISelections2[0] := Language.Translate('SONG_MENU_SORTING_ALL');
-        ISelections2[1] := Language.Translate('SONG_MENU_SORTING_DUET');
-
-        SetLength(ISelections3, Length(UIni.ISorting));
-        For I := 0 to High(UIni.ISorting) do
-          ISelections3[I] := UIni.ISorting[I];
-
-        SelectValue1 := Ini.Tabs;
-        SelectValue3 := Ini.Sorting;
-
-        UpdateSelectSlideOptions(Theme.SongMenu.SelectSlide1, 0, ISelections1, SelectValue1);
-        UpdateSelectSlideOptions(Theme.SongMenu.SelectSlide2, 1, ISelections2, SelectValue2);
-        UpdateSelectSlideOptions(Theme.SongMenu.SelectSlide3, 2, ISelections3, SelectValue3);
-
-        //Button[3].Visible := (Ini.Sorting <> SelectValue3);
-        Button[3].Text[0].Text := Language.Translate('SONG_MENU_SORTING_APPLY');
-        Button[4].Text[0].Text := Language.Translate('SONG_MENU_CANCEL');
-
-        Interaction := 3;
-      end;
-
     SM_PlayList:
       begin
         CurMenu := sMenu;
@@ -449,7 +400,6 @@ begin
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_PLAY');
         Button[1].Text[0].Text := Language.Translate('SONG_MENU_CHANGEPLAYERS');
         Button[2].Text[0].Text := Language.Translate('SONG_MENU_PLAYLIST_DEL');
-        Button[3].Text[0].Text := Language.Translate('SONG_MENU_EDIT');
       end;
 
     SM_Playlist_Add:
@@ -721,9 +671,7 @@ begin
 
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_PLAY');
       end;
-    SM_Extra:
-      begin
-      end;
+
     SM_Jukebox:
       begin
         CurMenu := sMenu;
@@ -732,7 +680,7 @@ begin
 
         UpdateJukeboxButtons();
 
-        Button[0].Visible := (Ini.TabsAtStartup = 1);
+        Button[0].Visible := (UIni.Ini.Tabs = 1);
         Button[3].Visible := false;
         Button[4].Visible := true;
 
@@ -745,7 +693,7 @@ begin
 
         Button[4].Text[0].Text := Language.Translate('SONG_MENU_START_JUKEBOX');
 
-        if (Ini.TabsAtStartup = 1) then
+        if (UIni.Ini.Tabs = 1) then
           Interaction := 0
         else
           Interaction := 1;
@@ -774,37 +722,10 @@ begin
 
           2: // button 3
             begin
-              ScreenPopupError.ShowPopup(Language.Translate('PARTY_MODE_NOT_AVAILABLE'));
-             // MenuShow(SM_Sorting);
-            end;
-
-          3: // selectslide 1
-            begin
-              //Dummy
-            end;
-
-          4: // selectslide 2
-            begin
-              //Dummy
-            end;
-
-          5: // selectslide 3
-            begin
-              //Dummy
-            end;
-
-          6: // button 4
-            begin
               // show refresh scores menu
               MenuShow(SM_Refresh_Scores);
               ScreenSong.StopMusicPreview();
               ScreenSong.StopVideoPreview();
-            end;
-          7: // button 5
-            begin
-              ScreenPopupError.ShowPopup(Language.Translate('PARTY_MODE_NOT_AVAILABLE'));
-              // show extras
-              //MenuShow(SM_Extra);
             end;
           end;
       end;
@@ -838,24 +759,9 @@ begin
               MenuShow(SM_Playlist_Add);
             end;
 
-          3: // selectslide 1
-            begin
-              //Dummy
-            end;
-
-          4: // selectslide 2
-            begin
-              //Dummy
-            end;
-
-          5: // selectslide 3
-            begin
-              //Dummy
-            end;
-
           7: // button 5
             begin
-              // show main menu
+              // show main menu (cancel)
               MenuShow(SM_Main);
             end;
           end;
@@ -909,37 +815,6 @@ begin
             begin
               ScreenSong.StartMedley(5, msCalculated);
               Visible := False;
-            end;
-
-          7: // button 5
-            begin
-              // show main menu
-              MenuShow(SM_Main);
-            end;
-        end;
-      end;
-
-    SM_Sorting:
-      begin
-        Case Interaction of
-          0: //Button 1
-            begin
-            end;
-
-          1: //Button 2
-            begin
-            end;
-
-          3: //Slide
-            begin
-              //dummy
-            end;
-
-          6: //Button 4
-            begin
-              //Change Sorting
-              ScreenSong.ChangeSorting(SelectValue1, (SelectValue2 = 0), SelectValue3);
-              Visible := false;
             end;
 
           7: // button 5

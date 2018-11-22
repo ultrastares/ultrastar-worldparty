@@ -56,14 +56,15 @@ type
 implementation
 
 uses
+  Classes,
+  UCommon,
   UGraphic,
   UDataBase,
+  ULanguage,
+  ULog,
+  UScreenDevelopers,
   USongs,
   USong,
-  ULanguage,
-  UCommon,
-  Classes,
-  ULog,
   UUnicodeUtils;
 
 function TScreenAbout.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
@@ -92,26 +93,19 @@ begin
       SDLK_RETURN:
 	      begin
           //Developers Button
-          if Interaction = 2 then
+          if Interaction = 1 then
           begin
             AudioPlayback.PlaySound(SoundLib.Back);
             ScreenDevelopers.SetOverview('');
             FadeTo(@ScreenDevelopers);
           end;
           //Exit Button Pressed
-          if Interaction = 1 then
+          if Interaction = 0 then
           begin
             AudioPlayback.PlaySound(SoundLib.Back);
             FadeTo(@ScreenMain);
           end;
 
-          // ultrastar deluxe team credits
-          if Interaction = 0 then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Back);
-            ScreenDevelopers.SetOverview('USDX');
-            FadeTo(@ScreenDevelopers);
-          end;
         end;
       SDLK_LEFT:
       begin
@@ -142,7 +136,6 @@ begin
   LoadFromTheme(Theme.AboutMain);
 
   AboutStaticBghelper := AddStatic(Theme.AboutMain.StaticBghelper);
-  AddButton(Theme.AboutMain.ButtonCredits);
   AddButton(Theme.AboutMain.ButtonExit);
   AddButton(Theme.AboutMain.ButtonDevelopers);
 
@@ -152,6 +145,8 @@ end;
 procedure TScreenAbout.OnShow;
 begin
   inherited;
+  if not Assigned(UGraphic.ScreenDevelopers) then //load the screen only the first time
+    UGraphic.ScreenDevelopers := TScreenDevelopers.Create();
 
   //Set Overview Text:
   SetOverview;

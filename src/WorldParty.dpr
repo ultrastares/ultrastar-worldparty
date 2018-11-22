@@ -146,6 +146,7 @@ uses
   MTProcs in 'lib\Lazarus\components\multithreadprocs\mtprocs.pas',
   MTPCPU in 'lib\Lazarus\components\multithreadprocs\mtpcpu.pas',
   {$ENDIF}
+  CpuCount in 'lib\other\cpucount.pas',
   {$IFDEF MSWINDOWS}
   // FPC compatibility file for Allocate/DeallocateHWnd
   WinAllocation in 'lib\other\WinAllocation.pas',
@@ -211,7 +212,6 @@ uses
   ULog              in 'base\ULog.pas',
   UJoystick         in 'base\UJoystick.pas',
   UDataBase         in 'base\UDataBase.pas',
-  UCovers           in 'base\UCovers.pas',
   UCatCovers        in 'base\UCatCovers.pas',
   UFiles            in 'base\UFiles.pas',
   UGraphicClasses   in 'base\UGraphicClasses.pas',
@@ -225,7 +225,6 @@ uses
 
   TextGL            in 'base\TextGL.pas',
   UUnicodeUtils     in 'base\UUnicodeUtils.pas',
-  UUnicodeStringHelper in 'base\uunicodestringhelper',
   UFont             in 'base\UFont.pas',
   UTextEncoding     in 'base\UTextEncoding.pas',
 
@@ -306,7 +305,7 @@ uses
   //------------------------------
   UScreenLoading          in 'screens\UScreenLoading.pas',
   UScreenMain             in 'screens\UScreenMain.pas',
-  UScreenName             in 'screens\UScreenName.pas',
+  UScreenPlayerSelection  in 'screens\UScreenPlayerSelection.pas',
   UScreenSong             in 'screens\UScreenSong.pas',
   UScreenSingController   in 'screens\controllers\UScreenSingController.pas',
   UScreenSingView         in 'screens\views\UScreenSingView.pas',
@@ -318,7 +317,7 @@ uses
   UScreenOptionsSound     in 'screens\UScreenOptionsSound.pas',
   UScreenOptionsLyrics    in 'screens\UScreenOptionsLyrics.pas',
   UScreenOptionsThemes    in 'screens\UScreenOptionsThemes.pas',
-  UScreenOptionsRecord    in 'screens\UScreenOptionsRecord.pas',
+  UScreenOptionsMicrophones    in 'screens\UScreenOptionsMicrophones.pas',
   UScreenOptionsAdvanced  in 'screens\UScreenOptionsAdvanced.pas',
   UScreenOpen             in 'screens\UScreenOpen.pas',
   UScreenTop5             in 'screens\UScreenTop5.pas',

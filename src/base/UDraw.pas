@@ -413,20 +413,20 @@ var
   TempR: real;
 begin
 
-  if not Lines[NrLines].Line[Lines[NrLines].Current].HasLength(TempR) then TempR := 0
+  if not CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].HasLength(TempR) then TempR := 0
   else TempR := (Right-Left) / TempR;
 
-  if (Lines[NrLines].Line[Lines[NrLines].Current].TotalNotes > 0) and ( Right-Left > 0 ) and ( (Lines[NrLines].Line[Lines[NrLines].Current].End_ - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) > 0 ) then
-      TempR := (Right-Left) / (Lines[NrLines].Line[Lines[NrLines].Current].End_ - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start)
+  if (CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].TotalNotes > 0) and ( Right-Left > 0 ) and ( (CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].End_ - CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) > 0 ) then
+      TempR := (Right-Left) / (CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].End_ - CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start)
     else
       TempR := 0;
   glEnable(GL_BLEND);
   glBegin(GL_LINES);
-  for Count := Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start to Lines[NrLines].Line[Lines[NrLines].Current].End_ do
+  for Count := CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start to CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].End_ do
   begin
     glColor4f(0, 0, 0, 0.3);
-    glVertex2f(Left + TempR * (Count - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start), Top);
-    glVertex2f(Left + TempR * (Count - Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start), Top + 135);
+    glVertex2f(Left + TempR * (Count - CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start), Top);
+    glVertex2f(Left + TempR * (Count - CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start), Top + 135);
   end;
   glEnd;
   glDisable(GL_BLEND);
@@ -457,11 +457,11 @@ begin
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    if not Lines[NrLines].Line[Lines[NrLines].Current].HasLength(TempR) then TempR := 0
+    if not CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].HasLength(TempR) then TempR := 0
     else TempR := (Right-Left) / TempR;
 
 
-  with Lines[NrLines].Line[Lines[NrLines].Current] do
+  with CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current] do
   begin
     for Count := 0 to HighNote do
     begin
@@ -484,7 +484,7 @@ begin
               glColor4f(1, 1, 1, 1);        // We set alpha to 1, cause we can control the transparency through the png itself
 
           // left part
-          Rec.Left  := (Start-Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) * TempR + Left + 0.5 + 10*ScreenX;
+          Rec.Left  := (Start-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR + Left + 0.5 + 10*ScreenX;
           Rec.Right := Rec.Left + NotesW[PlayerNumber - 1];
           Rec.Top := Top - (Tone-BaseNote)*Space/2 - NotesH[PlayerNumber - 1];
           Rec.Bottom := Rec.Top + 2 * NotesH[PlayerNumber - 1];
@@ -509,7 +509,7 @@ begin
 
             // middle part
             Rec.Left := Rec.Right;
-            Rec.Right := (Start+Length-Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) * TempR + Left - NotesW[PlayerNumber - 1] - 0.5 + 10*ScreenX;
+            Rec.Right := (Start+Length-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR + Left - NotesW[PlayerNumber - 1] - 0.5 + 10*ScreenX;
 
             // the left note is more right than the right note itself, sounds weird - so we fix that xD
             if Rec.Right <= Rec.Left then
@@ -595,7 +595,7 @@ begin
 
   //if Player[NrGracza].LengthNote > 0 then
   begin
-    if not Lines[NrLines].Line[Lines[NrLines].Current].HasLength(TempR) then TempR := 0
+    if not CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].HasLength(TempR) then TempR := 0
     else TempR := W / TempR;
 
     for N := 0 to Player[PlayerIndex].HighNote do
@@ -603,7 +603,7 @@ begin
       with Player[PlayerIndex].Note[N] do
       begin
         // Left part of note
-        Rec.Left  := X + (Start-Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) * TempR + 0.5 + 10*ScreenX;
+        Rec.Left  := X + (Start-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR + 0.5 + 10*ScreenX;
         Rec.Right := Rec.Left + NotesW[PlayerIndex];
 
         // Draw it in half size, if not hit
@@ -616,7 +616,7 @@ begin
           NotesH2 := int(NotesH[PlayerIndex] * 0.65);
         end;
 
-        Rec.Top    := Y - (Tone-Lines[NrLines].Line[Lines[NrLines].Current].BaseNote)*Space/2 - NotesH2;
+        Rec.Top    := Y - (Tone-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].BaseNote)*Space/2 - NotesH2;
         Rec.Bottom := Rec.Top + 2 * NotesH2;
 
         // draw the left part
@@ -638,7 +638,7 @@ begin
 
         // Middle part of the note
         Rec.Left  := Rec.Right;
-        Rec.Right := X + (Start+Length-Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) * TempR - NotesW[PlayerIndex] - 0.5  + 10*ScreenX;
+        Rec.Right := X + (Start+Length-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR - NotesW[PlayerIndex] - 0.5  + 10*ScreenX;
 
         // new
         if (Start+Length-1 = LyricsState.CurrentBeatD) then
@@ -726,10 +726,10 @@ begin
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    if not Lines[NrLines].Line[Lines[NrLines].Current].HasLength(TempR) then TempR := 0
+    if not CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].HasLength(TempR) then TempR := 0
     else TempR := (Right-Left) / TempR;
 
-    with Lines[NrLines].Line[Lines[NrLines].Current] do
+    with CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current] do
     begin
       for Count := 0 to HighNote do
       begin
@@ -743,15 +743,15 @@ begin
             H := NotesH[PlayerIndex] * 1.5 + 3.5;
 
             {
-            X2 := (Start-Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) * TempR + Left + 0.5 + 10*ScreenX + 4;
+            X2 := (Start-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR + Left + 0.5 + 10*ScreenX + 4;
             X1 := X2-W;
 
-            X3 := (Start+Length-Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) * TempR + Left - 0.5 + 10*ScreenX - 4;
+            X3 := (Start+Length-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR + Left - 0.5 + 10*ScreenX - 4;
             X4 := X3+W;
             }
 
             // left
-            Rec.Right := (Start-Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) * TempR + Left + 0.5 + 10*ScreenX + 4;
+            Rec.Right := (Start-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR + Left + 0.5 + 10*ScreenX + 4;
             Rec.Left  := Rec.Right - W;
             Rec.Top := Top - (Tone-BaseNote)*Space/2 - H;
             Rec.Bottom := Rec.Top + 2 * H;
@@ -773,7 +773,7 @@ begin
 
             // middle part
             Rec.Left  := Rec.Right;
-            Rec.Right := (Start+Length-Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) * TempR + Left - 0.5 + 10*ScreenX - 4;
+            Rec.Right := (Start+Length-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR + Left - 0.5 + 10*ScreenX - 4;
 
             // the left note is more right than the right note itself, sounds weird - so we fix that xD
             if Rec.Right <= Rec.Left then
@@ -848,7 +848,7 @@ const
   BarMoveLimit = 40; // max. number of beats remaining before the bar starts to move
 begin
   // get current lyrics line and the time in beats of its first note
-  CurLine := @Lines[CP].Line[Lines[CP].Current];
+  CurLine := @CurrentSong.Lines[CP].Line[CurrentSong.Lines[CP].Current];
 
   // FIXME: accessing ScreenSing is not that generic
   if (CurrentSong.isDuet) and (PlayersPlay <> 1) then
@@ -932,25 +932,25 @@ begin
         begin
           if (PlayersPlay = 3) or (PlayersPlay = 6) then
           begin
-            //if (PlayersPlay = 3) then
+            if (PlayersPlay = 3) then
               Col := GetLyricBarColor(Ini.SingColor[CP]);
 
-            //if (PlayersPlay = 6) then
-            //  Col := GetLyricBarColor(CP + 1);
+            if (PlayersPlay = 6) then
+              Col := GetLyricBarColor(CP + 1);
           end
           else
           begin
             if ScreenAct = 1 then
-              Col := GetLyricBarColor(Ini.SingColor[CP])
+              Col := GetLyricColor(Ini.JukeboxSingLineColor)
             else
-              Col := GetLyricBarColor(Ini.SingColor[CP + 2]);
+              Col := GetLyricColor(Ini.JukeboxSingLineColor);
           end;
         end;
       end
       else
-       // Col := GetLyricBarColor(1);
+        Col := GetLyricColor(Ini.JukeboxSingLineColor);
 
-      glColor4f(255,255, 255, BarAlpha);
+      glColor4f(Col.R, Col.G, Col.B, BarAlpha);
 
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glBindTexture(GL_TEXTURE_2D, Tex_Lyric_Help_Bar.TexNum);
@@ -990,7 +990,7 @@ const
 begin
 
   // get current lyrics line and the time in beats of its first note
-  CurLine := @Lines[0].Line[Lines[0].Current];
+  CurLine := @CurrentSong.Lines[0].Line[CurrentSong.Lines[0].Current];
 
   // FIXME: accessing ScreenSing is not that generic
   LyricEngine := ScreenJukebox.Lyrics;
@@ -1841,10 +1841,10 @@ begin
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  if not Lines[NrLines].Line[Lines[NrLines].Current].HasLength(TempR) then TempR := 0
+  if not CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].HasLength(TempR) then TempR := 0
   else TempR := (Right-Left) / TempR;
 
-  with Lines[NrLines].Line[Lines[NrLines].Current] do
+  with CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current] do
   begin
     for Count := 0 to HighNote do
     begin
@@ -1861,7 +1861,7 @@ begin
         end; // case
 
         // left part
-        Rec.Left  := (Start-Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) * TempR + Left + 0.5 + 10*ScreenX;
+        Rec.Left  := (Start-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR + Left + 0.5 + 10*ScreenX;
         Rec.Right := Rec.Left + NotesW[0];
         Rec.Top := Top - (Tone-BaseNote)*Space/2 - NotesH[0];
         Rec.Bottom := Rec.Top + 2 * NotesH[0];
@@ -1883,7 +1883,7 @@ begin
 
         // middle part
         Rec.Left  := Rec.Right;
-        Rec.Right := (Start+Length-Lines[NrLines].Line[Lines[NrLines].Current].Note[0].Start) * TempR + Left - NotesW[0] - 0.5 + 10*ScreenX;
+        Rec.Right := (Start+Length-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR + Left - NotesW[0] - 0.5 + 10*ScreenX;
 
         If (NoteType = ntRap) or (NoteType = ntRapGolden) then
         begin

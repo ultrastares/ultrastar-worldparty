@@ -80,14 +80,23 @@ implementation
 
 uses
   UGraphic,
-  UMain,
   UIni,
-  UTexture,
   ULanguage,
+  UMain,
   UParty,
-  USong,
   UPlaylist,
+  UScreenPartyNewRound,
+  UScreenPartyScore,
+  UScreenPartyWin,
+  UScreenPartyPlayer,
+  UScreenPartyRounds,
+  UScreenPartyTournamentRounds,
+  UScreenPartyTournamentPlayer,
+  UScreenPartyTournamentOptions,
+  UScreenPartyTournamentWin,
+  USong,
   USongs,
+  UTexture,
   UUnicodeUtils;
 
 function TScreenPartyOptions.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
@@ -130,8 +139,8 @@ begin
           case Mode of
             0: InitClassic;
             1: InitFree;
-            2: InitChallenge;
-            3: InitTournament;
+            2: InitTournament; 
+           // 3: InitChallenge; // hidden for the moment. Check again in the future
           end;
 
         end;
@@ -243,9 +252,9 @@ procedure TScreenPartyOptions.FillLevel;
 begin
   SetLength(ILevel, 3);
 
-  ILevel[0] := Language.Translate('SING_EASY');
-  ILevel[1] := Language.Translate('SING_MEDIUM');
-  ILevel[2] := Language.Translate('SING_HARD');
+  ILevel[0] := Language.Translate('OPTION_VALUE_EASY');
+  ILevel[1] := Language.Translate('OPTION_VALUE_MEDIUM');
+  ILevel[2] := Language.Translate('OPTION_VALUE_HARD');
 end;
 
 procedure TScreenPartyOptions.SetPlaylists;
@@ -306,7 +315,14 @@ begin
           IPlaylist2[0] := 'No Categories found';
         end;
       end;
-    2:
+
+    2: 
+      begin
+        SetLength(IPlaylist2, 1);
+        IPlaylist2[0] := '---';
+      end;
+      
+   { 3: //Challenge mode desactivated for the moment
       begin
         if (Length(PlaylistMan.Playlists) > 0) then
         begin
@@ -318,12 +334,7 @@ begin
           SetLength(IPlaylist2, 1);
           IPlaylist2[0] := 'No Playlists found';
         end;
-      end;
-    3:
-      begin
-        SetLength(IPlaylist2, 1);
-        IPlaylist2[0] := '---';
-      end;
+      end; }
   end;
 
   Playlist2 := 0;
@@ -333,7 +344,14 @@ end;
 procedure TScreenPartyOptions.OnShow;
 begin
   inherited;
-
+  if not Assigned(UGraphic.ScreenPartyNewRound) then //load the screens only the first time
+  begin
+    UGraphic.ScreenPartyNewRound := TScreenPartyNewRound.Create();
+    UGraphic.ScreenPartyScore := TScreenPartyScore.Create();
+    UGraphic.ScreenPartyWin := TScreenPartyWin.Create();
+    UGraphic.ScreenPartyPlayer := TScreenPartyPlayer.Create();
+    UGraphic.ScreenPartyRounds := TScreenPartyRounds.Create();
+  end;
   Party.Clear;
 
   // check if there are loaded modes
@@ -411,6 +429,13 @@ procedure TScreenPartyOptions.InitTournament;
 begin
   ScreenSong.Mode := smPartyTournament;
   AudioPlayback.PlaySound(SoundLib.Start);
+  if not Assigned(UGraphic.ScreenPartyTournamentRounds) then //load the screens only the first time
+  begin
+    UGraphic.ScreenPartyTournamentRounds := TScreenPartyTournamentRounds.Create();
+    UGraphic.ScreenPartyTournamentPlayer := TScreenPartyTournamentPlayer.Create();
+    UGraphic.ScreenPartyTournamentOptions := TScreenPartyTournamentOptions.Create();
+    UGraphic.ScreenPartyTournamentWin := TScreenPartyTournamentWin.Create();
+  end;
   FadeTo(@ScreenPartyTournamentPlayer);
 end;
 

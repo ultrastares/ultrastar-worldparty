@@ -526,11 +526,6 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="LazUtils"/>
       </Unit126>
-      <Unit127>
-        <Filename Value="base\uunicodestringhelper.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="UUnicodeStringHelper"/>
-      </Unit127>
       <Unit128>
         <Filename Value="base\UFilesystem.pas"/>
         <IsPartOfProject Value="True"/>

@@ -75,9 +75,6 @@ TODO: LANGUAGE=Language
 ;TODO: SING_STATS=stats
 ;TODO: SING_STATS_DESC=view the statistics
 
-;TODO: SING_EDITOR=editor
-;TODO: SING_EDITOR_DESC=create your own song
-
 ;TODO: SING_GAME_OPTIONS=game options
 ;TODO: SING_GAME_OPTIONS_DESC=change game settings
 
@@ -157,18 +154,6 @@ TODO: LANGUAGE=Language
 ;TODO: SING_OPTIONS_ADVANCED_ONSONGCLICK=after Song Select
 ;TODO: SING_OPTIONS_ADVANCED_PARTYPOPUP=Auto PartyMenu
 
-;TODO: SING_EDIT=Editor
-;TODO: SING_EDIT_MENU_DESCRIPTION=create your own song
-
-;TODO: SING_EDIT_BUTTON_DESCRIPTION_CONVERT=Import text from midi file
-;TODO: SING_EDIT_BUTTON_DESCRIPTION_EXIT=back
-;TODO: SING_EDIT_BUTTON_CONVERT=Import
-;TODO: SING_EDIT_BUTTON_EXIT=back
-
-;TODO: SING_EDIT_NAVIGATE=navigate
-;TODO: SING_EDIT_SELECT=select
-;TODO: SING_EDIT_EXIT=back
-
 ;TODO: SING_LEGEND_SELECT=select
 ;TODO: SING_LEGEND_NAVIGATE=navigate
 ;TODO: SING_LEGEND_CONTINUE=continue
@@ -235,7 +220,6 @@ TODO: LANGUAGE=Language
 ;TODO: SONG_MENU_NAME_MAIN=song menu
 ;TODO: SONG_MENU_PLAY=Sing
 ;TODO: SONG_MENU_CHANGEPLAYERS=Change Players
-;TODO: SONG_MENU_EDIT=Edit
 ;TODO: SONG_MENU_MODI=Sing a Modi
 ;TODO: SONG_MENU_CANCEL=Cancel
 
@@ -391,11 +375,10 @@ TODO: LANGUAGE=Language
 ;TODO: SCREENSHOT_FAILED=Couldn''t save screenshot
 
 ;TODO: INFO_FILE_SAVED=File saved
-;TODO: ERROR_SAVE_FILE_FAILED=Couldn''t save file 
+;TODO: ERROR_SAVE_FILE_FAILED=Couldn''t save file
 ;TODO: ERROR_FILE_NOT_FOUND=File not found
 
 ;TODO: ENCODING_ERROR_ASK_FOR_UTF8=Cannot save changes in current encoding. Convert to UTF-8?
-;TODO: EDITOR_ERROR_NO_TRACK_SELECTED=No track selected
 
 ;TODO: MSG_ERROR_TITLE=Error
 ;TODO: MSG_INFO_TITLE=Information
@@ -412,6 +395,5 @@ TODO: LANGUAGE=Language
 ;TODO: ERROR_CORRUPT_SONG_NO_NOTES=Song could not be loaded: Can''t find any notes
 ;TODO: ERROR_CORRUPT_SONG_NO_BREAKS=Song could not be loaded: Can''t find any linebreaks
 ;TODO: ERROR_CORRUPT_SONG_UNKNOWN_IN_LINE=Song could not be loaded: Error parsing line %0:d
-;TODO: ERROR_NO_EDITOR=This feature is not available on this version.
 ;TODO: ERROR_PLAYER_DEVICE_ASSIGNMENT=Player %d is assigned to multiple microphones. Please check your record options
 ;TODO: ERROR_PLAYER_NO_DEVICE_ASSIGNMENT=Player %d is not assigned to a microphone. Please check your record options

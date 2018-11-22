@@ -58,7 +58,6 @@ type
       Interactions:     array of TInteract;
       SelInteraction:   integer;
 
-      ButtonPos:        integer;
       Button:           array of TButton;
 
       SelectsS:         array of TSelectSlide;
@@ -114,7 +113,6 @@ type
       function AddText(X, Y, W: real; Style: integer; Size, ColR, ColG, ColB: real; Align: integer; const Text_: UTF8String; Reflection_: boolean; ReflectionSpacing_: real; Z : real; Writable: boolean): integer; overload;
 
       // button
-      procedure SetButtonLength(Length: cardinal); //Function that Set Length of Button Array in one Step instead of register new Memory for every Button
       function AddButton(ThemeButton: TThemeButton): integer; overload;
       function AddButton(X, Y, W, H: real; const TexName: IPath): integer; overload;
       function AddButton(X, Y, W, H: real; const TexName: IPath; Typ: TTextureType; Reflection: boolean): integer; overload;
@@ -200,7 +198,6 @@ implementation
 uses
   StrUtils,
   UCommon,
-  UCovers,
   UDisplay,
   UDrawTexture,
   UGraphic,
@@ -245,9 +242,6 @@ begin
   SetLength(Statics, 0);
   SetLength(Button, 0);
 
-  //Set ButtonPos to Autoset Length
-  ButtonPos := -1;
-
   Background := nil;
 
   RightMbESC := true;
@@ -269,8 +263,6 @@ begin
   else
     BackImg.TexNum := 0;
 
-   //Set ButtonPos to Autoset Length
-   ButtonPos := -1;
 end;
 
 constructor TMenu.Create(Back: string; W, H: integer);
@@ -843,19 +835,6 @@ begin
   Result := TextNum;
 end;
 
-//Function that Set Length of Button boolean in one Step instead of register new Memory for every Button
-procedure TMenu.SetButtonLength(Length: cardinal);
-begin
-  if (ButtonPos = -1) and (Length > 0) then
-  begin
-    //Set Length of Button
-    SetLength(Button, Length);
-
-    //Set ButtonPos to start with 0
-    ButtonPos := 0;
-  end;
-end;
-
 // Method to add a button in our TMenu. It returns the assigned ButtonNumber
 function TMenu.AddButton(ThemeButton: TThemeButton): integer;
 var
@@ -937,18 +916,9 @@ function TMenu.AddButton(X, Y, W, H, ColR, ColG, ColB, Int, DColR, DColG, DColB,
                          Reflection: boolean;
 			 ReflectionSpacing, DeSelectReflectionSpacing: real): integer;
 begin
-  // adds button
-  //SetLength is used once to reduce Memory usement
-  if (ButtonPos <> -1) then
-  begin
-    Result := ButtonPos;
-    Inc(ButtonPos)
-  end
-  else //Old Method -> Reserve new Memory for every Button
-  begin
-    Result := Length(Button);
-    SetLength(Button, Result + 1);
-  end;
+  // add button
+  Result := Length(Button);
+  SetLength(Button, Result+1);
 
   // colorize hack
   if (Typ = TEXTURE_TYPE_COLORIZED) then
@@ -1476,18 +1446,10 @@ begin
   SelectsS[S].SBGInt := SBGInt;
   SelectsS[S].SBGDInt := SBGDInt;
 
-  SelectsS[High(SelectsS)].Tex_SelectS_ArrowL   := Tex_SelectS_ArrowL;
   SelectsS[High(SelectsS)].Tex_SelectS_ArrowL.X := X + W + SkipX;
-  SelectsS[High(SelectsS)].Tex_SelectS_ArrowL.Y := Y + (H - Tex_SelectS_ArrowL.H) / 2;
-  SelectsS[High(SelectsS)].Tex_SelectS_ArrowL.W := Tex_SelectS_ArrowL.W;
-  SelectsS[High(SelectsS)].Tex_SelectS_ArrowL.H := Tex_SelectS_ArrowL.H;
-
-
-  SelectsS[High(SelectsS)].Tex_SelectS_ArrowR   := Tex_SelectS_ArrowR;
-  SelectsS[High(SelectsS)].Tex_SelectS_ArrowR.X := X + W + SkipX + SBGW - Tex_SelectS_ArrowR.W;
-  SelectsS[High(SelectsS)].Tex_SelectS_ArrowR.Y := Y + (H - Tex_SelectS_ArrowR.H) / 2;
-  SelectsS[High(SelectsS)].Tex_SelectS_ArrowR.W := Tex_SelectS_ArrowR.W;
-  SelectsS[High(SelectsS)].Tex_SelectS_ArrowR.H := Tex_SelectS_ArrowR.H;
+  SelectsS[High(SelectsS)].Tex_SelectS_ArrowL.Y := Y + (H - SelectsS[High(SelectsS)].Tex_SelectS_ArrowL.H) / 2;
+  SelectsS[High(SelectsS)].Tex_SelectS_ArrowR.X := X + W + SkipX + SBGW - SelectsS[High(SelectsS)].Tex_SelectS_ArrowR.W;
+  SelectsS[High(SelectsS)].Tex_SelectS_ArrowR.Y := Y + (H - SelectsS[High(SelectsS)].Tex_SelectS_ArrowR.H) / 2;
 
   SelectsS[S].TextureSBG.X := X + W + SkipX;
   SelectsS[S].TextureSBG.Y := Y;

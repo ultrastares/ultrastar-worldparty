@@ -96,7 +96,7 @@ function ULuaScreenSing_SetSettings(L: Plua_State): Integer; cdecl;
 function ULuaScreenSing_GetSongLines(L: Plua_State): Integer; cdecl;
 
 const
-  ULuaScreenSing_Lib_f: array [0..UIni.IMaxPlayerCount-1] of lual_reg = (
+  ULuaScreenSing_Lib_f: array [0..11] of lual_reg = (
     (name:'GetScores';func:ULuaScreenSing_GetScores),
     (name:'GetRating';func:ULuaScreenSing_GetRating),
     (name:'GetBPM';func:ULuaScreenSing_GetBPM),
@@ -405,7 +405,7 @@ function ULuaScreenSing_GetSongLines(L: Plua_State): Integer; cdecl;
     I, J: Integer;
 begin
   Result := 1;
-  if  (Length(Lines) >= 1) then
+  if  (Length(CurrentSong.Lines) >= 1) then
   begin
     lua_ClearStack(L);
 
@@ -413,10 +413,10 @@ begin
       luaL_Error(L, PChar('can''t allocate enough stack space in ULuaScreenSing_GetSongLines'));
 
     // lines array table
-    lua_CreateTable(L, Length(Lines[0].Line), 0);
+    lua_CreateTable(L, Length(CurrentSong.Lines[0].Line), 0);
 
-    for I := 0 to High(Lines[0].Line) do
-    with Lines[0].Line[I] do
+    for I := 0 to High(CurrentSong.Lines[0].Line) do
+    with CurrentSong.Lines[0].Line[I] do
     begin
       lua_pushInteger(L, I+1);
 

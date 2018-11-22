@@ -116,8 +116,8 @@ type
       procedure AddTexture(var Tex: TTexture; Typ: TTextureType; Color: cardinal; Cache: boolean = false); overload;
       function GetTexture(const Name: IPath; Typ: TTextureType; FromCache: boolean = false): TTexture; overload;
       function GetTexture(const Name: IPath; Typ: TTextureType; Col: LongWord; FromCache: boolean = false): TTexture; overload;
-      function LoadTexture(const Identifier: IPath; Typ: TTextureType; Col: LongWord): TTexture; overload;
-      function LoadTexture(const Identifier: IPath): TTexture; overload;
+      function LoadTexture(const Identifier: UTF8String; Typ: TTextureType = TEXTURE_TYPE_PLAIN; Col: LongWord = 0): TTexture; overload;
+      function LoadTexture(const Identifier: IPath; Typ: TTextureType = TEXTURE_TYPE_PLAIN; Col: LongWord = 0): TTexture; overload;
       function CreateTexture(Data: PChar; const Name: IPath; Width, Height: word; BitsPerPixel: byte): TTexture;
       procedure UnloadTexture(const Name: IPath; Typ: TTextureType; FromCache: boolean); overload;
       procedure UnloadTexture(const Name: IPath; Typ: TTextureType; Col: cardinal; FromCache: boolean); overload;
@@ -134,32 +134,20 @@ implementation
 
 uses
   DateUtils,
-  StrUtils,
   Math,
+  StrUtils,
+  UImage,
   ULog,
-  UCovers,
-  UThemes,
-  UImage;
+  USkins,
+  UThemes;
 
 procedure AdjustPixelFormat(var TexSurface: PSDL_Surface; Typ: TTextureType);
 var
-  TempSurface: PSDL_Surface;
   NeededPixFmt: UInt32;
 begin
-  if      (Typ = TEXTURE_TYPE_PLAIN) then
-    NeededPixFmt := SDL_PIXELFORMAT_RGB24
-  else if (Typ = TEXTURE_TYPE_TRANSPARENT) or
-          (Typ = TEXTURE_TYPE_COLORIZED) then
-    NeededPixFmt := SDL_PIXELFORMAT_ABGR8888
-  else
-    NeededPixFmt := SDL_PIXELFORMAT_RGB24;
-
+  NeededPixFmt := IfThen((Typ = TEXTURE_TYPE_TRANSPARENT) or (Typ = TEXTURE_TYPE_COLORIZED), SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_RGB24);
   if not (TexSurface^.format.format = NeededPixFmt) then
-  begin
-    TempSurface := TexSurface;
-    TexSurface := SDL_ConvertSurfaceFormat(TempSurface, NeededPixFmt, 0);
-    SDL_FreeSurface(TempSurface);
-  end;
+    TexSurface := SDL_ConvertSurfaceFormat(TexSurface, NeededPixFmt, 0);
 end;
 
 { TTextureDatabase }
@@ -237,9 +225,9 @@ begin
   TextureDatabase.AddTexture(Tex, Typ, Color, Cache);
 end;
 
-function TTextureUnit.LoadTexture(const Identifier: IPath): TTexture;
+function TTextureUnit.LoadTexture(const Identifier: UTF8String; Typ: TTextureType; Col: LongWord): TTexture;
 begin
-  Result := LoadTexture(Identifier, TEXTURE_TYPE_PLAIN, 0);
+  Result := Self.LoadTexture(USkins.Skin.GetTextureFileName(Identifier), Typ, Col);
 end;
 
 function TTextureUnit.LoadTexture(const Identifier: IPath; Typ: TTextureType; Col: LongWord): TTexture;
@@ -306,31 +294,22 @@ begin
 
   // prepare OpenGL texture
   glGenTextures(1, @ActTex);
-
   glBindTexture(GL_TEXTURE_2D, ActTex);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-  // load data into gl texture
-  if (Typ = TEXTURE_TYPE_TRANSPARENT) or
-     (Typ = TEXTURE_TYPE_COLORIZED) then
-  begin
-    {$IFDEF FPC_BIG_ENDIAN}
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, newWidth, newHeight, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, TexSurface.pixels);
-    {$ELSE}
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, newWidth, newHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, TexSurface.pixels);
-    {$ENDIF}
-  end
-  else //if Typ = TEXTURE_TYPE_PLAIN then
-  begin
-    {$IFDEF FPC_BIG_ENDIAN}
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, newWidth, newHeight, 0, GL_BGR, GL_UNSIGNED_BYTE, TexSurface.pixels);
-    {$ELSE}
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, newWidth, newHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, TexSurface.pixels);
-    {$ENDIF}
-  end;
+  glTexImage2D( //load data into gl texture
+    GL_TEXTURE_2D,
+    0,
+    IfThen((Typ = TEXTURE_TYPE_TRANSPARENT) or (Typ = TEXTURE_TYPE_COLORIZED), GL_RGBA, 3), //idk why 3, maybe is a constant...
+    newWidth,
+    newHeight,
+    0,
+    IfThen((Typ = TEXTURE_TYPE_TRANSPARENT) or (Typ = TEXTURE_TYPE_COLORIZED), GL_RGBA, GL_RGB),
+    GL_UNSIGNED_BYTE,
+    TexSurface.pixels
+  );
 
   // setup texture struct
   with Result do
@@ -428,12 +407,7 @@ begin
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-  {$IFDEF FPC_BIG_ENDIAN}
-  glTexImage2D(GL_TEXTURE_2D, 0, 3, Width, Height, 0, GL_BGR, GL_UNSIGNED_BYTE, Data);
-  {$ELSE}
   glTexImage2D(GL_TEXTURE_2D, 0, 3, Width, Height, 0, GL_RGB, GL_UNSIGNED_BYTE, Data);
-  {$ENDIF}
 
 {
   if Mipmapping then

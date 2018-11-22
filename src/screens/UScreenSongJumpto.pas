@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -92,7 +92,6 @@ begin
         Button[0].Text[0].ColR := Theme.SongJumpto.ButtonSearchText.ColR;
         Button[0].Text[0].ColG := Theme.SongJumpto.ButtonSearchText.ColG;
         Button[0].Text[0].ColB := Theme.SongJumpto.ButtonSearchText.ColB;
-
         Button[0].Text[0].Text := Button[0].Text[0].Text + UCS4ToUTF8String(CharCode);
         SetTextFound(CatSongs.SetFilter(Button[0].Text[0].Text, fSelectType));
       end;
@@ -118,8 +117,7 @@ begin
           begin
             //ScreenSong.UnLoadDetailedCover;
             Button[0].Text[0].Text := '';
-            CatSongs.SetFilter('', fltAll);
-            SetTextFound(0);
+            SetTextFound(CatSongs.SetFilter('', fltAll));
           end;
         end;
 
@@ -234,28 +232,15 @@ begin
   //Set visSongs
   fVisSongs := Count;
 
-  //Fix SongSelection
-  if (TSongMenuMode(Ini.SongMenu) in [smRoulette, smCarousel, smSlide, smSlotMachine]) then
-  begin
-    ScreenSong.Interaction := high(CatSongs.Song);
-  end;
-
-  if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic]) then
-  begin
-    ScreenSong.Interaction := 0;
-    ScreenSong.ChessboardMinLine := 0;
-    ScreenSong.ListMinLine := 0;
-  end;
-
+  ScreenSong.Interaction := 0;
   ScreenSong.SelectNext;
   ScreenSong.FixSelected;
-
-  ScreenSong.SetScrollRefresh;
+  ScreenSong.SetScroll(true);
 
   //Play Correct Music
-  if (ScreenSong.Interaction <> fLastPlayed) or (CatSongs.VisibleSongs = 0) then
+  if (ScreenSong.Interaction <> fLastPlayed) or (USongs.CatSongs.GetVisibleSongs() = 0) then
   begin
-    if (CatSongs.VisibleSongs > 0) then
+    if (USongs.CatSongs.GetVisibleSongs() > 0) then
       fLastPlayed := ScreenSong.Interaction
     else
       fLastPlayed := -1;

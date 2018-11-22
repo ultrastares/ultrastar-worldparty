@@ -34,7 +34,7 @@ ppaslink.sh
 /src/**/*.identcache
 /src/config-linux.inc
 /src/paths.inc
-/src/WorldParty-*.lps
+/src/*.lps
 /src/WorldParty.res
 /scr/backup/
 

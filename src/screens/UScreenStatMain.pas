@@ -61,14 +61,15 @@ type
 implementation
 
 uses
+  Classes,
+  UCommon,
   UGraphic,
   UDataBase,
+  ULanguage,
+  ULog,
   USongs,
   USong,
-  ULanguage,
-  UCommon,
-  Classes,
-  ULog,
+  UScreenStatDetail,
   UUnicodeUtils;
 
 function TScreenStatMain.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
@@ -158,7 +159,6 @@ begin
     AddButtonText(14, 20, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
 
   Interaction := 0;
-
 end;
 
 procedure TScreenStatMain.OnShow;
@@ -166,6 +166,9 @@ var
   I: integer;
 begin
   inherited;
+  if not Assigned(UGraphic.ScreenStatDetail) then //load the screen only the first time
+    UGraphic.ScreenStatDetail := TScreenStatDetail.Create();
+
   //Set Songs with Vid
   SongsWithVid := 0;
   for I := 0 to Songs.SongList.Count -1 do

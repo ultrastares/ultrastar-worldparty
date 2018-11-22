@@ -49,11 +49,11 @@ uses
   UCommon,
   UFilesystem,
   ULog,
+  UMusic, //needed for TLines
   UPath,
   UPlatform,
   UTexture,
   UTextEncoding,
-  UUnicodeStringHelper,
   UUnicodeUtils;
 
 type
@@ -150,6 +150,7 @@ type
     CatNumber:  integer; // Count of Songs in Category for Cats and Number of Song in Category for Songs
 
     LastError: AnsiString;
+    Lines: array of TLines;
     function  GetErrorLineNo: integer;
     property  ErrorLineNo: integer read GetErrorLineNo;
 
@@ -186,7 +187,6 @@ uses
   UIni,
   UPathUtils,
   USongs,
-  UMusic,  //needed for Lines
   UNote;   //needed for Player
 
 const
@@ -1084,9 +1084,12 @@ begin
 
   try
     Result := Self.ReadTxTHeader() and Self.LoadSong(DuetChange);
-    UNote.CurrentSong := Self;
-    if (not Self.isDuet) and (Self.Medley.Source = msNone) then //TODO needed a little bit more work to find refrains in duets
-      Self.FindRefrain();
+    if Result then
+    begin
+      UNote.CurrentSong := Self;
+      if (not Self.isDuet) and (Self.Medley.Source = msNone) then //TODO needed a little bit more work to find refrains in duets
+        Self.FindRefrain();
+    end;
   except
     Log.LogError('Reading headers from file failed. File incomplete or not Ultrastar txt?: ' + Self.Path.Append(Self.FileName).ToUTF8(true));
   end;

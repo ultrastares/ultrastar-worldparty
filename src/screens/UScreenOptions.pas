@@ -1,9 +1,9 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
-	COPYRIGHT file distributed with this source distribution.
+
+  UltraStar Deluxe WorldParty is the legal property of its developers,
+  whose names  are too numerous to list here. Please refer to the
+  COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
-	<http://www.gnu.org/licenses/>.
+    along with this program. Check "LICENSE" file. If not, see
+  <http://www.gnu.org/licenses/>.
  *}
 
 
@@ -51,7 +51,7 @@ type
       ButtonInputIID,
       ButtonLyricsIID,
       ButtonThemesIID,
-      ButtonRecordIID,
+      ButtonMicrophonesIID,
       ButtonAdvancedIID,
       ButtonNetworkIID,
       ButtonWebcamIID,
@@ -77,6 +77,16 @@ uses
   UGraphic,
   UDatabase,
   ULanguage,
+  UScreenOptionsGame,
+  UScreenOptionsGraphics,
+  UScreenOptionsSound,
+  UScreenOptionsLyrics,
+  UScreenOptionsThemes,
+  UScreenOptionsMicrophones,
+  UScreenOptionsAdvanced,
+  UScreenOptionsNetwork,
+  UScreenOptionsWebcam,
+  UScreenOptionsJukebox,
   UWebcam,
   UUnicodeUtils;
 
@@ -97,95 +107,108 @@ begin
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
-      SDLK_BACKSPACE :
+      SDLK_BACKSPACE:
+      begin
+        Ini.Save;
+        AudioPlayback.PlaySound(SoundLib.Back);
+        FadeTo(@ScreenMain);
+      end;
+      SDLK_RETURN:
+      begin
+        if Interaction = ButtonGameIID then
+        begin
+          if not Assigned(UGraphic.ScreenOptionsGame) then
+            UGraphic.ScreenOptionsGame := TScreenOptionsGame.Create();
+
+          AudioPlayback.PlaySound(SoundLib.Start);
+          FadeTo(@ScreenOptionsGame);
+        end
+        else if Interaction = ButtonGraphicsIID then
+        begin
+          if not Assigned(UGraphic.ScreenOptionsGraphics) then
+            UGraphic.ScreenOptionsGraphics := TScreenOptionsGraphics.Create();
+
+          AudioPlayback.PlaySound(SoundLib.Start);
+          FadeTo(@ScreenOptionsGraphics);
+        end
+        else if Interaction = ButtonSoundIID then
+        begin
+          if not Assigned(UGraphic.ScreenOptionsSound) then
+            UGraphic.ScreenOptionsSound := TScreenOptionsSound.Create();
+
+          AudioPlayback.PlaySound(SoundLib.Start);
+          FadeTo(@ScreenOptionsSound);
+        end
+        else if Interaction = ButtonLyricsIID then
+        begin
+          if not Assigned(UGraphic.ScreenOptionsLyrics) then
+            UGraphic.ScreenOptionsLyrics := TScreenOptionsLyrics.Create();
+
+          AudioPlayback.PlaySound(SoundLib.Start);
+          FadeTo(@ScreenOptionsLyrics);
+        end
+        else if Interaction = ButtonThemesIID then
+        begin
+          if not Assigned(UGraphic.ScreenOptionsThemes) then
+            UGraphic.ScreenOptionsThemes := TScreenOptionsThemes.Create();
+
+          AudioPlayback.PlaySound(SoundLib.Start);
+          FadeTo(@ScreenOptionsThemes);
+        end
+        else if Interaction = ButtonMicrophonesIID then
+        begin
+          if not Assigned(UGraphic.ScreenOptionsMicrophones) then
+            UGraphic.ScreenOptionsMicrophones := TScreenOptionsMicrophones.Create();
+
+          AudioPlayback.PlaySound(SoundLib.Start);
+          FadeTo(@ScreenOptionsMicrophones);
+        end
+        else if Interaction = ButtonAdvancedIID then
+        begin
+          if not Assigned(UGraphic.ScreenOptionsAdvanced) then
+            UGraphic.ScreenOptionsAdvanced := TScreenOptionsAdvanced.Create();
+
+          AudioPlayback.PlaySound(SoundLib.Start);
+          FadeTo(@ScreenOptionsAdvanced);
+        end
+        else if Interaction = ButtonNetworkIID then
+          if High(DataBase.NetworkUser) = -1 then
+            UGraphic.ScreenPopupError.ShowPopup(ULanguage.Language.Translate('SING_OPTIONS_NETWORK_NO_DLL'))
+          else
+          begin
+            if not Assigned(UGraphic.ScreenOptionsNetwork) then
+              UGraphic.ScreenOptionsNetwork := TScreenOptionsNetwork.Create();
+
+            AudioPlayback.PlaySound(SoundLib.Back);
+            FadeTo(@ScreenOptionsNetwork);
+          end
+        else if Interaction = ButtonWebcamIID then
+        begin
+          if not Assigned(UGraphic.ScreenOptionsWebcam) then
+            UGraphic.ScreenOptionsWebcam := TScreenOptionsWebcam.Create();
+
+          AudioPlayback.PlaySound(SoundLib.Back);
+          FadeTo(@ScreenOptionsWebcam);
+        end
+        else if Interaction = ButtonJukeboxIID then
+        begin
+          if not Assigned(UGraphic.ScreenOptionsJukebox) then
+            UGraphic.ScreenOptionsJukebox := TScreenOptionsJukebox.Create();
+
+          AudioPlayback.PlaySound(SoundLib.Start);
+          FadeTo(@ScreenOptionsJukebox);
+        end
+        else if Interaction = ButtonExitIID then
         begin
           Ini.Save;
           AudioPlayback.PlaySound(SoundLib.Back);
           FadeTo(@ScreenMain);
         end;
-      SDLK_RETURN:
-        begin
-          if Interaction = ButtonGameIID then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Start);
-            FadeTo(@ScreenOptionsGame);
-          end;
-
-          if Interaction = ButtonGraphicsIID then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Start);
-            FadeTo(@ScreenOptionsGraphics);
-          end;
-
-          if Interaction = ButtonSoundIID then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Start);
-            FadeTo(@ScreenOptionsSound);
-          end;
-
-          if Interaction = ButtonLyricsIID then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Start);
-            FadeTo(@ScreenOptionsLyrics);
-          end;
-
-          if Interaction = ButtonThemesIID then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Start);
-            FadeTo(@ScreenOptionsThemes);
-          end;
-
-          if Interaction = ButtonRecordIID then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Start);
-            FadeTo(@ScreenOptionsRecord);
-          end;
-
-          if Interaction = ButtonAdvancedIID then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Start);
-            FadeTo(@ScreenOptionsAdvanced);
-          end;
-
-          if Interaction = ButtonNetworkIID then
-          begin
-            if (High(DataBase.NetworkUser) = -1) then
-              ScreenPopupError.ShowPopup(Language.Translate('SING_OPTIONS_NETWORK_NO_DLL'))
-            else
-            begin
-              AudioPlayback.PlaySound(SoundLib.Back);
-              FadeTo(@ScreenOptionsNetwork);
-            end;
-          end;
-
-          if Interaction = ButtonWebcamIID then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Back);
-            FadeTo(@ScreenOptionsWebcam);
-          end;
-
-          if Interaction = ButtonJukeboxIID then
-          begin
-            if (Songs.SongList.Count >= 1) then
-            begin
-              AudioPlayback.PlaySound(SoundLib.Start);
-              FadeTo(@ScreenOptionsJukebox);
-            end
-            else //show error message, No Songs Loaded
-              ScreenPopupError.ShowPopup(Language.Translate('ERROR_NO_SONGS'));
-          end;
-
-          if Interaction = ButtonExitIID then
-          begin
-            Ini.Save;
-            AudioPlayback.PlaySound(SoundLib.Back);
-            FadeTo(@ScreenMain);
-          end;
-        end;
-      SDLK_DOWN:    InteractNextRow;
-      SDLK_UP:      InteractPrevRow;
-      SDLK_RIGHT:   InteractNext;
-      SDLK_LEFT:    InteractPrev;
+      end;
+      SDLK_DOWN: InteractNextRow;
+      SDLK_UP: InteractPrevRow;
+      SDLK_RIGHT: InteractNext;
+      SDLK_LEFT: InteractPrev;
     end;
   end;
 end;
@@ -198,7 +221,7 @@ constructor TScreenOptions.Create;
   begin
     OldPos := Length(Button);
     Result := AddButton(Btn);
-    if Length(Button) <> OldPos then // check if button was succesfully added 
+    if Length(Button) <> OldPos then // check if button was succesfully added
     begin
       IIDvar := High(Interactions);
 
@@ -218,14 +241,14 @@ begin
 
   LoadFromTheme(Theme.Options);
 
-  // Order is irrelevant to the represenatation, however InteractNext/Prev is not working with a different order 
+  // Order is irrelevant to the represenatation, however InteractNext/Prev is not working with a different order
   AddButtonChecked(Theme.Options.ButtonGame, OPTIONS_DESC_INDEX_GAME,  ButtonGameIID);
   AddButtonChecked(Theme.Options.ButtonGraphics, OPTIONS_DESC_INDEX_GRAPHICS,  ButtonGraphicsIID);
   AddButtonChecked(Theme.Options.ButtonSound, OPTIONS_DESC_INDEX_SOUND,  ButtonSoundIID);
 
   AddButtonChecked(Theme.Options.ButtonLyrics, OPTIONS_DESC_INDEX_LYRICS,  ButtonLyricsIID);
   AddButtonChecked(Theme.Options.ButtonThemes, OPTIONS_DESC_INDEX_THEMES,  ButtonThemesIID);
-  AddButtonChecked(Theme.Options.ButtonRecord, OPTIONS_DESC_INDEX_RECORD,  ButtonRecordIID);
+  AddButtonChecked(Theme.Options.ButtonMicrophones, OPTIONS_DESC_INDEX_MICROPHONES,  ButtonMicrophonesIID);
   AddButtonChecked(Theme.Options.ButtonAdvanced, OPTIONS_DESC_INDEX_ADVANCED,  ButtonAdvancedIID);
   AddButtonChecked(Theme.Options.ButtonNetwork, OPTIONS_DESC_INDEX_NETWORK,  ButtonNetworkIID);
 
@@ -240,7 +263,7 @@ end;
 procedure TScreenOptions.OnShow;
 begin
   inherited;
-  // continue possibly stopped bg-music (stopped in record options)
+  // continue possibly stopped bg-music (stopped in Microphones options)
   SoundLib.StartBgMusic;
 end;
 
@@ -251,7 +274,8 @@ begin
 end;
 
 procedure TScreenOptions.SetAnimationProgress(Progress: real);
-var i: integer;
+var
+  i: integer;
 begin
   // update all buttons
   for i := 0 to High(Button) do
@@ -259,10 +283,11 @@ begin
 end;
 
 procedure TScreenOptions.UpdateTextDescriptionFor(IID: integer);
-var index: integer;
+var
+  index: integer;
 begin
   // Sanity check
-  if (IID < 0 ) or (IID >= Length(MapIIDtoDescID)) then
+  if (IID < 0) or (IID >= Length(MapIIDtoDescID)) then
     Exit;
 
   Text[TextDescription].Text := Theme.Options.Description[MapIIDtoDescID[IID]];

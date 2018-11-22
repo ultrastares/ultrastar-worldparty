@@ -146,7 +146,6 @@ uses
   UCommandLine,
   UCommon,
   UConfig,
-  UCovers,
   UDataBase,
   UGraphic,
   UGraphicClasses,
@@ -203,23 +202,23 @@ begin
     PetGr := 1;
 
   // sentences routines
-  for CountGr := 0 to PetGr do //High(Lines)
+  for CountGr := 0 to PetGr do //High(CurrentSong.Lines)
   begin;
     CP := CountGr;
 
     // old parts
-    LyricsState.OldLine := Lines[CP].Current;
+    LyricsState.OldLine := CurrentSong.Lines[CP].Current;
 
     // choose current parts
-    for Count := 0 to Lines[CP].High do
+    for Count := 0 to CurrentSong.Lines[CP].High do
     begin
-      if LyricsState.CurrentBeat >= Lines[CP].Line[Count].Start then
-        Lines[CP].Current := Count;
+      if LyricsState.CurrentBeat >= CurrentSong.Lines[CP].Line[Count].Start then
+        CurrentSong.Lines[CP].Current := Count;
     end;
 
     // clean player note if there is a new line
     // (optimization on halfbeat time)
-    if Lines[CP].Current <> LyricsState.OldLine then
+    if CurrentSong.Lines[CP].Current <> LyricsState.OldLine then
       NewSentence(CP, Screen);
 
   end; // for CountGr
@@ -242,22 +241,22 @@ begin
   LyricsState.UpdateBeats();
 
   // sentences routines
-  for CountGr := 0 to 0 do //High(Lines)
+  for CountGr := 0 to 0 do //High(CurrentSong.Lines)
   begin;
     CP := CountGr;
     // old parts
-    LyricsState.OldLine := Lines[CP].Current;
+    LyricsState.OldLine := CurrentSong.Lines[CP].Current;
 
     // choose current parts
-    for Count := 0 to Lines[CP].High do
+    for Count := 0 to CurrentSong.Lines[CP].High do
     begin
-      if LyricsState.CurrentBeat >= Lines[CP].Line[Count].Start then
-        Lines[CP].Current := Count;
+      if LyricsState.CurrentBeat >= CurrentSong.Lines[CP].Line[Count].Start then
+        CurrentSong.Lines[CP].Current := Count;
     end;
   end; // for CountGr
 
   // on sentence change...
-  Screen.onSentenceChange(Lines[0].Current);
+  Screen.onSentenceChange(CurrentSong.Lines[0].Current);
 end;
 
 procedure NewSentence(CP: integer; Screen: TScreenSingController);
@@ -275,7 +274,7 @@ begin
     end;
   end;
 
-  Screen.onSentenceChange(CP, Lines[CP].Current)
+  Screen.onSentenceChange(CP, CurrentSong.Lines[CP].Current)
 end;
 
 procedure NewBeatClick;
@@ -287,17 +286,15 @@ begin
   begin
     if (Ini.BeatClick = 1) and ((LyricsState.CurrentBeatC + 4) mod 4 = 0) then //FIXME after remove resolution and notesgap use 4 as default...
     begin
-      AudioPlayback.PlaySound(SoundLib.Click);
     end;
 
-    for Count := 0 to Lines[0].Line[Lines[0].Current].HighNote do
+    for Count := 0 to CurrentSong.Lines[0].Line[CurrentSong.Lines[0].Current].HighNote do
     begin
       //basisbit todo
-      if (Lines[0].Line[Lines[0].Current].Note[Count].Start = LyricsState.CurrentBeatC) then
+      if (CurrentSong.Lines[0].Line[CurrentSong.Lines[0].Current].Note[Count].Start = LyricsState.CurrentBeatC) then
       begin
         // click assist
         if Ini.ClickAssist = 1 then
-          AudioPlayback.PlaySound(SoundLib.Click);
 
         // drum machine
         (*
@@ -340,9 +337,9 @@ begin
 
       NewNote(CP, Screen);
 
-      for I := 0 to Lines[CP].High do
+      for I := 0 to CurrentSong.Lines[CP].High do
       begin
-        with Lines[CP].Line[I] do
+        with CurrentSong.Lines[CP].Line[I] do
         begin
           if (HighNote >= 0) then
           begin
@@ -384,14 +381,14 @@ begin
   NoteHit := false;
 
   // TODO: add duet mode support
-  // use Lines[LineSetIndex] with LineSetIndex depending on the current player
+  // use CurrentSong.Lines[LineSetIndex] with LineSetIndex depending on the current player
 
   // count min and max sentence range for checking
   // (detection is delayed to the notes we see on the screen)
-  SentenceMin := Lines[CP].Current-1;
+  SentenceMin := CurrentSong.Lines[CP].Current-1;
   if (SentenceMin < 0) then
     SentenceMin := 0;
-  SentenceMax := Lines[CP].Current;
+  SentenceMax := CurrentSong.Lines[CP].Current;
 
   for ActualBeat := LyricsState.OldBeatD+1 to LyricsState.CurrentBeatD do
   begin
@@ -405,7 +402,7 @@ begin
         SentenceDetected := SentenceMin;
         for SentenceIndex := SentenceMin to SentenceMax do
         begin
-          Line := @Lines[CP].Line[SentenceIndex];
+          Line := @CurrentSong.Lines[CP].Line[SentenceIndex];
           for LineFragmentIndex := 0 to Line.HighNote do
           begin
             CurrentLineFragment := @Line.Note[LineFragmentIndex];
@@ -447,7 +444,7 @@ begin
         if (CurrentSound.ToneValid and NoteAvailable) then
         begin
           CurrentNoteType := ntNormal;
-          Line := @Lines[CP].Line[SentenceDetected];
+          Line := @CurrentSong.Lines[CP].Line[SentenceDetected];
           // process until last note
           for LineFragmentIndex := 0 to Line.HighNote do
           begin
@@ -497,7 +494,7 @@ begin
                 // gets for a hit of one beat of a normal note
                 // CurNotePoints is the amount of points that is meassured
                 // for a hit of the note per full beat
-                CurNotePoints := (MaxSongPoints / Lines[CP].ScoreValue) * ScoreFactor[CurrentLineFragment.NoteType];
+                CurNotePoints := (MaxSongPoints / CurrentSong.Lines[CP].ScoreValue) * ScoreFactor[CurrentLineFragment.NoteType];
 
                 case CurrentLineFragment.NoteType of
                   ntNormal:    CurrentPlayer.Score       := CurrentPlayer.Score       + CurNotePoints;

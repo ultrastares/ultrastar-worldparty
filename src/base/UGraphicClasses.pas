@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -95,7 +95,8 @@ type
    PerfNoteArray : array of PerfectNotePositions;
 
    FlareTex: TTexture;
-
+   Tex_Note_Star: TTexture;
+   Tex_Note_Perfect_Star: TTexture;
    constructor Create;
    destructor  Destroy; override;
    procedure Draw;
@@ -159,7 +160,7 @@ begin
   case cStarType of
     GoldenNote:
         begin
-          Tex := Tex_Note_Star.TexNum;
+          Tex := GoldenRec.Tex_Note_Star.TexNum;
           W := 20;
           H := 20;
           SetLength(Scale,4);
@@ -185,7 +186,7 @@ begin
         end;
     PerfectNote:
         begin
-          Tex := Tex_Note_Perfect_Star.TexNum;
+          Tex := GoldenRec.Tex_Note_Perfect_Star.TexNum;
           W := 8;
           H := 12;
           SetLength(Col,1);
@@ -195,7 +196,7 @@ begin
         end;
     NoteHitTwinkle:
         begin
-          Tex := Tex_Note_Star.TexNum;
+          Tex := GoldenRec.Tex_Note_Star.TexNum;
           Alpha := (Live/16);  // linear fade-out
           W := 15;
           H := 15;
@@ -206,7 +207,7 @@ begin
         end;
     PerfectLineTwinkle:
         begin
-          Tex := Tex_Note_Star.TexNum;
+          Tex := GoldenRec.Tex_Note_Star.TexNum;
           W := RandomRange(10,20);
           H := W;
           SizeMod := (-cos((Frame+1)*5*2*pi/16)*0.5+1.1);
@@ -227,7 +228,7 @@ begin
         end;
     ColoredStar:
         begin
-          Tex := Tex_Note_Star.TexNum;
+          Tex := GoldenRec.Tex_Note_Star.TexNum;
           W := RandomRange(10,20);
           H := W;
           SizeMod := (-cos((Frame+1)*5*2*pi/16)*0.5+1.1);
@@ -243,7 +244,7 @@ begin
         end;
     Flare:
         begin
-          Tex := Tex_Note_Star.TexNum;
+          Tex := GoldenRec.Tex_Note_Star.TexNum;
           W := 7;
           H := 7;
           SizeMod := (-cos((Frame+1)*5*2*pi/16)*0.5+1.1);
@@ -273,7 +274,7 @@ begin
         end;
     else    // just some random default values
         begin
-          Tex := Tex_Note_Star.TexNum;
+          Tex := GoldenRec.Tex_Note_Star.TexNum;
           Alpha := 1;
           W := 20;
           H := 20;
@@ -356,7 +357,7 @@ begin
 	  glBindTexture(GL_TEXTURE_2D, Tex);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
-	
+
     // this draws (multiple) texture(s) of our particle
     for L := 0 to High(Col) do
     begin
@@ -369,7 +370,7 @@ begin
         glTexCoord2f((1/16) * Frame, 1);          glVertex2f(X+W*Scale[L]*SizeMod, Y-H*Scale[L]*SizeMod);
       glEnd;
     end;
-	
+
 	  glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -390,6 +391,8 @@ begin
   begin
     TwinkleArray[c] := 0;
   end;
+  Self.Tex_Note_Perfect_Star := Texture.LoadTexture('NotePerfectStar', TEXTURE_TYPE_TRANSPARENT, 0);
+  Self.Tex_Note_Star := Texture.LoadTexture('NoteStar', TEXTURE_TYPE_TRANSPARENT, $FFFFFF);
 end;
 
 destructor TEffectManager.Destroy;
@@ -779,4 +782,3 @@ begin
 end;
 
 end.
-

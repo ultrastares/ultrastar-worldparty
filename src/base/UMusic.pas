@@ -587,25 +587,14 @@ type
 const
   SOUNDID_START    = 0;
   SOUNDID_BACK     = 1;
-  SOUNDID_SWOOSH   = 2;
-  SOUNDID_CHANGE   = 3;
-  SOUNDID_OPTION   = 4;
-  SOUNDID_CLICK    = 5;
+  SOUNDID_OPTION   = 2;
   LAST_SOUNDID = SOUNDID_CLICK;
 
   BaseSoundFilenames: array[0..LAST_SOUNDID] of IPath = (
-    '%SOUNDPATH%/Common start.mp3',                 // Start
-    '%SOUNDPATH%/Common back.mp3',                  // Back
-    '%SOUNDPATH%/menu swoosh.mp3',                  // Swoosh
-    '%SOUNDPATH%/select music change music 50.mp3', // Change
-    '%SOUNDPATH%/option change col.mp3',            // Option
-    '%SOUNDPATH%/rimshot022b.mp3'                   // Click
-    {
-    '%SOUNDPATH%/bassdrumhard076b.mp3',             // Drum (unused)
-    '%SOUNDPATH%/hihatclosed068b.mp3',              // Hihat (unused)
-    '%SOUNDPATH%/claps050b.mp3',                    // Clap (unused)
-    '%SOUNDPATH%/Shuffle.mp3'                       // Shuffle (unused)
-    }
+    '%SOUNDPATH%/forward sound.mp3',                 // Start
+    '%SOUNDPATH%/back sound.mp3', 	             // Back
+    '%SOUNDPATH%/option sound col.mp3',	             // Option
+
   );
 *)
 
@@ -619,11 +608,7 @@ type
       // and provide IDs instead.
       Start:   TAudioPlaybackStream;
       Back:    TAudioPlaybackStream;
-      Swoosh:  TAudioPlaybackStream;
-      Change:  TAudioPlaybackStream;
       Option:  TAudioPlaybackStream;
-      Click:   TAudioPlaybackStream;
-      Applause:TAudioPlaybackStream;
       BGMusic: TAudioPlaybackStream;
 
       constructor Create();
@@ -643,7 +628,6 @@ type
 
 var
   // TODO: JB --- THESE SHOULD NOT BE GLOBAL
-  Lines: array of TLines;
   LyricsState: TLyricsState;
   SoundLib: TSoundLibrary;
 
@@ -995,14 +979,9 @@ procedure TSoundLibrary.LoadSounds();
 begin
   UnloadSounds();
 
-  Start   := AudioPlayback.OpenSound(SoundPath.Append('Common start.mp3'));
-  Back    := AudioPlayback.OpenSound(SoundPath.Append('Common back.mp3'));
-  Swoosh  := AudioPlayback.OpenSound(SoundPath.Append('menu swoosh.mp3'));
-  Change  := AudioPlayback.OpenSound(SoundPath.Append('select music change music 50.mp3'));
-  Option  := AudioPlayback.OpenSound(SoundPath.Append('option change col.mp3'));
-  Click   := AudioPlayback.OpenSound(SoundPath.Append('rimshot022b.mp3'));
-  Applause:= AudioPlayback.OpenSound(SoundPath.Append('Applause.mp3'));
-
+  Start   := AudioPlayback.OpenSound(SoundPath.Append('forward sound.mp3'));
+  Back    := AudioPlayback.OpenSound(SoundPath.Append('back sound.mp3'));
+  Option  := AudioPlayback.OpenSound(SoundPath.Append('option sound.mp3'));
   BGMusic := AudioPlayback.OpenSound(SoundPath.Append('background track.mp3'));
 
   if (BGMusic <> nil) then
@@ -1013,11 +992,7 @@ procedure TSoundLibrary.UnloadSounds();
 begin
   FreeAndNil(Start);
   FreeAndNil(Back);
-  FreeAndNil(Swoosh);
-  FreeAndNil(Change);
   FreeAndNil(Option);
-  FreeAndNil(Click);
-  FreeAndNil(Applause);
   FreeAndNil(BGMusic);
 end;
 
