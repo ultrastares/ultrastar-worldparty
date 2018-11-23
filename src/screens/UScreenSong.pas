@@ -2498,34 +2498,31 @@ var
   Skip: integer;
   NextInt: integer;
 begin
-
   if USongs.CatSongs.GetVisibleSongs() > 0 then
   begin
     if not Self.IsScrolling then
       Self.OnSongDeselect();
 
-    Skip := 1;
+    //try to keep all at the beginning when a filter is applied
+    if Self.SongTarget + 1 = USongs.CatSongs.GetVisibleSongs() then //go to initial song if reach the end of subselection list with fast movements
+      Self.SongTarget := 0
+    else if (USongs.CatSongs.GetVisibleSongs() - 1 < High(USongs.CatSongs.Song)) and (Round(Self.SongTarget) = Self.Interaction) then
+    begin
+      Self.SongTarget := Round(Self.SongCurrent + 1); //translate SongTarget from regular to new position after apply a filter
+      if Self.SongTarget = USongs.CatSongs.GetVisibleSongs() then //go to initial song if reach the end of subselection list with slow movements
+        Self.SongTarget := 0
+    end
+    else
+      Self.SongTarget := Self.SongTarget + 1;
 
+    Skip := 1;
     // this 1 could be changed by CatSongs.FindNextVisible
     while (not CatSongs.Song[(Interaction + Skip) mod Length(Interactions)].Visible) do
       Inc(Skip);
 
     NextInt := (Interaction + Skip) mod Length(Interactions);
-
-    SongTarget := SongTarget + 1;//Skip;
-
     if not ((TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic]) and (NextInt < Interaction)) then
       Interaction := NextInt;
-
-    // try to keep all at the beginning
-    if SongTarget > USongs.CatSongs.GetVisibleSongs()-1 then
-    begin
-      SongTarget := SongTarget - USongs.CatSongs.GetVisibleSongs();
-      SongCurrent := SongCurrent - USongs.CatSongs.GetVisibleSongs();
-    end;
-
-   // if ((TSongMenuMode(Ini.SongMenu) in [smList]) and (NextInt = 0)) then
-   //   SongCurrent := -1;
   end;
 end;
 
@@ -2539,23 +2536,26 @@ begin
     if not Self.IsScrolling then
       Self.OnSongDeselect();
 
+    //try to keep all at the beginning when a filter is applied
+    if Self.SongTarget - 1 < 0 then //go to final song if reach the start of subselection list with fast movements
+      Self.SongTarget := USongs.CatSongs.GetVisibleSongs() - 1
+    else if (USongs.CatSongs.GetVisibleSongs() - 1 < High(USongs.CatSongs.Song)) and (Round(Self.SongTarget) = Self.Interaction) then
+    begin
+      Self.SongTarget := Round(Self.SongCurrent - 1); //translate SongTarget from regular to new position after apply a filter
+      if Self.SongTarget < 0 then //go to final song if reach the start of subselection list with slow movements
+        Self.SongTarget := USongs.CatSongs.GetVisibleSongs() - 1
+    end
+    else
+      Self.SongTarget := Self.SongTarget - 1;
+
     Skip := 1;
 
     while (not CatSongs.Song[(Interaction - Skip + Length(Interactions)) mod Length(Interactions)].Visible) do
       Inc(Skip);
 
-    SongTarget := SongTarget - 1;
-
     PrevInt := (Interaction - Skip + Length(Interactions)) mod Length(Interactions);
     if not ((TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic]) and (PrevInt > Interaction)) then
       Interaction := PrevInt;
-
-    // try to keep all at the beginning
-    if SongTarget < 0 then
-    begin
-      SongTarget := SongTarget + USongs.CatSongs.GetVisibleSongs();
-      SongCurrent := SongCurrent + USongs.CatSongs.GetVisibleSongs();
-    end;
   end;
 end;
 
