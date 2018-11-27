@@ -1821,6 +1821,7 @@ begin
           SendInfo.ScoreGoldenInt := player[PlayerIndex - 1].ScoreGoldenInt;
           SendInfo.MD5Song := Act_MD5Song;
           SendInfo.Level := Act_Level;
+          SendInfo.Name := player[PlayerIndex - 1].Name;
 
           SendStatus := DllMan.WebsiteSendScore(SendInfo);
 
@@ -1887,6 +1888,7 @@ begin
           SendInfo.ScoreGoldenInt := player[PlayerIndex - 1].ScoreGoldenInt;
           SendInfo.MD5Song := Act_MD5Song;
           SendInfo.Level := Act_Level;
+          SendInfo.Name := player[PlayerIndex - 1].Name;
 
           WebName := DataBase.NetworkUser[IndexWeb].Website;
           EncryptText := DllMan.WebsiteEncryptScore(SendInfo);

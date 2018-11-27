@@ -41,6 +41,7 @@ ppaslink.sh
 # dev files
 /backup/
 /[Tt]o[Dd]o/
+/src/webSDK/*.dpr
 
 # game folders
 /game/playlists/
@@ -52,3 +53,4 @@ ppaslink.sh
 /game/*.db
 /game/*.log
 /game/WorldParty
+/game/webs/*

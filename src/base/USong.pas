@@ -453,6 +453,7 @@ begin
       Lines[I].Line[0].TotalNotes := 0;
     end;
 
+    Self.MD5 := ''; //it needed because this method is called twice
     repeat
     begin
       LinePos := 1;
@@ -521,6 +522,7 @@ begin
             if Self.isDuet then
               NewSentence(1, Param1);
           end;
+        'E': //it needed for MD5 generation
         else //other character included final E
           Break;
       end;

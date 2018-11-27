@@ -343,6 +343,7 @@ begin
     SendInfo.ScoreGoldenInt := player[index].ScoreGoldenInt;
     SendInfo.MD5Song := ScreenSing.Act_MD5Song;
     SendInfo.Level := ScreenSing.Act_Level;
+    SendInfo.Name := player[index].Name;
 
     if (Value = 1) then
       SendScore(SendInfo, Website);

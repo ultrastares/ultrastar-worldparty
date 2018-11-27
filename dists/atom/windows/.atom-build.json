@@ -8,6 +8,15 @@
     "errorMatch": ["(?<file>.+)\\((?<line>\\d+)\\,(?<col>\\d+)\\) (?<message>.+)"],
     "keymap": "f9",
     "targets": {
+        "Free Pascal compile dll": {
+            "cmd": "{PROJECT_PATH}\\dists\\atom\\windows\\compile.bat",
+            "args": ["{PROJECT_PATH}", "compile-dll"],
+            "cwd": "{PROJECT_PATH}",
+            "sh": false,
+            "atomCommandName": "worldparty:compile-dll",
+            "errorMatch": ["(?<file>.+)\\((?<line>\\d+)\\,(?<col>\\d+)\\) (?<message>.+)"],
+            "keymap": "alt-f9"
+        },
         "Free Pascal compile debug mode": {
             "cmd": "{PROJECT_PATH}\\dists\\atom\\windows\\compile.bat",
             "args": ["{PROJECT_PATH}", "compile-debug"],
