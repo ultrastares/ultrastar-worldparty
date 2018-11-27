@@ -2136,11 +2136,9 @@ end;
 procedure TScreenJukebox.OnHide;
 begin
   // background texture
-  if (Tex_Background.TexNum > 0) then
-  begin
-    glDeleteTextures(1, PGLuint(@Tex_Background.TexNum));
-    Tex_Background.TexNum := 0;
-  end;
+  if Tex_Background.TexNum > 0 then
+    UTexture.Texture.UnLoadTexture(Tex_Background);
+
   if fShowWebcam then
         begin
           Webcam.Release;
@@ -2462,11 +2460,8 @@ var
 begin
 
   // background texture (garbage disposal)
-  if (Tex_Background.TexNum > 0) then
-  begin
-    glDeleteTextures(1, PGLuint(@Tex_Background.TexNum));
-    Tex_Background.TexNum := 0;
-  end;
+  if Tex_Background.TexNum > 0 then
+    UTexture.Texture.UnLoadTexture(Tex_Background);
 
   try
     if high(JukeboxVisibleSongs) < ID then
@@ -2652,10 +2647,10 @@ begin
 
   CoverPath := CurrentSong.Path.Append(CurrentSong.Cover);
 
-  Statics[StaticCover].Texture := Texture.GetTexture(CoverPath, TEXTURE_TYPE_PLAIN, false);
+  Statics[StaticCover].Texture := Texture.LoadTexture(CoverPath, TEXTURE_TYPE_PLAIN);
 
   if (Statics[StaticCover].Texture.TexNum = 0) then
-    Statics[StaticCover].Texture := Texture.GetTexture(Skin.GetTextureFileName('SongCover'), TEXTURE_TYPE_PLAIN, false);
+    Statics[StaticCover].Texture := Texture.LoadTexture(Skin.GetTextureFileName('SongCover'), TEXTURE_TYPE_PLAIN);
 
   Statics[StaticCover].Texture.X := Theme.Jukebox.SongCover.X;
   Statics[StaticCover].Texture.Y := Theme.Jukebox.SongCover.Y;

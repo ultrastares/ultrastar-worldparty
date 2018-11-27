@@ -253,8 +253,8 @@ begin
 
   if Back <> '' then
   begin
-//    BackImg := Texture.GetTexture(true, Back, TEXTURE_TYPE_PLAIN, 0);
-    BackImg := Texture.GetTexture(Back, TEXTURE_TYPE_PLAIN, 0); // new theme system
+//    BackImg := Texture.LoadTexture(true, Back, TEXTURE_TYPE_PLAIN, 0);
+    BackImg := Texture.LoadTexture(Back, TEXTURE_TYPE_PLAIN, 0); // new theme system
     BackImg.W := 800;//640;
     BackImg.H := 600;//480;
     BackW := 1;
@@ -534,14 +534,14 @@ begin
   begin
     TempCol  := RGBFloatToInt(ThemeCollection.Style.ColR, ThemeCollection.Style.ColG, ThemeCollection.Style.ColB);
     TempDCol := RGBFloatToInt(ThemeCollection.Style.DColR, ThemeCollection.Style.DColG, ThemeCollection.Style.DColB);
-    // give encoded color to GetTexture()
+    // give encoded color to LoadTexture()
     ButtonCollection[Num] := TButtonCollection.Create(
-      Texture.GetTexture(Skin.GetTextureFileName(ThemeCollection.Style.Tex), TEXTURE_TYPE_COLORIZED, TempCol),
-      Texture.GetTexture(Skin.GetTextureFileName(ThemeCollection.Style.Tex), TEXTURE_TYPE_COLORIZED, TempDCol));
+      Texture.LoadTexture(Skin.GetTextureFileName(ThemeCollection.Style.Tex), TEXTURE_TYPE_COLORIZED, TempCol),
+      Texture.LoadTexture(Skin.GetTextureFileName(ThemeCollection.Style.Tex), TEXTURE_TYPE_COLORIZED, TempDCol));
   end
   else
   begin
-    ButtonCollection[Num] := TButtonCollection.Create(Texture.GetTexture(
+    ButtonCollection[Num] := TButtonCollection.Create(Texture.LoadTexture(
       Skin.GetTextureFileName(ThemeCollection.Style.Tex), ThemeCollection.Style.Typ));
   end;
 
@@ -589,12 +589,12 @@ begin
   ButtonCollection[Num].FadeText := ThemeCollection.Style.FadeText;
   if (ThemeCollection.Style.Typ = TEXTURE_TYPE_COLORIZED) then
   begin
-    ButtonCollection[Num].FadeTex := Texture.GetTexture(
+    ButtonCollection[Num].FadeTex := Texture.LoadTexture(
       Skin.GetTextureFileName(ThemeCollection.Style.FadeTex), TEXTURE_TYPE_COLORIZED, TempCol)
   end
   else
   begin
-    ButtonCollection[Num].FadeTex := Texture.GetTexture(
+    ButtonCollection[Num].FadeTex := Texture.LoadTexture(
       Skin.GetTextureFileName(ThemeCollection.Style.FadeTex), ThemeCollection.Style.Typ);
   end;
   ButtonCollection[Num].FadeTexPos := ThemeCollection.Style.FadeTexPos;
@@ -648,7 +648,7 @@ begin
   // adds static
   StatNum := Length(Statics);
   SetLength(Statics, StatNum + 1);
-  Statics[StatNum] := TStatic.Create(Texture.GetTexture(TexName, Typ, $FF00FF)); // new skin
+  Statics[StatNum] := TStatic.Create(Texture.LoadTexture(TexName, Typ, $FF00FF)); // new skin
 
   // configures static
   Statics[StatNum].Texture.X := X;
@@ -695,12 +695,12 @@ begin
   // colorize hack
   if (Typ = TEXTURE_TYPE_COLORIZED) then
   begin
-    // give encoded color to GetTexture()
-    Statics[StatNum] := TStatic.Create(Texture.GetTexture(TexName, Typ, RGBFloatToInt(ColR, ColG, ColB)));
+    // give encoded color to LoadTexture()
+    Statics[StatNum] := TStatic.Create(Texture.LoadTexture(TexName, Typ, RGBFloatToInt(ColR, ColG, ColB)));
   end
   else
   begin
-    Statics[StatNum] := TStatic.Create(Texture.GetTexture(TexName, Typ, Color)); // new skin
+    Statics[StatNum] := TStatic.Create(Texture.LoadTexture(TexName, Typ, Color)); // new skin
   end;
 
   // configures static
@@ -754,9 +754,9 @@ begin
   StatNum := Length(StaticsList);
   SetLength(StaticsList, StatNum + 1);
 
-  StaticsList[StatNum] := TStatic.Create(Texture.GetTexture(TexName, Typ, RGBFloatToInt(ColR, ColG, ColB)));
-  StaticsList[StatNum].TextureSelect := Texture.GetTexture(TexName, Typ, RGBFloatToInt(ColR, ColG, ColB));
-  StaticsList[StatNum].TextureDeselect := Texture.GetTexture(DTexName, Typ, RGBFloatToInt(DColR, DColG, DColB));
+  StaticsList[StatNum] := TStatic.Create(Texture.LoadTexture(TexName, Typ, RGBFloatToInt(ColR, ColG, ColB)));
+  StaticsList[StatNum].TextureSelect := Texture.LoadTexture(TexName, Typ, RGBFloatToInt(ColR, ColG, ColB));
+  StaticsList[StatNum].TextureDeselect := Texture.LoadTexture(DTexName, Typ, RGBFloatToInt(DColR, DColG, DColB));
 
   // configures static
   StaticsList[StatNum].Texture.X := X;
@@ -860,13 +860,13 @@ begin
   Button[Result].FadeText := ThemeButton.FadeText;
   if (ThemeButton.Typ = TEXTURE_TYPE_COLORIZED) then
   begin
-    Button[Result].FadeTex := Texture.GetTexture(
+    Button[Result].FadeTex := Texture.LoadTexture(
       Skin.GetTextureFileName(ThemeButton.FadeTex), TEXTURE_TYPE_COLORIZED,
       RGBFloatToInt(ThemeButton.ColR, ThemeButton.ColG, ThemeButton.ColB));
   end
   else
   begin
-    Button[Result].FadeTex := Texture.GetTexture(
+    Button[Result].FadeTex := Texture.LoadTexture(
       Skin.GetTextureFileName(ThemeButton.FadeTex), ThemeButton.Typ);
   end;
 
@@ -923,13 +923,13 @@ begin
   // colorize hack
   if (Typ = TEXTURE_TYPE_COLORIZED) then
   begin
-    // give encoded color to GetTexture()
-    Button[Result] := TButton.Create(Texture.GetTexture(TexName, Typ, RGBFloatToInt(ColR, ColG, ColB)),
-                                     Texture.GetTexture(TexName, Typ, RGBFloatToInt(DColR, DColG, DColB)));
+    // give encoded color to LoadTexture()
+    Button[Result] := TButton.Create(Texture.LoadTexture(TexName, Typ, RGBFloatToInt(ColR, ColG, ColB)),
+                                     Texture.LoadTexture(TexName, Typ, RGBFloatToInt(DColR, DColG, DColB)));
   end
   else
   begin
-    Button[Result] := TButton.Create(Texture.GetTexture(TexName, Typ));
+    Button[Result] := TButton.Create(Texture.LoadTexture(TexName, Typ));
   end;
 
   // configures button
@@ -1397,13 +1397,13 @@ begin
   if (Typ = TEXTURE_TYPE_COLORIZED) then
   begin
     SelectsS[S].Colorized := true;
-    SelectsS[S].Texture := Texture.GetTexture(TexName, Typ, RGBFloatToInt(ColR, ColG, ColB));
-    SelectsS[S].DeselectTexture := Texture.GetTexture(TexName, Typ, RGBFloatToInt(DColR, DColG, DColB));
+    SelectsS[S].Texture := Texture.LoadTexture(TexName, Typ, RGBFloatToInt(ColR, ColG, ColB));
+    SelectsS[S].DeselectTexture := Texture.LoadTexture(TexName, Typ, RGBFloatToInt(DColR, DColG, DColB));
   end
   else
   begin
     SelectsS[S].Colorized := false;
-    SelectsS[S].Texture := Texture.GetTexture(TexName, Typ);
+    SelectsS[S].Texture := Texture.LoadTexture(TexName, Typ);
 
     SelectsS[S].ColR := ColR;
     SelectsS[S].ColG := ColG;
@@ -1425,13 +1425,13 @@ begin
   if (SBGTyp = TEXTURE_TYPE_COLORIZED) then
   begin
     SelectsS[S].ColorizedSBG := true;
-    SelectsS[S].TextureSBG := Texture.GetTexture(SBGName, SBGTyp, RGBFloatToInt(SBGColR, SBGColG, SBGColB));
-    SelectsS[S].DeselectTextureSBG := Texture.GetTexture(SBGName, SBGTyp, RGBFloatToInt(SBGDColR, SBGDColG, SBGDColB));
+    SelectsS[S].TextureSBG := Texture.LoadTexture(SBGName, SBGTyp, RGBFloatToInt(SBGColR, SBGColG, SBGColB));
+    SelectsS[S].DeselectTextureSBG := Texture.LoadTexture(SBGName, SBGTyp, RGBFloatToInt(SBGDColR, SBGDColG, SBGDColB));
   end
   else
   begin
     SelectsS[S].ColorizedSBG := false;
-    SelectsS[S].TextureSBG := Texture.GetTexture(SBGName, SBGTyp);
+    SelectsS[S].TextureSBG := Texture.LoadTexture(SBGName, SBGTyp);
 
     SelectsS[S].SBGColR := SBGColR;
     SelectsS[S].SBGColG := SBGColG;

@@ -609,7 +609,7 @@ begin
           LoadColor(R, G, B, Color);
 
           with Theme.Score.PlayerStatic[P, I] do
-            PlayerStaticTextures[P, I, 2].Tex := Texture.GetTexture(Skin.GetTextureFileName(Tex), Typ, RGBFloatToInt(R, G, B));
+            PlayerStaticTextures[P, I, 2].Tex := Texture.LoadTexture(Skin.GetTextureFileName(Tex), Typ, RGBFloatToInt(R, G, B));
 
           PlayerStaticTextures[P, I, 2].Tex.X := Statics[PlayerStatic[P, I]].Texture.X;
           PlayerStaticTextures[P, I, 2].Tex.Y := Statics[PlayerStatic[P, I]].Texture.Y;
@@ -677,7 +677,7 @@ begin
           LoadColor(R, G, B, Color);
 
           with ThemeStatic do
-            PlayerBoxTextures[P, I, 2].Tex := Texture.GetTexture(Skin.GetTextureFileName(Tex), Typ, RGBFloatToInt(R, G, B));
+            PlayerBoxTextures[P, I, 2].Tex := Texture.LoadTexture(Skin.GetTextureFileName(Tex), Typ, RGBFloatToInt(R, G, B));
 
             PlayerBoxTextures[P, I, 2].Tex.X := Statics[StaticNum].Texture.X;
             PlayerBoxTextures[P, I, 2].Tex.Y := Statics[StaticNum].Texture.Y;

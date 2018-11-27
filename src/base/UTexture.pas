@@ -95,36 +95,17 @@ type
 
     // we use normal TTexture, it's easier to implement and if needed - we copy ready data
     Texture:      TTexture; // Full-size texture
-    TextureCache: TTexture; // Thumbnail texture
-  end;
-
-  TTextureDatabase = class
-    private
-      Texture: array of TTextureEntry;
-    public
-      procedure AddTexture(var Tex: TTexture; Typ: TTextureType; Color: cardinal; Cache: boolean);
-      function FindTexture(const Name: IPath; Typ: TTextureType; Color: cardinal): integer;
   end;
 
   TTextureUnit = class
-    private
-      TextureDatabase: TTextureDatabase;
     public
       Limit: integer;
 
-      procedure AddTexture(var Tex: TTexture; Typ: TTextureType; Cache: boolean = false); overload;
-      procedure AddTexture(var Tex: TTexture; Typ: TTextureType; Color: cardinal; Cache: boolean = false); overload;
-      function GetTexture(const Name: IPath; Typ: TTextureType; FromCache: boolean = false): TTexture; overload;
-      function GetTexture(const Name: IPath; Typ: TTextureType; Col: LongWord; FromCache: boolean = false): TTexture; overload;
       function LoadTexture(const Identifier: UTF8String; Typ: TTextureType = TEXTURE_TYPE_PLAIN; Col: LongWord = 0): TTexture; overload;
       function LoadTexture(const Identifier: IPath; Typ: TTextureType = TEXTURE_TYPE_PLAIN; Col: LongWord = 0): TTexture; overload;
+      procedure UnLoadTexture(var Texture: TTexture);
       function CreateTexture(Data: PChar; const Name: IPath; Width, Height: word; BitsPerPixel: byte): TTexture;
-      procedure UnloadTexture(const Name: IPath; Typ: TTextureType; FromCache: boolean); overload;
-      procedure UnloadTexture(const Name: IPath; Typ: TTextureType; Col: cardinal; FromCache: boolean); overload;
-      //procedure FlushTextureDatabase();
-
       constructor Create;
-      destructor Destroy; override;
   end;
 
 var
@@ -150,79 +131,16 @@ begin
     TexSurface := SDL_ConvertSurfaceFormat(TexSurface, NeededPixFmt, 0);
 end;
 
-{ TTextureDatabase }
-
-procedure TTextureDatabase.AddTexture(var Tex: TTexture; Typ: TTextureType; Color: cardinal; Cache: boolean);
-var
-  TextureIndex: integer;
-begin
-  TextureIndex := FindTexture(Tex.Name, Typ, Color);
-  if (TextureIndex = -1) then
-  begin
-    TextureIndex := Length(Texture);
-    SetLength(Texture, TextureIndex+1);
-
-    Texture[TextureIndex].Name  := Tex.Name;
-    Texture[TextureIndex].Typ   := Typ;
-    Texture[TextureIndex].Color := Color;
-  end;
-
-  if (Cache) then
-    Texture[TextureIndex].TextureCache := Tex
-  else
-    Texture[TextureIndex].Texture      := Tex;
-end;
-
-function TTextureDatabase.FindTexture(const Name: IPath; Typ: TTextureType; Color: cardinal): integer;
-var
-  TextureIndex: integer;
-  CurrentTexture: PTextureEntry;
-begin
-  Result := -1;
-  for TextureIndex := 0 to High(Texture) do
-  begin
-    CurrentTexture := @Texture[TextureIndex];
-    if (CurrentTexture.Name.Equals(Name)) and
-       (CurrentTexture.Typ = Typ) then
-    begin
-      // colorized textures must match in their color too
-      if (CurrentTexture.Typ <> TEXTURE_TYPE_COLORIZED) or
-         (CurrentTexture.Color = Color) then
-      begin
-        Result := TextureIndex;
-        Break;
-      end;
-    end;
-  end;
-end;
-
 { TTextureUnit }
 
 constructor TTextureUnit.Create;
 begin
   inherited Create;
-  TextureDatabase := TTextureDatabase.Create;
   Log.LogInfo('OpenGL vendor ' + glGetString(GL_VENDOR), 'TTextureUnit.Create');
   Log.LogInfo('OpenGL renderer ' + glGetString(GL_RENDERER), 'TTextureUnit.Create');
   Log.LogInfo('OpenGL version ' + glGetString(GL_VERSION), 'TTextureUnit.Create');
   SupportsNPOT := (AnsiContainsStr(glGetString(GL_EXTENSIONS),'texture_non_power_of_two')) and not (AnsiContainsStr(glGetString(GL_EXTENSIONS), 'Radeon X16'));
   Log.LogInfo('OpenGL TextureNPOT-support: ' + BoolToStr(SupportsNPOT), 'TTextureUnit.Create');
-end;
-
-destructor TTextureUnit.Destroy;
-begin
-  TextureDatabase.Free;
-  inherited Destroy;
-end;
-
-procedure TTextureUnit.AddTexture(var Tex: TTexture; Typ: TTextureType; Cache: boolean);
-begin
-  TextureDatabase.AddTexture(Tex, Typ, 0, Cache);
-end;
-
-procedure TTextureUnit.AddTexture(var Tex: TTexture; Typ: TTextureType; Color: cardinal; Cache: boolean);
-begin
-  TextureDatabase.AddTexture(Tex, Typ, Color, Cache);
 end;
 
 function TTextureUnit.LoadTexture(const Identifier: UTF8String; Typ: TTextureType; Col: LongWord): TTexture;
@@ -347,54 +265,10 @@ begin
   SDL_FreeSurface(TexSurface);
 end;
 
-function TTextureUnit.GetTexture(const Name: IPath; Typ: TTextureType; FromCache: boolean): TTexture;
+procedure TTextureUnit.UnLoadTexture(var Texture: TTexture);
 begin
-  Result := GetTexture(Name, Typ, 0, FromCache);
-end;
-
-function TTextureUnit.GetTexture(const Name: IPath; Typ: TTextureType; Col: LongWord; FromCache: boolean): TTexture;
-var
-  TextureIndex: integer;
-begin
-  if (Name = nil) or(Name.IsUnset) then
-  begin
-    // zero texture data
-    FillChar(Result, SizeOf(Result), 0);
-    Exit;
-  end;
-
-  if (FromCache) then
-  begin
-    // use texture
-    TextureIndex := TextureDatabase.FindTexture(Name, Typ, Col);
-    if (TextureIndex > -1) then
-      Result := TextureDatabase.Texture[TextureIndex].TextureCache;
-    Exit;
-  end;
-
-  // find texture entry in database
-  TextureIndex := TextureDatabase.FindTexture(Name, Typ, Col);
-  if (TextureIndex = -1) then
-  begin
-    // create texture entry in database
-    TextureIndex := Length(TextureDatabase.Texture);
-    SetLength(TextureDatabase.Texture, TextureIndex+1);
-
-    TextureDatabase.Texture[TextureIndex].Name  := Name;
-    TextureDatabase.Texture[TextureIndex].Typ   := Typ;
-    TextureDatabase.Texture[TextureIndex].Color := Col;
-
-    // inform database that no textures have been loaded into memory
-    TextureDatabase.Texture[TextureIndex].Texture.TexNum      := 0;
-    TextureDatabase.Texture[TextureIndex].TextureCache.TexNum := 0;
-  end;
-
-  // load full texture
-  if (TextureDatabase.Texture[TextureIndex].Texture.TexNum = 0) then
-    TextureDatabase.Texture[TextureIndex].Texture := LoadTexture(Name, Typ, Col);
-
-  // use texture
-  Result := TextureDatabase.Texture[TextureIndex].Texture;
+  glDeleteTextures(1, PGLuint(@Texture.TexNum));
+  Texture.TexNum := 0;
 end;
 
 function TTextureUnit.CreateTexture(Data: PChar; const Name: IPath; Width, Height: word; BitsPerPixel: byte): TTexture;
@@ -448,61 +322,6 @@ begin
 
   Result.Name := Name;
 end;
-
-procedure TTextureUnit.UnloadTexture(const Name: IPath; Typ: TTextureType; FromCache: boolean);
-begin
-  UnloadTexture(Name, Typ, 0, FromCache);
-end;
-
-procedure TTextureUnit.UnloadTexture(const Name: IPath; Typ: TTextureType; Col: cardinal; FromCache: boolean);
-var
-  T:      integer;
-  TexNum: GLuint;
-begin
-  if name = nil then Exit;
-  T := TextureDatabase.FindTexture(Name, Typ, Col);
-  if T < 0 then Exit;
-
-  if not FromCache then
-  begin
-    TexNum := TextureDatabase.Texture[T].Texture.TexNum;
-    if TexNum > 0 then
-    begin
-      glDeleteTextures(1, PGLuint(@TexNum));
-      TextureDatabase.Texture[T].Texture.TexNum := 0;
-      //Log.LogError('Unload texture no '+IntToStr(TexNum));
-    end;
-  end
-  else
-  begin
-    TexNum := TextureDatabase.Texture[T].TextureCache.TexNum;
-    if TexNum > 0 then
-    begin
-      glDeleteTextures(1, @TexNum);
-      TextureDatabase.Texture[T].TextureCache.TexNum := 0;
-      //Log.LogError('Unload texture cache no '+IntToStr(TexNum));
-    end;
-  end;
-end;
-
-(* This needs some work
-procedure TTextureUnit.FlushTextureDatabase();
-var
-  i: integer;
-  Tex: ^TTexture;
-begin
-  for i := 0 to High(TextureDatabase.Texture) do
-  begin
-    // only delete non-cached entries
-    if (TextureDatabase.Texture[i].Texture.TexNum > 0) then
-    begin
-      Tex := @TextureDatabase.Texture[i].Texture;
-      glDeleteTextures(1, PGLuint(Tex^.TexNum));
-      Tex^.TexNum := 0;
-    end;
-  end;
-end;
-*)
 
 function TextureTypeToStr(TexType: TTextureType): string;
 begin

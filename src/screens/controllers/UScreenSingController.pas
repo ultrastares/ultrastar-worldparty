@@ -1163,11 +1163,8 @@ var
 
 begin
   // background texture (garbage disposal)
-  if (Tex_Background.TexNum > 0) then
-  begin
-    glDeleteTextures(1, PGLuint(@Tex_Background.TexNum));
-    Tex_Background.TexNum := 0;
-  end;
+  if Tex_Background.TexNum > 0 then
+    UTexture.Texture.UnLoadTexture(Tex_Background);
 
   // reset video playback engine
   fCurrentVideo := nil;
@@ -1434,10 +1431,8 @@ procedure TScreenSingController.OnHide;
 begin
   // background texture
   if Tex_Background.TexNum > 0 then
-  begin
-    glDeleteTextures(1, PGLuint(@Tex_Background.TexNum));
-    Tex_Background.TexNum := 0;
-  end;
+    UTexture.Texture.UnLoadTexture(Tex_Background);
+
   if fShowWebcam then
         begin
           Webcam.Release;

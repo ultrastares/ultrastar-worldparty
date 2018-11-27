@@ -133,11 +133,8 @@ var
 begin
   if (IsEnabled = true) and((SDL_GetTicks() - LastTickFrame) >= 1000/StrToInt(IWebcamFPS[Ini.WebCamFPS])) then
   begin
-    if (TextureCam.TexNum > 0) then
-    begin
-      glDeleteTextures(1, PGLuint(@TextureCam.TexNum));
-      TextureCam.TexNum := 0;
-    end;
+    if TextureCam.TexNum > 0 then
+      UTexture.Texture.UnLoadTexture(TextureCam);
 
     WebcamFrame := cvQueryFrame(Capture);
 

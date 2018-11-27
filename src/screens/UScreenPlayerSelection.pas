@@ -487,7 +487,7 @@ begin
   // 1st no-avatar dummy
   for I := 1 to UIni.IMaxPlayerCount do
   begin
-    NoAvatarTexture[I] := Texture.GetTexture(Skin.GetTextureFileName('NoAvatar_P' + IntToStr(I)), TEXTURE_TYPE_TRANSPARENT, $FFFFFF);
+    NoAvatarTexture[I] := Texture.LoadTexture(Skin.GetTextureFileName('NoAvatar_P' + IntToStr(I)), TEXTURE_TYPE_TRANSPARENT, $FFFFFF);
   end;
 
   // create no-avatar

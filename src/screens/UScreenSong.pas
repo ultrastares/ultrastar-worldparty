@@ -350,7 +350,7 @@ procedure TScreenSong.ShowCatTL(Cat: integer);
 begin
   //Change
   Text[TextCat].Text := CatSongs.Song[Cat].Artist;
-  //Statics[StaticCat].Texture := Texture.GetTexture(Button[Cat].Texture.Name, TEXTURE_TYPE_PLAIN, true);
+  //Statics[StaticCat].Texture := Texture.LoadTexture(Button[Cat].Texture.Name, TEXTURE_TYPE_PLAIN, true);
 
   //Show
   Text[TextCat].Visible := true;
@@ -2320,9 +2320,9 @@ begin
       {if (CoverTime < 1) and (CoverTime + TimeSkip >= 1) then
       begin
         // load new texture
-        //Texture.GetTexture(Button[Interaction].Texture.Name, TEXTURE_TYPE_PLAIN, false);
+        //Texture.LoadTexture(Button[Interaction].Texture.Name, TEXTURE_TYPE_PLAIN);
         Button[Interaction].Texture.Alpha := 1;
-        Button[Interaction].Texture2 := Texture.GetTexture(Button[Interaction].Texture.Name, TEXTURE_TYPE_PLAIN, false);
+        Button[Interaction].Texture2 := Texture.LoadTexture(Button[Interaction].Texture.Name, TEXTURE_TYPE_PLAIN);
         Button[Interaction].Texture2.Alpha := 1;
       end;}
 
