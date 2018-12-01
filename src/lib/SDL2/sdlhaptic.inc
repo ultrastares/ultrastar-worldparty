@@ -89,8 +89,6 @@
  *  Edgar Simo Serra
  *}
 
-{$I jedi.inc}
-
   {**
    *   SDL_Haptic
    *

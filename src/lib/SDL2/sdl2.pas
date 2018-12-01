@@ -1,11 +1,11 @@
-unit SDL2;
+unit sdl2;
 
 {
   Simple DirectMedia Layer
   Copyright (C) 1997-2013 Sam Lantinga <slouken@libsdl.org>
 
   Pascal-Header-Conversion
-  Copyright (C) 2012-2014 Tim Blume aka End/EV1313
+  Copyright (C) 2012-2017 Tim Blume aka End/EV1313
 
   SDL.pas is based on the files:
   "sdl.h",
@@ -55,6 +55,8 @@ unit SDL2;
   cause there's a much better OpenGL-Header avaible at delphigl.com:
 
   the dglopengl.pas
+
+  You'll find it nowadays here: https://github.com/SaschaWillems/dglOpenGL
 
   Parts of the SDL.pas are from the SDL-1.2-Headerconversion from the JEDI-Team,
   written by Domenique Louis and others.
@@ -136,15 +138,14 @@ interface
       Windows;
   {$ENDIF}
 
-  {$IFDEF LINUX}
+  {$IF DEFINED(UNIX) AND NOT DEFINED(ANDROID)}
     uses
+      {$IFDEF DARWIN}
+      CocoaAll;
+      {$ELSE}
       X,
       XLib;
-  {$ENDIF}
-  
-  {$IFDEF DARWIN}
-    uses
-      CocoaAll;
+      {$ENDIF}
   {$ENDIF}
 
 const
@@ -156,7 +157,6 @@ const
   {$IFDEF UNIX}
     {$IFDEF DARWIN}
       SDL_LibName = 'libSDL2.dylib';
-	  {$linklib libSDL2}
     {$ELSE}
       {$IFDEF FPC}
         SDL_LibName = 'libSDL2.so';
@@ -213,7 +213,7 @@ const
 implementation
 
 //from "sdl_version.h"
-procedure SDL_VERSION(Out x: TSDL_Version);
+procedure SDL_VERSION(out x: TSDL_Version);
 begin
   x.major := SDL_MAJOR_VERSION;
   x.minor := SDL_MINOR_VERSION;
@@ -254,17 +254,17 @@ end;
 {$ENDIF}
 
 //from "sdl_rect.h"
-function SDL_RectEmpty(X: TSDL_Rect): Boolean;
+function SDL_RectEmpty(const r: PSDL_Rect): Boolean;
 begin
-  Result := (X.w <= 0) or (X.h <= 0);
+  Result := (r^.w <= 0) or (r^.h <= 0);
 end;
 
-function SDL_RectEquals(A: TSDL_Rect; B: TSDL_Rect): Boolean;
+function SDL_RectEquals(const a, b: PSDL_Rect): Boolean;
 begin
-  Result := (A.x = B.x) and (A.y = B.y) and (A.w = B.w) and (A.h = B.h);
+  Result := (a^.x = b^.x) and (a^.y = b^.y) and (a^.w = b^.w) and (a^.h = b^.h);
 end;
 
-function SDL_PointInRect(const p: PSDL_Point; const r: PSDL_Rect): Boolean; Inline;
+function SDL_PointInRect(const p: PSDL_Point; const r: PSDL_Rect): Boolean;
 begin
   Result := 
     (p^.x >= r^.x) and (p^.x < (r^.x + r^.w)) 
@@ -385,7 +385,8 @@ begin
   Result := SDL_LoadBMP_RW(SDL_RWFromFile(_file, 'rb'), 1);
 end;
 
-function SDL_SaveBMP(Const surface:PSDL_Surface; Const filename:AnsiString):sInt32;
+function SDL_SaveBMP(const surface: PSDL_Surface; const filename: AnsiString
+  ): sInt32;
 begin
    Result := SDL_SaveBMP_RW(surface, SDL_RWFromFile(PAnsiChar(filename), 'wb'), 1)
 end;
@@ -393,18 +394,36 @@ end;
 {**
  *  Evaluates to true if the surface needs to be locked before access.
  *}
-function SDL_MUSTLOCK(Const S:PSDL_Surface):Boolean;
+function SDL_MUSTLOCK(const S: PSDL_Surface): Boolean;
 begin
   Result := ((S^.flags and SDL_RLEACCEL) <> 0)
 end;
 
+//from "sdl_sysvideo.h"
+
+function FULLSCREEN_VISIBLE(W: PSDL_Window): Variant;
+begin
+  Result := ((W^.flags and SDL_WINDOW_FULLSCREEN) and (W^.flags and SDL_WINDOW_SHOWN) and not (W^.flags and SDL_WINDOW_MINIMIZED));
+end;
+
 //from "sdl_video.h"
-function SDL_WindowPos_IsUndefined(X: Variant): Variant;
+
+function SDL_WINDOWPOS_UNDEFINED_DISPLAY(X: Variant): Variant;
+begin
+  Result := (SDL_WINDOWPOS_UNDEFINED_MASK or X);
+end;
+
+function SDL_WINDOWPOS_ISUNDEFINED(X: Variant): Variant;
 begin
   Result := (X and $FFFF0000) = SDL_WINDOWPOS_UNDEFINED_MASK;
 end;
 
-function SDL_WindowPos_IsCentered(X: Variant): Variant;
+function SDL_WINDOWPOS_CENTERED_DISPLAY(X: Variant): Variant;
+begin
+  Result := (SDL_WINDOWPOS_CENTERED_MASK or X);
+end;
+
+function SDL_WINDOWPOS_ISCENTERED(X: Variant): Variant;
 begin
   Result := (X and $FFFF0000) = SDL_WINDOWPOS_CENTERED_MASK;
 end;
@@ -417,7 +436,7 @@ begin
 end;
 
 // from "sdl_timer.h"
-function SDL_TICKS_PASSED(Const A, B:UInt32):Boolean;
+function SDL_TICKS_PASSED(const A, B: UInt32): Boolean;
 begin
    Result := ((Int64(B) - Int64(A)) <= 0)
 end;
@@ -426,7 +445,8 @@ end;
   {**
    *  Load a set of mappings from a file, filtered by the current SDL_GetPlatform()
    *}
-function SDL_GameControllerAddMappingsFromFile(Const FilePath:PAnsiChar):SInt32;
+function SDL_GameControllerAddMappingsFromFile(const FilePath: PAnsiChar
+  ): SInt32;
 begin
   Result := SDL_GameControllerAddMappingsFromRW(SDL_RWFromFile(FilePath, 'rb'), 1)
 end;

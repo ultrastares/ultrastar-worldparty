@@ -41,13 +41,13 @@ function SDL_PointInRect(const p: PSDL_Point; const r: PSDL_Rect): Boolean; Inli
 
   //changed from variant(b�����h!) to TSDL_Rect
   //maybe PSDL_Rect?
-function SDL_RectEmpty(X: TSDL_Rect): Boolean;
+function SDL_RectEmpty(const r: PSDL_Rect): Boolean; inline;
 
     {**
      *  Returns true if the two rectangles are equal.
      *}
 
-function SDL_RectEquals(A: TSDL_Rect; B: TSDL_Rect): Boolean;
+function SDL_RectEquals(const a, b: PSDL_Rect): Boolean; inline;
 
   {**
    *  Determine whether two rectangles intersect.
@@ -55,7 +55,7 @@ function SDL_RectEquals(A: TSDL_Rect; B: TSDL_Rect): Boolean;
    *  SDL_TRUE if there is an intersection, SDL_FALSE otherwise.
    *}
 
-function SDL_HasIntersection(const A: PSDL_Rect; const B: PSDL_Rect): TSDL_Bool cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_HasIntersection' {$ENDIF} {$ENDIF};
+function SDL_HasIntersection(const a, b: PSDL_Rect): TSDL_Bool cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_HasIntersection' {$ENDIF} {$ENDIF};
 
   {**
    *  Calculate the intersection of two rectangles.
@@ -63,13 +63,13 @@ function SDL_HasIntersection(const A: PSDL_Rect; const B: PSDL_Rect): TSDL_Bool 
    *  SDL_TRUE if there is an intersection, SDL_FALSE otherwise.
    *}
 
-function SDL_IntersectRect(const A: PSDL_Rect; const B: PSDL_Rect; result: PSDL_Rect): TSDL_Bool cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_IntersectRect' {$ENDIF} {$ENDIF};
+function SDL_IntersectRect(const A, B: PSDL_Rect; result: PSDL_Rect): TSDL_Bool cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_IntersectRect' {$ENDIF} {$ENDIF};
 
   {**
    *  Calculate the union of two rectangles.
    *}
 
-procedure SDL_UnionRect(const A: PSDL_Rect; const B: PSDL_Rect; result: PSDL_Rect) cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_UnionRect' {$ENDIF} {$ENDIF};
+procedure SDL_UnionRect(const A, B: PSDL_Rect; result: PSDL_Rect) cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_UnionRect' {$ENDIF} {$ENDIF};
 
   {**
    *  Calculate a minimal rectangle enclosing a set of points
@@ -85,4 +85,4 @@ function SDL_EnclosePoints(const points: PSDL_Point; count: SInt32; const clip: 
    *  SDL_TRUE if there is an intersection, SDL_FALSE otherwise.
    *}
 
-function SDL_IntersectRectAndLine(const rect: PSDL_Rect; X1: PInt; Y1: PInt; X2: PInt; Y2: PInt): TSDL_Bool cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_IntersectRectAndLine' {$ENDIF} {$ENDIF};
+function SDL_IntersectRectAndLine(const rect: PSDL_Rect; X1, Y1, X2, Y2: PInt): TSDL_Bool cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_IntersectRectAndLine' {$ENDIF} {$ENDIF};

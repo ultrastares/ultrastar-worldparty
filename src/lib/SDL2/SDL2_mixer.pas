@@ -1,4 +1,4 @@
-unit SDL2_mixer;
+unit sdl2_mixer;
 
 {*
   SDL_mixer:  An audio mixer library based on the SDL library
@@ -45,7 +45,6 @@ const
   {$IFDEF UNIX}
     {$IFDEF DARWIN}
       MIX_LibName = 'libSDL2_mixer.dylib';
-	  {$linklib libSDL2_mixer}
     {$ELSE}
       {$IFDEF FPC}
         MIX_LibName = 'libSDL2_mixer.so';
