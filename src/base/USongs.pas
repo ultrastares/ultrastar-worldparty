@@ -77,7 +77,7 @@ type
     private
       Event: PRTLEvent; //event to fire parsing songs
       Txt: integer; //number of txts parsed
-      Txts: TThreadList; //list to store all parsed songs as TSong object
+      Txts: TList; //list to store all parsed songs as TSong object
     protected
       procedure Execute; override;
     public
@@ -134,20 +134,6 @@ var
   Songs: TSongs; //all songs
   CatSongs: TCatSongs; //categorized songs
 
-const
-  IN_ACCESS        = $00000001; //* File was accessed */
-  IN_MODIFY        = $00000002; //* File was modified */
-  IN_ATTRIB        = $00000004; //* Metadata changed */
-  IN_CLOSE_WRITE   = $00000008; //* Writtable file was closed */
-  IN_CLOSE_NOWRITE = $00000010; //* Unwrittable file closed */
-  IN_OPEN          = $00000020; //* File was opened */
-  IN_MOVED_FROM    = $00000040; //* File was moved from X */
-  IN_MOVED_TO      = $00000080; //* File was moved to Y */
-  IN_CREATE        = $00000100; //* Subfile was created */
-  IN_DELETE        = $00000200; //* Subfile was deleted */
-  IN_DELETE_SELF   = $00000400; //* Self was deleted */
-
-
 implementation
 
 uses
@@ -166,10 +152,10 @@ uses
 constructor TSongsParse.Create();
 begin
   inherited Create(false);
-  Self.FreeOnTerminate := true;
-  Self.Txts := TThreadList.Create();
-  Self.Txt := 0;
   Self.Event := RTLEventCreate();
+  Self.FreeOnTerminate := true;
+  Self.Txt := 0;
+  Self.Txts := TList.Create();
 end;
 
 destructor TSongsParse.Destroy();
@@ -182,24 +168,18 @@ end;
 procedure TSongsParse.Execute();
 var
   Song: TSong;
-  List: TList;
   I: integer;
 begin
   while not Self.Terminated do
   begin
     RtlEventWaitFor(Self.Event);
-    List := Self.Txts.LockList();
-    try
-      for I := Self.Txt to List.Count - 1 do //start to parse from the last position
-      begin
-        Song := TSong(List.Items[I]);
-        if Song.Analyse() then
-          Inc(Self.Txt)
-        else
-          Self.Txts.Remove(Song);
-      end;
-    finally
-      Self.Txts.UnlockList();
+    for I := Self.Txt to Self.Txts.Count - 1 do //start to parse from the last position
+    begin
+      Song := TSong(Self.Txts.Items[I]);
+      if Song.Analyse() then
+        Inc(Self.Txt)
+      else
+        Self.Txts.Remove(Song);
     end;
   end;
 end;
@@ -273,10 +253,10 @@ begin
     Self.FindTxts(IPath(UPathUtils.SongPaths[I]));
   end;
   for I := 0 to High(Self.Threads) do //add all songs parsed to main list
-    Self.SongList.AddList(Self.Threads[I].Txts.LockList());
+    Self.SongList.AddList(Self.Threads[I].Txts);
 
   Log.LogStatus('Search Complete', 'SongList');
-  CatSongs.Refresh;
+  CatSongs.Refresh();
   Self.ProgressSong.Folder := '';
   Self.ProgressSong.Finished := true;
   Log.LogBenchmark('Song loading', 2);
