@@ -68,7 +68,7 @@ File "..\game\covers\*.*"
 
 ; Plugins dir:
 
-;SetOutPath "$INSTDIR\plugins\"
-;File "..\game\plugins\*.*"
+SetOutPath "$INSTDIR\plugins\"
+File "..\game\plugins\*.*"
 
 ;SetOutPath "$INSTDIR"
