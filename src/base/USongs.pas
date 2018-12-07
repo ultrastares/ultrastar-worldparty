@@ -46,6 +46,7 @@ uses
   SysUtils,
   UCatCovers,
   UCommon,
+  UImage,
   UIni,
   ULog,
   UPath,
@@ -88,9 +89,12 @@ type
 
   TSongs = class(TThread)
     private
+      Event: PRTLEvent; //event to fire cover preload
+      PreloadCover: boolean;
       ProgressSong: TProgressSong;
       Threads: array of TSongsParse; //threads to parse songs
       Thread: integer; //current thread
+      CoresAvailable: integer; //cores available for working threads
       procedure FindTxts(const Dir: IPath);
     protected
       procedure Execute; override;
@@ -100,6 +104,7 @@ type
       constructor Create();
       destructor Destroy(); override;
       function GetLoadProgress(): TProgressSong;
+      procedure PreloadCovers(Preload: boolean);
       procedure Sort(OrderType: TSortingType);
   end;
 
@@ -195,11 +200,13 @@ var
   I: integer;
 begin
   inherited Create(false);
+  Self.Event := RTLEventCreate();
   Self.FreeOnTerminate := false;
   Self.SongList := TList.Create();
   Self.Thread := 0;
-  Setlength(Self.Threads, Max(1, CpuCount.GetLogicalCpuCount() - 2)); //total - main and songs threads
-  for I := 0 to High(Self.Threads) do
+  Self.CoresAvailable := Max(1, CpuCount.GetLogicalCpuCount() - 2); //total core - main and songs threads
+  Setlength(Self.Threads, Self.CoresAvailable + 1);
+  for I := 0 to Self.CoresAvailable do
     Self.Threads[I] := TSongsParse.Create();
 end;
 
@@ -207,7 +214,8 @@ destructor TSongs.Destroy();
 var
   I: integer;
 begin
-  for I := 0 to High(Self.Threads) do
+  RTLeventDestroy(Self.Event);
+  for I := 0 to Self.CoresAvailable do
     Self.Threads[I].Terminate();
 
   inherited;
@@ -229,7 +237,7 @@ begin
     begin
       Inc(Self.ProgressSong.Total);
       Self.Threads[Self.Thread].AddSong(Dir.Append(FileInfo.Name));
-      if Self.Thread = High(Self.Threads) then //each txt to one thread
+      if Self.Thread = Self.CoresAvailable then //each txt to one thread
         Self.Thread := 0
       else
         Inc(Self.Thread)
@@ -241,7 +249,6 @@ end;
 procedure TSongs.Execute();
 var
   I: integer;
-  Song: TSong;
 begin
   Log.BenchmarkStart(2);
   Log.LogStatus('Searching For Songs', 'SongList');
@@ -252,7 +259,7 @@ begin
     Self.ProgressSong.Folder := Format(ULanguage.Language.Translate('SING_LOADING_SONGS'), [IPath(UPathUtils.SongPaths[I]).ToNative()]);
     Self.FindTxts(IPath(UPathUtils.SongPaths[I]));
   end;
-  for I := 0 to High(Self.Threads) do //add all songs parsed to main list
+  for I := 0 to Self.CoresAvailable do //add all songs parsed to main list
     Self.SongList.AddList(Self.Threads[I].Txts);
 
   Log.LogStatus('Search Complete', 'SongList');
@@ -260,12 +267,33 @@ begin
   Self.ProgressSong.Folder := '';
   Self.ProgressSong.Finished := true;
   Log.LogBenchmark('Song loading', 2);
+
+  //preloading covers in HDD cache only touching the file
+  Log.BenchmarkStart(3);
+  Self.PreloadCover := true;
+  for I := 0 to High(CatSongs.Song) do
+  begin
+    if not Self.PreloadCover then
+      RtlEventWaitFor(Self.Event);
+
+    UImage.LoadImage(CatSongs.Song[I].Path.Append(CatSongs.Song[I].Cover));
+  end;
+  Log.LogBenchmark('Cover loading', 3);
 end;
 
 function TSongs.GetLoadProgress(): TProgressSong;
 begin
   Result := Self.ProgressSong;
 end;
+
+{* Start/stop the covers preloading *}
+procedure TSongs.PreloadCovers(Preload: boolean);
+begin
+  Self.PreloadCover := Preload;
+  if Preload then
+    RtlEventSetEvent(Self.Event);
+end;
+
 (*
  * Comparison functions for sorting
  *)

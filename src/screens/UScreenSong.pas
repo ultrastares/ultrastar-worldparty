@@ -53,6 +53,7 @@ type
 
   TScreenSong = class(TMenu)
     private
+      DefaultCover: TTexture;
       Equalizer: Tms_Equalizer;
       PreviewOpened: Integer; //interaction of the song that is loaded for preview music -1 if nothing is opened
       IsScrolling: boolean;   //true if song flow is about to move
@@ -61,11 +62,10 @@ type
       LastMinLine: integer; //used on list mode
       ListFirstVisibleSongIndex: integer;
       MainListFirstVisibleSongIndex: integer;
-      Covers: integer; //number of covers to preload
-      PreloadCovers: boolean; //flag to stop to preload covers when exists an user interaction
       procedure StartMusicPreview();
       procedure StartVideoPreview();
-      procedure LoadCover(B: integer);
+      procedure LoadCover(Const I: integer);
+      procedure UnloadCover(Const I: integer);
       procedure LoadMainCover();
     public
       TextArtist:   integer;
@@ -211,7 +211,6 @@ type
       function Draw: boolean; override;
       procedure FadeMessage();
       procedure CloseMessage();
-      procedure AddButtons();
       procedure OnShow; override;
       procedure OnShowFinish; override;
       procedure OnHide; override;
@@ -245,7 +244,6 @@ type
       procedure OnSongSelect;   // called when song flows movement stops at a song
       procedure OnSongDeSelect; // called before current song is deselected
 
-      procedure LoadCovers();
       procedure SongScore;
 
       //Medley
@@ -580,7 +578,7 @@ begin
 
   if (PressedDown) then
   begin // Key Down
-    Self.PreloadCovers := false;
+    USongs.Songs.PreloadCovers(false);
     SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
 
     //jump to artist or title letter
@@ -1139,7 +1137,6 @@ var
   B: integer;
 begin
   Result := true;
-  Self.PreloadCovers := false;
 
   //transfer mousecords to the 800x600 raster we use to draw
   Y := Round((Y / ScreenH) * RenderH);
@@ -1153,6 +1150,7 @@ begin
     Result := UGraphic.ScreenSongJumpTo.ParseMouse(MouseButton, BtnDown, X, Y)
   else if BtnDown then
   begin
+    USongs.Songs.PreloadCovers(false);
     case MouseButton of
       SDL_BUTTON_LEFT:
       begin
@@ -1221,9 +1219,18 @@ var
 begin
   inherited Create;
 
-  Self.AddButtons();
-  Self.Covers := High(USongs.CatSongs.Song);
-  Self.PreloadCovers := true;
+  Self.DefaultCover := UTexture.Texture.LoadTexture(USkins.Skin.GetTextureFileName('SongCover'));
+  for I := 0 to High(USongs.CatSongs.Song) do
+    Self.AddButton(
+      Theme.Song.Cover.X,
+      Theme.Song.Cover.Y,
+      Theme.Song.Cover.W,
+      Theme.Song.Cover.H,
+      PATH_NONE,
+      TEXTURE_TYPE_PLAIN,
+      Theme.Song.Cover.Reflections
+    );
+
   LoadFromTheme(Theme.Song);
 
   TextArtist := AddText(Theme.Song.TextArtist);
@@ -1793,7 +1800,7 @@ begin
         B.DeSelectReflectionspacing := 15 * B.H / Theme.Song.Cover.H;
       end
       else
-        B.Visible := false;
+        Self.UnloadCover(I);
     end;
     Inc(I);
   end;
@@ -1846,14 +1853,14 @@ begin
       end
       else //hide not visible songs upper than MinLine + MaxRow
       begin
-        Self.Button[B].Visible := false;
+        Self.UnloadCover(B);
         Self.Button[B].Z := 0;
       end;
       Inc(Count);
     end
     else //hide not visible songs lower than MinLine
     begin
-      Self.Button[B].Visible := false;
+      Self.UnloadCover(B);
       Self.Button[B].Z := 0;
     end;
     Inc(Index);
@@ -1882,8 +1889,8 @@ begin
       Inc(VisibleIndex);
       if not ((X < -Theme.Song.Cover.W) or (X > 800)) then
         Self.LoadCover(B)
-      else //hide preload covers
-        Self.Button[B].Visible := false;
+      else //hide not visible songs
+        Self.UnloadCover(B);
 
       Self.Button[B].H := Theme.Song.Cover.H;
       Self.Button[B].W := Theme.Song.Cover.W;
@@ -1926,7 +1933,7 @@ begin
         Self.Button[B].DeSelectReflectionspacing := 15 * Self.Button[B].H / Theme.Song.Cover.H;
       end
       else
-        Self.Button[B].Visible := false;
+        Self.UnloadCover(B);
     end;
   end;
 end;
@@ -1982,8 +1989,8 @@ begin
           end
         end;
       end
-      else //hide preload covers
-        Self.Button[B].Visible := false;
+      else //hide not visible songs
+        Self.UnloadCover(B);
     end;
   end;
 end;
@@ -2070,19 +2077,12 @@ begin
         Self.Text[ListTextYear[I]].Text := IfThen(((UIni.Ini.Tabs = 0) or (TSortingType(UIni.Ini.Sorting) <> sYear)) and (USongs.CatSongs.Song[B].Year <> 0), IntToStr(USongs.CatSongs.Song[B].Year), '');
       end
       else
-        Self.Button[B].Visible := false;
+        Self.UnloadCover(B);
+
       Inc(Line);
     end;
   end;
   Self.LoadMainCover();
-end;
-
-procedure TScreenSong.AddButtons();
-var
-  I: integer;
-begin
-  for I := Length(Button) to High(USongs.CatSongs.Song) do
-    Self.AddButton(Theme.Song.Cover.X, Theme.Song.Cover.Y, Theme.Song.Cover.W, Theme.Song.Cover.H, PATH_NONE, TEXTURE_TYPE_PLAIN, Theme.Song.Cover.Reflections);
 end;
 
 procedure TScreenSong.OnShow();
@@ -2096,13 +2096,6 @@ begin
     UGraphic.ScreenSongMenu := TScreenSongMenu.Create();
     UGraphic.ScreenSongJumpto := TScreenSongJumpto.Create();
     UGraphic.ScreenPopupScoreDownload := TScreenPopupScoreDownload.Create();
-  end;
-
-  //add more buttons if needed because this screen can be created before finish loading songs if meanwhile use options screens
-  if Length(Self.Button) < High(USongs.CatSongs.Song) then
-  begin
-    Self.AddButtons();
-    Self.Covers := Length(Self.Button) - 1;
   end;
 
   Self.CloseMessage();
@@ -2286,10 +2279,8 @@ begin
     else if SameValue(Self.SongCurrent, Self.SongTarget, 0.002) and (USongs.CatSongs.GetVisibleSongs() > 0) then
       Self.OnSongSelect();
   end
-  else if Self.PreloadCovers then //start to preload covers slowly if don't exists user interaction
-    Self.LoadCovers()
-  else //enable again after user interaction
-    Self.PreloadCovers := true;
+  else //start to preload covers
+    USongs.Songs.PreloadCovers(true);
 
   Self.SetScroll();
 
@@ -2760,8 +2751,7 @@ end;
 procedure TScreenSong.SelectRandomSong;
   procedure SkipToNoDuet();
   var
-    Count: Integer;
-    RealTarget, Target: cardinal;
+    Count, RealTarget, Target: Integer;
   begin
     if (Mode = smPartyClassic) then
     begin
@@ -2985,37 +2975,29 @@ begin
   end;
 end;
 
-{ Preload covers on draw if not exists a user interaction }
-procedure TScreenSong.LoadCovers();
+{ Load a cover dynamically in a song button }
+procedure TScreenSong.LoadCover(Const I: integer);
 begin
-  if Self.Covers > 0 then
+  if Self.Button[I].Texture.TexNum = 0 then
   begin
-    Self.LoadCover(Self.Covers);
-    Dec(Self.Covers);
-  end
+    Self.Button[I].Texture := UTexture.Texture.LoadTexture(USongs.CatSongs.Song[I].Path.Append(USongs.CatSongs.Song[I].Cover));
+    if Self.Button[I].Texture.TexNum = 0 then
+      Self.Button[I].Texture := Self.DefaultCover;
+  end;
 end;
 
-{ Load covers dynamically in a song button }
-procedure TScreenSong.LoadCover(B: integer);
+{ Unload a cover and hide his button }
+procedure TScreenSong.UnloadCover(Const I: integer);
 begin
-  if not Assigned(Self.Button[B].Texture.Name) then
-  begin
-    Self.Button[B].Texture := UTexture.Texture.LoadTexture(USongs.CatSongs.Song[B].Path.Append(USongs.CatSongs.Song[B].Cover));
-    if not Assigned(Self.Button[B].Texture.Name) then //the default cover is used if texture assignment failed or don't exist
-      Self.Button[B].Texture := UTexture.Texture.LoadTexture(USkins.Skin.GetTextureFileName('SongCover'));
-  end;
+  Self.Button[I].Visible := false;
+  if Self.Button[I].Texture.TexNum <> 0 then
+    UTexture.Texture.UnLoadTexture(Self.Button[I].Texture);
 end;
 
 { Load main cover in some game modes }
 procedure TScreenSong.LoadMainCover();
 begin
-  if Statics[Self.MainCover].Texture.Name <> Skin.GetTextureFileName('SongCover') then
-    glDeleteTextures(1, PGLuint(@Statics[Self.MainCover].Texture.TexNum));
-
-  if TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smMosaic] then //to load cover after change line
-    Self.LoadCover(Self.Interaction);
-
-  Statics[Self.MainCover].Texture := UTexture.Texture.LoadTexture(Button[Self.Interaction].Texture.Name);
+  Statics[Self.MainCover].Texture := Button[Self.Interaction].Texture;
   Statics[Self.MainCover].Texture.X := Theme.Song.Cover.SelectX;
   Statics[Self.MainCover].Texture.Y := Theme.Song.Cover.SelectY;
   Statics[Self.MainCover].Texture.W := Theme.Song.Cover.SelectW;
@@ -3304,8 +3286,8 @@ begin
     //while (CatSongs.Song[Count].Main) do
     //  Count := Count + 1;
 
-    if (CatSongs.Song[I].CoverTex.TexNum > 0) then
-      Button[I].Texture := CatSongs.Song[I].CoverTex;
+    // if (CatSongs.Song[I].CoverTex.TexNum > 0) then
+    //   Button[I].Texture := CatSongs.Song[I].CoverTex;
     //else
     //Count := Count + 1;
   end;

@@ -47,14 +47,12 @@ type
     public
       constructor Create(); override;
       function ParseInput(PressedKey: Cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
-      function ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean; override;
       function Draw: boolean; override;
       procedure OnShow; override;
       procedure SetInteraction(Num: integer); override;
       procedure SetAnimationProgress(Progress: real); override;
     private
       TextDescription, TextDescriptionLong, TextProgressSongs: integer;
-      PreloadCovers: boolean; //flag to stop to preload covers when exists an user interaction
       function CheckSongs(): boolean;
   end;
 
@@ -85,7 +83,6 @@ begin
   Result := true;
   if (PressedDown) then
   begin
-    Self.PreloadCovers := false;
     //check normal keys
     case UCS4UpperCase(CharCode) of
       Ord('Q'):
@@ -186,12 +183,6 @@ begin
   end
 end;
 
-function TScreenMain.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
-begin
-  Result := inherited;
-  Self.PreloadCovers := false;
-end;
-
 constructor TScreenMain.Create();
 begin
   inherited Create();
@@ -219,7 +210,6 @@ begin
 
   AddButton(Theme.Main.ButtonAbout);
   Interaction := 0;
-  Self.PreloadCovers := true;
 end;
 
 function TScreenMain.Draw: boolean;
@@ -227,27 +217,21 @@ var
   ProgressSong: TProgressSong;
 begin
   inherited Draw;
+  Result := true;
   ProgressSong := USongs.Songs.GetLoadProgress();
   if not ProgressSong.Finished then //while song loading show progress
   begin
     Self.Text[TextDescriptionLong].Visible := false;
     Self.Text[TextProgressSongs].Text := ProgressSong.Folder+': '+IntToStr(ProgressSong.Total);
   end
-  else //after finish song loading, return to normal mode, close popup and start to preload covers
+  else if not Assigned(UGraphic.ScreenSong) then //after finish song loading, return to normal mode and close popup
   begin
+    UGraphic.ScreenSong := TScreenSong.Create();
     Self.Text[TextDescriptionLong].Visible := true;
     Self.Text[TextProgressSongs].Visible := false;
     if ProgressSong.Total > 0 then
       UGraphic.ScreenPopupError.Visible := false;
-
-    if not Assigned(UGraphic.ScreenSong) then
-      UGraphic.ScreenSong := TScreenSong.Create()
-    else if Self.PreloadCovers then //start to preload covers slowly if don't exists user interaction
-      UGraphic.ScreenSong.LoadCovers()
-    else //enable again after user interaction
-      Self.PreloadCovers := true;
   end;
-  Result := true;
 end;
 
 procedure TScreenMain.OnShow;
