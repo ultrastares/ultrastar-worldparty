@@ -390,10 +390,7 @@ begin
     else
     begin
       for I := 1 to IfThen(PressedKey = SDLK_PAGEDOWN, Theme.Song.Cover.Rows, 1) do
-      begin
         Self.SelectNext();
-        Self.SetScroll(true)
-      end;
     end;
   end;
 end;
@@ -422,10 +419,7 @@ begin
     else
     begin
       for I := 1 to IfThen(PressedKey = SDLK_PAGEUP, Theme.Song.Cover.Rows, 1) do
-      begin
         Self.SelectPrev();
-        Self.SetScroll(true)
-      end;
     end;
   end;
 end;
@@ -471,10 +465,7 @@ begin
       end
       else
         for I := 1 to IfThen(PressedKey = SDLK_PAGEDOWN, Theme.Song.Cover.Rows, 1) do
-        begin
           Self.SelectNextRow();
-          Self.SetScroll(true)
-        end;
     end
     else
     begin
@@ -531,10 +522,7 @@ begin
       end
       else
         for I := 1 to IfThen(PressedKey = SDLK_PAGEUP, Theme.Song.Cover.Rows, 1) do
-        begin
           Self.SelectPrevRow();
-          Self.SetScroll(true)
-        end;
     end
     else
     begin
@@ -1823,7 +1811,7 @@ begin
         Self.LoadCover(B);
         Self.Button[B].X := Theme.Song.Cover.X + (CoverW + Theme.Song.Cover.Padding) * (Count mod MaxCol);
         Self.Button[B].Y := Theme.Song.Cover.Y + (CoverH + Theme.Song.Cover.Padding) * (Line - Self.MinLine);
-        if Index = Interaction then
+        if Index = Self.Interaction then
         begin
           if Self.Button[B].H < Theme.Song.Cover.ZoomThumbH then //zoom effect in 10 steps
           begin
@@ -1848,6 +1836,8 @@ begin
       else //hide not visible songs upper than MinLine + MaxRow
       begin
         Self.UnloadCover(B);
+        Self.Button[B].H := CoverH; //set H and W is needed with tabs on
+        Self.Button[B].W := CoverW;
         Self.Button[B].Z := 0;
       end;
       Inc(Count);
@@ -1855,6 +1845,8 @@ begin
     else //hide not visible songs lower than MinLine
     begin
       Self.UnloadCover(B);
+      Self.Button[B].H := CoverH; //set H and W is needed with tabs on
+      Self.Button[B].W := CoverW;
       Self.Button[B].Z := 0;
     end;
     Inc(Index);
@@ -2725,20 +2717,16 @@ procedure TScreenSong.SkipTo(Target: cardinal);
 var
   I: integer;
 begin
-  if (TSongMenuMode(UIni.Ini.SongMenu) in [smRoulette, smCarousel, smSlide, smSlotMachine]) then
-  begin
-    Self.Interaction := High(CatSongs.Song);
-    Self.SongTarget := 0;
-    for I := 0 to Target do
-      Self.SelectNext();
+  Self.Interaction := Target - 1;
+  Self.SongTarget := Self.Interaction;
+  if UIni.Ini.Tabs = 0 then
+    Target := 1;
 
-    Self.FixSelected2();
-  end
-  else if (TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smList, smMosaic]) then //TODO it fails with tabs on
-  begin
-    Self.Interaction := Target - 1;
+  for I := 0 to Target do
     Self.SelectNext();
-  end;
+
+  if (UIni.Ini.Tabs = 1) and ((TSongMenuMode(UIni.Ini.SongMenu) in [smRoulette, smCarousel, smSlide, smSlotMachine])) then
+    Self.FixSelected2(); //TODO find other solution
 end;
 
 
