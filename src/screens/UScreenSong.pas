@@ -2990,7 +2990,7 @@ end;
 procedure TScreenSong.UnloadCover(Const I: integer);
 begin
   Self.Button[I].Visible := false;
-  if Self.Button[I].Texture.TexNum <> 0 then
+  if (Self.Button[I].Texture.TexNum <> 0) and (Self.Button[I].Texture.TexNum <> Self.DefaultCover.TexNum) then
     UTexture.Texture.UnLoadTexture(Self.Button[I].Texture);
 end;
 

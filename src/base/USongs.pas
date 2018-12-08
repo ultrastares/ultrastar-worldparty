@@ -43,6 +43,7 @@ uses
     UnixType,
   {$ENDIF}
   CpuCount,
+  sdl2,
   SysUtils,
   UCatCovers,
   UCommon,
@@ -276,7 +277,7 @@ begin
     if not Self.PreloadCover then
       RtlEventWaitFor(Self.Event);
 
-    UImage.LoadImage(CatSongs.Song[I].Path.Append(CatSongs.Song[I].Cover));
+    SDL_FreeSurface(UImage.LoadImage(CatSongs.Song[I].Path.Append(CatSongs.Song[I].Cover)));
   end;
   Log.LogBenchmark('Cover loading', 3);
 end;

@@ -126,8 +126,8 @@ procedure AdjustPixelFormat(var TexSurface: PSDL_Surface; Typ: TTextureType);
 var
   NeededPixFmt: UInt32;
 begin
-  NeededPixFmt := IfThen((Typ = TEXTURE_TYPE_TRANSPARENT) or (Typ = TEXTURE_TYPE_COLORIZED), SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_RGB24);
-  if not (TexSurface^.format.format = NeededPixFmt) then
+  NeededPixFmt := IfThen(Typ = TEXTURE_TYPE_PLAIN, SDL_PIXELFORMAT_RGB24, SDL_PIXELFORMAT_ABGR8888);
+  if TexSurface^.format.format <> NeededPixFmt then
     TexSurface := SDL_ConvertSurfaceFormat(TexSurface, NeededPixFmt, 0);
 end;
 
@@ -158,15 +158,16 @@ begin
   // zero texture data
   FillChar(Result, SizeOf(Result), 0);
 
+  if (Identifier = nil) or (Identifier.IsUnset()) then
+    Exit;
+
   // load texture data into memory
-  if not (Identifier = nil) then
+  TexSurface := LoadImage(Identifier);
+  if not Assigned(TexSurface) then
   begin
-    TexSurface := LoadImage(Identifier);
-    if not assigned(TexSurface) then
-    begin
-      Log.LogError('Could not load texture: "' + Identifier.ToNative +'" with type "'+ TextureTypeToStr(Typ) +'"', 'TTextureUnit.LoadTexture');
-      Exit;
-    end;
+    SDL_FreeSurface(TexSurface);
+    Log.LogError('Could not load texture: "' + Identifier.ToNative() +'" with type "'+ TextureTypeToStr(Typ) +'"', 'TTextureUnit.LoadTexture');
+    Exit;
   end;
 
   // convert pixel format as needed
