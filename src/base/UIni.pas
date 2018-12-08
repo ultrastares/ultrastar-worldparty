@@ -134,8 +134,7 @@ type
 
 
       // Graphics
-      MaxFramerate:   byte;
-      MaxFramerateGet: byte;
+      MaxFramerate: integer;
       Screens:        integer;
       Split:          integer;
       Resolution:     integer;             // Resolution for windowed mode
@@ -329,7 +328,6 @@ const
 
   IDebug:            array[0..1] of UTF8String  = ('Off', 'On');
 
-  IMaxFramerate:     array[0..11] of UTF8String  = ('10', '20', '30', '40', '50', '60', '70', '80', '90', '100', '150', '200');
   IScreens:          array[0..1] of UTF8String  = ('1', '2');
   ISplit:            array[0..1] of UTF8String  = ('Off', 'On');
   IFullScreen:       array[0..2] of UTF8String  = ('Off', 'On', 'Borderless');
@@ -598,7 +596,7 @@ begin
       0..9 : Zeros := '000';
       10..99 : Zeros := '00';
       100..999 : Zeros := '0';
-      1000..9999 : Zeros := '';
+      else Zeros := ''; //1000..9999
     end;
 
     IAutoScoreEasyTranslated[I]   := '+' + Zeros + IntToStr(I);
@@ -870,8 +868,7 @@ var
   CurrentMode, ModeIter, MaxMode: TSDL_DisplayMode;
   CurrentRes, ResString: string;
 begin
-  MaxFramerate := ReadArrayIndex(IMaxFramerate, IniFile, 'Graphics', 'MaxFramerate', IGNORE_INDEX, '60');
-  MaxFramerateGet:= StrToInt(IMaxFramerate[MaxFramerate]);
+  MaxFramerate := IniFile.ReadInteger('Graphics', 'MaxFramerate', 60);
   // Screens
   Screens := ReadArrayIndex(IScreens, IniFile, 'Graphics', 'Screens', 0);
 
@@ -916,6 +913,7 @@ begin
   DisplayIndex := -1;
   MaxMode.h := 0; MaxMode.w := 0;
   CurrentMode.h := -1; CurrentMode.w := -1;
+  CurrentRes := '';
   for I := 0 to SDL_GetNumVideoDisplays() - 1 do
   begin
     Success := SDL_GetCurrentDisplayMode(I,  @CurrentMode);
@@ -1385,7 +1383,7 @@ begin
   IniFile.WriteString('Controller', 'Joypad', IJoypad[Joypad]);
 
   // MaxFramerate
-  IniFile.WriteString('Graphics', 'MaxFramerate', IMaxFramerate[MaxFramerate]);
+  IniFile.WriteInteger('Graphics', 'MaxFramerate', MaxFramerate);
 
   // Screens
   IniFile.WriteString('Graphics', 'Screens', IScreens[Screens]);
