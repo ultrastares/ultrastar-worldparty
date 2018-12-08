@@ -746,8 +746,7 @@ begin
       Ord('R'):
         begin
           Randomize;
-          if (Songs.SongList.Count > 0) and
-             (FreeListMode) then
+          if (USongs.CatSongs.GetVisibleSongs() > 1) and Self.FreeListMode then
           begin
             if (SDL_ModState = KMOD_LSHIFT) and (UIni.Ini.Tabs = 1) then // random category
             begin
@@ -812,13 +811,8 @@ begin
               Self.SkipTo(I2 - I);
             end
             else // random in one category
-            begin
               Self.SkipTo(Random(USongs.CatSongs.GetVisibleSongs()));
-            end;
-
-            Self.SetScroll(true);
           end;
-          Exit;
         end;
 
       Ord('W'):
