@@ -224,7 +224,7 @@ begin
     Self.Text[TextDescriptionLong].Visible := false;
     Self.Text[TextProgressSongs].Text := ProgressSong.Folder+': '+IntToStr(ProgressSong.Total);
   end
-  else if not Assigned(UGraphic.ScreenSong) then //after finish song loading, return to normal mode and close popup
+  else if Self.Text[TextDescriptionLong].Visible = false then //after finish song loading, return to normal mode and close popup
   begin
     UGraphic.ScreenSong := TScreenSong.Create();
     Self.Text[TextDescriptionLong].Visible := true;
