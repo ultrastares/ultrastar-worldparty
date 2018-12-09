@@ -2250,7 +2250,7 @@ begin
 
   FadeMessage();
 
-  if Self.IsScrolling and (TSongMenuMode(UIni.Ini.SongMenu) <> smChessboard) then
+  if Self.IsScrolling and not ((TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic])) then
   begin
     dx := SongTarget - SongCurrent;
     dt := TimeSkip * 7;
@@ -2482,12 +2482,18 @@ begin
 
     //try to keep all at the beginning when a filter is applied
     if Self.SongTarget + 1 = USongs.CatSongs.GetVisibleSongs() then //go to initial song if reach the end of subselection list with fast movements
-      Self.SongTarget := 0
+    begin
+      Self.SongTarget := 0;
+      Self.SongCurrent := -1;
+    end
     else if (USongs.CatSongs.GetVisibleSongs() - 1 < High(USongs.CatSongs.Song)) and (Round(Self.SongTarget) = Self.Interaction) then
     begin
       Self.SongTarget := Round(Self.SongCurrent + 1); //translate SongTarget from regular to new position after apply a filter
       if Self.SongTarget = USongs.CatSongs.GetVisibleSongs() then //go to initial song if reach the end of subselection list with slow movements
-        Self.SongTarget := 0
+      begin
+        Self.SongTarget := 0;
+        Self.SongCurrent := -1;
+      end
     end
     else
       Self.SongTarget := Self.SongTarget + 1;
@@ -2515,12 +2521,18 @@ begin
 
     //try to keep all at the beginning when a filter is applied
     if Self.SongTarget - 1 < 0 then //go to final song if reach the start of subselection list with fast movements
-      Self.SongTarget := USongs.CatSongs.GetVisibleSongs() - 1
+    begin
+      Self.SongTarget := USongs.CatSongs.GetVisibleSongs() - 1;
+      Self.SongCurrent := USongs.CatSongs.GetVisibleSongs();
+    end
     else if (USongs.CatSongs.GetVisibleSongs() - 1 < High(USongs.CatSongs.Song)) and (Round(Self.SongTarget) = Self.Interaction) then
     begin
       Self.SongTarget := Round(Self.SongCurrent - 1); //translate SongTarget from regular to new position after apply a filter
       if Self.SongTarget < 0 then //go to final song if reach the start of subselection list with slow movements
-        Self.SongTarget := USongs.CatSongs.GetVisibleSongs() - 1
+      begin
+        Self.SongTarget := USongs.CatSongs.GetVisibleSongs() - 1;
+        Self.SongCurrent := USongs.CatSongs.GetVisibleSongs();
+      end;
     end
     else
       Self.SongTarget := Self.SongTarget - 1;
