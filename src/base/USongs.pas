@@ -127,13 +127,13 @@ type
     procedure HideCategory(Index: integer);                 // hides all songs in category
     procedure ClickCategoryButton(Index: integer);          // uses ShowCategory and HideCategory when needed
     procedure ShowCategoryList;                             // Hides all Songs And Show the List of all Categorys
-    function FindNextVisible(SearchFrom: integer): integer;
-    function FindPreviousVisible(SearchFrom: integer): integer;
-    function FindGlobalIndex(VisibleIndex:integer): integer;
-    function GetVisibleSongs(): integer; //returns number of visible songs
+    function FindNextVisible(SearchFrom: integer): integer; //find next visible song
+    function FindPreviousVisible(SearchFrom: integer): integer; //find previous visible song
+    function FindGlobalIndex(VisibleIndex:integer): integer; //find global index of all songs from a index of visible songs subgroup
+    function FindVisibleIndex(Index: integer): integer; //find the index of a song in the subset of all visible songs
     procedure SetVisibleSongs(); //sets number of visible songs
-    function VisibleIndex(Index: integer): integer;         // returns visible song index (skips invisible)
-
+    function GetVisibleSongs(): integer; //returns number of visible songs
+    function IsFilterApplied(): boolean; //returns if some filter has been applied to song list
     function SetFilter(FilterStr: UTF8String; Filter: TSongFilter): cardinal;
   end;
 
@@ -747,18 +747,42 @@ begin
   end;
 end;
 
-{* From a index of visible songs subgroup find global index of all songs *}
+{* Find global index of all songs from a index of visible songs subgroup  *}
 function TCatSongs.FindGlobalIndex(VisibleIndex:integer): integer;
 begin
-  Result := -1;
-  while VisibleIndex >= 0 do
+  if not Self.IsFilterApplied() then
+    Result := VisibleIndex
+  else
   begin
-    Inc(Result);
-    if USongs.CatSongs.Song[Result].Visible then
-      Dec(VisibleIndex);
+    Result := -1;
+    while VisibleIndex >= 0 do
+    begin
+      Inc(Result);
+      if USongs.CatSongs.Song[Result].Visible then
+        Dec(VisibleIndex);
+    end;
   end;
 end;
 
+(* Returns the index of a song in the subset of all visible songs *)
+function TCatSongs.FindVisibleIndex(Index: integer): integer;
+var
+  SongIndex: integer;
+begin
+  if not Self.IsFilterApplied() then
+    Result := Index
+  else
+  begin
+    Result := 0;
+    for SongIndex := 0 to Index - 1 do
+    begin
+      if (CatSongs.Song[SongIndex].Visible) then
+        Inc(Result);
+    end;
+  end;
+end;
+
+{* Sets number of visible songs *}
 procedure TCatSongs.SetVisibleSongs();
 var
   I: integer;
@@ -769,26 +793,16 @@ begin
           Inc(Self.VisibleSongs);
 end;
 
+{* Returns number of visible songs *}
 function TCatSongs.GetVisibleSongs(): integer;
 begin
   Result := Self.VisibleSongs;
 end;
 
-
-(**
- * Returns the index of a song in the subset of all visible songs.
- * If all songs are visible, the result will be equal to the Index parameter.
- *)
-function TCatSongs.VisibleIndex(Index: integer): integer;
-var
-  SongIndex: integer;
+{* Returns if some filter has been applied to song list *}
+function TCatSongs.IsFilterApplied(): boolean;
 begin
-  Result := 0;
-  for SongIndex := 0 to Index - 1 do
-  begin
-    if (CatSongs.Song[SongIndex].Visible) then
-      Inc(Result);
-  end;
+  Result := Self.VisibleSongs < High(CatSongs.Song) + 1;
 end;
 
 function TCatSongs.SetFilter(FilterStr: UTF8String; Filter: TSongFilter): cardinal;

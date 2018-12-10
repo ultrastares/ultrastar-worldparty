@@ -470,11 +470,7 @@ begin
     else
     begin
       if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smSlotMachine]) then
-      begin
-        // chessboard change row
-        SelectNextRow;
-        Self.SetScroll(true);
-      end;
+        Self.SelectNextRow();
     end;
   end;
 end;
@@ -527,12 +523,7 @@ begin
     else
     begin
       if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smSlotMachine, smList]) then
-      begin
-        // chessboard change row
-        SelectPrevRow;
-        Self.SetScroll(true);
-
-      end;
+        Self.SelectPrevRow();
     end;
   end;
 
@@ -1687,10 +1678,8 @@ begin
       else
         Text[TextTitle].Text  := '(' + IntToStr(CatSongs.Song[Interaction].CatNumber) + ' ' + Language.Translate('SING_SONGS_IN_CAT') + ')';
     end
-    else if (CatSongs.CatNumShow = -2) then
-      Text[TextNumber].Text := IntToStr(CatSongs.VisibleIndex(Interaction)+1) + '/' + IntToStr(VS)
-    else if (CatSongs.CatNumShow = -3) then
-      Text[TextNumber].Text := IntToStr(CatSongs.VisibleIndex(Interaction)+1) + '/' + IntToStr(VS)
+    else if (CatSongs.CatNumShow < -1) then //FIXME includes -2 and -3... but why this CatNumShow?
+      Text[TextNumber].Text := IntToStr(CatSongs.FindVisibleIndex(Interaction)+1) + '/' + IntToStr(VS)
     else if (UIni.Ini.Tabs = 1) then
     begin
       Text[TextNumber].Text := IntToStr(CatSongs.Song[Interaction].CatNumber)+ '/' + IntToStr(VS);
@@ -1815,6 +1804,9 @@ begin
         begin
           if Self.Button[B].H < Theme.Song.Cover.ZoomThumbH then //zoom effect in 10 steps
           begin
+            if Self.Button[B].H = CoverH then
+              Self.LoadMainCover();
+
             Self.Button[B].H := Self.Button[B].H + ((Theme.Song.Cover.ZoomThumbH - CoverH) / 10);
             Self.Button[B].W := Self.Button[B].W + ((Theme.Song.Cover.ZoomThumbW - CoverW) / 10);
           end
@@ -1851,10 +1843,9 @@ begin
     end;
     Inc(Index);
   end;
-  Self.LoadMainCover();
   if not Self.Button[Self.Interaction].Visible then
   begin
-    Self.MinLine := Ceil((USongs.CatSongs.VisibleIndex(Self.Interaction) + 1 - MaxCol * MaxRow) / MaxCol);
+    Self.MinLine := Ceil((USongs.CatSongs.FindVisibleIndex(Self.Interaction) + 1 - MaxCol * MaxRow) / MaxCol);
     if (Line - Self.MinLine) > MaxRow then //to decrease line when push up (or pag up) key
       Self.MinLine += MaxRow - 1;
   end;
@@ -1986,7 +1977,7 @@ var
   B, Line, I, Current:  integer;
   Alpha: real;
 begin
-  Current := USongs.CatSongs.VisibleIndex(Self.Interaction);
+  Current := USongs.CatSongs.FindVisibleIndex(Self.Interaction);
   //move up at the start of list or in the rest of it
   if (Current < Self.MinLine) and ((Current < Theme.Song.Cover.Rows) or (Current <= Self.LastMinLine)) then
     Self.MinLine := Current
@@ -2166,11 +2157,7 @@ begin
 
   //Cat Mod etc
   if (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow = -1) then
-  begin
-    CatSongs.ShowCategoryList;
-    if (TSongMenuMode(Ini.SongMenu) <> smCarousel) and (TSongMenuMode(Ini.SongMenu) <> smSlide) then
-      FixSelected;
-  end
+    USongs.CatSongs.ShowCategoryList()
   else //initialize visible songs
     USongs.CatSongs.SetVisibleSongs();
 
@@ -2708,10 +2695,8 @@ end;
 procedure TScreenSong.SkipTo(Target: cardinal);
 var
   I: integer;
-  FiltersApplied: boolean;
 begin
-  FiltersApplied := USongs.CatSongs.GetVisibleSongs() < High(USongs.CatSongs.Song) + 1;
-  if (not USongs.CatSongs.Song[Self.Interaction].Main) and FiltersApplied then //find global index when filters are applied
+  if (not USongs.CatSongs.Song[Self.Interaction].Main) and USongs.CatSongs.IsFilterApplied() then //find global index when filters are applied
     Target := USongs.CatSongs.FindGlobalIndex(Target);
 
   Self.Interaction := Target - 1;
@@ -2724,7 +2709,7 @@ begin
 
   if //TODO find another solution for this modes with tabs on and categories are shown or when filters are applied
     ((TSongMenuMode(UIni.Ini.SongMenu) in [smRoulette, smCarousel, smSlide, smSlotMachine]))
-    and ((USongs.CatSongs.Song[Self.Interaction].Main) or FiltersApplied)
+    and ((USongs.CatSongs.Song[Self.Interaction].Main) or USongs.CatSongs.IsFilterApplied())
   then
     Self.FixSelected2();
 end;
