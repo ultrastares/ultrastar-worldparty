@@ -127,8 +127,9 @@ type
     procedure HideCategory(Index: integer);                 // hides all songs in category
     procedure ClickCategoryButton(Index: integer);          // uses ShowCategory and HideCategory when needed
     procedure ShowCategoryList;                             // Hides all Songs And Show the List of all Categorys
-    function FindNextVisible(SearchFrom: integer): integer; // Find Next visible Song
-    function FindPreviousVisible(SearchFrom: integer): integer; // Find Previous visible Song
+    function FindNextVisible(SearchFrom: integer): integer;
+    function FindPreviousVisible(SearchFrom: integer): integer;
+    function FindGlobalIndex(VisibleIndex:integer): integer;
     function GetVisibleSongs(): integer; //returns number of visible songs
     procedure SetVisibleSongs(); //sets number of visible songs
     function VisibleIndex(Index: integer): integer;         // returns visible song index (skips invisible)
@@ -710,46 +711,51 @@ begin
   CatNumShow := -1;
 end;
 
-// Wrong song selected when tabs on bug
-function TCatSongs.FindNextVisible(SearchFrom:integer): integer;// Find next Visible Song
+{* Find next visible song *}
+function TCatSongs.FindNextVisible(SearchFrom:integer): integer;
 var
   I: integer;
 begin
   Result := -1;
-  I := SearchFrom;
-  while (Result = -1) do
+  I := SearchFrom + 1;
+  while (Result = -1) and (I <> SearchFrom) do
   begin
-    Inc (I);
-
-    if (I > High(CatSongs.Song)) then
-      I := Low(CatSongs.Song);
-
-    if (I = SearchFrom) then // Make One Round and no song found->quit
-      Break;
-
     if (CatSongs.Song[I].Visible) then
       Result := I;
+
+    Inc(I);
+    if (I > High(CatSongs.Song)) then
+      I := 0;
   end;
 end;
 
-function TCatSongs.FindPreviousVisible(SearchFrom:integer): integer;// Find previous Visible Song
+{* Find previous visible song *}
+function TCatSongs.FindPreviousVisible(SearchFrom:integer): integer;
 var
   I: integer;
 begin
   Result := -1;
-  I := SearchFrom;
-  while (Result = -1) do
+  I := SearchFrom - 1;
+  while (Result = -1) and (I <> SearchFrom) do
   begin
-    Dec (I);
-
-    if (I < Low(CatSongs.Song)) then
-      I := High(CatSongs.Song);
-
-    if (I = SearchFrom) then // Make One Round and no song found->quit
-      Break;
-
     if (CatSongs.Song[I].Visible) then
       Result := I;
+
+    Dec(I);
+    if I < 0 then
+      I := High(CatSongs.Song);
+  end;
+end;
+
+{* From a index of visible songs subgroup find global index of all songs *}
+function TCatSongs.FindGlobalIndex(VisibleIndex:integer): integer;
+begin
+  Result := -1;
+  while VisibleIndex >= 0 do
+  begin
+    Inc(Result);
+    if USongs.CatSongs.Song[Result].Visible then
+      Dec(VisibleIndex);
   end;
 end;
 

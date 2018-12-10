@@ -2471,9 +2471,6 @@ begin
 end;
 
 procedure TScreenSong.SelectNext();
-var
-  Skip: integer;
-  NextInt: integer;
 begin
   if USongs.CatSongs.GetVisibleSongs() > 0 then
   begin
@@ -2498,21 +2495,11 @@ begin
     else
       Self.SongTarget := Self.SongTarget + 1;
 
-    Skip := 1;
-    // this 1 could be changed by CatSongs.FindNextVisible
-    while (not CatSongs.Song[(Interaction + Skip) mod Length(Interactions)].Visible) do
-      Inc(Skip);
-
-    NextInt := (Interaction + Skip) mod Length(Interactions);
-    if not ((TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic]) and (NextInt < Interaction)) then
-      Interaction := NextInt;
+    Self.Interaction := USongs.CatSongs.FindNextVisible(Self.Interaction);
   end;
 end;
 
 procedure TScreenSong.SelectPrev;
-var
-  Skip: integer;
-  PrevInt: integer;
 begin
   if (USongs.CatSongs.GetVisibleSongs() > 0) then
   begin
@@ -2537,14 +2524,7 @@ begin
     else
       Self.SongTarget := Self.SongTarget - 1;
 
-    Skip := 1;
-
-    while (not CatSongs.Song[(Interaction - Skip + Length(Interactions)) mod Length(Interactions)].Visible) do
-      Inc(Skip);
-
-    PrevInt := (Interaction - Skip + Length(Interactions)) mod Length(Interactions);
-    if not ((TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic]) and (PrevInt > Interaction)) then
-      Interaction := PrevInt;
+    Self.Interaction := USongs.CatSongs.FindPreviousVisible(Self.Interaction);
   end;
 end;
 
@@ -2728,7 +2708,12 @@ end;
 procedure TScreenSong.SkipTo(Target: cardinal);
 var
   I: integer;
+  FiltersApplied: boolean;
 begin
+  FiltersApplied := USongs.CatSongs.GetVisibleSongs() < High(USongs.CatSongs.Song) + 1;
+  if (not USongs.CatSongs.Song[Self.Interaction].Main) and FiltersApplied then //find global index when filters are applied
+    Target := USongs.CatSongs.FindGlobalIndex(Target);
+
   Self.Interaction := Target - 1;
   Self.SongTarget := Self.Interaction;
   if UIni.Ini.Tabs = 0 then
@@ -2737,8 +2722,11 @@ begin
   for I := 0 to Target do
     Self.SelectNext();
 
-  if (UIni.Ini.Tabs = 1) and ((TSongMenuMode(UIni.Ini.SongMenu) in [smRoulette, smCarousel, smSlide, smSlotMachine])) then
-    Self.FixSelected2(); //TODO find other solution
+  if //TODO find another solution for this modes with tabs on and categories are shown or when filters are applied
+    ((TSongMenuMode(UIni.Ini.SongMenu) in [smRoulette, smCarousel, smSlide, smSlotMachine]))
+    and ((USongs.CatSongs.Song[Self.Interaction].Main) or FiltersApplied)
+  then
+    Self.FixSelected2();
 end;
 
 
