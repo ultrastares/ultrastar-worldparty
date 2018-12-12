@@ -716,9 +716,9 @@ function TCatSongs.FindNextVisible(SearchFrom:integer): integer;
 var
   I: integer;
 begin
-  Result := -1;
+  Result := SearchFrom;
   I := SearchFrom + 1;
-  while (Result = -1) and (I <> SearchFrom) do
+  while (Result = SearchFrom) and (I <> SearchFrom) do
   begin
     if (CatSongs.Song[I].Visible) then
       Result := I;
@@ -734,9 +734,9 @@ function TCatSongs.FindPreviousVisible(SearchFrom:integer): integer;
 var
   I: integer;
 begin
-  Result := -1;
+  Result := SearchFrom;
   I := SearchFrom - 1;
-  while (Result = -1) and (I <> SearchFrom) do
+  while (Result = SearchFrom) and (I <> SearchFrom) do
   begin
     if (CatSongs.Song[I].Visible) then
       Result := I;
