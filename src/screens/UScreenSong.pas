@@ -725,72 +725,16 @@ begin
       Ord('R'):
         begin
           Randomize;
-          if (USongs.CatSongs.GetVisibleSongs() > 1) and Self.FreeListMode then
+          if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode then
           begin
-            if (SDL_ModState = KMOD_LSHIFT) and (UIni.Ini.Tabs = 1) then // random category
+            if (SDL_ModState = KMOD_LSHIFT) and (UIni.Ini.Tabs = 1) then //random song of a category
             begin
-              I2 := 0; // count cats
-              for I := 0 to High(CatSongs.Song) do
-              begin
-                if CatSongs.Song[I].Main then
-                  Inc(I2);
-              end;
-
-              I2 := Random(I2 + 1); // random and include I2
-
-              // find cat:
-              for I := 0 to High(CatSongs.Song) do
-                begin
-                if CatSongs.Song[I].Main then
-                  Dec(I2);
-                if (I2 <= 0) then
-                begin
-                  // show cat in top left mod
-                  ShowCatTL (I);
-
-                  Interaction := I;
-
-                  CatSongs.ShowCategoryList;
-                  CatSongs.ClickCategoryButton(I);
-                  SelectNext;
-                  FixSelected;
-                  break;
-                end;
-              end;
-            end
-            else if (SDL_ModState = KMOD_LCTRL) and (UIni.Ini.Tabs = 1) then // random in all categories
-            begin
-              repeat
-                I2 := Random(High(CatSongs.Song) + 1);
-              until (not CatSongs.Song[I2].Main);
-
-              // search cat
-              for I := I2 downto 0 do
-              begin
-              if CatSongs.Song[I].Main then
-                break;
-              end;
-
-              // in I is now the categorie in I2 the song
-
-              // choose cat
-              CatSongs.ShowCategoryList;
-
-              // show cat in top left mod
-              ShowCatTL (I);
-
-              CatSongs.ClickCategoryButton(I);
-              SelectNext;
-
-              // Fix: not existing song selected:
-              //if (I + 1 = I2) then
-                Inc(I2);
-
-              // choose song
-              Self.SkipTo(I2 - I);
-            end
-            else // random in one category
-              Self.SkipTo(Random(USongs.CatSongs.GetVisibleSongs()));
+              USongs.CatSongs.ShowCategoryList();
+              I := Random(USongs.CatSongs.CatCount) + 1;
+              Self.ShowCatTL(I);
+              USongs.CatSongs.ShowCategory(I);
+            end;
+            Self.SkipTo(Random(USongs.CatSongs.GetVisibleSongs()));
           end;
         end;
 
@@ -1848,6 +1792,9 @@ begin
     Self.MinLine := Ceil((USongs.CatSongs.FindVisibleIndex(Self.Interaction) + 1 - MaxCol * MaxRow) / MaxCol);
     if (Line - Self.MinLine) > MaxRow then //to decrease line when push up (or pag up) key
       Self.MinLine += MaxRow - 1;
+
+    if Self.MinLine < 0 then //to mantain songs on top when use random song in category
+      Self.MinLine := 0;
   end;
 end;
 
