@@ -424,6 +424,7 @@ begin
   end;
 end;
 
+{* Move down songs or rotate to next category if they are active *}
 procedure TScreenSong.ParseInputNextVertical(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
 var
   I: integer;
@@ -432,101 +433,47 @@ begin
 
   if (FreeListMode) and not (TSongMenuMode(Ini.SongMenu) in [smList]) then
   begin
-    //Only Change Cat when not in Playlist or Search Mode
-    if (CatSongs.CatNumShow > -2) then
+    if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smSlotMachine]) then //advance songs
+      for I := 1 to IfThen(PressedKey = SDLK_PAGEDOWN, Theme.Song.Cover.Rows, 1) do
+        Self.SelectNextRow()
+    else if (CatSongs.CatNumShow > -2) and (UIni.Ini.Tabs = 1) then //if categories are activated
     begin
-      if (TSongMenuMode(Ini.SongMenu) <> smChessboard) and (TSongMenuMode(Ini.SongMenu) <> smMosaic) and (TSongMenuMode(Ini.SongMenu) <> smSlotMachine) then
-      begin
-        //Cat Change Hack
-        if UIni.Ini.Tabs = 1 then
-        begin
+      I := USongs.CatSongs.Song[Self.Interaction].OrderNum; //enter into category if are in category list
+      if not USongs.CatSongs.Song[Self.Interaction].Main then //or rotate to next category
+        I := IfThen(I = USongs.CatSongs.CatCount, 1, I + 1); //go to first category if end is reached
 
-          I := Interaction;
-          if I <= 0 then
-            I := 1;
-
-          while not catsongs.Song[I].Main do
-          begin
-            Inc (I);
-            if (I > High(catsongs.Song)) then
-              I := Low(catsongs.Song);
-          end;
-
-          Interaction := I;
-
-          //Show Cat in Top Left Mod
-          ShowCatTL (Interaction);
-
-          CatSongs.ClickCategoryButton(Interaction);
-          SelectNext;
-          FixSelected;
-        end;
-        //Cat Change Hack End}
-      end
-      else
-        for I := 1 to IfThen(PressedKey = SDLK_PAGEDOWN, Theme.Song.Cover.Rows, 1) do
-          Self.SelectNextRow();
-    end
-    else
-    begin
-      if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smSlotMachine]) then
-        Self.SelectNextRow();
+      USongs.CatSongs.ShowCategory(I);
+      Self.ShowCatTL(I);
+      Self.SelectNext();
+      Self.FixSelected();
     end;
   end;
 end;
 
+{* Move up songs or rotate to previous category if they are active *}
 procedure TScreenSong.ParseInputPrevVertical(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
 var
-  I, I2: integer;
+  I: integer;
 begin
   CloseMessage();
 
   if (FreeListMode and not (TSongMenuMode(Ini.SongMenu) in [smList])) then
   begin
-    //Only Change Cat when not in Playlist or Search Mode
-    if (CatSongs.CatNumShow > -2) then
+    if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smSlotMachine]) then //back songs
+      for I := 1 to IfThen(PressedKey = SDLK_PAGEUP, Theme.Song.Cover.Rows, 1) do
+        Self.SelectPrevRow()
+    else if (CatSongs.CatNumShow > -2) and (UIni.Ini.Tabs = 1) then //if categories are activated
     begin
-      if (TSongMenuMode(Ini.SongMenu) <> smChessboard) and (TSongMenuMode(Ini.SongMenu) <> smMosaic) and (TSongMenuMode(Ini.SongMenu) <> smSlotMachine) then
-      begin
-        //Cat Change Hack
-        if UIni.Ini.Tabs = 1 then
-        begin
-          I := Interaction;
-          I2 := 0;
-          if I <= 0 then
-            I := 1;
+      I := USongs.CatSongs.Song[Self.Interaction].OrderNum; //enter into category if are in category list
+      if not USongs.CatSongs.Song[Self.Interaction].Main then //or rotate to previous category
+        I := IfThen(I = 1, USongs.CatSongs.CatCount, I - 1); //go to last category if start is reached
 
-          while not catsongs.Song[I].Main or (I2 = 0) do
-          begin
-            if catsongs.Song[I].Main then
-              Inc(I2);
-            Dec (I);
-            if (I < Low(catsongs.Song)) then
-              I := High(catsongs.Song);
-          end;
-
-          Interaction := I;
-
-          //Show Cat in Top Left Mod
-          ShowCatTL (I);
-
-          CatSongs.ClickCategoryButton(I);
-          SelectNext;
-          FixSelected;
-        end;
-        //Cat Change Hack End}
-      end
-      else
-        for I := 1 to IfThen(PressedKey = SDLK_PAGEUP, Theme.Song.Cover.Rows, 1) do
-          Self.SelectPrevRow();
-    end
-    else
-    begin
-      if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smSlotMachine, smList]) then
-        Self.SelectPrevRow();
+      USongs.CatSongs.ShowCategory(I);
+      Self.ShowCatTL(I);
+      Self.SelectNext();
+      Self.FixSelected();
     end;
   end;
-
 end;
 
 // Method for input parsing. If false is returned, GetNextWindow
@@ -729,7 +676,6 @@ begin
           begin
             if (SDL_ModState = KMOD_LSHIFT) and (UIni.Ini.Tabs = 1) then //random song of a category
             begin
-              USongs.CatSongs.ShowCategoryList();
               I := Random(USongs.CatSongs.CatCount) + 1;
               Self.ShowCatTL(I);
               USongs.CatSongs.ShowCategory(I);
@@ -774,56 +720,13 @@ begin
             Fix := true;
 
             //On Escape goto Cat-List Hack
-            if (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow <> -1) then
+            if (UIni.Ini.Tabs = 1) and (USongs.CatSongs.CatNumShow <> -1) then
             begin
-
-              //Find Category
-              I := Interaction;
-              while (not CatSongs.Song[I].Main) do
-              begin
-                Dec(I);
-
-                if (I < 0) then
-                  break;
-              end;
-
-              if not(TSongMenuMode(Ini.SongMenu) in [smChessboard, smCarousel, smSlide, smList, smMosaic, smSlotMachine]) then
-              begin
-                if (I <= 1) then
-                  Interaction := High(CatSongs.Song)
-                else
-                  Interaction := I - 1;
-              end
-              else
-              begin
-                Interaction := I - 1;
-
-                if (Interaction < 0) then
-                begin
-                  Interaction := 0;
-                  Fix := false;
-                end;
-              end;
-
-              //Stop Music
-              //StopMusicPreview();
               Self.OnSongDeSelect();
-
-              CatSongs.ShowCategoryList;
-
-              //Show Wrong Song when Tabs on Fix
-              if (Fix) then
-              begin
-                SelectNext;
-                FixSelected;
-                Self.SetScroll(true);
-              end;
-
-              ListFirstVisibleSongIndex := MainListFirstVisibleSongIndex;
-
-              if (TSongMenuMode(Ini.SongMenu) in [smList]) then
-                Self.LastMinLine := -1;
-
+              USongs.CatSongs.ShowCategoryList();
+              Self.Interaction := USongs.CatSongs.FindGlobalIndex(USongs.CatSongs.Selected - 1); //TODO maybe set right Selected in ShowCategoryList
+              Self.SelectNext(); //FIXME scroll fails on Roulette and Slide modes on first category
+              Self.FixSelected();
             end
             else
             begin
@@ -871,22 +774,12 @@ begin
           CloseMessage();
           if (Songs.SongList.Count > 0) then
           begin
-            if CatSongs.Song[Interaction].Main then
+            if USongs.CatSongs.Song[Interaction].Main then
             begin // clicked on Category Button
-              Self.MinLine := 0;
-
-              Self.LastMinLine := 0;
-              ListFirstVisibleSongIndex := 0;
-
-              //Show Cat in Top Left Mod
-              ShowCatTL (Interaction);
-
-              CatSongs.ClickCategoryButton(Interaction);
-
-              //Show Wrong Song when Tabs on Fix
-              SelectNext;
-              FixSelected;
-              Self.SetScroll(true);
+              USongs.CatSongs.ShowCategory(USongs.CatSongs.Song[Self.Interaction].OrderNum);
+              Self.ShowCatTL(Self.Interaction);
+              Self.SelectNext();
+              Self.FixSelected();
             end
             else
             begin // clicked on song
@@ -2104,7 +1997,12 @@ begin
 
   //Cat Mod etc
   if (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow = -1) then
-    USongs.CatSongs.ShowCategoryList()
+  begin
+    USongs.CatSongs.ShowCategoryList();
+    //FIXME small trick to fix scroll in some modes when enter after first time with a category selected in the middle of the list
+    Self.SelectNext();
+    Self.SelectPrev();
+  end
   else //initialize visible songs
     USongs.CatSongs.SetVisibleSongs();
 

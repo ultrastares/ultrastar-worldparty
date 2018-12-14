@@ -695,20 +695,20 @@ begin
   end;
 end;
 
-//Hide Categorys when in Category Hack
+{* Show all categories list *}
 procedure TCatSongs.ShowCategoryList();
 var
   I: integer;
 begin
   Self.VisibleSongs := 0;
-  for I := 0 to high(CatSongs.Song) do //hide all songs and show all cats
+  for I := 0 to High(CatSongs.Song) do //hide all songs and show all categories
   begin
     CatSongs.Song[I].Visible := CatSongs.Song[I].Main;
     if CatSongs.Song[I].Visible then
       Inc(Self.VisibleSongs);
   end;
-  CatSongs.Selected := CatNumShow; //Show last shown Category
-  CatNumShow := -1;
+  CatSongs.Selected := Self.CatNumShow - 1; //select last shown category
+  Self.CatNumShow := -1;
 end;
 
 {* Find next visible song *}
@@ -720,12 +720,13 @@ begin
   I := SearchFrom + 1;
   while (Result = SearchFrom) and (I <> SearchFrom) do
   begin
+    if (I > High(CatSongs.Song)) then
+      I := 0;
+
     if (CatSongs.Song[I].Visible) then
       Result := I;
 
     Inc(I);
-    if (I > High(CatSongs.Song)) then
-      I := 0;
   end;
 end;
 
@@ -738,12 +739,13 @@ begin
   I := SearchFrom - 1;
   while (Result = SearchFrom) and (I <> SearchFrom) do
   begin
+    if I < 0 then
+      I := High(CatSongs.Song);
+
     if (CatSongs.Song[I].Visible) then
       Result := I;
 
     Dec(I);
-    if I < 0 then
-      I := High(CatSongs.Song);
   end;
 end;
 
