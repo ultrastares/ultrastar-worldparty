@@ -216,6 +216,12 @@ type
    *}
 
   function SDL_GetCursor: PSDL_Cursor cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_GetCursor' {$ENDIF}{$ENDIF};
+  
+  {**
+   * Return the default cursor.
+   *}
+   
+   function SDL_GetDefaultCursor: PSDL_Cursor cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_GetDefaultCursor' {$ENDIF}{$ENDIF};
 
   {**
    *  Frees a cursor created with SDL_CreateCursor().

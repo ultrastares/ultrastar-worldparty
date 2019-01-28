@@ -455,6 +455,7 @@
 {$IFDEF FPC}
   {$H+}
   {$PACKRECORDS C}        // Added for record
+  {$PACKENUM DEFAULT}     // Added for c-like enumerators
   {$MACRO ON}             // Added For OpenGL
   {$DEFINE Delphi}
   {$DEFINE UseAT}

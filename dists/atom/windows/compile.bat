@@ -1,5 +1,11 @@
 @echo off
 cd %1\src
+if %2=="compile-dll" (
+    rm -rf ..\game\webs\*.dll  ..\build
+    mkdir ..\build
+    fpc webSDK\ultrastares.dpr -o..\game\webs\ultrastares.dll -FU..\build -O4 -MObjFPC
+    exit
+)
 if not %2=="execute" (
     rm -rf ..\game\WorldParty* ..\build
     mkdir ..\build

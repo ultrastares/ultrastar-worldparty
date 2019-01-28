@@ -51,7 +51,6 @@ const
   {$IFDEF UNIX}
     {$IFDEF DARWIN}
       IMG_LibName = 'libSDL2_image.dylib';
-	  {$linklib libSDL2_image}
     {$ELSE}
       {$IFDEF FPC}
         IMG_LibName = 'libSDL2_image.so';

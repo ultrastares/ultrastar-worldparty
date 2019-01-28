@@ -4,15 +4,24 @@
    {$DEFINE SDL_VIDEO_DRIVER_WINDOWS}
 {$ENDIF}
 
-{$IFNDEF DARWIN}
-   {$IF DEFINED (LINUX) OR DEFINED(UNIX)}
+{$IF DEFINED (LINUX) OR DEFINED(UNIX) AND NOT DEFINED(ANDROID)}
+   {$IFNDEF DARWIN}
       {$DEFINE SDL_VIDEO_DRIVER_X11}
-   {$IFEND}
+   {$ENDIF}
 {$IFEND}
 
 {$IFDEF DARWIN}
    {$DEFINE SDL_VIDEO_DRIVER_COCOA}
 {$ENDIF}
+
+{$IFDEF ANDROID}
+   {$DEFINE SDL_VIDEO_DRIVER_ANDROID}
+{$ENDIF}
+
+{$IFDEF VIVANTE}
+  {$DEFINE SDL_VIDEO_DRIVER_VIVANTE}
+{$ENDIF}
+
 
 {**
  *  These are the various supported windowing subsystems
@@ -38,7 +47,7 @@ Type
 {$IFDEF SDL_VIDEO_DRIVER_WINDOWS}
    __SYSWM_WINDOWS = record
       hwnd:   HWND;   {**< The window for the message }
-      msg:     uInt;   {**< The type of message *}
+      msg:     uInt;  {**< The type of message *}
       wParam: WPARAM; {**< WORD message parameter *}
       lParam: LPARAM; {**< WORD message parameter *}
    end;
@@ -56,11 +65,19 @@ Type
 {$IFDEF SDL_VIDEO_DRIVER_COCOA}
    __SYSWM_COCOA = record
       (* No Cocoa window events yet *)
+      dummy: integer;
    end;
 {$ENDIF}
 {$IFDEF SDL_VIDEO_DRIVER_UIKIT}
    __SYSWM_UIKIT = record
       (* No UIKit window events yet *)
+      dummy: integer;
+   end;
+{$ENDIF}
+{$IFDEF SDL_VIDEO_DRIVER_VIVANTE}
+   __SYSWM_VIVANTE = record
+      (* No Vivante window events yet *)
+      dummy: integer;
    end;
 {$ENDIF}
 
@@ -70,24 +87,23 @@ Type
    PSDL_SysWMmsg = ^TSDL_SysWMmsg;
    TSDL_SysWMmsg = record
       version: TSDL_version;
-      Case subsystem: TSDL_SYSWM_TYPE of
-         (* Cannot have empty record case *)
-         SDL_SYSWM_UNKNOWN: (dummy: sInt32);
-         {$IFDEF SDL_VIDEO_DRIVER_WINDOWS}
-            SDL_SYSWM_WINDOWS: (win: __SYSWM_WINDOWS);
-         {$ENDIF}
-         {$IFDEF SDL_VIDEO_DRIVER_X11}
-            SDL_SYSWM_X11: (x11: __SYSWM_X11);
-         {$ENDIF}
-         {$IFDEF SDL_VIDEO_DRIVER_DIRECTFB}  
-            SDL_SYSWM_DIRECTFB: (dfb: __SYSWM_DIRECTFB); 
-         {$ENDIF}
-         {$IFDEF SDL_VIDEO_DRIVER_COCOA}  
-            SDL_SYSWM_COCOA: (cocoa: __SYSWM_COCOA);
-         {$ENDIF}
-         {$IFDEF SDL_VIDEO_DRIVER_UIKIT}
-            SDL_SYSWM_UIKIT: (uikit: __SYSWM_UIKIT);
-         {$ENDIF}
+      subsystem: TSDL_SYSWM_TYPE;
+      {$IFDEF SDL_VIDEO_DRIVER_WINDOWS}
+        win: __SYSWM_WINDOWS;
+      {$ELSE} {$IFDEF SDL_VIDEO_DRIVER_X11}
+        x11: __SYSWM_X11;
+      {$ELSE} {$IFDEF SDL_VIDEO_DRIVER_DIRECTFB}
+        dfb: __SYSWM_DIRECTFB;
+      {$ELSE} {$IFDEF SDL_VIDEO_DRIVER_COCOA}
+        cocoa: __SYSWM_COCOA;
+      {$ELSE} {$IFDEF SDL_VIDEO_DRIVER_UIKIT}
+        uikit: __SYSWM_UIKIT;
+      {$ELSE} {$IFDEF SDL_VIDEO_DRIVER_VIVANTE}
+        vivante: __SYSWM_VIVANTE;
+      {$ELSE}
+        (* Cannot have empty record case *)
+        dummy: integer;
+      {$ENDIF} {$ENDIF} {$ENDIF} {$ENDIF} {$ENDIF} {$ENDIF}
    end;
 
 /// Once again, sdl_syswm.h uses anonymous structs, declared right in SDL_SysWMinfo.
@@ -95,6 +111,7 @@ Type
 {$IFDEF SDL_VIDEO_DRIVER_WINDOWS}
    __WMINFO_WINDOWS = record
       window: HWND; {**< The window handle *}
+      hdc:    HDC;  {**< The window device context *}
    end;
 {$ENDIF}
 {$IFDEF SDL_VIDEO_DRIVER_WINRT} // Since SDL 2.0.3
@@ -105,7 +122,7 @@ Type
 {$IFDEF SDL_VIDEO_DRIVER_X11}
    __WMINFO_X11 = record
       display: PDisplay;  {**< The X11 display *}
-      window: TWindow;     {**< The X11 window *}
+      window:  TWindow;   {**< The X11 window *}
    end;
 {$ENDIF}
 {$IFDEF SDL_VIDEO_DRIVER_DIRECTFB}
@@ -122,7 +139,10 @@ Type
 {$ENDIF}
 {$IFDEF SDL_VIDEO_DRIVER_UIKIT}
    __WMINFO_UIKIT = record
-      window: UIWindow;   {* The UIKit window *}
+      window: UIWindow;           {* The UIKit window *}
+      framebuffer: GLuint;        {* The GL view's Framebuffer Object. It must be bound when rendering to the screen using GL. *}
+      colorbuffer: GLuint;        {* The GL view's color Renderbuffer Object. It must be bound when SDL_GL_SwapWindow is called. *}
+      resolveFramebuffer: GLuint; {* The Framebuffer Object which holds the resolve color Renderbuffer, when MSAA is used. *}
    end;
 {$ENDIF}
 {$IFDEF SDL_VIDEO_DRIVER_WAYLAND} // Since SDL 2.0.2
@@ -138,10 +158,16 @@ Type
       surface: PMirSurface;       {**< Mir surface *}
    end;
 {$ENDIF}
-{$IFDEF SDL_VIDEO_DRIVER_ANDROID} // Planned for SDL 2.0.4
+{$IFDEF SDL_VIDEO_DRIVER_ANDROID}
    __WMINFO_ANDROID = record
-      window : PANativeWindow;
-      surface: PEGLSurface;
+      window:  Pointer;  // PANativeWindow;
+      surface: Pointer;  // PEGLSurface;
+   end;
+{$ENDIF}
+{$IFDEF SDL_VIDEO_DRIVER_VIVANTE}
+   __WMINFO_VIVANTE = record
+      display: EGLNativeDisplayType;
+      window:  EGLNativeWindowType;
    end;
 {$ENDIF}
 
@@ -154,33 +180,31 @@ Type
    PSDL_SysWMinfo = ^TSDL_SysWMinfo;
    TSDL_SysWMinfo = record
       version: TSDL_version;
-      Case subsystem: TSDL_SYSWM_TYPE of
-         (* Cannot have empty record case *)
-         SDL_SYSWM_UNKNOWN: (dummy: sInt32);
-         {$IFDEF SDL_VIDEO_DRIVER_WINDOWS}
-            SDL_SYSWM_WINDOWS: (win : __WMINFO_WINDOWS);
-         {$ENDIF}
-         {$IFDEF SDL_VIDEO_DRIVER_WINRT}
-            SDL_SYSWM_WINRT: (winrt : __WMINFO_WINRT);
-         {$ENDIF}
-         {$IFDEF SDL_VIDEO_DRIVER_X11}
-            SDL_SYSWM_X11: (x11 : __WMINFO_X11);
-         {$ENDIF}
-         {$IFDEF SDL_VIDEO_DRIVER_DIRECTFB}
-            SDL_SYSWM_DIRECTFB: (dfb : __WMINFO_DFB);
-         {$ENDIF}
-         {$IFDEF SDL_VIDEO_DRIVER_COCOA}
-            SDL_SYSWM_COCOA: (cocoa : __WMINFO_COCOA);
-         {$ENDIF}
-         {$IFDEF SDL_VIDEO_DRIVER_UIKIT}
-            SDL_SYSWM_UIKIT: (uikit : __WMINFO_UIKIT);
-         {$ENDIF}
-         {$IFDEF SDL_VIDEO_DRIVER_WAYLAND}
-            SDL_SYSWM_WAYLAND: (wl : __WMINFO_WAYLAND);
-         {$ENDIF}
-         {$IFDEF SDL_VIDEO_DRIVER_MIR}
-            SDL_SYSWM_MIR: (mir : __WMINFO_MIR);
-         {$ENDIF}
+      subsystem: TSDL_SYSWM_TYPE;
+      {$IFDEF SDL_VIDEO_DRIVER_WINDOWS}
+        win : __WMINFO_WINDOWS;
+      {$ELSE} {$IFDEF SDL_VIDEO_DRIVER_WINRT}
+        winrt : __WMINFO_WINRT;
+      {$ELSE} {$IFDEF SDL_VIDEO_DRIVER_X11}
+        x11 : __WMINFO_X11;
+      {$ELSE} {$IFDEF SDL_VIDEO_DRIVER_DIRECTFB}
+        dfb : __WMINFO_DFB;
+      {$ELSE} {$IFDEF SDL_VIDEO_DRIVER_COCOA}
+        cocoa : __WMINFO_COCOA;
+      {$ELSE} {$IFDEF SDL_VIDEO_DRIVER_UIKIT}
+        uikit : __WMINFO_UIKIT;
+      {$ELSE} {$IFDEF SDL_VIDEO_DRIVER_WAYLAND}
+        wl : __WMINFO_WAYLAND;
+      {$ELSE} {$IFDEF SDL_VIDEO_DRIVER_MIR}
+        mir : __WMINFO_MIR;
+      {$ELSE} {$IFDEF SDL_VIDEO_DRIVER_ANDROID}
+        android: __WMINFO_ANDROID;
+      {$ELSE} {$IFDEF SDL_VIDEO_DRIVER_VIVANTE}
+        vivante: __WMINFO_VIVANTE;
+      {$ELSE}
+        (* Cannot have empty record case *)
+        dummy: integer;
+      {$ENDIF} {$ENDIF} {$ENDIF} {$ENDIF} {$ENDIF} {$ENDIF} {$ENDIF} {$ENDIF} {$ENDIF} {$ENDIF}
    end;
 
 {* Function prototypes *}

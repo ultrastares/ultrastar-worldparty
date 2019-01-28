@@ -73,7 +73,7 @@ begin
   Color       := ThemedSettings.Color;
 
   texFilename := Skin.GetTextureFileName(ThemedSettings.Tex);
-  Tex         := Texture.GetTexture(texFilename, TEXTURE_TYPE_PLAIN);
+  Tex         := Texture.LoadTexture(texFilename, TEXTURE_TYPE_PLAIN);
 
   if (Tex.TexNum = 0) then
   begin

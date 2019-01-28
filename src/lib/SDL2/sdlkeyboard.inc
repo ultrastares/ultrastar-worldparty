@@ -101,7 +101,7 @@ type
    *  SDL_Key
    *}
 
-  function SDL_GetKeyName(key: TSDL_ScanCode): PAnsiChar cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_GetKeyName' {$ENDIF}{$ENDIF};
+  function SDL_GetKeyName(key: TSDL_KeyCode): PAnsiChar cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_GetKeyName' {$ENDIF}{$ENDIF};
 
   {**
    *  Get a key code from a human-readable name

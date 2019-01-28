@@ -11,7 +11,7 @@ After install all things you must copy, depend of your system, the .atom-build.j
 - F9 to compile
 - Ctrl+F9 to compile in debug mode
 - F10 to compile and execute the game
-- Ctrñ+F10 to compile in debug mode and execute the game
+- Ctrl+F10 to compile in debug mode and execute the game
 - Ctrl+F11 to only execute without compile
 
 If all works fine the executable will appear in game folder and link.res file will be copied to res folder.

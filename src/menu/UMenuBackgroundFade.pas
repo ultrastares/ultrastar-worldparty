@@ -79,7 +79,7 @@ begin
   if (Length(ThemedSettings.Tex) > 0) then
   begin
     texFilename := Skin.GetTextureFileName(ThemedSettings.Tex);
-    Tex         := Texture.GetTexture(texFilename, TEXTURE_TYPE_PLAIN);
+    Tex         := Texture.LoadTexture(texFilename, TEXTURE_TYPE_PLAIN);
 
     UseTexture  := (Tex.TexNum <> 0);
   end

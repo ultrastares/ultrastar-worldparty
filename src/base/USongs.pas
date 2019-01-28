@@ -43,9 +43,11 @@ uses
     UnixType,
   {$ENDIF}
   CpuCount,
+  sdl2,
   SysUtils,
   UCatCovers,
   UCommon,
+  UImage,
   UIni,
   ULog,
   UPath,
@@ -77,7 +79,7 @@ type
     private
       Event: PRTLEvent; //event to fire parsing songs
       Txt: integer; //number of txts parsed
-      Txts: TThreadList; //list to store all parsed songs as TSong object
+      Txts: TList; //list to store all parsed songs as TSong object
     protected
       procedure Execute; override;
     public
@@ -88,9 +90,12 @@ type
 
   TSongs = class(TThread)
     private
+      Event: PRTLEvent; //event to fire cover preload
+      PreloadCover: boolean;
       ProgressSong: TProgressSong;
       Threads: array of TSongsParse; //threads to parse songs
       Thread: integer; //current thread
+      CoresAvailable: integer; //cores available for working threads
       procedure FindTxts(const Dir: IPath);
     protected
       procedure Execute; override;
@@ -100,6 +105,7 @@ type
       constructor Create();
       destructor Destroy(); override;
       function GetLoadProgress(): TProgressSong;
+      procedure PreloadCovers(Preload: boolean);
       procedure Sort(OrderType: TSortingType);
   end;
 
@@ -121,32 +127,19 @@ type
     procedure HideCategory(Index: integer);                 // hides all songs in category
     procedure ClickCategoryButton(Index: integer);          // uses ShowCategory and HideCategory when needed
     procedure ShowCategoryList;                             // Hides all Songs And Show the List of all Categorys
-    function FindNextVisible(SearchFrom: integer): integer; // Find Next visible Song
-    function FindPreviousVisible(SearchFrom: integer): integer; // Find Previous visible Song
-    function GetVisibleSongs(): integer; //returns number of visible songs
+    function FindNextVisible(SearchFrom: integer): integer; //find next visible song
+    function FindPreviousVisible(SearchFrom: integer): integer; //find previous visible song
+    function FindGlobalIndex(VisibleIndex:integer): integer; //find global index of all songs from a index of visible songs subgroup
+    function FindVisibleIndex(Index: integer): integer; //find the index of a song in the subset of all visible songs
     procedure SetVisibleSongs(); //sets number of visible songs
-    function VisibleIndex(Index: integer): integer;         // returns visible song index (skips invisible)
-
+    function GetVisibleSongs(): integer; //returns number of visible songs
+    function IsFilterApplied(): boolean; //returns if some filter has been applied to song list
     function SetFilter(FilterStr: UTF8String; Filter: TSongFilter): cardinal;
   end;
 
 var
   Songs: TSongs; //all songs
   CatSongs: TCatSongs; //categorized songs
-
-const
-  IN_ACCESS        = $00000001; //* File was accessed */
-  IN_MODIFY        = $00000002; //* File was modified */
-  IN_ATTRIB        = $00000004; //* Metadata changed */
-  IN_CLOSE_WRITE   = $00000008; //* Writtable file was closed */
-  IN_CLOSE_NOWRITE = $00000010; //* Unwrittable file closed */
-  IN_OPEN          = $00000020; //* File was opened */
-  IN_MOVED_FROM    = $00000040; //* File was moved from X */
-  IN_MOVED_TO      = $00000080; //* File was moved to Y */
-  IN_CREATE        = $00000100; //* Subfile was created */
-  IN_DELETE        = $00000200; //* Subfile was deleted */
-  IN_DELETE_SELF   = $00000400; //* Self was deleted */
-
 
 implementation
 
@@ -166,10 +159,10 @@ uses
 constructor TSongsParse.Create();
 begin
   inherited Create(false);
-  Self.FreeOnTerminate := true;
-  Self.Txts := TThreadList.Create();
-  Self.Txt := 0;
   Self.Event := RTLEventCreate();
+  Self.FreeOnTerminate := true;
+  Self.Txt := 0;
+  Self.Txts := TList.Create();
 end;
 
 destructor TSongsParse.Destroy();
@@ -182,24 +175,18 @@ end;
 procedure TSongsParse.Execute();
 var
   Song: TSong;
-  List: TList;
   I: integer;
 begin
   while not Self.Terminated do
   begin
     RtlEventWaitFor(Self.Event);
-    List := Self.Txts.LockList();
-    try
-      for I := Self.Txt to List.Count - 1 do //start to parse from the last position
-      begin
-        Song := TSong(List.Items[I]);
-        if Song.Analyse() then
-          Inc(Self.Txt)
-        else
-          Self.Txts.Remove(Song);
-      end;
-    finally
-      Self.Txts.UnlockList();
+    for I := Self.Txt to Self.Txts.Count - 1 do //start to parse from the last position
+    begin
+      Song := TSong(Self.Txts.Items[I]);
+      if Song.Analyse() then
+        Inc(Self.Txt)
+      else
+        Self.Txts.Remove(Song);
     end;
   end;
 end;
@@ -215,11 +202,13 @@ var
   I: integer;
 begin
   inherited Create(false);
+  Self.Event := RTLEventCreate();
   Self.FreeOnTerminate := false;
   Self.SongList := TList.Create();
   Self.Thread := 0;
-  Setlength(Self.Threads, Max(1, CpuCount.GetLogicalCpuCount() - 2)); //total - main and songs threads
-  for I := 0 to High(Self.Threads) do
+  Self.CoresAvailable := Max(1, CpuCount.GetLogicalCpuCount() - 2); //total core - main and songs threads
+  Setlength(Self.Threads, Self.CoresAvailable + 1);
+  for I := 0 to Self.CoresAvailable do
     Self.Threads[I] := TSongsParse.Create();
 end;
 
@@ -227,7 +216,8 @@ destructor TSongs.Destroy();
 var
   I: integer;
 begin
-  for I := 0 to High(Self.Threads) do
+  RTLeventDestroy(Self.Event);
+  for I := 0 to Self.CoresAvailable do
     Self.Threads[I].Terminate();
 
   inherited;
@@ -249,7 +239,7 @@ begin
     begin
       Inc(Self.ProgressSong.Total);
       Self.Threads[Self.Thread].AddSong(Dir.Append(FileInfo.Name));
-      if Self.Thread = High(Self.Threads) then //each txt to one thread
+      if Self.Thread = Self.CoresAvailable then //each txt to one thread
         Self.Thread := 0
       else
         Inc(Self.Thread)
@@ -261,7 +251,6 @@ end;
 procedure TSongs.Execute();
 var
   I: integer;
-  Song: TSong;
 begin
   Log.BenchmarkStart(2);
   Log.LogStatus('Searching For Songs', 'SongList');
@@ -272,20 +261,41 @@ begin
     Self.ProgressSong.Folder := Format(ULanguage.Language.Translate('SING_LOADING_SONGS'), [IPath(UPathUtils.SongPaths[I]).ToNative()]);
     Self.FindTxts(IPath(UPathUtils.SongPaths[I]));
   end;
-  for I := 0 to High(Self.Threads) do //add all songs parsed to main list
-    Self.SongList.AddList(Self.Threads[I].Txts.LockList());
+  for I := 0 to Self.CoresAvailable do //add all songs parsed to main list
+    Self.SongList.AddList(Self.Threads[I].Txts);
 
   Log.LogStatus('Search Complete', 'SongList');
-  CatSongs.Refresh;
+  CatSongs.Refresh();
   Self.ProgressSong.Folder := '';
   Self.ProgressSong.Finished := true;
   Log.LogBenchmark('Song loading', 2);
+
+  //preloading covers in HDD cache only touching the file
+  Log.BenchmarkStart(3);
+  Self.PreloadCover := true;
+  for I := 0 to High(CatSongs.Song) do
+  begin
+    if not Self.PreloadCover then
+      RtlEventWaitFor(Self.Event);
+
+    SDL_FreeSurface(UImage.LoadImage(CatSongs.Song[I].Path.Append(CatSongs.Song[I].Cover)));
+  end;
+  Log.LogBenchmark('Cover loading', 3);
 end;
 
 function TSongs.GetLoadProgress(): TProgressSong;
 begin
   Result := Self.ProgressSong;
 end;
+
+{* Start/stop the covers preloading *}
+procedure TSongs.PreloadCovers(Preload: boolean);
+begin
+  Self.PreloadCover := Preload;
+  if Preload then
+    RtlEventSetEvent(Self.Event);
+end;
+
 (*
  * Comparison functions for sorting
  *)
@@ -685,65 +695,96 @@ begin
   end;
 end;
 
-//Hide Categorys when in Category Hack
+{* Show all categories list *}
 procedure TCatSongs.ShowCategoryList();
 var
   I: integer;
 begin
   Self.VisibleSongs := 0;
-  for I := 0 to high(CatSongs.Song) do //hide all songs and show all cats
+  for I := 0 to High(CatSongs.Song) do //hide all songs and show all categories
   begin
     CatSongs.Song[I].Visible := CatSongs.Song[I].Main;
     if CatSongs.Song[I].Visible then
       Inc(Self.VisibleSongs);
   end;
-  CatSongs.Selected := CatNumShow; //Show last shown Category
-  CatNumShow := -1;
+  CatSongs.Selected := Self.CatNumShow - 1; //select last shown category
+  Self.CatNumShow := -1;
 end;
 
-// Wrong song selected when tabs on bug
-function TCatSongs.FindNextVisible(SearchFrom:integer): integer;// Find next Visible Song
+{* Find next visible song *}
+function TCatSongs.FindNextVisible(SearchFrom:integer): integer;
 var
   I: integer;
 begin
-  Result := -1;
-  I := SearchFrom;
-  while (Result = -1) do
+  Result := SearchFrom;
+  I := SearchFrom + 1;
+  while (Result = SearchFrom) and (I <> SearchFrom) do
   begin
-    Inc (I);
-
     if (I > High(CatSongs.Song)) then
-      I := Low(CatSongs.Song);
-
-    if (I = SearchFrom) then // Make One Round and no song found->quit
-      Break;
+      I := 0;
 
     if (CatSongs.Song[I].Visible) then
       Result := I;
+
+    Inc(I);
   end;
 end;
 
-function TCatSongs.FindPreviousVisible(SearchFrom:integer): integer;// Find previous Visible Song
+{* Find previous visible song *}
+function TCatSongs.FindPreviousVisible(SearchFrom:integer): integer;
 var
   I: integer;
 begin
-  Result := -1;
-  I := SearchFrom;
-  while (Result = -1) do
+  Result := SearchFrom;
+  I := SearchFrom - 1;
+  while (Result = SearchFrom) and (I <> SearchFrom) do
   begin
-    Dec (I);
-
-    if (I < Low(CatSongs.Song)) then
+    if I < 0 then
       I := High(CatSongs.Song);
 
-    if (I = SearchFrom) then // Make One Round and no song found->quit
-      Break;
-
     if (CatSongs.Song[I].Visible) then
       Result := I;
+
+    Dec(I);
   end;
 end;
 
+{* Find global index of all songs from a index of visible songs subgroup  *}
+function TCatSongs.FindGlobalIndex(VisibleIndex:integer): integer;
+begin
+  if not Self.IsFilterApplied() then
+    Result := VisibleIndex
+  else
+  begin
+    Result := -1;
+    while VisibleIndex >= 0 do
+    begin
+      Inc(Result);
+      if USongs.CatSongs.Song[Result].Visible then
+        Dec(VisibleIndex);
+    end;
+  end;
+end;
+
+(* Returns the index of a song in the subset of all visible songs *)
+function TCatSongs.FindVisibleIndex(Index: integer): integer;
+var
+  SongIndex: integer;
+begin
+  if not Self.IsFilterApplied() then
+    Result := Index
+  else
+  begin
+    Result := 0;
+    for SongIndex := 0 to Index - 1 do
+    begin
+      if (CatSongs.Song[SongIndex].Visible) then
+        Inc(Result);
+    end;
+  end;
+end;
+
+{* Sets number of visible songs *}
 procedure TCatSongs.SetVisibleSongs();
 var
   I: integer;
@@ -754,26 +795,16 @@ begin
           Inc(Self.VisibleSongs);
 end;
 
+{* Returns number of visible songs *}
 function TCatSongs.GetVisibleSongs(): integer;
 begin
   Result := Self.VisibleSongs;
 end;
 
-
-(**
- * Returns the index of a song in the subset of all visible songs.
- * If all songs are visible, the result will be equal to the Index parameter.
- *)
-function TCatSongs.VisibleIndex(Index: integer): integer;
-var
-  SongIndex: integer;
+{* Returns if some filter has been applied to song list *}
+function TCatSongs.IsFilterApplied(): boolean;
 begin
-  Result := 0;
-  for SongIndex := 0 to Index - 1 do
-  begin
-    if (CatSongs.Song[SongIndex].Visible) then
-      Inc(Result);
-  end;
+  Result := Self.VisibleSongs < High(CatSongs.Song) + 1;
 end;
 
 function TCatSongs.SetFilter(FilterStr: UTF8String; Filter: TSongFilter): cardinal;

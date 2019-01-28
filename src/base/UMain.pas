@@ -292,7 +292,7 @@ var
   Report: string;
   I,J: Integer;
 begin
-  Max_FPS := Ini.MaxFramerateGet;
+  Max_FPS := UIni.Ini.MaxFramerate;
   SDL_StartTextInput;
   Done := false;
   J := 0;
