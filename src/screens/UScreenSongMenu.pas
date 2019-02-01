@@ -334,7 +334,7 @@ begin
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_SONG');
         Button[1].Text[0].Text := Language.Translate('SONG_MENU_MEDLEY');
         Button[2].Text[0].Text := Language.Translate('SONG_MENU_REFRESH_SCORES');
-        
+
       end;
     SM_Song:
       begin
@@ -1066,8 +1066,7 @@ begin
                   CatSongs.ClickCategoryButton(ScreenSong.Interaction);
 
                   //Show Wrong Song when Tabs on Fix
-                  ScreenSong.SelectNext;
-                  ScreenSong.FixSelected;
+                  ScreenSong.SkipTo(0, true);
                 end
                 else
                 begin
@@ -1094,8 +1093,7 @@ begin
                   ScreenSong.HideCatTL;
 
                   //Show Wrong Song when Tabs on Fix
-                  ScreenSong.SelectNext;
-                  ScreenSong.FixSelected;
+                  ScreenSong.SkipTo(0, true);
                 end;
               end;
 

@@ -707,7 +707,7 @@ begin
     if CatSongs.Song[I].Visible then
       Inc(Self.VisibleSongs);
   end;
-  CatSongs.Selected := Self.CatNumShow - 1; //select last shown category
+  CatSongs.Selected := IfThen(Self.CatNumShow > 1, Self.CatNumShow - 1, 0); //select last shown category
   Self.CatNumShow := -1;
 end;
 
@@ -752,7 +752,7 @@ end;
 {* Find global index of all songs from a index of visible songs subgroup  *}
 function TCatSongs.FindGlobalIndex(VisibleIndex:integer): integer;
 begin
-  if not Self.IsFilterApplied() then
+  if (not Self.IsFilterApplied()) or (Self.GetVisibleSongs() = 0) then
     Result := VisibleIndex
   else
   begin
@@ -760,7 +760,7 @@ begin
     while VisibleIndex >= 0 do
     begin
       Inc(Result);
-      if USongs.CatSongs.Song[Result].Visible then
+      if CatSongs.Song[Result].Visible then
         Dec(VisibleIndex);
     end;
   end;

@@ -295,9 +295,7 @@ begin
   ScreenSong.ShowCatTLCustom(Format(Theme.Playlist.CatText,[Playlists[Index].Name]));
 
   //Fix SongSelection
-  ScreenSong.Interaction := 0;
-  ScreenSong.SelectNext;
-  ScreenSong.FixSelected;
+  ScreenSong.SkipTo(0, true);
 
   //Play correct Music
   //ScreenSong.ChangeMusic;
@@ -375,8 +373,7 @@ begin
   begin
     ScreenSong.HideCatTL;
     CatSongs.SetFilter('', fltAll);
-    ScreenSong.Interaction := 0;
-    ScreenSong.FixSelected;
+    ScreenSong.SkipTo(0, true);
     ScreenSong.ChangeMusic;
   end;
 end;

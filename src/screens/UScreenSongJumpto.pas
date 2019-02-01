@@ -232,9 +232,7 @@ begin
   //Set visSongs
   fVisSongs := Count;
 
-  ScreenSong.Interaction := 0;
-  ScreenSong.SelectNext;
-  ScreenSong.FixSelected;
+  ScreenSong.SkipTo(0);
   ScreenSong.SetScroll(true);
 
   //Play Correct Music
