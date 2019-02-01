@@ -920,10 +920,11 @@ begin
             else
               Self.SkipTo(B);
 
-        if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionUp].GetMouseOverArea()) then //arrow to page up
-          Self.ParseInput(SDLK_PAGEUP, 0, true)
-        else if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionDown].GetMouseOverArea()) then //arrow to page down
-          Self.ParseInput(SDLK_PAGEDOWN, 0, true);
+        if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then
+          if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionUp].GetMouseOverArea()) then //arrow to page up
+            Self.ParseInput(SDLK_PAGEUP, 0, true)
+          else if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionDown].GetMouseOverArea()) then //arrow to page down
+            Self.ParseInput(SDLK_PAGEDOWN, 0, true);
       end;
       SDL_BUTTON_RIGHT: //go back
         if Self.RightMbESC then
