@@ -1,10 +1,18 @@
-Ultrastar Deluxe WorldParty
-Copyright (C) 2010-2018 by the following:
+﻿Ultrastar Deluxe WorldParty
+Copyright (C) 2010-2019 by the following:
 
 "Zup3r_vock"
 "Daniel20"
 "jmfb"
 "TeLiXj"
+
+
+Translations:
+------------
+Hungarian: Warez^XTS
+Italian:   skream
+Slovenian: donkeyslo
+French:    ctariel
 
 If you have contributed to this project then you deserve to be on this
 list.  Contact us and we'll add you.
