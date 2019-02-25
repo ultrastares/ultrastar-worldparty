@@ -439,7 +439,6 @@ var
   PressedKeyEncoded: UTF8String;
   Song: USong.TSong;
   WebList: string;
-  Fix: boolean;
 begin
   Result := true;
 
@@ -1705,59 +1704,144 @@ begin
   end;
 end;
 
+{* Coverflow effect *}
 procedure TScreenSong.SetSlideScroll;
 var
-  B, VisibleIndex, DiffH: integer;
-  Scale, X, Z: real;
+  B, Position, VisibleIndex, VisibleCovers: integer;
+  PaddingIncrementX, RightX, Scale, Steps: real;
+  FirstCover, LastCover, LeftCover, VisibleCover: boolean;
 begin
-  VisibleIndex := 0;
-  Scale := 0.90;
-  DiffH := 20;
+  VisibleIndex := 0; //counter of visible covers
+  VisibleCovers := IfThen(USongs.CatSongs.GetVisibleSongs() <= 11, 5, 7); //5 visible covers in each side plus 2 in background to improve the scroll effect
+  Scale := 0.95; //scale to reduce size or inclination of side covers
+  Steps := Floor(UIni.Ini.MaxFramerate * 15 / 60); //number of steps for animations
+  RightX := (Theme.Song.Cover.W + (Theme.Song.Cover.W - Theme.Song.Cover.W * Scale)) / 2; //correction on X for right covers
   for B := 0 to High(Self.Button) do
   begin
     Self.Button[B].Visible := USongs.CatSongs.Song[B].Visible;
     if Self.Button[B].Visible then
     begin
-      Z := Theme.SongMenu.SelectSlide1.Z - 0.02; //all covers under arrows
-      X := Theme.Song.Cover.X + (VisibleIndex - Self.SongCurrent) * Theme.Song.Cover.Padding;
-      Inc(VisibleIndex);
-      if not ((X < -Theme.Song.Cover.W) or (X > 800)) then
+      VisibleCover := (VisibleIndex >= Self.SongTarget - VisibleCovers) and (VisibleIndex <= Self.SongTarget + VisibleCovers); //visible songs
+      LastCover := (not VisibleCover) and (VisibleIndex < VisibleCovers); //last cover of list
+      FirstCover := (not VisibleCover) and (not LastCover) and (VisibleIndex >= USongs.CatSongs.GetVisibleSongs() - VisibleCovers); //first covers of list
+      if VisibleCover or LastCover or FirstCover then
       begin
         Self.LoadCover(B);
-        Self.Button[B].X := X; //after load cover to avoid cover flash on change
-        if B = Self.Interaction then
+        Self.Button[B].SetSelect(true);
+        Self.Button[B].Y := Theme.Song.Cover.Y;
+        Self.Button[B].Z := 0.96;
+        if B = Self.Interaction then //main cover
         begin
-          Self.Button[B].H := Theme.Song.Cover.H;
-          Self.Button[B].W := Theme.Song.Cover.W;
-          Self.Button[B].Y := Theme.Song.Cover.Y;
           Self.Button[B].Reflection := false;
-          Self.Button[B].Texture.LeftScale := 1;
-          Self.Button[B].Texture.RightScale := 1;
-          Self.Button[B].Z := Z;
-        end
-        else
-        begin
-          Self.Button[B].H := Theme.Song.Cover.H - DiffH;
-          Self.Button[B].W := Theme.Song.Cover.W * Scale;
-          Self.Button[B].Y := Theme.Song.Cover.Y + DiffH;
-          Self.Button[B].Reflection := true;
-          Self.Button[B].SetSelect(false);
-          if B < Self.Interaction then
+          if //animation from left or right to central position using texture scale, height and width
+            (not SameValue(Self.Button[B].H, Theme.Song.Cover.H))
+            and (not SameValue(Self.Button[B].X, Theme.Song.Cover.X)) //don't animate if have the initial position
+            and (not SameValue(Self.SongCurrent, 0, 0.002)) //to set initial position after apply a filter
+          then
           begin
+            Self.Button[B].H := Self.Button[B].H + (Theme.Song.Cover.H - Theme.Song.Cover.H * Scale) / Steps;
+            Self.Button[B].W := Self.Button[B].W + (Theme.Song.Cover.W - (Theme.Song.Cover.W * Scale) / 2) / Steps;
+
+            //fix horizontal position to start always from same place
+            if Self.Button[B].X > Theme.Song.Cover.X + Theme.Song.Cover.Padding + RightX then //right position
+              Self.Button[B].X := Theme.Song.Cover.X + Theme.Song.Cover.Padding + RightX
+            else if Self.Button[B].X < Theme.Song.Cover.X - Theme.Song.Cover.Padding then //left position
+              Self.Button[B].X := Theme.Song.Cover.X - Theme.Song.Cover.Padding;
+
+            //fix scale because sometimes fails animation to leave after cancel a filter
+            if (Self.Button[B].Texture.LeftScale = 1) and (Self.Button[B].Texture.RightScale = 1) then
+              if CompareValue(Self.Button[B].X, Theme.Song.Cover.X) < 1 then
+                Self.Button[B].Texture.RightScale := Scale
+              else
+                Self.Button[B].Texture.LeftScale := Scale;
+
+            if Self.Button[B].Texture.LeftScale < 1 then //right covers
+            begin
+              Self.Button[B].X := Self.Button[B].X - (Theme.Song.Cover.Padding + RightX) / Steps;
+              Self.Button[B].Texture.LeftScale += (1 - Scale) / Steps;
+            end
+            else if Self.Button[B].Texture.RightScale < 1 then //left covers
+            begin
+              Self.Button[B].X := Self.Button[B].X + Theme.Song.Cover.Padding / Steps;
+              Self.Button[B].Texture.RightScale += (1 - Scale) / Steps;
+            end
+          end
+          else //initial or final position
+          begin
+            Self.Button[B].H := Theme.Song.Cover.H;
+            Self.Button[B].W := Theme.Song.Cover.W;
+            Self.Button[B].X := Theme.Song.Cover.X;
             Self.Button[B].Texture.LeftScale := 1;
-            Self.Button[B].Texture.RightScale := Scale;
-            Self.Button[B].Z := Z - (Self.Interaction - B) * 0.01; //put first covers under following and under arrows
-          end
-          else
-          begin
-            Self.Button[B].Texture.LeftScale := Scale;
             Self.Button[B].Texture.RightScale := 1;
-            Self.Button[B].Z := Z - (B - Self.Interaction) * 0.01; //put last covers under previous and under arrows
           end
-        end;
+        end
+        else //left and right covers
+        begin
+          Self.Button[B].Reflection := true;
+          Self.Button[B].X := Theme.Song.Cover.X;
+          LeftCover := ((VisibleIndex < Self.SongTarget) and (not LastCover)) or FirstCover;
+          if LeftCover then //put first covers under following
+            Self.Button[B].Z := Self.Button[B].Z - (Self.SongTarget - VisibleIndex + IfThen(FirstCover, USongs.CatSongs.GetVisibleSongs(), 0)) * 0.01
+          else //put last covers under previous
+            Self.Button[B].Z := Self.Button[B].Z - (VisibleIndex - Self.SongTarget + IfThen(LastCover, USongs.CatSongs.GetVisibleSongs(), 0)) * 0.01;
+
+          PaddingIncrementX := VisibleIndex - Self.SongCurrent;
+          if not VisibleCover then
+            PaddingIncrementX += USongs.CatSongs.GetVisibleSongs() * IfThen(FirstCover, -1, 1);
+
+          if //animation from central to left or right position using texture scale, height and width
+            (not SameValue(Self.Button[B].H, Theme.Song.Cover.H * Scale))
+            and (not SameValue(Self.SongTarget, Self.SongCurrent, 0.002)) //avoid initial state or after quit a filter
+            and ( //avoid animation whit a few songs (less than VisibleCovers) and reach the end of the list
+              ((USongs.CatSongs.GetVisibleSongs() > VisibleCovers) )
+              or (not (
+                ((Self.SongTarget = USongs.CatSongs.GetVisibleSongs() - 1) and (VisibleIndex = 0))
+                or ((Self.SongTarget = 0) and (VisibleIndex = USongs.CatSongs.GetVisibleSongs() - 1))
+              ))
+            )
+          then
+          begin
+            Self.Button[B].H := Self.Button[B].H - (Theme.Song.Cover.H - Theme.Song.Cover.H * Scale) / Steps;
+            Self.Button[B].W := Self.Button[B].W - (Theme.Song.Cover.W - (Theme.Song.Cover.W * Scale) / 2) / Steps;
+            if LeftCover then
+            begin
+              Self.Button[B].X := Self.Button[B].X + Theme.Song.Cover.Padding * PaddingIncrementX;
+              Self.Button[B].Texture.RightScale -= (1 - Scale) / Steps;
+            end
+            else
+            begin
+              Self.Button[B].X := Self.Button[B].X + (Theme.Song.Cover.W * Scale) * PaddingIncrementX;
+              Self.Button[B].Texture.LeftScale -= (1 - Scale) / Steps;
+            end
+          end
+          else //initial position
+          begin
+            Self.Button[B].H := Theme.Song.Cover.H * Scale;
+            Self.Button[B].W := (Theme.Song.Cover.W * Scale) / 2;
+            Self.Button[B].X := Self.Button[B].X + Theme.Song.Cover.Padding * PaddingIncrementX;
+            if LeftCover then
+            begin
+              Self.Button[B].Texture.LeftScale := 1;
+              Self.Button[B].Texture.RightScale := Scale;
+            end
+            else
+            begin
+              Self.Button[B].X := Self.Button[B].X + RightX;
+              Self.Button[B].Texture.LeftScale := Scale;
+              Self.Button[B].Texture.RightScale := 1;
+            end
+          end
+        end
       end
       else //hide not visible songs
         Self.UnloadCover(B);
+
+      Inc(VisibleIndex);
+    end
+    else //reset height when a filter is applied to return to song initial position after cancel it
+    begin
+      Self.UnloadCover(B);
+      Self.Button[B].H := Theme.Song.Cover.H * Scale;
     end;
   end;
 end;
@@ -2044,7 +2128,11 @@ begin
 
     if (Self.SongCurrent = Self.SongTarget) then //if occurs an incomplete scroll add one chance to complete well
       SongCurrent := SongTarget - 0.002
-    else if SameValue(Self.SongCurrent, Self.SongTarget, 0.002) and (USongs.CatSongs.GetVisibleSongs() > 0) then
+    else if
+      SameValue(Self.SongCurrent, Self.SongTarget, 0.002)
+      and SameValue(Self.Button[Self.Interaction].X, Theme.Song.Cover.X, 1) //to complete animation always in smSlide
+      and (USongs.CatSongs.GetVisibleSongs() > 0)
+    then
       Self.OnSongSelect();
   end
   else //start to preload covers
