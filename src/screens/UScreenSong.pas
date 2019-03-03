@@ -1642,27 +1642,37 @@ end;
 
 procedure TScreenSong.SetCarouselScroll;
 var
-  B, VisibleIndex: integer;
-  X: real;
+  B, VisibleIndex, VisibleCovers: integer;
+  X, XCorrection: real;
 begin
+  VisibleCovers := 4; //4 for fast scroll at the start/end of list, but only 2 is needed for slow scroll
   VisibleIndex := 0;
   for B := 0 to High(Self.Button) do
   begin
     Self.Button[B].Visible := USongs.CatSongs.Song[B].Visible;
     if Self.Button[B].Visible then
     begin
-      X := Theme.Song.Cover.X + (VisibleIndex - Self.SongCurrent) * (Theme.Song.Cover.W + Theme.Song.Cover.Padding);
+      XCorrection := 0;
+      if not ((VisibleIndex >= Self.SongTarget - VisibleCovers) and (VisibleIndex <= Self.SongTarget + VisibleCovers)) then //not visible songs
+        if VisibleIndex < VisibleCovers then //last cover of list
+          XCorrection := 1
+        else if VisibleIndex >= USongs.CatSongs.GetVisibleSongs() - VisibleCovers then //first covers of list
+          XCorrection := -1;
+
+      X := Theme.Song.Cover.X + (Theme.Song.Cover.Padding + Theme.Song.Cover.W) * ((VisibleIndex - Self.SongCurrent) + USongs.CatSongs.GetVisibleSongs() * XCorrection);
       Inc(VisibleIndex);
-      if not ((X < -Theme.Song.Cover.W) or (X > 800)) then
-        Self.LoadCover(B)
+      if not ((X < -Theme.Song.Cover.W) or (X > 800)) then //visible zone
+      begin
+        Self.LoadCover(B);
+        Self.Button[B].SetSelect(true);
+        Self.Button[B].H := Theme.Song.Cover.H;
+        Self.Button[B].W := Theme.Song.Cover.W;
+        Self.Button[B].X := X; //after load cover to avoid cover flash on change
+        Self.Button[B].Y := Theme.Song.Cover.Y;
+        Self.Button[B].Z := 0.95; //more than 0.9 to be clicked with mouse and less than 1 to hide reflection
+      end
       else //hide not visible songs
         Self.UnloadCover(B);
-
-      Self.Button[B].H := Theme.Song.Cover.H;
-      Self.Button[B].W := Theme.Song.Cover.W;
-      Self.Button[B].X := X; //after load cover to avoid cover flash on change
-      Self.Button[B].Y := Theme.Song.Cover.Y;
-      Self.Button[B].Z := 0.95; //more than 0.9 to be clicked with mouse and less than 1 to hide reflection
     end;
   end;
 end;
