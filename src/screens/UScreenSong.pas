@@ -1530,6 +1530,7 @@ begin
         B.Y := ((Theme.Song.Cover.Y) + ((Theme.Song.Cover.H) - Abs(Theme.Song.Cover.H * Cos(Angle))) * 0.5) - (B.H - (B.H / AutoWidthCorrection));
         B.Z := 0.95 - Abs(Pos) * 0.01;
         B.Texture.Alpha := IfThen(VS < 5, 1 - Abs(Pos) / VS * 2, 1);
+        B.SetSelect(true);
       end
       //only draw 5 visible covers in the background (the 5 that are on the opposite of the front covers
       else if (VS > 9) and (Abs(Pos) > Floor(VS / 2) - 2.5) then
@@ -1553,6 +1554,7 @@ begin
         B.Y := Theme.Song.Cover.Y - (B.H - Theme.Song.Cover.H) * 0.75;
         B.Z := (0.4 - Abs(Pos / 4)) - 0.00001; //z < 0.49999 is behind the cover 1 is in front of the covers
         B.Texture.Alpha := 1;
+        B.SetSelect(true);
         //B.Reflectionspacing := 15 * B.H / Theme.Song.Cover.H;
         B.DeSelectReflectionspacing := 15 * B.H / Theme.Song.Cover.H;
       end
@@ -1707,6 +1709,7 @@ begin
         Self.Button[B].Y := Theme.Song.Cover.Y + Theme.Song.Cover.W * (Sin(Angle * 1.3) * 0.8) - ((Self.Button[B].H - Theme.Song.Cover.H) / 2);
         Self.Button[B].Z := 1;
         Self.Button[B].DeSelectReflectionspacing := 15 * Self.Button[B].H / Theme.Song.Cover.H;
+        Self.Button[B].SetSelect(true);
       end
       else
         Self.UnloadCover(B);
