@@ -421,8 +421,7 @@ end;
 
 procedure TScreenJukebox.Sort(Order: integer);
 var
-  I, J, X, Tmp, Comp: integer;
-  Text: UTF8String;
+  I, J, X, Comp: integer;
   NotEnd: boolean;
 begin
 
@@ -456,11 +455,10 @@ begin
 end;
 
 procedure TScreenJukebox.GoToSongList(UpperLetter: UCS4Char);
-var
-  SongDesc: UTF8String;
-  I, S, CurrentInteractionSong: integer;
-  isCurrentPage, existNextSong: boolean;
-  ListCurrentPage: array of integer;
+// var
+  // I, S, CurrentInteractionSong: integer;
+  // isCurrentPage, existNextSong: boolean;
+  // ListCurrentPage: array of integer;
 begin
  {
 
@@ -689,8 +687,6 @@ begin
 end;
 
 procedure OnDeleteSong(Value: boolean; Data: Pointer);
-var
-  tmp: integer;
 begin
   Display.CheckOK := Value;
 
@@ -703,8 +699,6 @@ begin
 end;
 
 procedure OnEscapeJukebox(Value: boolean; Data: Pointer);
-var
-  tmp: integer;
 begin
   Display.CheckOK := Value;
   if (Value) then
@@ -1317,10 +1311,7 @@ function TScreenJukebox.ParseInput(PressedKey: Cardinal; CharCode: UCS4Char;
   PressedDown: boolean): boolean;
 var
   SDL_ModState: word;
-  I, RValueI, RValueE: integer;
   tmp: integer;
-  X, Y, Z: double;
-  UpperLetter: UCS4Char;
 begin
   Result := true;
 
@@ -2087,8 +2078,6 @@ begin
 end;
 
 procedure TScreenJukebox.Play();
-var
-  I: integer;
 begin
     AudioPlayback.Open(CurrentSong.Path.Append(CurrentSong.Mp3));
     AudioPlayback.SetVolume(1.0);
@@ -2162,10 +2151,6 @@ var
   DisplaySec:   integer;
   CurLyricsTime: real;
   VideoFrameTime: Extended;
-  Line: TLyricLine;
-  LastWord: TLyricWord;
-  CurrentTick: cardinal;
-  Diff: real;
 begin
   Background.Draw;
 
@@ -2394,16 +2379,23 @@ var
   I: integer;
   SongExist: boolean;
 begin
-  if (not CatSongs.Song[ID].Main) then
+  SongExist := false;
+  if not CatSongs.Song[ID].Main then
   begin
-    SongExist := false;
     for I := 0 to High(JukeboxSongsList) do
-    begin
-      if (JukeboxSongsList[I] = ID) then
+      if JukeboxSongsList[I] = ID then
         SongExist := true;
-    end;
 
-    if (not SongExist) then
+    if
+      (not SongExist)
+      and (not ( //avoid to load songs with same sound source like duets or duplicated songs
+        (ID > 0)
+        and (0 = UUnicodeUtils.UTF8CompareStr(
+          USongs.CatSongs.Song[ID].Path.Append(USongs.CatSongs.Song[ID].Mp3).ToUTF8(),
+          USongs.CatSongs.Song[ID - 1].Path.Append(USongs.CatSongs.Song[ID - 1].Mp3).ToUTF8()
+        ))
+      ))
+    then
     begin
       SetLength(JukeboxSongsList, Length(JukeboxSongsList) + 1);
       JukeboxSongsList[High(JukeboxSongsList)] := ID;
