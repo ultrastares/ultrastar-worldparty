@@ -947,6 +947,7 @@ begin
             begin
               // load playlist
               PlaylistMan.SetPlayList(SelectValue3);
+              UGraphic.ScreenSong.SkipTo(0, true);
               Visible := false;
             end;
         end;
@@ -1063,7 +1064,7 @@ begin
                   //Show Cat in Top Left Mod
                   ScreenSong.ShowCatTL(ScreenSong.Interaction);
 
-                  CatSongs.ClickCategoryButton(ScreenSong.Interaction);
+                  USongs.CatSongs.ShowCategory(USongs.CatSongs.Song[UGraphic.ScreenSong.Interaction].OrderNum);
 
                   //Show Wrong Song when Tabs on Fix
                   ScreenSong.SkipTo(0, true);

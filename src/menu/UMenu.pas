@@ -969,6 +969,7 @@ end;
 procedure TMenu.ClearButtons;
 begin
   Setlength(Button, 0);
+  SetLength(Interactions, 0);
 end;
 
 // method to draw our tmenu and all his child buttons

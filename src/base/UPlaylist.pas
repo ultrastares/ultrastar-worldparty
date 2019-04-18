@@ -112,7 +112,6 @@ uses
 constructor TPlayListManager.Create;
 begin
   inherited;
-  LoadPlayLists;
 end;
 
 //----------
@@ -274,18 +273,8 @@ begin
   if (Int(Index) > High(PlayLists)) then
     exit;
 
-  //Hide all Songs
-  for I := 0 to high(CatSongs.Song) do
-     CatSongs.Song[I].Visible := False;
+  USongs.CatSongs.ShowPlaylist(Index);
 
-  //Show Songs in PL
-  for I := 0 to high(PlayLists[Index].Items) do
-  begin
-    CatSongs.Song[PlayLists[Index].Items[I].SongID].Visible := True;
-  end;
-
-  //Set CatSongsMode + Playlist Mode
-  CatSongs.CatNumShow := -3;
   Mode := smPlayList;
 
   //Set CurPlaylist

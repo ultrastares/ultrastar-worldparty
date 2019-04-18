@@ -146,7 +146,6 @@ type
     Visible:    boolean; // false if hidden, true if visible
     Main:       boolean; // false for songs, true for category buttons
     OrderNum:   integer; // has a number of category for category buttons and songs
-    OrderTyp:   integer; // type of sorting for this button (0=name)
     CatNumber:  integer; // Count of Songs in Category for Cats and Number of Song in Category for Songs
 
     LastError: AnsiString;

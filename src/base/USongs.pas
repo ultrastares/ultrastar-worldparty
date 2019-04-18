@@ -111,30 +111,28 @@ type
 
   TCatSongs = class
     private
+      ShowDuets: boolean;
+      ShowCategories: boolean;
+      Sorting: integer;
       VisibleSongs: integer;
+      procedure SortSongs();
     public
-    Song:       array of TSong; // array of categories with songs
-    SongSort:   array of TSong;
-
-    Selected:   integer; // selected song index
-    Order:      integer; // order type (0=title)
-    CatNumShow: integer; // Category Number being seen
-    CatCount:   integer; // Number of Categorys
-
-    procedure SortSongs();
-    procedure Refresh;                                      // refreshes arrays by recreating them from Songs array
-    procedure ShowCategory(Index: integer);                 // expands all songs in category
-    procedure HideCategory(Index: integer);                 // hides all songs in category
-    procedure ClickCategoryButton(Index: integer);          // uses ShowCategory and HideCategory when needed
-    procedure ShowCategoryList;                             // Hides all Songs And Show the List of all Categorys
-    function FindNextVisible(SearchFrom: integer): integer; //find next visible song
-    function FindPreviousVisible(SearchFrom: integer): integer; //find previous visible song
-    function FindGlobalIndex(VisibleIndex:integer): integer; //find global index of all songs from a index of visible songs subgroup
-    function FindVisibleIndex(Index: integer): integer; //find the index of a song in the subset of all visible songs
-    procedure SetVisibleSongs(); //sets number of visible songs
-    function GetVisibleSongs(): integer; //returns number of visible songs
-    function IsFilterApplied(): boolean; //returns if some filter has been applied to song list
-    function SetFilter(FilterStr: UTF8String; Filter: TSongFilter): cardinal;
+      Song: array of TSong; //songs categorized
+      Selected: integer; //selected song index
+      CatNumShow: integer; //selected category (-1 = all songs/all categories, -3 = playlist)
+      CatCount: integer; //number of categories
+      constructor Create();
+      function FindNextVisible(SearchFrom: integer): integer; //find next visible song
+      function FindPreviousVisible(SearchFrom: integer): integer; //find previous visible song
+      function FindGlobalIndex(VisibleIndex:integer): integer; //find global index of all songs from a index of visible songs subgroup
+      function FindVisibleIndex(Index: integer): integer; //find the index of a song in the subset of all visible songs
+      function GetVisibleSongs(): integer; //returns number of visible songs
+      function IsFilterApplied(): boolean; //returns if some filter has been applied to song list
+      function Refresh(Sort: integer; Categories: boolean; Duets: boolean): boolean; //sets sorting, show or not songs in categories and/or duets refreshing songs array
+      function SetFilter(FilterStr: UTF8String; Filter: TSongFilter = fltAll): cardinal;
+      procedure ShowCategory(Index: integer); //show songs of a category
+      function ShowCategoryList(): integer; //show songs categories
+      procedure ShowPlaylist(Index: integer); //show songs of a playlist
   end;
 
 var
@@ -251,6 +249,7 @@ end;
 procedure TSongs.Execute();
 var
   I: integer;
+  Song: TSong;
 begin
   Log.BenchmarkStart(2);
   Log.LogStatus('Searching For Songs', 'SongList');
@@ -265,7 +264,6 @@ begin
     Self.SongList.AddList(Self.Threads[I].Txts);
 
   Log.LogStatus('Search Complete', 'SongList');
-  CatSongs.Refresh();
   Self.ProgressSong.Folder := '';
   Self.ProgressSong.Finished := true;
   Log.LogBenchmark('Song loading', 2);
@@ -273,12 +271,13 @@ begin
   //preloading covers in HDD cache only touching the file
   Log.BenchmarkStart(3);
   Self.PreloadCover := true;
-  for I := 0 to High(CatSongs.Song) do
+  for I := 0 to Self.SongList.Count - 1 do
   begin
+    Song := TSong(Self.SongList.Items[I]);
     if not Self.PreloadCover then
       RtlEventWaitFor(Self.Event);
 
-    SDL_FreeSurface(UImage.LoadImage(CatSongs.Song[I].Path.Append(CatSongs.Song[I].Cover)));
+    SDL_FreeSurface(UImage.LoadImage(Song.Path.Append(Song.Cover)));
   end;
   Log.LogBenchmark('Cover loading', 3);
 end;
@@ -374,9 +373,17 @@ begin
   MergeSort(Self.SongList, CompareFunc);
 end;
 
+constructor TCatSongs.Create();
+begin
+  Self.ShowDuets := true;
+  Self.ShowCategories := false;
+  Self.Sorting := -1;
+  Self.VisibleSongs := 0;
+end;
+
 procedure TCatSongs.SortSongs();
 begin
-  case TSortingType(Ini.Sorting) of
+  case TSortingType(Self.Sorting) of
     sEdition:
       begin
         Songs.Sort(sTitle);
@@ -428,289 +435,6 @@ begin
   end; // case
 end;
 
-procedure TCatSongs.Refresh;
-var
-  SongIndex:   integer;
-  CurSong:     TSong;
-  CatIndex:    integer;    // index of current song in Song
-  Letter:      UCS4Char;   // current letter for sorting using letter
-  CurCategory: UTF8String; // current edition for sorting using edition, genre etc.
-  OrderNum: integer; // number used for ordernum
-  LetterTmp:   UCS4Char;
-  CatNumber:   integer;    // Number of Song in Category
-  tmpCategory: UTF8String; //
-
-  procedure AddCategoryButton(const CategoryName: UTF8String);
-  var
-    PrevCatBtnIndex: integer;
-  begin
-    Inc(OrderNum);
-    CatIndex := Length(Song);
-    SetLength(Song, CatIndex+1);
-    Song[CatIndex]          := TSong.Create();
-    Song[CatIndex].Artist   := '[' + CategoryName + ']';
-    Song[CatIndex].Main     := true;
-    Song[CatIndex].OrderTyp := 0;
-    Song[CatIndex].OrderNum := OrderNum;
-    Song[CatIndex].Cover    := CatCovers.GetCover(TSortingType(Ini.Sorting), CategoryName);
-    Song[CatIndex].Visible  := true;
-
-    // set number of songs in previous category
-    PrevCatBtnIndex := CatIndex - CatNumber - 1;
-    if ((PrevCatBtnIndex >= 0) and Song[PrevCatBtnIndex].Main) then
-      Song[PrevCatBtnIndex].CatNumber := CatNumber;
-
-    CatNumber := 0;
-  end;
-
-begin
-  CatNumShow  := -1;
-
-  SortSongs();
-
-  CurCategory := '';
-  OrderNum := 0;
-  CatNumber   := 0;
-
-  // Note: do NOT set Letter to ' ', otherwise no category-button will be
-  // created for songs beginning with ' ' if songs of this category exist.
-  // TODO: trim song-properties so ' ' will not occur as first chararcter.
-  Letter      := 0;
-
-  // clear song-list
-  for SongIndex := 0 to Songs.SongList.Count - 1 do
-  begin
-    // free category buttons
-    // Note: do NOT delete songs, they are just references to Songs.SongList entries
-    CurSong := TSong(Songs.SongList[SongIndex]);
-    if (CurSong.Main) then
-      CurSong.Free;
-  end;
-  SetLength(Song, 0);
-
-  for SongIndex := 0 to Songs.SongList.Count - 1 do
-  begin
-    CurSong := TSong(Songs.SongList[SongIndex]);
-    // if tabs are on, add section buttons for each new section
-    if (Ini.Tabs = 1) then
-    begin
-      case (TSortingType(Ini.Sorting)) of
-        sEdition: begin
-          if (CompareText(CurCategory, CurSong.Edition) <> 0) then
-          begin
-            CurCategory := CurSong.Edition;
-
-            // add Category Button
-            AddCategoryButton(CurCategory);
-          end;
-        end;
-
-        sGenre: begin
-          if (CompareText(CurCategory, CurSong.Genre) <> 0) then
-          begin
-            CurCategory := CurSong.Genre;
-            // add Genre Button
-            AddCategoryButton(CurCategory);
-          end;
-        end;
-
-        sLanguage: begin
-          if (CompareText(CurCategory, CurSong.Language) <> 0) then
-          begin
-            CurCategory := CurSong.Language;
-            // add Language Button
-            AddCategoryButton(CurCategory);
-          end
-        end;
-
-        sTitle: begin
-          if (Length(CurSong.Title) >= 1) then
-          begin
-            LetterTmp := UCS4UpperCase(UTF8ToUCS4String(CurSong.Title)[0]);
-            { all numbers and some punctuation chars are put into a
-              category named '#'
-              we can't put the other punctuation chars into this category
-              because they are not in order, so there will be two different
-              categories named '#' }
-            if (LetterTmp in [Ord('!') .. Ord('?')]) then
-              LetterTmp := Ord('#')
-            else
-              LetterTmp := UCS4UpperCase(LetterTmp);
-            if (Letter <> LetterTmp) then
-            begin
-              Letter := LetterTmp;
-              // add a letter Category Button
-              AddCategoryButton(UCS4ToUTF8String(Letter));
-            end;
-          end;
-        end;
-
-        sArtist: begin
-          if (Length(CurSong.Artist) >= 1) then
-          begin
-            LetterTmp := UCS4UpperCase(UTF8ToUCS4String(CurSong.Artist)[0]);
-            { all numbers and some punctuation chars are put into a
-              category named '#'
-              we can't put the other punctuation chars into this category
-              because they are not in order, so there will be two different
-              categories named '#' }
-            if (LetterTmp in [Ord('!') .. Ord('?')]) then
-              LetterTmp := Ord('#')
-            else
-              LetterTmp := UCS4UpperCase(LetterTmp);
-
-            if (Letter <> LetterTmp) then
-            begin
-              Letter := LetterTmp;
-              // add a letter Category Button
-              AddCategoryButton(UCS4ToUTF8String(Letter));
-            end;
-          end;
-        end;
-
-        sFolder: begin
-          if (UTF8CompareText(CurCategory, CurSong.Folder) <> 0) then
-          begin
-            CurCategory := CurSong.Folder;
-            // add folder tab
-            AddCategoryButton(CurCategory);
-          end;
-        end;
-
-        sArtist2: begin
-          { this new sorting puts all songs by the same artist into
-            a single category }
-          if (UTF8CompareText(CurCategory, CurSong.Artist) <> 0) then
-          begin
-            CurCategory := CurSong.Artist;
-            // add folder tab
-            AddCategoryButton(CurCategory);
-          end;
-        end;
-
-        sYear: begin
-           if (CurSong.Year <> 0) then
-             tmpCategory := IntToStr(CurSong.Year)
-           else
-             tmpCategory := 'Unknown';
-
-           if (tmpCategory <> CurCategory) then
-           begin
-             CurCategory := tmpCategory;
-
-             // add Category Button
-             AddCategoryButton(CurCategory);
-           end;
-         end;
-
-        sDecade: begin
-           if (CurSong.Year <> 0) then
-             tmpCategory := IntToStr(Trunc(CurSong.Year/10)*10) + '-' + IntToStr(Trunc(CurSong.Year/10)*10+9)
-           else
-             tmpCategory := 'Unknown';
-
-           if (tmpCategory <> CurCategory) then
-           begin
-             CurCategory := tmpCategory;
-
-             // add Category Button
-             AddCategoryButton(CurCategory);
-           end;
-        end;
-      end; // case (Ini.Sorting)
-    end; // if (Ini.Tabs = 1)
-
-    CatIndex := Length(Song);
-    SetLength(Song, CatIndex+1);
-
-    Inc(CatNumber); // increase number of songs in category
-
-    // copy reference to current song
-    Song[CatIndex] := CurSong;
-
-    // set song's category info
-    CurSong.OrderNum := OrderNum; // assigns category
-    CurSong.CatNumber := CatNumber;
-    CurSong.Visible := UIni.Ini.Tabs = 0;
-  end;
-
-  // set CatNumber of last category
-  if (UIni.Ini.Tabs = 1) and (High(Song) >= 1) then
-  begin
-    // set number of songs in previous category
-    SongIndex := CatIndex - CatNumber;
-    if ((SongIndex >= 0) and Song[SongIndex].Main) then
-      Song[SongIndex].CatNumber := CatNumber;
-  end;
-
-  // update number of categories
-  CatCount := OrderNum;
-end;
-
-procedure TCatSongs.ShowCategory(Index: integer);
-var
-  I: integer;
-begin
-  Self.VisibleSongs := 0;
-  CatNumShow := Index;
-  for I := 0 to high(CatSongs.Song) do
-  begin
-    if (CatSongs.Song[I].OrderNum = Index) and (not CatSongs.Song[I].Main) then
-    begin
-      CatSongs.Song[I].Visible := true;
-      Inc(Self.VisibleSongs);
-    end
-    else
-      CatSongs.Song[I].Visible := false;
-  end;
-end;
-
-{hides all songs in category}
-procedure TCatSongs.HideCategory(Index: integer);
-var
-  I: integer;
-begin
-  Self.VisibleSongs := 0;
-  for I := 0 to high(CatSongs.Song) do
-  begin
-    if not CatSongs.Song[I].Main then
-      CatSongs.Song[I].Visible := false // hides all at now
-    else
-      Inc(Self.VisibleSongs);
-  end;
-end;
-
-procedure TCatSongs.ClickCategoryButton(Index: integer);
-var
-  Num: integer;
-begin
-  Num := CatSongs.Song[Index].OrderNum;
-  if Num <> CatNumShow then
-  begin
-    ShowCategory(Num);
-  end
-  else
-  begin
-    ShowCategoryList;
-  end;
-end;
-
-{* Show all categories list *}
-procedure TCatSongs.ShowCategoryList();
-var
-  I: integer;
-begin
-  Self.VisibleSongs := 0;
-  for I := 0 to High(CatSongs.Song) do //hide all songs and show all categories
-  begin
-    CatSongs.Song[I].Visible := CatSongs.Song[I].Main;
-    if CatSongs.Song[I].Visible then
-      Inc(Self.VisibleSongs);
-  end;
-  CatSongs.Selected := IfThen(Self.CatNumShow > 1, Self.CatNumShow - 1, 0); //select last shown category
-  Self.CatNumShow := -1;
-end;
-
 {* Find next visible song *}
 function TCatSongs.FindNextVisible(SearchFrom:integer): integer;
 var
@@ -720,10 +444,10 @@ begin
   I := SearchFrom + 1;
   while (Result = SearchFrom) and (I <> SearchFrom) do
   begin
-    if (I > High(CatSongs.Song)) then
+    if I > High(Self.Song) then
       I := 0;
 
-    if (CatSongs.Song[I].Visible) then
+    if Self.Song[I].Visible then
       Result := I;
 
     Inc(I);
@@ -740,9 +464,9 @@ begin
   while (Result = SearchFrom) and (I <> SearchFrom) do
   begin
     if I < 0 then
-      I := High(CatSongs.Song);
+      I := High(Self.Song);
 
-    if (CatSongs.Song[I].Visible) then
+    if Self.Song[I].Visible then
       Result := I;
 
     Dec(I);
@@ -760,7 +484,7 @@ begin
     while VisibleIndex >= 0 do
     begin
       Inc(Result);
-      if CatSongs.Song[Result].Visible then
+      if Self.Song[Result].Visible then
         Dec(VisibleIndex);
     end;
   end;
@@ -778,21 +502,10 @@ begin
     Result := 0;
     for SongIndex := 0 to Index - 1 do
     begin
-      if (CatSongs.Song[SongIndex].Visible) then
+      if Self.Song[SongIndex].Visible then
         Inc(Result);
     end;
   end;
-end;
-
-{* Sets number of visible songs *}
-procedure TCatSongs.SetVisibleSongs();
-var
-  I: integer;
-begin
-    Self.VisibleSongs := 0;
-    for I := 0 to High(CatSongs.Song) do
-        if (CatSongs.Song[I].Visible) then
-          Inc(Self.VisibleSongs);
 end;
 
 {* Returns number of visible songs *}
@@ -804,16 +517,131 @@ end;
 {* Returns if some filter has been applied to song list *}
 function TCatSongs.IsFilterApplied(): boolean;
 begin
-  Result := Self.VisibleSongs < High(CatSongs.Song) + 1;
+  Result := Self.VisibleSongs < High(Self.Song) + 1;
 end;
 
-function TCatSongs.SetFilter(FilterStr: UTF8String; Filter: TSongFilter): cardinal;
+{* Sets sorting, show or not songs in categories and/or duets refreshing songs array *}
+function TCatSongs.Refresh(Sort: integer; Categories: boolean; Duets: boolean): boolean;
+var
+  I: integer;
+  NewSong, NewCategory: TSong;
+  CurCategory, CategoryName, tmpCategory: UTF8String;
+begin
+  Result := false;
+  if (Self.VisibleSongs = 0) or (Self.Sorting <> Sort) or (Self.ShowCategories <> Categories) or (Self.ShowDuets <> Duets) then
+  begin
+    Result := true;
+    Self.Selected := 0;
+    Self.Sorting := Sort;
+    Self.ShowCategories := Categories;
+    Self.ShowDuets := Duets;
+    Self.CatCount := 0;
+    Self.CatNumShow := -1;
+    Self.VisibleSongs := 0;
+    Self.SortSongs();
+    CurCategory := '';
+    SetLength(Self.Song, 0);
+    for I := 0 to Songs.SongList.Count - 1 do
+    begin
+      NewSong := TSong(Songs.SongList[I]);
+      if Self.ShowDuets or (not NewSong.isDuet) then //add a new song
+      begin
+        Inc(Self.VisibleSongs);
+        if Self.ShowCategories then
+        begin
+          CategoryName := '';
+          case (TSortingType(Self.Sorting)) of
+            sEdition:
+              if (CompareText(CurCategory, NewSong.Edition) <> 0) then
+                CategoryName := NewSong.Edition;
+            sGenre:
+              if (CompareText(CurCategory, NewSong.Genre) <> 0) then
+                CategoryName := NewSong.Genre;
+            sLanguage:
+              if (CompareText(CurCategory, NewSong.Language) <> 0) then
+                CategoryName := NewSong.Language;
+            sTitle:
+              if (Length(NewSong.Title) >= 1) then
+              begin
+                tmpCategory := UTF8UpperCase(UTF8Copy(NewSong.Title, 1, 1));
+                if not (UTF8ToUCS4String(tmpCategory)[0] in [Ord('A')..Ord('Z')]) then
+                  tmpCategory := '#';
+
+                if (CurCategory <> tmpCategory) then
+                  CategoryName := tmpCategory;
+              end;
+            sArtist:
+              if (Length(NewSong.Artist) >= 1) then
+              begin
+                tmpCategory := UTF8UpperCase(UTF8Copy(NewSong.Artist, 1, 1));
+                if not (UTF8ToUCS4String(tmpCategory)[0] in [Ord('A')..Ord('Z')]) then
+                  tmpCategory := '#';
+
+                if (CurCategory <> tmpCategory) then
+                  CategoryName := tmpCategory;
+              end;
+            sFolder:
+              if (UTF8CompareText(CurCategory, NewSong.Folder) <> 0) then
+                CategoryName := NewSong.Folder;
+            sArtist2:
+              { this new sorting puts all songs by the same artist into
+                a single category }
+              if (UTF8CompareText(CurCategory, NewSong.Artist) <> 0) then
+                CategoryName := NewSong.Artist;
+            sYear:
+            begin
+               tmpCategory := IfThen(NewSong.Year <> 0, IntToStr(NewSong.Year), '-');
+               if (tmpCategory <> CurCategory) then
+                 CategoryName := tmpCategory;
+             end;
+            sDecade:
+            begin
+              tmpCategory := IfThen(Length(IntToStr(NewSong.Year)) = 4, UTF8Copy(IntToStr(NewSong.Year), 1, 3)+'0', '-');
+              if (tmpCategory <> CurCategory) then
+                CategoryName := tmpCategory;
+            end;
+          end;
+          if CategoryName <> '' then //add a new category if needed
+          begin
+            CurCategory := CategoryName;
+            Inc(Self.CatCount);
+            NewCategory := TSong.Create();
+            NewCategory.Artist := CategoryName;
+            NewCategory.CatNumber := 0;
+            NewCategory.Cover := UCatCovers.CatCovers.GetCover(TSortingType(Self.Sorting), CategoryName);
+            NewCategory.Main := true;
+            NewCategory.OrderNum := Self.CatCount;
+            NewCategory.Visible := true;
+            SetLength(Self.Song, Self.VisibleSongs);
+            Self.Song[Self.VisibleSongs - 1] := NewCategory;
+            Inc(Self.VisibleSongs);
+          end;
+          Inc(NewCategory.CatNumber);
+          NewSong.CatNumber := NewCategory.CatNumber;
+          NewSong.OrderNum := Self.CatCount;
+          NewSong.Visible := false;
+        end
+        else
+        begin
+          NewSong.CatNumber := Self.VisibleSongs;
+          NewSong.OrderNum := 0;
+          NewSong.Visible := true;
+        end;
+        NewSong.Main := false;
+        SetLength(Self.Song, Self.VisibleSongs);
+        Self.Song[Self.VisibleSongs - 1] := NewSong;
+      end;
+    end;
+    UPlaylist.PlayListMan.LoadPlayLists();
+  end;
+end;
+
+function TCatSongs.SetFilter(FilterStr: UTF8String; Filter: TSongFilter = fltAll): cardinal;
 var
   I, J:      integer;
   TmpString: UTF8String;
   WordArray: array of UTF8String;
 begin
-  Self.VisibleSongs := 0;
   Result := 0;
   FilterStr := UCommon.GetStringWithNoAccents(Trim(LowerCase(FilterStr)));
   if FilterStr <> '' then
@@ -850,30 +678,90 @@ begin
         Song[i].Visible := true;
         // Look for every searched word
         for J := 0 to High(WordArray) do
-        begin
-          Song[i].Visible := Song[i].Visible and UTF8ContainsStr(TmpString, WordArray[J])
-        end;
+          Song[i].Visible := Song[i].Visible and UTF8ContainsStr(TmpString, WordArray[J]);
+
         if Song[i].Visible then
           Inc(Result);
       end
       else
         Song[i].Visible := false;
-    end;
-    CatNumShow := -2;
+    end
   end
   else
   begin
-    for I := 0 to High(Song) do
+    Self.CatNumShow := -1;
+    for I := 0 to High(Self.Song) do
     begin
-      Song[I].Visible := (UIni.Ini.Tabs = 1) = Song[I].Main;
-      if Song[I].Visible then
+      Self.Song[I].Visible := (Self.ShowCategories or (not Self.Song[I].Main)) and (Self.ShowDuets or (not Self.Song[I].IsDuet));
+      if Self.Song[I].Visible then
         Inc(Result);
     end;
-    CatNumShow := -1;
   end;
   Self.VisibleSongs := Result;
 end;
 
-// -----------------------------------------------------------------------------
+{* Show songs of a category *}
+procedure TCatSongs.ShowCategory(Index: integer);
+var
+  I: integer;
+begin
+  Self.CatNumShow := Index;
+  Self.VisibleSongs := 0;
+  for I := 0 to High(Self.Song) do
+  begin
+    Self.Song[I].Visible := false;
+    if Self.Song[I].OrderNum = Index then
+      if Self.Song[I].Main then
+        Self.VisibleSongs := Self.Song[I].CatNumber
+      else
+        Self.Song[I].Visible := true
+  end
+end;
+
+{* Show songs categories *}
+function TCatSongs.ShowCategoryList(): integer;
+var
+  I: integer;
+begin
+  Result := Max(0, Self.CatNumShow - 1); //don't have the first time
+  Self.CatNumShow := -1;
+  Self.VisibleSongs := Self.CatCount;
+  for I := 0 to High(Self.Song) do //hide all songs and show all categories
+    Self.Song[I].Visible := Self.Song[I].Main;
+end;
+
+{* Show songs of a playlistt *}
+procedure TCatSongs.ShowPlaylist(Index: integer);
+var
+  I, CurrentSong, PlaylistSong: integer;
+  PlaylistIds: TStringList;
+begin
+  Self.CatNumShow := -3;
+  Self.VisibleSongs := Length(UPlaylist.PlayListMan.PlayLists[Index].Items);
+
+  //order songs ids
+  PlaylistIds := TStringList.Create();
+  PlaylistIds.Sorted := true;
+  for I := 0 to Self.VisibleSongs - 1 do
+    PlaylistIds.Add(IntToStr(UPlaylist.PlayListMan.PlayLists[Index].Items[I].SongID));
+
+  //add playlist songs
+  CurrentSong := 0;
+  PlaylistSong := 0;
+  for I := 0 to High(Self.Song) do
+  begin
+    Self.Song[I].Visible := false;
+    if (PlaylistSong < Self.VisibleSongs) and (not Self.Song[I].Main) then //use only songs when categories are activated
+    begin
+      if CurrentSong = StrToInt(PlaylistIds[PlaylistSong]) then
+      begin
+        Self.Song[I].Visible := true;
+        Inc(PlaylistSong);
+      end;
+      Inc(CurrentSong);
+    end;
+  end;
+  PlaylistIds.Free();
+end;
 
 end.
