@@ -761,7 +761,7 @@ type
 
   TThemeJukeboxPlaylist = class(TThemeBasic)
     SelectPlayList: TThemeSelectSlide;
-    SelectPlayList2: TThemeSelectSlide;
+    SelectPlayListItems: TThemeSelectSlide;
   end;
 
   TThemeLyricBar = record
@@ -1129,7 +1129,7 @@ type
     SelectMode:  TThemeSelectSlide;
     SelectLevel: TThemeSelectSlide;
     SelectPlayList: TThemeSelectSlide;
-    SelectPlayList2: TThemeSelectSlide;
+    SelectPlayListItems: TThemeSelectSlide;
 
     {ButtonNext: TThemeButton;
     ButtonPrev: TThemeButton;}
@@ -1810,7 +1810,7 @@ begin
       // JukeboxPlaylist
       ThemeLoadBasic(JukeboxPlaylist, 'JukeboxPlaylist');
       ThemeLoadSelectSlide(JukeboxPlaylist.SelectPlayList, 'JukeboxPlaylistSelectPlayList');
-      ThemeLoadSelectSlide(JukeboxPlaylist.SelectPlayList2, 'JukeboxPlaylistSelectPlayList2');
+      ThemeLoadSelectSlide(JukeboxPlaylist.SelectPlayListItems, 'JukeboxPlaylistSelectPlayListItems');
 
       // Sing
       ThemeLoadBasic(Sing, 'Sing');
@@ -2377,7 +2377,7 @@ begin
       ThemeLoadSelectSlide(PartyOptions.SelectMode, 'PartyOptionsSelectMode');
       ThemeLoadSelectSlide(PartyOptions.SelectLevel, 'PartyOptionsSelectLevel');
       ThemeLoadSelectSlide(PartyOptions.SelectPlayList, 'PartyOptionsSelectPlayList');
-      ThemeLoadSelectSlide(PartyOptions.SelectPlayList2, 'PartyOptionsSelectPlayList2');
+      ThemeLoadSelectSlide(PartyOptions.SelectPlayListItems, 'PartyOptionsSelectPlayListItems');
       {ThemeLoadButton (ButtonNext, 'ButtonNext');
       ThemeLoadButton (ButtonPrev, 'ButtonPrev');}
 

@@ -30,23 +30,13 @@ interface
 {$I switches.inc}
 
 uses
-  SysUtils,
-  sdl2,
   UCommon,
-  UDataBase,
-  UDllManager,
-  UPath,
   UIni,
-  ULanguage,
-  ULog,
   UMenu,
   UMenuEqualizer,
   UMusic,
   USong,
-  USongs,
-  UTexture,
-  UThemes,
-  UTime;
+  UTexture;
 
 type
   TVisArr = array of integer;
@@ -263,21 +253,29 @@ implementation
 
 uses
   Math,
-  dglOpenGL,
+  sdl2,
+  SysUtils,
   StrUtils,
+  UAudioPlaybackBase,
+  UDataBase,
+  UDllManager,
   UGraphic,
+  ULanguage,
+  ULog,
   UMain,
   UMenuButton,
   UNote,
-  UAudioPlaybackBase,
   UParty,
+  UPath,
   UPlaylist,
   UScreenPopup,
   UScreenSongMenu,
   UScreenSongJumpto,
   USkins,
-  UUnicodeUtils,
-  UMenuStatic;
+  USongs,
+  UThemes,
+  UTime,
+  UUnicodeUtils;
 
 const
   MAX_TIME = 30;
@@ -621,7 +619,7 @@ begin
         end;
 
       Ord('R'):
-        if Self.FreeListMode then
+        if Self.FreeListMode() then
           Self.SelectRandomSong(SDL_ModState = KMOD_LSHIFT);
 
       Ord('W'):
@@ -1288,15 +1286,14 @@ end;
 
 procedure TScreenSong.SetScroll(force: boolean = false);
 var
-  VS, B: integer;
+  B: integer;
   DuetPlayer1: UTF8String = '';
   DuetPlayer2: UTF8String = '';
 begin
   if not (force or Self.IsScrolling) then //to avoid unnecessary modifications if nothing changes
     Exit;
 
-  VS := USongs.CatSongs.GetVisibleSongs();
-  if VS > 0 then
+  if USongs.CatSongs.GetVisibleSongs() > 0 then
   begin
     case TSongMenuMode(Ini.SongMenu) of
       smRoulette: SetRouletteScroll;
@@ -1426,24 +1423,23 @@ begin
     //Set Song Score
     SongScore;
 
-    if Self.FreeListMode and (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow = -1) then
+    if (USongs.CatSongs.CatNumShow = -1) and (UIni.Ini.Tabs = 1) and Self.FreeListMode() then
     begin
-      Self.Text[TextNumber].Text := IntToStr(USongs.CatSongs.Song[Interaction].OrderNum)+'/'+IntToStr(USongs.CatSongs.CatCount);
-      Self.Text[TextTitle].Text := '('
-        +IntToStr(USongs.CatSongs.Song[Interaction].CatNumber)
+      Self.Text[Self.TextNumber].Text := IntToStr(USongs.CatSongs.Song[Self.Interaction].OrderNum);
+      Self.Text[Self.TextTitle].Text := '('
+        +IntToStr(USongs.CatSongs.Song[Self.Interaction].CatNumber)
         +' '
-        +ULanguage.Language.Translate(IfThen(USongs.CatSongs.Song[Interaction].CatNumber = 1, 'SING_SONG_IN_CAT', 'SING_SONGS_IN_CAT'))
+        +ULanguage.Language.Translate(IfThen(USongs.CatSongs.Song[Self.Interaction].CatNumber = 1, 'SING_SONG_IN_CAT', 'SING_SONGS_IN_CAT'))
         +')'
     end
-    else if (USongs.CatSongs.CatNumShow < -1) then
-      Text[TextNumber].Text := IntToStr(CatSongs.FindVisibleIndex(Interaction)+1) + '/' + IntToStr(VS)
-    else if Self.FreeListMode and (UIni.Ini.Tabs = 1) then //into a category
-    begin
-      Text[TextNumber].Text := IntToStr(CatSongs.Song[Interaction].CatNumber)+ '/' + IntToStr(VS);
-      if not Interaction = 0 then Text[TextNumber].Text := Text[TextNumber].Text + '/' + IntToStr(CatSongs.Song[Interaction - CatSongs.Song[Interaction].CatNumber].CatNumber);
-    end
+    else if USongs.CatSongs.CatNumShow < -1 then //in a search (-2) or in a playlist (-3)
+      Self.Text[Self.TextNumber].Text := FloatToStr(Self.SongTarget + 1)
+    else if USongs.CatSongs.CatNumShow > -1 then //into a category
+      Self.Text[Self.TextNumber].Text := IntToStr(USongs.CatSongs.Song[Self.Interaction].CatNumber)
     else
-      Text[TextNumber].Text := IntToStr(Interaction+1) + '/' + IntToStr(Length(CatSongs.Song));
+      Self.Text[Self.TextNumber].Text := IntToStr(Self.Interaction + 1);
+
+    Self.Text[Self.TextNumber].Text := Self.Text[Self.TextNumber].Text+'/'+IntToStr(USongs.CatSongs.GetVisibleSongs())
   end
   else
   begin
@@ -2015,12 +2011,6 @@ begin
 
   if Self.Mode = smPartyClassic then
   begin
-    Self.Refresh(UIni.Ini.Sorting, false, false);
-    if USongs.CatSongs.CatNumShow = -3 then //reset after play playlist mode
-      USongs.CatSongs.SetFilter('')
-    else if UPlaylist.PlayListMan.Mode = smPlaylist then
-      UPlaylist.PlaylistMan.SetPlayList(UPlaylist.PlaylistMan.CurPlayList);
-
     Self.SelectRandomSong();
     if UIni.Ini.PartyPopup = 1 then
       UGraphic.ScreenSongMenu.MenuShow(SM_Party_Main);
@@ -2563,28 +2553,16 @@ var
   Duet: boolean;
 begin
   Randomize();
-  Category := -1;
-  PrevSong := USongs.CatSongs.FindVisibleIndex(Self.Interaction);
-  case UPlaylist.PlayListMan.Mode of
-    smAll:
-      if (UIni.Ini.Tabs = 1) and RandomCategory then //choose random category
-        repeat
-          Category := Random(USongs.CatSongs.CatCount) + 1
-        until (USongs.CatSongs.CatCount < 2) or (Category <> USongs.CatSongs.CatNumShow); //avoid to change to same category
-    smCategory:
-    begin
-      USongs.CatSongs.ShowCategoryList();
-      Category := USongs.CatSongs.FindVisibleIndex(PlaylistMan.CurPlayList) + 1;
-    end;
-    smPlaylist:
-  end;
-
-  if Category >= 0 then //show category
+  if Self.FreeListMode() and (UIni.Ini.Tabs = 1) and RandomCategory then //choose random category
   begin
+    repeat
+      Category := Random(USongs.CatSongs.CatCount) + 1
+    until (USongs.CatSongs.CatCount < 2) or (Category <> USongs.CatSongs.CatNumShow); //avoid to change to same category
     Self.ShowCatTL(Category);
     USongs.CatSongs.ShowCategory(Category);
   end;
 
+  PrevSong := USongs.CatSongs.FindVisibleIndex(Self.Interaction);
   repeat
     Song := Random(USongs.CatSongs.GetVisibleSongs());
   until (USongs.CatSongs.GetVisibleSongs() < 2) or (Song <> PrevSong); //avoid to change to same song

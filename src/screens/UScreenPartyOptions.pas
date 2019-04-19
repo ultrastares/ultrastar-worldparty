@@ -32,57 +32,39 @@ interface
 {$I switches.inc}
 
 uses
-  UMenu,
-  sdl2,
-  UDisplay,
-  UMusic,
-  UNote,
-  ULog,
-  UFiles,
-  SysUtils,
-  UThemes;
+  UMenu;
 
 type
   TScreenPartyOptions = class(TMenu)
     private
-      SelectMode:     cardinal;
-      SelectLevel:     cardinal;
-      SelectPlayList:  cardinal;
-      SelectPlayList2: cardinal;
-
-      ILevel:     array of UTF8String;
-      IPlaylist:  array of UTF8String;
-      IPlaylist2: array of UTF8String;
-
-      Level:     integer;
-      PlayList:  integer;
-      PlayList2: integer;
-      Mode:      integer;
-
-      procedure FillLevel;
-      procedure FillPlaylist;
-      procedure FillPlaylistJukebox;
-      procedure SetPlaylists;
-      procedure SetPlaylist2;
+      SelectMode: cardinal;
+      SelectPlayList: cardinal;
+      SelectPlayListItems: cardinal;
+      PlayListItemsStrings: array of UTF8String;
+      Level: integer;
+      PlayList: integer;
+      PlayListItems: integer;
+      Mode: integer;
+      procedure SetPlaylists(); //sets playlist slider
+      procedure SetPlaylistsItems(); //sets playlist items slider
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure OnShow; override;
       procedure SetAnimationProgress(Progress: real); override;
-
-      procedure InitClassic;
-      procedure InitFree;
-      procedure InitChallenge;
-      procedure InitTournament;
   end;
 
 implementation
 
 uses
+  sdl2,
+  SysUtils,
+  UDisplay,
   UGraphic,
   UIni,
   ULanguage,
   UMain,
+  UMusic,
   UParty,
   UPlaylist,
   UScreenPartyNewRound,
@@ -96,7 +78,7 @@ uses
   UScreenPartyTournamentWin,
   USong,
   USongs,
-  UTexture,
+  UThemes,
   UUnicodeUtils;
 
 function TScreenPartyOptions.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
@@ -116,73 +98,85 @@ begin
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
-      SDLK_BACKSPACE :
-        begin
-          AudioPlayback.PlaySound(SoundLib.Back);
-          FadeTo(@ScreenMain);
-        end;
-
+      SDLK_BACKSPACE:
+      begin
+        UMusic.AudioPlayback.PlaySound(UMusic.SoundLib.Back);
+        FadeTo(@ScreenMain);
+      end;
       SDLK_RETURN:
-        begin
-          // restart time
-          //if (ScreenSong.Mode = smPartyTournament) then
-          //  ScreenSong.CurrentPartyTime := 0;
+      begin
+        // restart time
+        //if (ScreenSong.Mode = smPartyTournament) then
+        //  ScreenSong.CurrentPartyTime := 0;
 
-          //Don'T start when Playlist is Selected and there are no Playlists
-          if (Playlist = 3) and (Length(PlaylistMan.Playlists) = 0) then
-            Exit;
+        case Self.Playlist of
+          0: ;
+          1:
+          begin
+            if Length(UPlaylist.PlaylistMan.Playlists) = 0 then
+              Exit;
 
-          //Save Difficulty
-          Ini.Difficulty := SelectsS[SelectLevel].SelectedOption;
-          Ini.SaveLevel;
-
-          case Mode of
-            0: InitClassic;
-            1: InitFree;
-            2: InitTournament; 
-           // 3: InitChallenge; // hidden for the moment. Check again in the future
-          end;
-
+            UPlaylist.PlaylistMan.SetPlayList(Self.PlayListItems);
+          end
+          else
+            USongs.CatSongs.ShowCategory(Self.PlayListItems + 1);
         end;
-      // Up and Down could be done at the same time,
-      // but I don't want to declare variables inside
-      // functions like this one, called so many times
-      SDLK_DOWN:    InteractNext;
-      SDLK_UP:      InteractPrev;
+
+        case Self.Mode of
+          0:
+          begin
+            UGraphic.ScreenSong.Mode := smPartyClassic;
+            UMusic.AudioPlayback.PlaySound(UMusic.SoundLib.Start);
+            Self.FadeTo(@ScreenPartyPlayer);
+          end;
+          1:
+          begin
+            UGraphic.ScreenSong.Mode := smPartyFree;
+            UMusic.AudioPlayback.PlaySound(UMusic.SoundLib.Start);
+            Self.FadeTo(@ScreenPartyPlayer);
+          end;
+          2:
+          begin
+            UGraphic.ScreenSong.Mode := smPartyTournament;
+            UMusic.AudioPlayback.PlaySound(UMusic.SoundLib.Start);
+            if not Assigned(UGraphic.ScreenPartyTournamentRounds) then //load the screens only the first time
+            begin
+              UGraphic.ScreenPartyTournamentRounds := TScreenPartyTournamentRounds.Create();
+              UGraphic.ScreenPartyTournamentPlayer := TScreenPartyTournamentPlayer.Create();
+              UGraphic.ScreenPartyTournamentOptions := TScreenPartyTournamentOptions.Create();
+              UGraphic.ScreenPartyTournamentWin := TScreenPartyTournamentWin.Create();
+            end;
+            Self.FadeTo(@ScreenPartyTournamentPlayer);
+          end;
+          // 3:
+          // begin
+          //   UGraphic.ScreenSong.Mode := smPartyChallenge;
+          //   UGraphic.ScreenPopupError.ShowPopup(Language.Translate('PARTY_MODE_NOT_AVAILABLE'));
+          // end;
+        end;
+      end;
+      SDLK_DOWN:
+        Self.InteractNext();
+      SDLK_UP:
+        Self.InteractPrev();
       SDLK_RIGHT:
-        begin
-          AudioPlayback.PlaySound(SoundLib.Option);
-          InteractInc;
-
-          //Change Playlist2 if Playlist is Changed
-          if (Interaction = SelectPlayList) then
-          begin
-            SetPlaylist2;
-          end;
-
-          //Change Playlists if Mode is Changed
-          if (Interaction = SelectMode) then
-          begin
-            SetPlaylists;
-          end;
-        end;
+      begin
+        UMusic.AudioPlayback.PlaySound(UMusic.SoundLib.Option);
+        Self.InteractInc();
+        if Self.Interaction = Self.SelectMode then
+          Self.SetPlaylists()
+        else if Self.Interaction = Self.SelectPlayList then
+          Self.SetPlaylistsItems();
+      end;
       SDLK_LEFT:
-        begin
-          AudioPlayback.PlaySound(SoundLib.Option);
-          InteractDec;
-
-          //Change Playlist2 if Playlist is Changed
-          if (Interaction = SelectPlayList) then
-          begin
-            SetPlaylist2;
-          end;
-
-          //Change Playlists if Mode is Changed
-          if (Interaction = SelectMode) then
-          begin
-            SetPlaylists;
-          end;
-        end;
+      begin
+        UMusic.AudioPlayback.PlaySound(UMusic.SoundLib.Option);
+        Self.InteractDec();
+        if Self.Interaction = Self.SelectMode then
+          Self.SetPlaylists()
+        else if Self.Interaction = Self.SelectPlayList then
+          Self.SetPlaylistsItems();
+      end;
     end;
   end;
 end;
@@ -190,155 +184,84 @@ end;
 constructor TScreenPartyOptions.Create;
 begin
   inherited Create;
-
-  //Fill ILevel
-  FillLevel;
-
-  //Fill IPlaylist
-  FillPlaylist;
-
-  //Fill IPlaylist2
-  SetLength(IPlaylist2, 1);
-  IPlaylist2[0] := '---';
-
-  //Clear all Selects
-  PlayList := 0;
-  PlayList2 := 0;
-  Mode := 0;
-
-  //Load Screen From Theme
-  LoadFromTheme(Theme.PartyOptions);
-
-  Theme.PartyOptions.SelectMode.oneItemOnly := true;
-  Theme.PartyOptions.SelectMode.showArrows := true;
-  SelectMode     := AddSelectSlide(Theme.PartyOptions.SelectMode, Mode, Theme.IMode);
-
-  Theme.PartyOptions.SelectLevel.oneItemOnly := true;
-  Theme.PartyOptions.SelectLevel.showArrows := true;
-  SelectLevel     := AddSelectSlide(Theme.PartyOptions.SelectLevel, Ini.Difficulty, Theme.ILevel);
-
-  Theme.PartyOptions.SelectPlayList.oneItemOnly := true;
-  Theme.PartyOptions.SelectPlayList.showArrows := true;
-  SelectPlayList  := AddSelectSlide(Theme.PartyOptions.SelectPlayList, PlayList, IPlaylist);
-
-  Theme.PartyOptions.SelectPlayList2.oneItemOnly := true;
-  Theme.PartyOptions.SelectPlayList2.showArrows := true;
-  SelectPlayList2 := AddSelectSlide(Theme.PartyOptions.SelectPlayList2, PlayList2, IPlaylist2);
-
-  FillLevel;
-
-  Interaction := 0;
+  Self.PlayList := 0;
+  Self.PlayListItems := 0;
+  Self.Mode := 0;
+  Self.LoadFromTheme(UThemes.Theme.PartyOptions);
+  Self.SelectMode := Self.AddSelectSlide(UThemes.Theme.PartyOptions.SelectMode, Self.Mode, UThemes.Theme.IMode);
+  Self.AddSelectSlide(UThemes.Theme.PartyOptions.SelectLevel, UIni.Ini.Difficulty, UThemes.Theme.ILevel);
+  Self.SelectPlayList := Self.AddSelectSlide(UThemes.Theme.PartyOptions.SelectPlayList, Self.PlayList, [
+    ULanguage.Language.Translate('PARTY_PLAYLIST_ALL'),
+    ULanguage.Language.Translate('PARTY_PLAYLIST_PLAYLIST'),
+    ULanguage.Language.Translate('OPTION_VALUE_EDITION'),
+    ULanguage.Language.Translate('OPTION_VALUE_GENRE'),
+    ULanguage.Language.Translate('OPTION_VALUE_LANGUAGE'),
+    ULanguage.Language.Translate('OPTION_VALUE_FOLDER'),
+    ULanguage.Language.Translate('OPTION_VALUE_TITLE'),
+    ULanguage.Language.Translate('OPTION_VALUE_ARTIST'),
+    ULanguage.Language.Translate('OPTION_VALUE_ARTIST2'),
+    ULanguage.Language.Translate('OPTION_VALUE_YEAR'),
+    ULanguage.Language.Translate('OPTION_VALUE_DECADE')
+  ]);
+  Self.SelectPlayListItems := Self.AddSelectSlide(UThemes.Theme.PartyOptions.SelectPlayListItems, Self.PlayListItems, Self.PlayListItemsStrings);
+  Self.SetPlaylistsItems();
+  Self.Interaction := 0;
 end;
 
-procedure TScreenPartyOptions.FillPlaylist;
+procedure TScreenPartyOptions.SetPlaylists();
 begin
-  SetLength(IPlaylist, 3);
-
-  IPlaylist[0] := Language.Translate('PARTY_PLAYLIST_ALL');
-  IPlaylist[1] := Language.Translate('PARTY_PLAYLIST_CATEGORY');
-  IPlaylist[2] := Language.Translate('PARTY_PLAYLIST_PLAYLIST');
-end;
-
-procedure TScreenPartyOptions.FillPlaylistJukebox;
-begin
-  SetLength(IPlaylist, 3);
-
-  IPlaylist[0] := Language.Translate('PARTY_PLAYLIST_ALL');
-  IPlaylist[1] := Language.Translate('PARTY_PLAYLIST_CATEGORY');
-  IPlaylist[2] := Language.Translate('PARTY_PLAYLIST_PLAYLIST');
-end;
-
-procedure TScreenPartyOptions.FillLevel;
-begin
-  SetLength(ILevel, 3);
-
-  ILevel[0] := Language.Translate('OPTION_VALUE_EASY');
-  ILevel[1] := Language.Translate('OPTION_VALUE_MEDIUM');
-  ILevel[2] := Language.Translate('OPTION_VALUE_HARD');
-end;
-
-procedure TScreenPartyOptions.SetPlaylists;
-begin
-  if (Mode = 1) or (Mode = 2) or (Mode = 3) then
+  if Self.Mode = 0 then //classic
   begin
-    SetLength(IPlaylist, 1);
-    IPlaylist[0] := '---';
-
-    SetLength(IPlaylist2, 1);
-    IPlaylist2[0] := '---';
-
-    Playlist  := 0;
-    Playlist2 := 0;
-
-    UpdateSelectSlideOptions(Theme.PartyOptions.SelectLevel, SelectLevel, ILevel, Level);
-    UpdateSelectSlideOptions(Theme.PartyOptions.SelectPlayList, SelectPlayList, IPlaylist, Playlist);
-    UpdateSelectSlideOptions(Theme.PartyOptions.SelectPlayList2, SelectPlayList2, IPlaylist2, Playlist2);
+    Self.SelectsS[SelectPlayList].Visible := true;
+    Self.SetPlaylistsItems();
   end
   else
   begin
-    UpdateSelectSlideOptions(Theme.PartyOptions.SelectLevel, SelectLevel, ILevel, Level);
-
-    FillPlaylist;
-
-    UpdateSelectSlideOptions(Theme.PartyOptions.SelectPlayList, SelectPlayList, IPlaylist, Playlist);
-
-    SetPlaylist2;
+    Self.SelectsS[SelectPlayList].Visible := false;
+    Self.SelectsS[SelectPlayListItems].Visible := false;
   end;
-
 end;
 
-procedure TScreenPartyOptions.SetPlaylist2;
+procedure TScreenPartyOptions.SetPlaylistsItems();
 var
-  I: integer;
+  I, J: integer;
 begin
-  case Playlist of
-    0:
+  Self.SelectsS[SelectPlayListItems].Visible := true;
+  case Self.Playlist of
+    0: //all
+    begin
+      UGraphic.ScreenSong.Refresh(UIni.Ini.Sorting, false, false);
+      Self.SelectsS[SelectPlayListItems].Visible := false;
+    end;
+    1: //playlist
+    begin
+      UGraphic.ScreenSong.Refresh(UIni.Ini.Sorting, false, false);
+      if Length(UPlaylist.PlaylistMan.Playlists) > 0 then
       begin
-        SetLength(IPlaylist2, 1);
-        IPlaylist2[0] := '---';
+        SetLength(Self.PlayListItemsStrings, Length(UPlaylist.PlaylistMan.Playlists));
+        UPlaylist.PlaylistMan.GetNames(Self.PlayListItemsStrings);
+      end
+      else
+      begin
+        SetLength(Self.PlayListItemsStrings, 1);
+        Self.PlayListItemsStrings[0] := ULanguage.Language.Translate('SONG_MENU_PLAYLIST_NOEXISTING');
       end;
-    1:
-      begin
-        SetLength(IPlaylist2, 0);
-        for I := 0 to high(CatSongs.Song) do
+    end;
+    else //categories
+    begin
+      UGraphic.ScreenSong.Refresh(Self.Playlist - 2, true, false);
+      SetLength(Self.PlayListItemsStrings, 0);
+      for I := 0 to High(USongs.CatSongs.Song) do
+        if USongs.CatSongs.Song[I].Main then
         begin
-          if (CatSongs.Song[I].Main) then
-          begin
-            SetLength(IPlaylist2, Length(IPlaylist2) + 1);
-            IPlaylist2[high(IPlaylist2)] := CatSongs.Song[I].Artist;
-          end;
+          J := Length(Self.PlayListItemsStrings);
+          SetLength(Self.PlayListItemsStrings, J + 1);
+          Self.PlayListItemsStrings[J] := USongs.CatSongs.Song[I].Artist+' ('+IntToStr(USongs.CatSongs.Song[I].CatNumber)+')';
         end;
-
-        if (Length(IPlaylist2) = 0) then
-        begin
-          SetLength(IPlaylist2, 1);
-          IPlaylist2[0] := 'No Categories found';
-        end;
-      end;
-
-    2: 
-      begin
-        SetLength(IPlaylist2, 1);
-        IPlaylist2[0] := '---';
-      end;
-      
-   { 3: //Challenge mode desactivated for the moment
-      begin
-        if (Length(PlaylistMan.Playlists) > 0) then
-        begin
-          SetLength(IPlaylist2, Length(PlaylistMan.Playlists));
-          PlaylistMan.GetNames(IPlaylist2);
-        end
-        else
-        begin
-          SetLength(IPlaylist2, 1);
-          IPlaylist2[0] := 'No Playlists found';
-        end;
-      end; }
+    end;
   end;
-
-  Playlist2 := 0;
-  UpdateSelectSlideOptions(Theme.PartyOptions.SelectPlayList2, SelectPlayList2, IPlaylist2, Playlist2);
+  Self.PlayListItems := 0;
+  Self.UpdateSelectSlideOptions(UThemes.Theme.PartyOptions.SelectPlayListItems, Self.SelectPlayListItems, Self.PlayListItemsStrings, Self.PlayListItems);
 end;
 
 procedure TScreenPartyOptions.OnShow;
@@ -365,78 +288,6 @@ begin
     ScreenPopupError.ShowPopup(Language.Translate('ERROR_NO_PLUGINS'));
     Display.AbortScreenChange;
   end;
-end;
-
-procedure TScreenPartyOptions.InitClassic;
-var
-  I, J: integer;
-begin
-
-  //Save Playlist
-  PlaylistMan.Mode := TSongMode(Playlist);
-  PlaylistMan.CurPlayList := High(cardinal);
-
-  //if Category Selected Search Category ID
-  if Playlist = 1 then
-  begin
-
-    J := -1;
-    for I := 0 to high(CatSongs.Song) do
-    begin
-      if CatSongs.Song[I].Main then
-        Inc(J);
-
-      if J = Playlist2 then
-      begin
-        PlaylistMan.CurPlayList := I;
-        Break;
-      end;
-    end;
-
-    //No Categorys or Invalid Entry
-    if PlaylistMan.CurPlayList = High(cardinal) then
-      Exit;
-  end
-  else
-  begin
-    //if Playlist = 2 then
-    //  PlayListMan.SetPlayList(Playlist2)
-    //else
-      PlaylistMan.CurPlayList := Playlist2;
-  end;
-
-  ScreenSong.Mode := smPartyClassic;
-
-  AudioPlayback.PlaySound(SoundLib.Start);
-  //Go to Player Screen
-  FadeTo(@ScreenPartyPlayer);
-end;
-
-procedure TScreenPartyOptions.InitFree;
-begin
-  ScreenSong.Mode := smPartyFree;
-  AudioPlayback.PlaySound(SoundLib.Start);
-  FadeTo(@ScreenPartyPlayer);
-end;
-
-procedure TScreenPartyOptions.InitChallenge;
-begin
-  ScreenSong.Mode := smPartyChallenge;
-  ScreenPopupError.ShowPopup(Language.Translate('PARTY_MODE_NOT_AVAILABLE'));
-end;
-
-procedure TScreenPartyOptions.InitTournament;
-begin
-  ScreenSong.Mode := smPartyTournament;
-  AudioPlayback.PlaySound(SoundLib.Start);
-  if not Assigned(UGraphic.ScreenPartyTournamentRounds) then //load the screens only the first time
-  begin
-    UGraphic.ScreenPartyTournamentRounds := TScreenPartyTournamentRounds.Create();
-    UGraphic.ScreenPartyTournamentPlayer := TScreenPartyTournamentPlayer.Create();
-    UGraphic.ScreenPartyTournamentOptions := TScreenPartyTournamentOptions.Create();
-    UGraphic.ScreenPartyTournamentWin := TScreenPartyTournamentWin.Create();
-  end;
-  FadeTo(@ScreenPartyTournamentPlayer);
 end;
 
 procedure TScreenPartyOptions.SetAnimationProgress(Progress: real);

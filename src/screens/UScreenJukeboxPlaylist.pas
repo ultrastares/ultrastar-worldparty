@@ -46,13 +46,13 @@ type
   TScreenJukeboxPlaylist = class(TMenu)
     private
       SelectPlayList:  cardinal;
-      SelectPlayList2: cardinal;
+      SelectPlayListItems: cardinal;
 
       IPlaylist:  array of UTF8String;
-      IPlaylist2: array of UTF8String;
+      IPlayListItems: array of UTF8String;
 
       PlayList:  integer;
-      PlayList2: integer;
+      PlayListItems: integer;
 
       procedure SetPlaylists;
     public
@@ -124,7 +124,7 @@ begin
           AudioPlayback.PlaySound(SoundLib.Option);
           InteractInc;
 
-          //Change Playlist2 if Playlist is Changed
+          //Change PlayListItems if Playlist is Changed
           if (Interaction = SelectPlayList) then
           begin
             SetPlaylists;
@@ -136,7 +136,7 @@ begin
           AudioPlayback.PlaySound(SoundLib.Option);
           InteractDec;
 
-          //Change Playlist2 if Playlist is Changed
+          //Change PlayListItems if Playlist is Changed
           if (Interaction = SelectPlayList) then
           begin
             SetPlaylists;
@@ -153,11 +153,11 @@ begin
 
   //Clear all Selects
   PlayList := 0;
-  PlayList2 := 0;
+  PlayListItems := 0;
 
   // playlist modes
-  SetLength(IPlaylist2, 1);
-  IPlaylist2[0] := '---';
+  SetLength(IPlayListItems, 1);
+  IPlayListItems[0] := '---';
 
   SetLength(IPlaylist, 4);
 
@@ -173,9 +173,9 @@ begin
   Theme.JukeboxPlaylist.SelectPlayList.showArrows := true;
   SelectPlayList  := AddSelectSlide(Theme.JukeboxPlaylist.SelectPlayList, PlayList, IPlaylist);
 
-  Theme.JukeboxPlaylist.SelectPlayList2.oneItemOnly := true;
-  Theme.JukeboxPlaylist.SelectPlayList2.showArrows := true;
-  SelectPlayList2 := AddSelectSlide(Theme.JukeboxPlaylist.SelectPlayList2, PlayList2, IPlaylist2);
+  Theme.JukeboxPlaylist.SelectPlayListItems.oneItemOnly := true;
+  Theme.JukeboxPlaylist.SelectPlayListItems.showArrows := true;
+  SelectPlayListItems := AddSelectSlide(Theme.JukeboxPlaylist.SelectPlayListItems, PlayListItems, IPlayListItems);
 
   Interaction := 0;
 end;
@@ -187,49 +187,49 @@ begin
   case Playlist of
     0:
       begin
-        SetLength(IPlaylist2, 1);
-        IPlaylist2[0] := '---';
+        SetLength(IPlayListItems, 1);
+        IPlayListItems[0] := '---';
       end;
     1:
       begin
-        SetLength(IPlaylist2, 0);
+        SetLength(IPlayListItems, 0);
         for I := 0 to high(CatSongs.Song) do
         begin
           if (CatSongs.Song[I].Main) then
           begin
-            SetLength(IPlaylist2, Length(IPlaylist2) + 1);
-            IPlaylist2[high(IPlaylist2)] := CatSongs.Song[I].Artist;
+            SetLength(IPlayListItems, Length(IPlayListItems) + 1);
+            IPlayListItems[high(IPlayListItems)] := CatSongs.Song[I].Artist;
           end;
         end;
 
-        if (Length(IPlaylist2) = 0) then
+        if (Length(IPlayListItems) = 0) then
         begin
-          SetLength(IPlaylist2, 1);
-          IPlaylist2[0] := 'No Categories found';
+          SetLength(IPlayListItems, 1);
+          IPlayListItems[0] := 'No Categories found';
         end;
       end;
     2:
       begin
         if (Length(PlaylistMan.Playlists) > 0) then
         begin
-          SetLength(IPlaylist2, Length(PlaylistMan.Playlists));
-          PlaylistMan.GetNames(IPlaylist2);
+          SetLength(IPlayListItems, Length(PlaylistMan.Playlists));
+          PlaylistMan.GetNames(IPlayListItems);
         end
         else
         begin
-          SetLength(IPlaylist2, 1);
-          IPlaylist2[0] := 'No Playlists found';
+          SetLength(IPlayListItems, 1);
+          IPlayListItems[0] := 'No Playlists found';
         end;
       end;
     3:
       begin
-        SetLength(IPlaylist2, 1);
-        IPlaylist2[0] := '---';
+        SetLength(IPlayListItems, 1);
+        IPlayListItems[0] := '---';
       end;
   end;
 
-  Playlist2 := 0;
-  UpdateSelectSlideOptions(Theme.PartyOptions.SelectPlayList2, SelectPlayList2, IPlaylist2, Playlist2);
+  PlayListItems := 0;
+  UpdateSelectSlideOptions(Theme.PartyOptions.SelectPlayListItems, SelectPlayListItems, IPlayListItems, PlayListItems);
 end;
 
 procedure TScreenJukeboxPlaylist.OnShow;
@@ -275,7 +275,7 @@ begin
       if CatSongs.Song[I].Main then
         Inc(J);
 
-      if J = Playlist2 then
+      if J = PlayListItems then
       begin
         ScreenJukebox.AddSongToJukeboxList(I);
       end;
@@ -288,11 +288,11 @@ begin
 
   if Playlist = 2 then
   begin
-    if(High(PlaylistMan.PlayLists[Playlist2].Items)>0) then
+    if(High(PlaylistMan.PlayLists[PlayListItems].Items)>0) then
     begin
-    for I := 0 to High(PlaylistMan.PlayLists[Playlist2].Items) do
+    for I := 0 to High(PlaylistMan.PlayLists[PlayListItems].Items) do
     begin
-      ScreenJukebox.AddSongToJukeboxList(PlaylistMan.PlayLists[Playlist2].Items[I].SongID);
+      ScreenJukebox.AddSongToJukeboxList(PlaylistMan.PlayLists[PlayListItems].Items[I].SongID);
     end;
 
     ScreenJukebox.CurrentSongID := ScreenJukebox.JukeboxVisibleSongs[0];

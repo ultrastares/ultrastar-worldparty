@@ -646,6 +646,7 @@ begin
   FilterStr := UCommon.GetStringWithNoAccents(Trim(LowerCase(FilterStr)));
   if FilterStr <> '' then
   begin
+    Self.CatNumShow := -2;
     // initialize word array
     SetLength(WordArray, 1);
 
@@ -733,35 +734,16 @@ end;
 {* Show songs of a playlistt *}
 procedure TCatSongs.ShowPlaylist(Index: integer);
 var
-  I, CurrentSong, PlaylistSong: integer;
-  PlaylistIds: TStringList;
+  I: integer;
 begin
   Self.CatNumShow := -3;
   Self.VisibleSongs := Length(UPlaylist.PlayListMan.PlayLists[Index].Items);
 
-  //order songs ids
-  PlaylistIds := TStringList.Create();
-  PlaylistIds.Sorted := true;
-  for I := 0 to Self.VisibleSongs - 1 do
-    PlaylistIds.Add(IntToStr(UPlaylist.PlayListMan.PlayLists[Index].Items[I].SongID));
-
-  //add playlist songs
-  CurrentSong := 0;
-  PlaylistSong := 0;
   for I := 0 to High(Self.Song) do
-  begin
     Self.Song[I].Visible := false;
-    if (PlaylistSong < Self.VisibleSongs) and (not Self.Song[I].Main) then //use only songs when categories are activated
-    begin
-      if CurrentSong = StrToInt(PlaylistIds[PlaylistSong]) then
-      begin
-        Self.Song[I].Visible := true;
-        Inc(PlaylistSong);
-      end;
-      Inc(CurrentSong);
-    end;
-  end;
-  PlaylistIds.Free();
+
+  for I := 0 to Self.VisibleSongs - 1 do
+    Self.Song[UPlaylist.PlayListMan.PlayLists[Index].Items[I].SongID].Visible := true;
 end;
 
 end.

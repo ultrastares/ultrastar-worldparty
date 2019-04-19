@@ -61,7 +61,6 @@ type
     private
 
     public
-      Mode:         TSongMode;     //Current Playlist Mode for SongScreen
       CurPlayList:  Cardinal;
       CurItem:      Cardinal;
 
@@ -83,11 +82,6 @@ type
       procedure   GetNames(var PLNames: array of UTF8String);
       function    GetIndexbySongID(const SongID: Cardinal; const iPlaylist: Integer = -1): Integer;
     end;
-
-    {Modes:
-      0: Standard Mode
-      1: Category Mode
-      2: PlayList Mode}
 
   var
     PlayListMan:  TPlaylistManager;
@@ -112,6 +106,7 @@ uses
 constructor TPlayListManager.Create;
 begin
   inherited;
+  Self.CurPlayList := -1;
 end;
 
 //----------
@@ -270,12 +265,10 @@ procedure TPlayListManager.SetPlayList(Index: Cardinal);
 var
   I: Integer;
 begin
-  if (Int(Index) > High(PlayLists)) then
+  if (Int(Index) > High(PlayLists)) or (CurPlaylist = Index) then
     exit;
 
   USongs.CatSongs.ShowPlaylist(Index);
-
-  Mode := smPlayList;
 
   //Set CurPlaylist
   CurPlaylist := Index;
@@ -443,16 +436,14 @@ end;
 //----------
 procedure TPlayListManager.GetNames(var PLNames: array of UTF8String);
 var
-  I: Integer;
-  Len: Integer;
+  I, Len: Integer;
 begin
-  Len := High(Playlists);
-
+  Len := High(Self.Playlists);
   if (Length(PLNames) <> Len + 1) then
     exit;
 
-  For I := 0 to Len do
-    PLNames[I] := Playlists[I].Name;
+  for I := 0 to Len do
+    PLNames[I] := Self.Playlists[I].Name+' ('+IntToStr(Length(Self.Playlists[I].Items))+')';
 end;
 
 //----------
