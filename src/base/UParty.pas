@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -224,7 +224,7 @@ const
   Party_Teams_Min = 2;
 
   { maximal amount of teams for party mode }
-  Party_Teams_Max = 3;
+  PartyTeamsMax = 3;
 
   { minimal amount of players for party mode }
   Party_Players_Min = 1;
@@ -233,7 +233,7 @@ const
   Party_Players_Max = 4;
 
   { amount of jokers each team gets at the beginning of the game }
-  Party_Count_Jokers = 5;
+  PartyJokers = 5;
 
   { to indicate that element (mode) should set randomly in ARounds array }
   Party_Round_Random = -1;
@@ -507,7 +507,7 @@ begin
         Exit;
     end;
   end;
-end;       
+end;
 
 { returns an array with the name of all available modes (that
   are playable with current player configuration }
@@ -536,14 +536,14 @@ end;
 function TPartyGame.AddTeam(Name: String): Integer;
 begin
   Result := -1;
-  if (not bPartyStarted) and (Length(Name) > 0) and (Length(Teams) < Party_Teams_Max) then
+  if (not bPartyStarted) and (Length(Name) > 0) and (Length(Teams) < PartyTeamsMax) then
   begin
     Result := Length(Teams);
     SetLength(Teams, Result + 1);
 
     Teams[Result].Name := Name;
     Teams[Result].Score := 0;
-    Teams[Result].JokersLeft := Party_Count_Jokers;
+    Teams[Result].JokersLeft := PartyJokers;
     Teams[Result].NextPlayer := -1;
   end;
 end;
@@ -741,7 +741,7 @@ begin
   if (CurRound >= 0) then
   begin
     IncTimesPlayed;
-    
+
     Rounds[CurRound].AlreadyPlayed := true;
 
     GenScores;
@@ -845,7 +845,7 @@ end;
 
 procedure TPartyGame.CallAfterSongSelect;
   var
-    ExecuteDefault: boolean; 
+    ExecuteDefault: boolean;
 begin
   if not bPartyStarted then
     ExecuteDefault := true
@@ -988,8 +988,8 @@ begin
     Result[I].Rank := Rank;
 
     if (I < High(Result)) and (Teams[Result[I].Team].Score <> Teams[Result[I+1].Team].Score) then
-      Inc(Rank); // next rank if next team has different score 
-  end; 
+      Inc(Rank); // next rank if next team has different score
+  end;
 end;
 
 { returns a string like "Team 1 (and Team 2) win"
@@ -1005,7 +1005,7 @@ var
 begin
   Result := '';
   Ranking := nil;
-  
+
   if (Round >= 0) and (Round <= High(Rounds)) then
   begin
     if (not Rounds[Round].AlreadyPlayed) then

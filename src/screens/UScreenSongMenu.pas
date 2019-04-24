@@ -186,39 +186,8 @@ begin
             ScreenSong.SetScroll(true);
           end;
         end;
-
-      SDLK_1:
-        begin // jocker
-            // use joker
-          case CurMenu of
-            SM_Party_Main:
-            begin
-              ScreenSong.DoJoker(0)
-            end;
-          end;
-        end;
-      SDLK_2:
-        begin // jocker
-            // use joker
-          case CurMenu of
-            SM_Party_Main:
-            begin
-              ScreenSong.DoJoker(1)
-            end;
-          end;
-        end;
-      SDLK_3:
-        begin // jocker
-            // use joker
-          case CurMenu of
-            SM_Party_Main:
-            begin
-              ScreenSong.DoJoker(2)
-            end;
-          end;
-        end;
-    end; // case
-  end; // if
+    end;
+  end;
 end;
 
 constructor TScreenSongMenu.Create;
@@ -1004,24 +973,8 @@ begin
       begin
         Visible := false;
         case Interaction of
-          0: // button 1
-            begin
-              // joker team 1
-              ScreenSong.DoJoker(0);
-            end;
-
-          1: // button 2
-            begin
-              // joker team 2
-              ScreenSong.DoJoker(1);
-            end;
-
-          2: // button 3
-            begin
-              // joker team 3
-              ScreenSong.DoJoker(2);
-            end;
-
+          0..2:
+            UGraphic.ScreenSong.ParseInput(SDLK_1 + Self.Interaction, 0, true);
           6: // button 4
             begin
               // cancel... (go back to old menu)

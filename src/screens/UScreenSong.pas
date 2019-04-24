@@ -110,25 +110,21 @@ type
       //Party Mod
       Mode: TSingMode;
 
-      //party Statics (Joker)
       StaticTeam1Joker1: cardinal;
       StaticTeam1Joker2: cardinal;
       StaticTeam1Joker3: cardinal;
       StaticTeam1Joker4: cardinal;
       StaticTeam1Joker5: cardinal;
-
       StaticTeam2Joker1: cardinal;
       StaticTeam2Joker2: cardinal;
       StaticTeam2Joker3: cardinal;
       StaticTeam2Joker4: cardinal;
       StaticTeam2Joker5: cardinal;
-
       StaticTeam3Joker1: cardinal;
       StaticTeam3Joker2: cardinal;
       StaticTeam3Joker3: cardinal;
       StaticTeam3Joker4: cardinal;
       StaticTeam3Joker5: cardinal;
-
       StaticParty:    array of cardinal;
       TextParty:      array of cardinal;
       StaticNonParty: array of cardinal;
@@ -208,6 +204,7 @@ type
       procedure SelectPrev();
       procedure SelectNextRow;
       procedure SelectPrevRow;
+      procedure SetJoker();
       procedure SetSubselection(Id: integer; Filter: TSongFilter); overload;
       procedure SetSubselection(Id: UTF8String = ''; Filter: TSongFilter = sfAll); overload;
       procedure SkipTo(Target: cardinal; Force: boolean = false);
@@ -215,16 +212,12 @@ type
       procedure ChangeSorting(Tabs: integer; Duet: boolean; Sorting: integer);
       procedure ChangeMusic;
       function FreeListMode: boolean;
-
-      //Party Mode
       procedure SelectRandomSong(RandomCategory: boolean = false);
-      procedure SetJoker;
       procedure ColorizeJokers;
       //procedure PartyTimeLimit;
 
       //procedures for Menu
       procedure StartSong;
-      procedure DoJoker(Team: integer);
       procedure SelectPlayers;
 
       procedure OnSongSelect;   // called when song flows movement stops at a song
@@ -748,53 +741,20 @@ begin
             Self.SetScroll(true);
           end;
         end;
-      SDLK_1:
-        begin //Joker
-          if (SDL_ModState = KMOD_LSHIFT) then
+      SDLK_1..SDLK_3: //use teams jokers
+        begin
+          if
+            (Self.Mode = smPartyClassic)
+            and (High(UParty.Party.Teams) >= PressedKey - SDLK_1)
+            and (UParty.Party.Teams[PressedKey - SDLK_1].JokersLeft > 0) then
           begin
-          end
-          else
-          begin
-            if (SDL_ModState = KMOD_LCTRL) then
-            begin
-            end
-            else
-              DoJoker(0);
-            end;
-        end;
-
-      SDLK_2:
-        begin //Joker
-          if (SDL_ModState = KMOD_LSHIFT) then
-          begin
-          end
-          else
-          begin
-            if (SDL_ModState = KMOD_LCTRL) then
-            begin
-            end
-            else
-              DoJoker(1);
+            Dec(UParty.Party.Teams[PressedKey - SDLK_1].JokersLeft);
+            Self.SelectRandomSong();
+            Self.SetJoker();
           end;
-
         end;
-
-      SDLK_3:
-        begin //Joker
-          if (SDL_ModState = KMOD_LSHIFT) then
-          begin
-          end
-          else
-          begin
-            if (SDL_ModState = KMOD_LCTRL) then
-            begin
-            end
-            else
-              DoJoker(2);
-          end;
-      end;
     end;
-  end; // if (PressedDown)
+  end;
 end;
 
 function TScreenSong.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
@@ -838,9 +798,9 @@ begin
       SDL_BUTTON_MIDDLE: //open song menu
         Self.ParseInput(0, Ord('M'), true);
       SDL_BUTTON_WHEELDOWN: //next song
-        Self.SelectNext();
+        Self.ParseInput(SDLK_RIGHT, 0, true);
       SDL_BUTTON_WHEELUP: //previous song
-        Self.SelectPrev();
+        Self.ParseInput(SDLK_LEFT, 0, true);
     end;
   end
   else if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then //hover cover
@@ -927,13 +887,11 @@ begin
   StaticTeam1Joker3 := AddStatic(Theme.Song.StaticTeam1Joker3);
   StaticTeam1Joker4 := AddStatic(Theme.Song.StaticTeam1Joker4);
   StaticTeam1Joker5 := AddStatic(Theme.Song.StaticTeam1Joker5);
-
   StaticTeam2Joker1 := AddStatic(Theme.Song.StaticTeam2Joker1);
   StaticTeam2Joker2 := AddStatic(Theme.Song.StaticTeam2Joker2);
   StaticTeam2Joker3 := AddStatic(Theme.Song.StaticTeam2Joker3);
   StaticTeam2Joker4 := AddStatic(Theme.Song.StaticTeam2Joker4);
   StaticTeam2Joker5 := AddStatic(Theme.Song.StaticTeam2Joker5);
-
   StaticTeam3Joker1 := AddStatic(Theme.Song.StaticTeam3Joker1);
   StaticTeam3Joker2 := AddStatic(Theme.Song.StaticTeam3Joker2);
   StaticTeam3Joker3 := AddStatic(Theme.Song.StaticTeam3Joker3);
@@ -2494,84 +2452,6 @@ begin
   Self.SkipTo(Song, Song = PrevSong); //force in some cases after change to other category
 end;
 
-procedure TScreenSong.SetJoker;
-begin
-  // If Party Mode
-  if Mode = smPartyClassic then //Show Joker that are available
-  begin
-    if (Length(Party.Teams) >= 1) then
-    begin
-      Statics[StaticTeam1Joker1].Visible := (Party.Teams[0].JokersLeft >= 1);
-      Statics[StaticTeam1Joker2].Visible := (Party.Teams[0].JokersLeft >= 2);
-      Statics[StaticTeam1Joker3].Visible := (Party.Teams[0].JokersLeft >= 3);
-      Statics[StaticTeam1Joker4].Visible := (Party.Teams[0].JokersLeft >= 4);
-      Statics[StaticTeam1Joker5].Visible := (Party.Teams[0].JokersLeft >= 5);
-    end
-    else
-    begin
-      Statics[StaticTeam1Joker1].Visible := false;
-      Statics[StaticTeam1Joker2].Visible := false;
-      Statics[StaticTeam1Joker3].Visible := false;
-      Statics[StaticTeam1Joker4].Visible := false;
-      Statics[StaticTeam1Joker5].Visible := false;
-    end;
-
-    if (Length(Party.Teams) >= 2) then
-    begin
-      Statics[StaticTeam2Joker1].Visible := (Party.Teams[1].JokersLeft >= 1);
-      Statics[StaticTeam2Joker2].Visible := (Party.Teams[1].JokersLeft >= 2);
-      Statics[StaticTeam2Joker3].Visible := (Party.Teams[1].JokersLeft >= 3);
-      Statics[StaticTeam2Joker4].Visible := (Party.Teams[1].JokersLeft >= 4);
-      Statics[StaticTeam2Joker5].Visible := (Party.Teams[1].JokersLeft >= 5);
-    end
-    else
-    begin
-      Statics[StaticTeam2Joker1].Visible := false;
-      Statics[StaticTeam2Joker2].Visible := false;
-      Statics[StaticTeam2Joker3].Visible := false;
-      Statics[StaticTeam2Joker4].Visible := false;
-      Statics[StaticTeam2Joker5].Visible := false;
-    end;
-
-    if (Length(Party.Teams) >= 3) then
-    begin
-      Statics[StaticTeam3Joker1].Visible := (Party.Teams[2].JokersLeft >= 1);
-      Statics[StaticTeam3Joker2].Visible := (Party.Teams[2].JokersLeft >= 2);
-      Statics[StaticTeam3Joker3].Visible := (Party.Teams[2].JokersLeft >= 3);
-      Statics[StaticTeam3Joker4].Visible := (Party.Teams[2].JokersLeft >= 4);
-      Statics[StaticTeam3Joker5].Visible := (Party.Teams[2].JokersLeft >= 5);
-    end
-    else
-    begin
-      Statics[StaticTeam3Joker1].Visible := false;
-      Statics[StaticTeam3Joker2].Visible := false;
-      Statics[StaticTeam3Joker3].Visible := false;
-      Statics[StaticTeam3Joker4].Visible := false;
-      Statics[StaticTeam3Joker5].Visible := false;
-    end;
-  end
-  else
-  begin //Hide all
-    Statics[StaticTeam1Joker1].Visible := false;
-    Statics[StaticTeam1Joker2].Visible := false;
-    Statics[StaticTeam1Joker3].Visible := false;
-    Statics[StaticTeam1Joker4].Visible := false;
-    Statics[StaticTeam1Joker5].Visible := false;
-
-    Statics[StaticTeam2Joker1].Visible := false;
-    Statics[StaticTeam2Joker2].Visible := false;
-    Statics[StaticTeam2Joker3].Visible := false;
-    Statics[StaticTeam2Joker4].Visible := false;
-    Statics[StaticTeam2Joker5].Visible := false;
-
-    Statics[StaticTeam3Joker1].Visible := false;
-    Statics[StaticTeam3Joker2].Visible := false;
-    Statics[StaticTeam3Joker3].Visible := false;
-    Statics[StaticTeam3Joker4].Visible := false;
-    Statics[StaticTeam3Joker5].Visible := false;
-  end;
-end;
-
 //Procedures for Menu
 procedure TScreenSong.StartSong;
 begin
@@ -2592,20 +2472,6 @@ begin
 
   ScreenName.Goto_SingScreen := true;
   FadeTo(@ScreenName);
-end;
-
-//Team No of Team (0-5)
-procedure TScreenSong.DoJoker (Team: integer);
-begin
-  if (Mode = smPartyClassic) and
-     (High(Party.Teams) >= Team) and
-     (Party.Teams[Team].JokersLeft > 0) then
-  begin
-    //Use Joker
-    Dec(Party.Teams[Team].JokersLeft);
-    SelectRandomSong;
-    SetJoker;
-  end;
 end;
 
 { Load a cover dynamically in a song button }
@@ -2658,6 +2524,23 @@ begin
       );
 
     Self.SkipTo(0);
+  end;
+end;
+
+{* Set joker visibility *}
+procedure TScreenSong.SetJoker();
+var
+  I, J, Count, Max: integer;
+begin
+  Count := Self.StaticTeam1Joker1; //start in the first static joker
+  for I := 0 to UParty.PartyTeamsMax - 1 do //for each team
+  begin
+    Max := Count + UParty.PartyJokers - 1; //last static joker of this team
+    for J := Count to Max do //set joker visibility
+    begin
+      Self.Statics[Count].Visible := (I <= High(UParty.Party.Teams)) and (UParty.Party.Teams[I].JokersLeft >= UParty.PartyJokers - (Max - J));
+      Inc(Count);
+    end;
   end;
 end;
 
