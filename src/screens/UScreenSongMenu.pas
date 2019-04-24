@@ -946,8 +946,7 @@ begin
           6: // button 4
             begin
               // load playlist
-              PlaylistMan.SetPlayList(SelectValue3);
-              UGraphic.ScreenSong.SkipTo(0, true);
+              UGraphic.ScreenSong.SetSubselection(SelectValue3, sfPlaylist);
               Visible := false;
             end;
         end;
@@ -1059,16 +1058,8 @@ begin
 
               if (Songs.SongList.Count > 0) then
               begin
-                if CatSongs.Song[ScreenSong.Interaction].Main then
-                begin // clicked on Category Button
-                  //Show Cat in Top Left Mod
-                  ScreenSong.ShowCatTL(ScreenSong.Interaction);
-
-                  USongs.CatSongs.ShowCategory(USongs.CatSongs.Song[UGraphic.ScreenSong.Interaction].OrderNum);
-
-                  //Show Wrong Song when Tabs on Fix
-                  ScreenSong.SkipTo(0, true);
-                end
+                if USongs.CatSongs.Song[UGraphic.ScreenSong.Interaction].Main then
+                  UGraphic.ScreenSong.SetSubselection(UGraphic.ScreenSong.Interaction, sfCategory)
                 else
                 begin
                   //Find Category
@@ -1085,16 +1076,7 @@ begin
                   else
                     ScreenSong.Interaction := I - 1;
 
-                  //Stop Music
-                  ScreenSong.StopMusicPreview();
-
-                  CatSongs.ShowCategoryList;
-
-                  //Show Cat in Top Left Mod
-                  ScreenSong.HideCatTL;
-
-                  //Show Wrong Song when Tabs on Fix
-                  ScreenSong.SkipTo(0, true);
+                  UGraphic.ScreenSong.SetSubselection();
                 end;
               end;
 

@@ -57,11 +57,7 @@ uses
   UTexture;
 
 type
-  TSongFilter = (
-    fltAll,
-    fltTitle,
-    fltArtist
-  );
+  TSongFilter = (sfAll, sfArtist, sfCategory, sfPlaylist, sfTitle);
 
   TScore = record
     Name:   UTF8String;
@@ -129,9 +125,8 @@ type
       function GetVisibleSongs(): integer; //returns number of visible songs
       function IsFilterApplied(): boolean; //returns if some filter has been applied to song list
       function Refresh(Sort: integer; Categories: boolean; Duets: boolean): boolean; //sets sorting, show or not songs in categories and/or duets refreshing songs array
-      function SetFilter(FilterStr: UTF8String; Filter: TSongFilter = fltAll): cardinal;
+      function SetFilter(FilterStr: UTF8String; Filter: TSongFilter = sfAll): cardinal;
       procedure ShowCategory(Index: integer); //show songs of a category
-      function ShowCategoryList(): integer; //show songs categories
       procedure ShowPlaylist(Index: integer); //show songs of a playlist
   end;
 
@@ -636,7 +631,7 @@ begin
   end;
 end;
 
-function TCatSongs.SetFilter(FilterStr: UTF8String; Filter: TSongFilter = fltAll): cardinal;
+function TCatSongs.SetFilter(FilterStr: UTF8String; Filter: TSongFilter = sfAll): cardinal;
 var
   I, J:      integer;
   TmpString: UTF8String;
@@ -669,11 +664,11 @@ begin
       if not Song[i].Main then
       begin
         case Filter of
-          fltAll:
+          sfAll:
             TmpString := Song[I].ArtistNoAccent + ' ' + Song[i].TitleNoAccent; //+ ' ' + Song[i].Folder;
-          fltTitle:
+          sfTitle:
             TmpString := Song[I].TitleNoAccent;
-          fltArtist:
+          sfArtist:
             TmpString := Song[I].ArtistNoAccent;
         end;
         Song[i].Visible := true;
@@ -693,7 +688,9 @@ begin
     Self.CatNumShow := -1;
     for I := 0 to High(Self.Song) do
     begin
-      Self.Song[I].Visible := (Self.ShowCategories or (not Self.Song[I].Main)) and (Self.ShowDuets or (not Self.Song[I].IsDuet));
+      Self.Song[I].Visible := (Self.ShowCategories and Self.Song[I].Main)
+        or ((not Self.ShowCategories) and (not Self.Song[I].Main) and (Self.ShowDuets or (not Self.Song[I].IsDuet)));
+
       if Self.Song[I].Visible then
         Inc(Result);
     end;
@@ -717,18 +714,6 @@ begin
       else
         Self.Song[I].Visible := true
   end
-end;
-
-{* Show songs categories *}
-function TCatSongs.ShowCategoryList(): integer;
-var
-  I: integer;
-begin
-  Result := Max(0, Self.CatNumShow - 1); //don't have the first time
-  Self.CatNumShow := -1;
-  Self.VisibleSongs := Self.CatCount;
-  for I := 0 to High(Self.Song) do //hide all songs and show all categories
-    Self.Song[I].Visible := Self.Song[I].Main;
 end;
 
 {* Show songs of a playlistt *}

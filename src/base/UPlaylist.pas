@@ -71,7 +71,7 @@ type
       function    LoadPlayList(Index: Cardinal; const Filename: IPath): Boolean;
       procedure   SavePlayList(Index: Cardinal);
 
-      procedure   SetPlayList(Index: Cardinal);
+      function SetPlayList(Index: Cardinal): TPlayList;
 
       function    AddPlaylist(const Name: UTF8String): Cardinal;
       procedure   DelPlaylist(const Index: Cardinal);
@@ -261,27 +261,10 @@ end;
 {**
  * Display a Playlist in CatSongs
  *}
-procedure TPlayListManager.SetPlayList(Index: Cardinal);
-var
-  I: Integer;
+function TPlayListManager.SetPlayList(Index: Cardinal): TPlaylist;
 begin
-  if (Int(Index) > High(PlayLists)) or (CurPlaylist = Index) then
-    exit;
-
-  USongs.CatSongs.ShowPlaylist(Index);
-
-  //Set CurPlaylist
-  CurPlaylist := Index;
-
-  //Show Cat in Topleft:
-  ScreenSong.ShowCatTLCustom(Format(Theme.Playlist.CatText,[Playlists[Index].Name]));
-
-  //Fix SongSelection
-  ScreenSong.SkipTo(0, true);
-
-  //Play correct Music
-  //ScreenSong.ChangeMusic;
-
+  Self.CurPlaylist := Index;
+  Result := Self.Playlists[Index];
 end;
 
 //----------
@@ -352,12 +335,7 @@ begin
   //If Playlist is Displayed atm
   //-> Display Songs
   if (CatSongs.CatNumShow = -3) and (Index = CurPlaylist) then
-  begin
-    ScreenSong.HideCatTL;
-    CatSongs.SetFilter('', fltAll);
-    ScreenSong.SkipTo(0, true);
-    ScreenSong.ChangeMusic;
-  end;
+    UGraphic.ScreenSong.SetSubselection();
 end;
 
 //----------
@@ -386,10 +364,6 @@ begin
 
     //Save Changes
     SavePlayList(P);
-
-    //Correct Display when Editing current Playlist
-    if (CatSongs.CatNumShow = -3) and (P = CurPlaylist) then
-      SetPlaylist(P);
   end;
 end;
 
@@ -428,7 +402,7 @@ begin
   end
   //Correct Display when Editing current Playlist
   else if (CatSongs.CatNumShow = -3) and (P = CurPlaylist) then
-    SetPlaylist(P);
+    UGraphic.ScreenSong.SetSubselection(Self.CurPlaylist, sfPlaylist);
 end;
 
 //----------

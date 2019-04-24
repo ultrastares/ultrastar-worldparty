@@ -314,7 +314,6 @@ type
 
     //Show Cat in TopLeft Mod
     TextCat:          TThemeText;
-    StaticCat:        TThemeStatic;
 
     SongSelectionUp: TThemeStatic;
     SongSelectionDown: TThemeStatic;
@@ -1012,12 +1011,6 @@ type
     ButtonSearchText: TThemeButton;
     SelectSlideType:  TThemeSelectSlide;
     TextFound:        TThemeText;
-
-    //Translated Texts
-    Songsfound:       UTF8String;
-    NoSongsfound:     UTF8String;
-    CatText:          UTF8String;
-    IType:            array [0..2] of UTF8String;
   end;
 
   //Party Screens
@@ -1254,11 +1247,6 @@ type
     PageStr:          UTF8String;
   end;
 
-  //Playlist Translations
-  TThemePlaylist = record
-    CatText:    UTF8String;
-  end;
-
   TThemeEntry = record
     Name: string;
     Filename: IPath;
@@ -1333,8 +1321,6 @@ type
     //Stats Screens:
     StatMain:         TThemeStatMain;
     StatDetail:       TThemeStatDetail;
-
-    Playlist:         TThemePlaylist;
 
     ILevel: array[0..2] of UTF8String;
     IMode:  array[0..2] of UTF8String;
@@ -2364,13 +2350,6 @@ begin
 
       ThemeLoadSelectSlide(SongJumpto.SelectSlideType, 'SongJumptoSelectSlideType');
       ThemeLoadText(SongJumpto.TextFound, 'SongJumptoTextFound');
-      //Translations
-      SongJumpto.IType[0] := Language.Translate('SONG_JUMPTO_TYPE1');
-      SongJumpto.IType[1] := Language.Translate('SONG_JUMPTO_TYPE2');
-      SongJumpto.IType[2] := Language.Translate('SONG_JUMPTO_TYPE3');
-      SongJumpto.SongsFound := Language.Translate('SONG_JUMPTO_SONGSFOUND');
-      SongJumpto.NoSongsFound := Language.Translate('SONG_JUMPTO_NOSONGSFOUND');
-      SongJumpto.CatText := Language.Translate('SONG_JUMPTO_CATTEXT');
 
       //Party Options
       ThemeLoadBasic(PartyOptions, 'PartyOptions');
@@ -2527,8 +2506,6 @@ begin
 
       StatDetail.PageStr := Language.Translate('STAT_PAGE');
 
-      //Playlist Translations
-      Playlist.CatText := Language.Translate('PLAYLIST_CATTEXT');
 
       //Level Translations
       //Fill ILevel
@@ -3806,7 +3783,6 @@ begin
 
   //Show CAt in Top Left Mod
   ThemeSaveText(Song.TextCat, 'SongTextCat');
-  ThemeSaveStatic(Song.StaticCat, 'SongStaticCat');
 
   ThemeSaveBasic(Sing, 'Sing');
 
@@ -4220,7 +4196,6 @@ begin
   ThemeLoadStatic(Song.RapIcon, 'Song' + prefix + 'RapIcon');
 
   //Show Cat in TopLeft Mod
-  ThemeLoadStatic(Song.StaticCat, 'Song' + prefix + 'StaticCat');
   ThemeLoadText(Song.TextCat, 'Song' + prefix + 'TextCat');
 
   Self.ThemeLoadStatic(Self.Song.SongSelectionUp, 'Song' + prefix + 'Static1');

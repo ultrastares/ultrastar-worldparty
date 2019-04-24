@@ -36,6 +36,7 @@ uses
   UMenuEqualizer,
   UMusic,
   USong,
+  USongs,
   UTexture;
 
 type
@@ -84,7 +85,6 @@ type
       RapIcon:     cardinal;
 
       TextCat:   integer;
-      StaticCat: integer;
 
       SongCurrent:  real;
       SongTarget:   real;
@@ -208,10 +208,9 @@ type
       procedure SelectPrev();
       procedure SelectNextRow;
       procedure SelectPrevRow;
+      procedure SetSubselection(Id: integer; Filter: TSongFilter); overload;
+      procedure SetSubselection(Id: UTF8String = ''; Filter: TSongFilter = sfAll); overload;
       procedure SkipTo(Target: cardinal; Force: boolean = false);
-      procedure ShowCatTL(Cat: integer);// Show Cat in Top left
-      procedure ShowCatTLCustom(Caption: UTF8String);// Show Custom Text in Top left
-      procedure HideCatTL;// Show Cat in Tob left
       procedure Refresh(Sort: integer; Categories: boolean; Duets: boolean);
       procedure ChangeSorting(Tabs: integer; Duet: boolean; Sorting: integer);
       procedure ChangeMusic;
@@ -272,7 +271,6 @@ uses
   UScreenSongMenu,
   UScreenSongJumpto,
   USkins,
-  USongs,
   UThemes,
   UTime,
   UUnicodeUtils;
@@ -287,36 +285,6 @@ function TScreenSong.FreeListMode: boolean;
 begin
   Result := (Mode in [smNormal, smPartyTournament, smPartyFree, smJukebox]);
 end;
-
-procedure TScreenSong.ShowCatTLCustom(Caption: UTF8String);// Show Custom Text in Top left
-begin
-  Text[TextCat].Text := Caption;
-  Text[TextCat].Visible := true;
-  Statics[StaticCat].Visible := false;
-end;
-
-//Show Cat in Top Left Mod
-procedure TScreenSong.ShowCatTL(Cat: integer);
-begin
-  //Change
-  Text[TextCat].Text := CatSongs.Song[Cat].Artist;
-  //Statics[StaticCat].Texture := Texture.LoadTexture(Button[Cat].Texture.Name, TEXTURE_TYPE_PLAIN, true);
-
-  //Show
-  Text[TextCat].Visible := true;
-  Statics[StaticCat].Visible := true;
-end;
-
-procedure TScreenSong.HideCatTL;
-begin
-  //Hide
-  //Text[TextCat].Visible := false;
-  Statics[StaticCat].Visible := false;
-  //New -> Show Text specified in Theme
-  Text[TextCat].Visible := true;
-  Text[TextCat].Text := Theme.Song.TextCat.Text;
-end;
-//Show Cat in Top Left Mod End
 
 procedure TScreenSong.ParseInputNextHorizontal(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
 var
@@ -394,9 +362,7 @@ begin
       if not USongs.CatSongs.Song[Self.Interaction].Main then //or rotate to next category
         I := IfThen(I = USongs.CatSongs.CatCount, 1, I + 1); //go to first category if end is reached
 
-      USongs.CatSongs.ShowCategory(I);
-      Self.ShowCatTL(I);
-      Self.SkipTo(0, true);
+      Self.SetSubselection(I, sfCategory);
     end;
   end;
 end;
@@ -419,9 +385,7 @@ begin
       if not USongs.CatSongs.Song[Self.Interaction].Main then //or rotate to previous category
         I := IfThen(I = 1, USongs.CatSongs.CatCount, I - 1); //go to last category if start is reached
 
-      USongs.CatSongs.ShowCategory(I);
-      Self.ShowCatTL(I);
-      Self.SkipTo(0, true);
+      Self.SetSubselection(I, sfCategory);
     end;
   end;
 end;
@@ -647,71 +611,34 @@ begin
 
     // check special keys
     case PressedKey of
-      SDLK_ESCAPE,
-      SDLK_BACKSPACE :
-        begin
-          Self.CloseMessage();
-          Self.HideCatTL();
-
-          if (FreeListMode) then
-          begin
-            //On Escape goto Cat-List Hack
-            if (UIni.Ini.Tabs = 1) and (USongs.CatSongs.CatNumShow <> -1) then
-            begin
-              Self.SkipTo(USongs.CatSongs.ShowCategoryList(), true);
-            end
+      SDLK_ESCAPE, SDLK_BACKSPACE:
+      begin
+        Self.CloseMessage();
+        case Mode of
+          smJukebox:
+            Self.FadeTo(@ScreenJukeboxPlaylist);
+          smPartyClassic:
+            Self.CheckFadeTo(@ScreenMain,'MSG_END_PARTY');
+          smPartyFree:
+            Self.FadeTo(@ScreenPartyNewRound);
+          smPartyTournament:
+            Self.FadeTo(@ScreenPartyTournamentRounds);
+          else
+            if USongs.CatSongs.CatNumShow <> -1 then
+              Self.SetSubselection()
             else
-            begin
-              //On Escape goto Cat-List Hack End
-              //Tabs off and in Search or Playlist -> Go back to Song view
-              Self.StopMusicPreview();
-              if (CatSongs.CatNumShow < -1) then
-              begin
-                CatSongs.SetFilter('', fltAll);
-                Self.SkipTo(0);
-                Self.SetScroll(true);
-              end
-              else
-              begin
-
-                //if (Mode = smPartyTournament) then
-                //  CurrentPartyTime := MAX_TIME - StrToInt(Text[TextPartyTime].Text);
-
-                case Mode of
-                  smPartyFree: FadeTo(@ScreenPartyNewRound);
-                  smJukebox: FadeTo(@ScreenJukeboxPlaylist);
-                  smPartyTournament: FadeTo(@ScreenPartyTournamentRounds);
-                  else FadeTo(@ScreenMain);
-                end;
-
-              end;
-
-            end;
-          end
-          //When in party Mode then Ask before Close
-          else if (Mode = smPartyClassic) then
-          begin
-            CheckFadeTo(@ScreenMain,'MSG_END_PARTY');
-          end;
-
-          if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smList, smSlotMachine]) then
-            Self.SetScroll(true);
-
-        end;
+              Self.FadeTo(@ScreenMain);
+        end
+      end;
       SDLK_RETURN:
         begin
           CloseMessage();
           if (Songs.SongList.Count > 0) then
           begin
-            if USongs.CatSongs.Song[Interaction].Main then
-            begin // clicked on Category Button
-              USongs.CatSongs.ShowCategory(USongs.CatSongs.Song[Self.Interaction].OrderNum);
-              Self.ShowCatTL(Self.Interaction);
-              Self.SkipTo(0, true);
-            end
+            if USongs.CatSongs.Song[Self.Interaction].Main then
+              Self.SetSubselection(Self.Interaction, sfCategory)
             else
             begin // clicked on song
-
               // Duets Warning
               if (CatSongs.Song[Interaction].isDuet) and (Mode <> smNormal) then
               begin
@@ -969,7 +896,6 @@ begin
 
   //Show Cat in Top Left mod
   TextCat := AddText(Theme.Song.TextCat);
-  StaticCat :=  AddStatic(Theme.Song.StaticCat);
 
   //Show Video Icon Mod
   VideoIcon := AddStatic(Theme.Song.VideoIcon);
@@ -2018,8 +1944,8 @@ begin
   else
   begin
     Self.Refresh(UIni.Ini.Sorting, UIni.Ini.Tabs = 1, true);
-    if (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow = -1) then
-      Self.SkipTo(USongs.CatSongs.ShowCategoryList()); //to fix scroll in some modes when enter after first time with a category selected in the middle of the list
+    if (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow = -1) then //fix scroll on show and when enter after on first time with a category selected in the middle of the list
+      Self.SetSubselection();
   end;
 
   Self.SetScroll(true);
@@ -2550,7 +2476,6 @@ end;
 procedure TScreenSong.SelectRandomSong(RandomCategory: boolean = false);
 var
   Category, PrevSong, Song: integer;
-  Duet: boolean;
 begin
   Randomize();
   if Self.FreeListMode() and (UIni.Ini.Tabs = 1) and RandomCategory then //choose random category
@@ -2558,8 +2483,7 @@ begin
     repeat
       Category := Random(USongs.CatSongs.CatCount) + 1
     until (USongs.CatSongs.CatCount < 2) or (Category <> USongs.CatSongs.CatNumShow); //avoid to change to same category
-    Self.ShowCatTL(Category);
-    USongs.CatSongs.ShowCategory(Category);
+    Self.SetSubselection(Category, sfCategory);
   end;
 
   PrevSong := USongs.CatSongs.FindVisibleIndex(Self.Interaction);
@@ -2719,7 +2643,7 @@ procedure TScreenSong.Refresh(Sort: integer; Categories: boolean; Duets: boolean
 var
   I: integer;
 begin
-  if USongs.CatSongs.Refresh(Sort, Categories, Duets) then
+  if USongs.CatSongs.Refresh(Sort, Categories, Duets) or (Length(Self.Button) = 0) then
   begin
     Self.ClearButtons();
     for I := 0 to High(USongs.CatSongs.Song) do
@@ -2735,6 +2659,43 @@ begin
 
     Self.SkipTo(0);
   end;
+end;
+
+{* SetSubselection adapted to accept ids as integers to show categories and playlist *}
+procedure TScreenSong.SetSubselection(Id: integer; Filter: TSongFilter);
+begin
+  Self.SetSubselection(IntToStr(Id), Filter);
+end;
+
+{* Show a songs subselection depends on Id and Filter selected. It used to show categories, playlist, searches o full list *}
+procedure TScreenSong.SetSubselection(Id: UTF8String = ''; Filter: TSongFilter = sfAll);
+var
+  Caption: UTF8String;
+  Position: integer;
+begin
+  Position := 0;
+  case Filter of
+    sfCategory:
+    begin
+      USongs.CatSongs.ShowCategory(USongs.CatSongs.Song[StrToInt(Id)].OrderNum);
+      Caption := USongs.CatSongs.Song[StrToInt(Id)].Artist;
+    end;
+    sfPlaylist:
+    begin
+      USongs.CatSongs.ShowPlaylist(StrToInt(Id));
+      Caption := Format(ULanguage.Language.Translate('PLAYLIST_CATTEXT'), [UPlaylist.PlayListMan.SetPlayList(StrToInt(Id)).Name]);
+    end
+    else //search using Id as string to found or show all songs if is empty
+    begin
+      Caption := IfThen(Id = '', '', ULanguage.Language.Translate('SONG_JUMPTO_TYPE_DESC')+' '+Id);
+      if (UIni.Ini.Tabs = 1) and (USongs.CatSongs.CatNumShow > -2) then //move to correct category after leave it or after OnShow if the category is in the middle of the list
+        Position := IfThen(USongs.CatSongs.CatNumShow > -1, USongs.CatSongs.CatNumShow - 1, Round(Self.SongTarget));
+
+      USongs.CatSongs.SetFilter(Id, sfAll);
+    end;
+  end;
+  Self.Text[Self.TextCat].Text := Caption;
+  Self.SkipTo(Position, true);
 end;
 
 //start Medley round
@@ -2993,30 +2954,11 @@ begin
 end;
 
 procedure TScreenSong.ChangeSorting(Tabs: integer; Duet: boolean; Sorting: integer);
-var
-  I, Count:      integer;
 begin
-  Ini.Sorting := Sorting;
+  UIni.Ini.Sorting := Sorting;
   UIni.Ini.Tabs := Tabs;
-
-  //ClearButtons();
   USongs.CatSongs.Refresh(Sorting, Tabs = 1, Duet);
-  Self.SkipTo(0);
-  HideCatTL;
-  ChangeMusic;
-
-  Count := 0;
-  for I := 0 to High(Button) do
-  begin
-    //while (CatSongs.Song[Count].Main) do
-    //  Count := Count + 1;
-
-    // if (CatSongs.Song[I].CoverTex.TexNum > 0) then
-    //   Button[I].Texture := CatSongs.Song[I].CoverTex;
-    //else
-    //Count := Count + 1;
-  end;
-
+  Self.SetSubselection();
 end;
 
 end.
