@@ -762,13 +762,6 @@ var
   B: integer;
 begin
   Result := true;
-
-  //transfer mousecords to the 800x600 raster we use to draw
-  Y := Round((Y / ScreenH) * RenderH);
-  X := Round((X / (ScreenW / Screens)) * RenderW);
-  if (X > RenderW) then
-    X := X - RenderW;
-
   if UGraphic.ScreenSongMenu.Visible then
     Result := UGraphic.ScreenSongMenu.ParseMouse(MouseButton, BtnDown, X, Y)
   else if UGraphic.ScreenSongJumpTo.Visible then
@@ -778,20 +771,20 @@ begin
     USongs.Songs.PreloadCovers(false);
     case MouseButton of
       SDL_BUTTON_LEFT:
-      begin
-        for B := 0 to High(Self.Button) do
-          if Self.Button[B].Visible and (Self.Button[B].Z > 0.9) and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) then //z to roulette mode fix
-            if Self.Interaction = B then
-              Self.ParseInput(SDLK_RETURN, 0, true)
-            else
-              Self.SkipTo(B);
+        begin
+          for B := 0 to High(Self.Button) do
+            if Self.Button[B].Visible and (Self.Button[B].Z > 0.9) and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) then //z to roulette mode fix
+              if Self.Interaction = B then
+                Self.ParseInput(SDLK_RETURN, 0, true)
+              else
+                Self.SkipTo(B);
 
-        if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then
-          if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionUp].GetMouseOverArea()) then //arrow to page up
-            Self.ParseInput(SDLK_PAGEUP, 0, true)
-          else if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionDown].GetMouseOverArea()) then //arrow to page down
-            Self.ParseInput(SDLK_PAGEDOWN, 0, true);
-      end;
+          if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then
+            if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionUp].GetMouseOverArea()) then //arrow to page up
+              Self.ParseInput(SDLK_PAGEUP, 0, true)
+            else if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionDown].GetMouseOverArea()) then //arrow to page down
+              Self.ParseInput(SDLK_PAGEDOWN, 0, true);
+        end;
       SDL_BUTTON_RIGHT: //go back
         if Self.RightMbESC then
           Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
@@ -804,6 +797,13 @@ begin
     end;
   end
   else if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then //hover cover
+  begin
+    //transfer mousecords to the 800x600 raster we use to draw
+    Y := Round((Y / ScreenH) * RenderH);
+    X := Round((X / (ScreenW / Screens)) * RenderW);
+    if (X > RenderW) then
+      X := X - RenderW;
+
     for B := 0 to High(Self.Button) do
       if Self.Button[B].Visible and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) and (Self.Interaction <> B) then
       begin
@@ -812,6 +812,7 @@ begin
         Self.OnSongDeSelect();
         Self.SetScroll();
       end;
+  end;
 end;
 
 procedure TScreenSong.ColorizeJokers;
