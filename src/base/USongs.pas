@@ -118,15 +118,13 @@ type
       CatNumShow: integer; //selected category (-1 = all songs/all categories, -3 = playlist)
       CatCount: integer; //number of categories
       constructor Create();
-      function FindNextVisible(SearchFrom: integer): integer; //find next visible song
-      function FindPreviousVisible(SearchFrom: integer): integer; //find previous visible song
       function FindGlobalIndex(VisibleIndex:integer): integer; //find global index of all songs from a index of visible songs subgroup
       function FindVisibleIndex(Index: integer): integer; //find the index of a song in the subset of all visible songs
       function GetVisibleSongs(): integer; //returns number of visible songs
       function IsFilterApplied(): boolean; //returns if some filter has been applied to song list
       function Refresh(Sort: integer; Categories: boolean; Duets: boolean): boolean; //sets sorting, show or not songs in categories and/or duets refreshing songs array
       function SetFilter(FilterStr: UTF8String; Filter: TSongFilter = sfAll): cardinal;
-      procedure ShowCategory(Index: integer); //show songs of a category
+      function ShowCategory(Index: integer): integer; //show songs of a category
       procedure ShowPlaylist(Index: integer); //show songs of a playlist
   end;
 
@@ -430,44 +428,6 @@ begin
   end; // case
 end;
 
-{* Find next visible song *}
-function TCatSongs.FindNextVisible(SearchFrom:integer): integer;
-var
-  I: integer;
-begin
-  Result := SearchFrom;
-  I := SearchFrom + 1;
-  while (Result = SearchFrom) and (I <> SearchFrom) do
-  begin
-    if I > High(Self.Song) then
-      I := 0;
-
-    if Self.Song[I].Visible then
-      Result := I;
-
-    Inc(I);
-  end;
-end;
-
-{* Find previous visible song *}
-function TCatSongs.FindPreviousVisible(SearchFrom:integer): integer;
-var
-  I: integer;
-begin
-  Result := SearchFrom;
-  I := SearchFrom - 1;
-  while (Result = SearchFrom) and (I <> SearchFrom) do
-  begin
-    if I < 0 then
-      I := High(Self.Song);
-
-    if Self.Song[I].Visible then
-      Result := I;
-
-    Dec(I);
-  end;
-end;
-
 {* Find global index of all songs from a index of visible songs subgroup  *}
 function TCatSongs.FindGlobalIndex(VisibleIndex:integer): integer;
 begin
@@ -699,7 +659,7 @@ begin
 end;
 
 {* Show songs of a category *}
-procedure TCatSongs.ShowCategory(Index: integer);
+function TCatSongs.ShowCategory(Index: integer): integer;
 var
   I: integer;
 begin
@@ -710,7 +670,10 @@ begin
     Self.Song[I].Visible := false;
     if Self.Song[I].OrderNum = Index then
       if Self.Song[I].Main then
+      begin
+        Result := I;
         Self.VisibleSongs := Self.Song[I].CatNumber
+      end
       else
         Self.Song[I].Visible := true
   end

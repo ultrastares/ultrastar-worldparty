@@ -53,11 +53,12 @@ type
       LastMinLine: integer; //used on list mode
       ListFirstVisibleSongIndex: integer;
       MainListFirstVisibleSongIndex: integer;
+      procedure LoadCover(Const I: integer);
+      procedure LoadMainCover();
+      procedure SetJoker();
       procedure StartMusicPreview();
       procedure StartVideoPreview();
-      procedure LoadCover(Const I: integer);
       procedure UnloadCover(Const I: integer);
-      procedure LoadMainCover();
     public
       TextArtist:   integer;
       TextTitle:    integer;
@@ -200,11 +201,6 @@ type
       procedure OnShow; override;
       procedure OnShowFinish; override;
       procedure OnHide; override;
-      procedure SelectNext();
-      procedure SelectPrev();
-      procedure SelectNextRow;
-      procedure SelectPrevRow;
-      procedure SetJoker();
       procedure SetSubselection(Id: integer; Filter: TSongFilter); overload;
       procedure SetSubselection(Id: UTF8String = ''; Filter: TSongFilter = sfAll); overload;
       procedure SkipTo(Target: cardinal; Force: boolean = false);
@@ -233,12 +229,6 @@ type
 
       procedure StopMusicPreview();
       procedure StopVideoPreview();
-
-      procedure ParseInputNextHorizontal(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
-      procedure ParseInputPrevHorizontal(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
-
-      procedure ParseInputNextVertical(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
-      procedure ParseInputPrevVertical(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
   end;
 
 implementation
@@ -277,110 +267,6 @@ const
 function TScreenSong.FreeListMode: boolean;
 begin
   Result := (Mode in [smNormal, smPartyTournament, smPartyFree, smJukebox]);
-end;
-
-procedure TScreenSong.ParseInputNextHorizontal(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
-var
-  SDL_ModState: word;
-  I: integer;
-begin
-  CloseMessage();
-
-  SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT
-    + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
-
-  if (Songs.SongList.Count > 0) and (FreeListMode) then
-  begin
-    if (SDL_ModState = KMOD_LCTRL) and (High(DLLMan.Websites) >= 0) then
-    begin
-      if (Ini.ShowWebScore < High(DLLMan.Websites)) then
-        Ini.ShowWebScore := Ini.ShowWebScore + 1
-      else
-        Ini.ShowWebScore := 0;
-      Ini.SaveShowWebScore;
-      SongScore;
-    end
-    else
-    begin
-      for I := 1 to IfThen(PressedKey = SDLK_PAGEDOWN, Theme.Song.Cover.Rows, 1) do
-        Self.SelectNext();
-    end;
-  end;
-end;
-
-procedure TScreenSong.ParseInputPrevHorizontal(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
-var
-  SDL_ModState: word;
-  I: integer;
-begin
-  CloseMessage();
-
-  SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT
-    + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
-
-  if (Songs.SongList.Count > 0) and (FreeListMode) then
-  begin
-    if (SDL_ModState = KMOD_LCTRL) and (High(DLLMan.Websites) >= 0) then
-    begin
-      if (Ini.ShowWebScore > 0) then
-        Ini.ShowWebScore := Ini.ShowWebScore - 1
-      else
-        Ini.ShowWebScore := High(DLLMan.Websites);
-      Ini.SaveShowWebScore;
-      SongScore;
-    end
-    else
-    begin
-      for I := 1 to IfThen(PressedKey = SDLK_PAGEUP, Theme.Song.Cover.Rows, 1) do
-        Self.SelectPrev();
-    end;
-  end;
-end;
-
-{* Move down songs or rotate to next category if they are active *}
-procedure TScreenSong.ParseInputNextVertical(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
-var
-  I: integer;
-begin
-  CloseMessage();
-
-  if (FreeListMode) and not (TSongMenuMode(Ini.SongMenu) in [smList]) then
-  begin
-    if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smSlotMachine]) then //advance songs
-      for I := 1 to IfThen(PressedKey = SDLK_PAGEDOWN, Theme.Song.Cover.Rows, 1) do
-        Self.SelectNextRow()
-    else if (USongs.CatSongs.CatNumShow > -2) and (UIni.Ini.Tabs = 1) then //if categories are activated
-    begin
-      I := USongs.CatSongs.Song[Self.Interaction].OrderNum; //enter into category if are in category list
-      if not USongs.CatSongs.Song[Self.Interaction].Main then //or rotate to next category
-        I := IfThen(I = USongs.CatSongs.CatCount, 1, I + 1); //go to first category if end is reached
-
-      Self.SetSubselection(I, sfCategory);
-    end;
-  end;
-end;
-
-{* Move up songs or rotate to previous category if they are active *}
-procedure TScreenSong.ParseInputPrevVertical(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean);
-var
-  I: integer;
-begin
-  CloseMessage();
-
-  if (FreeListMode and not (TSongMenuMode(Ini.SongMenu) in [smList])) then
-  begin
-    if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smSlotMachine]) then //back songs
-      for I := 1 to IfThen(PressedKey = SDLK_PAGEUP, Theme.Song.Cover.Rows, 1) do
-        Self.SelectPrevRow()
-    else if (USongs.CatSongs.CatNumShow > -2) and (UIni.Ini.Tabs = 1) then //if categories are activated
-    begin
-      I := USongs.CatSongs.Song[Self.Interaction].OrderNum; //enter into category if are in category list
-      if not USongs.CatSongs.Song[Self.Interaction].Main then //or rotate to previous category
-        I := IfThen(I = 1, USongs.CatSongs.CatCount, I - 1); //go to last category if start is reached
-
-      Self.SetSubselection(I, sfCategory);
-    end;
-  end;
 end;
 
 // Method for input parsing. If false is returned, GetNextWindow
@@ -629,7 +515,7 @@ begin
           if (Songs.SongList.Count > 0) then
           begin
             if USongs.CatSongs.Song[Self.Interaction].Main then
-              Self.SetSubselection(Self.Interaction, sfCategory)
+              Self.SetSubselection(USongs.CatSongs.Song[Self.Interaction].OrderNum, sfCategory)
             else
             begin // clicked on song
               // Duets Warning
@@ -702,33 +588,53 @@ begin
               end;
           end;
         end;
-      SDLK_DOWN, SDLK_PAGEDOWN:
+      SDLK_DOWN, SDLK_PAGEDOWN, SDLK_RIGHT, SDLK_UP, SDLK_PAGEUP, SDLK_LEFT:
         begin
-          if (TSongMenuMode(Ini.SongMenu) in [smSlotMachine, smList]) then
-            ParseInputNextHorizontal(PressedKey, CharCode, PressedDown)
-          else
-            ParseInputNextVertical(PressedKey, CharCode, PressedDown);
-        end;
-      SDLK_UP, SDLK_PAGEUP:
-        begin
-          if (TSongMenuMode(Ini.SongMenu) in [smSlotMachine, smList]) then
-            ParseInputPrevHorizontal(PressedKey, CharCode, PressedDown)
-          else
-            ParseInputPrevVertical(PressedKey, CharCode, PressedDown);
-        end;
-      SDLK_RIGHT:
-        begin
-          if (TSongMenuMode(Ini.SongMenu) in [smSlotMachine, smList]) then
-            ParseInputNextVertical(PressedKey, CharCode, PressedDown)
-          else
-            ParseInputNextHorizontal(PressedKey, CharCode, PressedDown);
-        end;
-      SDLK_LEFT:
-        begin
-          if (TSongMenuMode(Ini.SongMenu) in [smSlotMachine, smList]) then
-            ParseInputPrevVertical(PressedKey, CharCode, PressedDown)
-          else
-            ParseInputPrevHorizontal(PressedKey, CharCode, PressedDown);
+          Self.CloseMessage();
+          if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
+            if //rotate by categories
+              (UIni.Ini.Tabs = 1)
+              and (USongs.CatSongs.CatNumShow > -2)
+              and (
+                (((PressedKey = SDLK_DOWN) or (PressedKey = SDLK_UP)) and (UThemes.Theme.Song.Cover.Rows = 1))
+                or (((PressedKey = SDLK_LEFT) or (PressedKey = SDLK_RIGHT)) and (UThemes.Theme.Song.Cover.Cols = 1))
+              )
+            then
+            begin
+              if USongs.CatSongs.Song[Self.Interaction].Main then //enter into selected category
+                Self.SetSubselection(USongs.CatSongs.Song[Self.Interaction].OrderNum, sfCategory)
+              else if (PressedKey = SDLK_DOWN) or (PressedKey = SDLK_RIGHT) then //go to first category if end is reached
+                Self.SetSubselection(
+                  IfThen(USongs.CatSongs.Song[Self.Interaction].OrderNum = USongs.CatSongs.CatCount, 1, USongs.CatSongs.Song[Self.Interaction].OrderNum + 1),
+                  sfCategory
+                )
+              else  //go to last category if start is reached
+                Self.SetSubselection(
+                  IfThen(USongs.CatSongs.Song[Self.Interaction].OrderNum = 1, USongs.CatSongs.CatCount, USongs.CatSongs.Song[Self.Interaction].OrderNum - 1),
+                  sfCategory
+                );
+            end
+            else
+            begin
+              case PressedKey of //calculate steps to advance or back
+                SDLK_PAGEDOWN, SDLK_PAGEUP: //entire page
+                  I := (UThemes.Theme.Song.Cover.Cols * UThemes.Theme.Song.Cover.Rows);
+                SDLK_DOWN, SDLK_UP: //vertical
+                  I := IfThen((UThemes.Theme.Song.Cover.Cols > 1) and (UThemes.Theme.Song.Cover.Rows > 1), UThemes.Theme.Song.Cover.Cols, 1);
+                SDLK_LEFT, SDLK_RIGHT: //horizontal
+                  I := 1;
+              end;
+              case PressedKey of
+                SDLK_PAGEDOWN: //advance to end
+                  Self.SkipTo(Min(USongs.CatSongs.GetVisibleSongs() - 1, Round(Self.SongTarget) + I));
+                SDLK_PAGEUP: //back to start
+                  Self.SkipTo(Max(0, Round(Self.SongTarget) - I));
+                SDLK_DOWN, SDLK_RIGHT: //go to initial song if reach the end of subselection list or the next song
+                  Self.SkipTo(IfThen(Self.SongTarget + I >= USongs.CatSongs.GetVisibleSongs(), 0, Round(Self.SongTarget) + I));
+                SDLK_UP, SDLK_LEFT: //go to final song if reach the start of subselection list or the previous song
+                  Self.SkipTo(IfThen(Self.SongTarget - I < 0, USongs.CatSongs.GetVisibleSongs() - 1, Round(Self.SongTarget) - I));
+              end;
+            end;
         end;
       SDLK_SPACE:
         begin
@@ -791,9 +697,9 @@ begin
       SDL_BUTTON_MIDDLE: //open song menu
         Self.ParseInput(0, Ord('M'), true);
       SDL_BUTTON_WHEELDOWN: //next song
-        Self.ParseInput(SDLK_RIGHT, 0, true);
+        Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_RIGHT, SDLK_DOWN), 0, true);
       SDL_BUTTON_WHEELUP: //previous song
-        Self.ParseInput(SDLK_LEFT, 0, true);
+        Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_LEFT, SDLK_UP), 0, true);
     end;
   end
   else if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then //hover cover
@@ -1971,7 +1877,6 @@ begin
       dt := 1;
 
     SongCurrent := SongCurrent + dx*dt;
-
     if (Self.SongCurrent = Self.SongTarget) then //if occurs an incomplete scroll add one chance to complete well
       SongCurrent := SongTarget - 0.002
     else if
@@ -2186,120 +2091,6 @@ begin
   Result := true;
 end;
 
-procedure TScreenSong.SelectNext();
-begin
-  if USongs.CatSongs.GetVisibleSongs() > 0 then
-  begin
-    if not Self.IsScrolling then
-      Self.OnSongDeselect();
-
-    //try to keep all at the beginning when a filter is applied
-    if Self.SongTarget + 1 = USongs.CatSongs.GetVisibleSongs() then //go to initial song if reach the end of subselection list with fast movements
-    begin
-      Self.SongTarget := 0;
-      Self.SongCurrent := -1;
-    end
-    else if (USongs.CatSongs.GetVisibleSongs() - 1 < High(USongs.CatSongs.Song)) and (Round(Self.SongTarget) = Self.Interaction) then
-    begin
-      Self.SongTarget := Round(Self.SongCurrent + 1); //translate SongTarget from regular to new position after apply a filter
-      if Self.SongTarget = USongs.CatSongs.GetVisibleSongs() then //go to initial song if reach the end of subselection list with slow movements
-      begin
-        Self.SongTarget := 0;
-        Self.SongCurrent := -1;
-      end
-    end
-    else
-      Self.SongTarget := Self.SongTarget + 1;
-
-    Self.Interaction := USongs.CatSongs.FindNextVisible(Self.Interaction);
-  end;
-end;
-
-procedure TScreenSong.SelectPrev;
-begin
-  if (USongs.CatSongs.GetVisibleSongs() > 0) then
-  begin
-    if not Self.IsScrolling then
-      Self.OnSongDeselect();
-
-    //try to keep all at the beginning when a filter is applied
-    if Self.SongTarget - 1 < 0 then //go to final song if reach the start of subselection list with fast movements
-    begin
-      Self.SongTarget := USongs.CatSongs.GetVisibleSongs() - 1;
-      Self.SongCurrent := USongs.CatSongs.GetVisibleSongs();
-    end
-    else if (USongs.CatSongs.GetVisibleSongs() - 1 < High(USongs.CatSongs.Song)) and (Round(Self.SongTarget) = Self.Interaction) then
-    begin
-      Self.SongTarget := Round(Self.SongCurrent - 1); //translate SongTarget from regular to new position after apply a filter
-      if Self.SongTarget < 0 then //go to final song if reach the start of subselection list with slow movements
-      begin
-        Self.SongTarget := USongs.CatSongs.GetVisibleSongs() - 1;
-        Self.SongCurrent := USongs.CatSongs.GetVisibleSongs();
-      end;
-    end
-    else
-      Self.SongTarget := Self.SongTarget - 1;
-
-    Self.Interaction := USongs.CatSongs.FindPreviousVisible(Self.Interaction);
-  end;
-end;
-
-procedure TScreenSong.SelectNextRow;
-var
-  Skip, SongIndexRow: integer;
-begin
-  if USongs.CatSongs.GetVisibleSongs() > 0 then
-  begin
-    if not Self.IsScrolling then
-      Self.OnSongDeselect();
-
-    Skip := 0;
-    SongIndexRow := Interaction;
-
-    while ((Skip <= Theme.Song.Cover.Cols) and (SongIndexRow < Length(CatSongs.Song))) do
-    begin
-      if (CatSongs.Song[SongIndexRow].Visible) then
-      begin
-        Inc(Skip);
-      end;
-
-      Inc(SongIndexRow);
-    end;
-
-    Self.SongTarget += 1;
-    if (USongs.CatSongs.Song[SongIndexRow - 1].Visible) then
-      Self.Interaction := SongIndexRow - 1;
-  end;
-end;
-
-procedure TScreenSong.SelectPrevRow;
-var
-  Skip, SongIndexRow: integer;
-begin
-  if (USongs.CatSongs.GetVisibleSongs() > 0) then
-  begin
-    if not Self.IsScrolling then
-      Self.OnSongDeselect();
-
-    Skip := 0;
-    SongIndexRow := Interaction;
-
-    while ((Skip <= Theme.Song.Cover.Cols) and (SongIndexRow > -1)) do
-    begin
-      if (CatSongs.Song[SongIndexRow].Visible) then
-      begin
-        Inc(Skip);
-      end;
-
-      Dec(SongIndexRow);
-    end;
-
-    SongTarget -= 1;
-    if (USongs.CatSongs.Song[SongIndexRow + 1].Visible) then
-      Self.Interaction := SongIndexRow + 1;
-  end;
-end;
-
 procedure TScreenSong.StartMusicPreview();
 var
   Song: TSong;
@@ -2424,11 +2215,15 @@ end;
 {* Move directly to a position of the song list *}
 procedure TScreenSong.SkipTo(Target: cardinal; Force: boolean = false);
 begin
-  Self.Interaction := IfThen(USongs.CatSongs.IsFilterApplied(), USongs.CatSongs.FindGlobalIndex(Target), Target);
-  Self.SongTarget := Target;
-  if Force then //sometimes if needed to force scroll (tabs on, playlist modes, etc.)
+  if (Target = 0) and (Self.SongTarget = USongs.CatSongs.GetVisibleSongs() - 1) then //go to initial song if reach the end of subselection list
+    Self.SongCurrent := -1
+  else if (Target = USongs.CatSongs.GetVisibleSongs() - 1) and (Self.SongTarget = 0) then //go to final song if reach the start of subselection list
+    Self.SongCurrent := USongs.CatSongs.GetVisibleSongs()
+  else if Force then //sometimes if needed to force scroll (tabs on, playlist modes, etc.)
     Self.SongCurrent := Target;
 
+  Self.Interaction := IfThen(USongs.CatSongs.IsFilterApplied(), USongs.CatSongs.FindGlobalIndex(Target), Target);
+  Self.SongTarget := Target;
   Self.OnSongDeSelect();
 end;
 
@@ -2560,10 +2355,7 @@ begin
   Position := 0;
   case Filter of
     sfCategory:
-    begin
-      USongs.CatSongs.ShowCategory(USongs.CatSongs.Song[StrToInt(Id)].OrderNum);
-      Caption := USongs.CatSongs.Song[StrToInt(Id)].Artist;
-    end;
+      Caption := USongs.CatSongs.Song[USongs.CatSongs.ShowCategory(StrToInt(Id))].Artist;
     sfPlaylist:
     begin
       USongs.CatSongs.ShowPlaylist(StrToInt(Id));

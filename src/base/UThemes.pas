@@ -4206,6 +4206,8 @@ begin
   Song.Cover.Y := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Y', 190);
   Song.Cover.W := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'W', 300);
   Song.Cover.H := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'H', 200);
+  Self.Song.Cover.Rows := Self.ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Rows', 4);
+  Self.Song.Cover.Cols := Self.ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Cols', 4);
 
   // 0 - roulette
   // 1 - chessboard
@@ -4217,8 +4219,6 @@ begin
 
   if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic]) then
   begin
-    Song.Cover.Rows := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Rows', 4);
-    Song.Cover.Cols := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Cols', 4);
     Song.Cover.Padding := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Padding', 0);
     Song.Cover.SelectX := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectX', 300);
     Song.Cover.SelectY := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectY', 120);
@@ -4239,7 +4239,6 @@ begin
 
   if (TSongMenuMode(Ini.SongMenu) = smList) then
   begin
-    Song.Cover.Rows := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Rows', 4);
     Song.Cover.SelectX := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectX', 300);
     Song.Cover.SelectY := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectY', 120);
     Song.Cover.SelectW := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectW', 325);

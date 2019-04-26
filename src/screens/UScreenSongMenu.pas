@@ -159,33 +159,13 @@ begin
       SDLK_UP:   InteractPrev;
 
       SDLK_RIGHT:
-        begin
-          if (ScreenSong.Mode <> smJukebox) then
-          begin
-            if (Interaction=3) or (Interaction=4) or (Interaction=5)
-              or (Interaction=8) or (Interaction=9) or (Interaction=10) then
-                InteractInc;
-          end
-          else
-          begin
-            ScreenSong.SelectNext;
-            ScreenSong.SetScroll(true);
-          end;
-        end;
+        if (Interaction=3) or (Interaction=4) or (Interaction=5)
+            or (Interaction=8) or (Interaction=9) or (Interaction=10) then
+              InteractInc;
       SDLK_LEFT:
-        begin
-          if (ScreenSong.Mode <> smJukebox) then
-          begin
-            if (Interaction=3) or (Interaction=4) or (Interaction=5)
-              or (Interaction=8) or (Interaction=9) or (Interaction=10) then
-                InteractDec;
-          end
-          else
-          begin
-            ScreenSong.SelectPrev;
-            ScreenSong.SetScroll(true);
-          end;
-        end;
+        if (Interaction=3) or (Interaction=4) or (Interaction=5)
+          or (Interaction=8) or (Interaction=9) or (Interaction=10) then
+            InteractDec;
     end;
   end;
 end;
