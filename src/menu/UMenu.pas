@@ -62,6 +62,7 @@ type
 
       SelectsS:         array of TSelectSlide;
       ButtonCollection: array of TButtonCollection;
+      procedure TransferMouseCords(var X, Y: integer);
     public
       Background:       TMenuBackground;
       Text:        array of TText;
@@ -1749,11 +1750,7 @@ begin
     Result:=ParseInput(SDLK_ESCAPE, 0, true);
   end;
 
-  // transfer mousecords to the 800x600 raster we use to draw
-  X := Round((X / (ScreenW / Screens)) * RenderW);
-  if (X > RenderW) then
-    X := X - RenderW;
-  Y := Round((Y / ScreenH) * RenderH);
+  Self.TransferMouseCords(X, Y);
 
   // allways go to next screen if we don't have any interactions
   if Length(Interactions) = 0 then
@@ -1887,6 +1884,15 @@ end;
 procedure TMenu.SetAnimationProgress(Progress: real);
 begin
   // nothing
+end;
+
+{ Transfer mousecords to the 800x600 raster we use to draw }
+procedure TMenu.TransferMouseCords(var X, Y: integer);
+begin
+  Y := Round((Y / UGraphic.ScreenH) * UGraphic.RenderH);
+  X := Round((X / (UGraphic.ScreenW / UGraphic.Screens)) * UGraphic.RenderW);
+  if (X > UGraphic.RenderW) then
+    X := X - UGraphic.RenderW;
 end;
 
 end.

@@ -672,52 +672,47 @@ begin
     Result := UGraphic.ScreenSongMenu.ParseMouse(MouseButton, BtnDown, X, Y)
   else if UGraphic.ScreenSongJumpTo.Visible then
     Result := UGraphic.ScreenSongJumpTo.ParseMouse(MouseButton, BtnDown, X, Y)
-  else if BtnDown then
+  else
   begin
-    USongs.Songs.PreloadCovers(false);
-    case MouseButton of
-      SDL_BUTTON_LEFT:
-        begin
-          for B := 0 to High(Self.Button) do
-            if Self.Button[B].Visible and (Self.Button[B].Z > 0.9) and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) then //z to roulette mode fix
-              if Self.Interaction = B then
-                Self.ParseInput(SDLK_RETURN, 0, true)
-              else
-                Self.SkipTo(B);
+    Self.TransferMouseCords(X, Y);
+    if BtnDown then
+    begin
+      USongs.Songs.PreloadCovers(false);
+      case MouseButton of
+        SDL_BUTTON_LEFT:
+          begin
+            for B := 0 to High(Self.Button) do
+              if Self.Button[B].Visible and (Self.Button[B].Z > 0.9) and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) then //z to roulette mode fix
+                if Self.Interaction = B then
+                  Self.ParseInput(SDLK_RETURN, 0, true)
+                else
+                  Self.SkipTo(B);
 
-          if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then
-            if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionUp].GetMouseOverArea()) then //arrow to page up
-              Self.ParseInput(SDLK_PAGEUP, 0, true)
-            else if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionDown].GetMouseOverArea()) then //arrow to page down
-              Self.ParseInput(SDLK_PAGEDOWN, 0, true);
-        end;
-      SDL_BUTTON_RIGHT: //go back
-        if Self.RightMbESC then
-          Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
-      SDL_BUTTON_MIDDLE: //open song menu
-        Self.ParseInput(0, Ord('M'), true);
-      SDL_BUTTON_WHEELDOWN: //next song
-        Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_RIGHT, SDLK_DOWN), 0, true);
-      SDL_BUTTON_WHEELUP: //previous song
-        Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_LEFT, SDLK_UP), 0, true);
-    end;
-  end
-  else if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then //hover cover
-  begin
-    //transfer mousecords to the 800x600 raster we use to draw
-    Y := Round((Y / ScreenH) * RenderH);
-    X := Round((X / (ScreenW / Screens)) * RenderW);
-    if (X > RenderW) then
-      X := X - RenderW;
-
-    for B := 0 to High(Self.Button) do
-      if Self.Button[B].Visible and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) and (Self.Interaction <> B) then
-      begin
-        Self.Interaction := B;
-        Self.SongTarget := B;
-        Self.OnSongDeSelect();
-        Self.SetScroll();
+            if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then
+              if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionUp].GetMouseOverArea()) then //arrow to page up
+                Self.ParseInput(SDLK_PAGEUP, 0, true)
+              else if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionDown].GetMouseOverArea()) then //arrow to page down
+                Self.ParseInput(SDLK_PAGEDOWN, 0, true);
+          end;
+        SDL_BUTTON_RIGHT: //go back
+          if Self.RightMbESC then
+            Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
+        SDL_BUTTON_MIDDLE: //open song menu
+          Self.ParseInput(0, Ord('M'), true);
+        SDL_BUTTON_WHEELDOWN: //next song
+          Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_RIGHT, SDLK_DOWN), 0, true);
+        SDL_BUTTON_WHEELUP: //previous song
+          Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_LEFT, SDLK_UP), 0, true);
       end;
+    end
+    else if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then //hover cover
+      for B := 0 to High(Self.Button) do
+        if Self.Button[B].Visible and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) and (Self.Interaction <> B) then
+        begin
+          Self.Interaction := B;
+          Self.SongTarget := B;
+          Self.OnSongDeSelect();
+        end;
   end;
 end;
 
