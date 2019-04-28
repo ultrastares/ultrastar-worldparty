@@ -518,13 +518,6 @@ begin
               Self.SetSubselection(USongs.CatSongs.Song[Self.Interaction].OrderNum, sfCategory)
             else
             begin // clicked on song
-              // Duets Warning
-              if (CatSongs.Song[Interaction].isDuet) and (Mode <> smNormal) then
-              begin
-                ScreenPopupError.ShowPopup(Language.Translate('SING_ERROR_DUET_MODE_PARTY'));
-                Exit;
-              end;
-
               StopVideoPreview;
               StopMusicPreview;
 
