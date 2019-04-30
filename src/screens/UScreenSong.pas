@@ -241,6 +241,7 @@ uses
   UParty,
   UPath,
   UPlaylist,
+  UScreenPlayerSelection,
   UScreenPopup,
   UScreenSongMenu,
   UScreenSongJumpto,
@@ -1982,6 +1983,8 @@ procedure TScreenSong.SelectPlayers;
 begin
   CatSongs.Selected := Interaction;
   StopMusicPreview();
+  if not Assigned(UGraphic.ScreenName) then
+    UGraphic.ScreenName := UScreenPlayerSelection.TScreenName.Create();
 
   ScreenName.Goto_SingScreen := true;
   FadeTo(@ScreenName);
