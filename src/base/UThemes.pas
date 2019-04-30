@@ -287,10 +287,11 @@ type
   end;
 
   TThemeSong = class(TThemeBasic)
-    TextArtist:       TThemeText;
-    TextTitle:        TThemeText;
-    TextNumber:       TThemeText;
-    TextYear:         TThemeText;
+    TextArtist: TThemeText;
+    TextNoSongs: TThemeText;
+    TextNumber: TThemeText;
+    TextTitle: TThemeText;
+    TextYear: TThemeText;
 
     TextMedleyMax:    integer;
 
@@ -3779,6 +3780,7 @@ begin
   ThemeSaveBasic(Song, 'Song');
   ThemeSaveText(Song.TextArtist, 'SongTextArtist');
   ThemeSaveText(Song.TextTitle, 'SongTextTitle');
+  ThemeSaveText(Song.TextNoSongs, 'SongTextNoSongs');
   ThemeSaveText(Song.TextNumber, 'SongTextNumber');
 
   //Show CAt in Top Left Mod
@@ -4161,6 +4163,7 @@ begin
   // Song
   ThemeLoadBasic(Song, 'Song' + prefix);
 
+  ThemeLoadText(Song.TextNoSongs, 'SongTextNoSongs');
   ThemeLoadText(Song.TextArtist, 'Song' + prefix + 'TextArtist');
   ThemeLoadText(Song.TextTitle, 'Song' + prefix + 'TextTitle');
   ThemeLoadText(Song.TextNumber, 'Song' + prefix + 'TextNumber');
@@ -4197,9 +4200,6 @@ begin
 
   //Show Cat in TopLeft Mod
   ThemeLoadText(Song.TextCat, 'Song' + prefix + 'TextCat');
-
-  Self.ThemeLoadStatic(Self.Song.SongSelectionUp, 'Song' + prefix + 'Static1');
-  Self.ThemeLoadStatic(Self.Song.SongSelectionDown, 'Song' + prefix + 'Static2');
 
   //Load Cover Pos and Size from Theme Mod
   Song.Cover.X := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'X', 300);

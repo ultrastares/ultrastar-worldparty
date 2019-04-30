@@ -62,6 +62,9 @@ type
 
       SelectsS:         array of TSelectSlide;
       ButtonCollection: array of TButtonCollection;
+      procedure SetRangeVisibility(const Visibility: boolean; const StaticRange: array of integer; const TextRange: array of integer);
+      procedure SetRangeVisibilityStatic(const Visibility: boolean; const StaticRange: array of integer);
+      procedure SetRangeVisibilityText(const Visibility: boolean; const TextRange: array of integer);
       procedure TransferMouseCords(var X, Y: integer);
     public
       Background:       TMenuBackground;
@@ -1884,6 +1887,31 @@ end;
 procedure TMenu.SetAnimationProgress(Progress: real);
 begin
   // nothing
+end;
+
+{ Set visibility of related statics and his respective texts }
+procedure TMenu.SetRangeVisibility(const Visibility: boolean; const StaticRange: array of integer; const TextRange: array of integer);
+begin
+  Self.SetRangeVisibilityStatic(Visibility, StaticRange);
+  Self.SetRangeVisibilityText(Visibility, TextRange);
+end;
+
+{ Set visibility of related statics }
+procedure TMenu.SetRangeVisibilityStatic(const Visibility: boolean; const StaticRange: array of integer);
+var
+  I: integer;
+begin
+  for I := StaticRange[0] to StaticRange[1] do
+    Self.Statics[I].Visible := Visibility;
+end;
+
+{ Set visibility of related texts }
+procedure TMenu.SetRangeVisibilityText(const Visibility: boolean; const TextRange: array of integer);
+var
+  I: integer;
+begin
+  for I := TextRange[0] to TextRange[1] do
+    Self.Text[I].Visible := Visibility;
 end;
 
 { Transfer mousecords to the 800x600 raster we use to draw }

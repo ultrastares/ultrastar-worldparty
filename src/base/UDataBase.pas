@@ -138,13 +138,13 @@ type
       procedure AddMedia_Score (Song: TSong; WebID: integer; Receive_Media_Score: integer; Level: integer);
       procedure AddUser_Score (Song: TSong; WebID: integer; Receive_User_Score: string; Level: integer);
 
-      function ReadMax_Score(Artist, Title: UTF8String; WebID, Level: integer): integer;
-      function ReadMedia_Score(Artist, Title: UTF8String; WebID, Level: integer): integer;
+      function ReadMaxScore(Artist, Title: UTF8String; WebID, Level: integer): integer;
+      function ReadAverageScore(Artist, Title: UTF8String; WebID, Level: integer): integer;
       function ReadUser_Score(Artist, Title: UTF8String; WebID, Level: integer): string;
 
-      function ReadMax_ScoreLocal(Artist, Title: UTF8String; Level: integer): integer;
-      function ReadMedia_ScoreLocal(Artist, Title: UTF8String; Level: integer): integer;
-      function ReadUser_ScoreLocal(Artist, Title: UTF8String; Level: integer): string;
+      function ReadMaxScoreLocal(Artist, Title: UTF8String; Level: integer): integer;
+      function ReadAverageScoreLocal(Artist, Title: UTF8String; Level: integer): integer;
+      function ReadUserScoreLocal(Artist, Title: UTF8String; Level: integer): string;
 
       function Delete_Score(Song: TSong; WebID: integer): integer;
 
@@ -902,7 +902,7 @@ end;
 (**
  * Read Max_Score
  *)
-function TDataBaseSystem.ReadMax_Score(Artist, Title: UTF8String; WebID, Level: integer): integer;
+function TDataBaseSystem.ReadMaxScore(Artist, Title: UTF8String; WebID, Level: integer): integer;
 var
   Max_Score, SongID: integer;
   TableData: TSQLiteTable;
@@ -927,7 +927,7 @@ begin
         [WebID, SongID]);
 
   except on E: Exception do
-    Log.LogError(E.Message, 'TDataBaseSystem.ReadMax_Score');
+    Log.LogError(E.Message, 'TDataBaseSystem.ReadMaxScore');
   end;
 
   TableData.Free;
@@ -939,7 +939,7 @@ end;
 (**
  * Read Media_Score
  *)
-function TDataBaseSystem.ReadMedia_Score(Artist, Title: UTF8String; WebID, Level: integer): integer;
+function TDataBaseSystem.ReadAverageScore(Artist, Title: UTF8String; WebID, Level: integer): integer;
 var
   Media_Score, SongID: integer;
   TableData: TSQLiteTable;
@@ -963,7 +963,7 @@ begin
         [WebID, SongID]);
 
   except on E: Exception do
-    Log.LogError(E.Message, 'TDataBaseSystem.ReadMedia_Score');
+    Log.LogError(E.Message, 'TDataBaseSystem.ReadAverageScore');
   end;
 
   TableData.Free;
@@ -1012,7 +1012,7 @@ end;
 (**
  * Read Max_Score Local
  *)
-function TDataBaseSystem.ReadMax_ScoreLocal(Artist, Title: UTF8String; Level: integer): integer;
+function TDataBaseSystem.ReadMaxScoreLocal(Artist, Title: UTF8String; Level: integer): integer;
 var
   Max_Score, ID: integer;
   TableData: TSQLiteTable;
@@ -1038,7 +1038,7 @@ begin
         [ID, Level]);
 
   except on E: Exception do
-    Log.LogError(E.Message, 'TDataBaseSystem.ReadMax_ScoreLocal');
+    Log.LogError(E.Message, 'TDataBaseSystem.ReadMaxScoreLocal');
  end;
 
   TableData.Free;
@@ -1050,7 +1050,7 @@ end;
 (**
  * Read Media_Score
  *)
-function TDataBaseSystem.ReadMedia_ScoreLocal(Artist, Title: UTF8String; Level: integer): integer;
+function TDataBaseSystem.ReadAverageScoreLocal(Artist, Title: UTF8String; Level: integer): integer;
 var
   Media_Score, ID: integer;
   TableData: TSQLiteTable;
@@ -1075,7 +1075,7 @@ begin
         [ID, Level]);
 
   except on E: Exception do
-    Log.LogError(E.Message, 'TDataBaseSystem.ReadMedia_ScoreLocal');
+    Log.LogError(E.Message, 'TDataBaseSystem.ReadAverageScoreLocal');
   end;
 
   TableData.Free;
@@ -1087,7 +1087,7 @@ end;
 (**
  * Read User_Score
  *)
-function TDataBaseSystem.ReadUser_ScoreLocal(Artist, Title: UTF8String; Level: integer): string;
+function TDataBaseSystem.ReadUserScoreLocal(Artist, Title: UTF8String; Level: integer): string;
 var
   User_Score: string;
   ID: integer;

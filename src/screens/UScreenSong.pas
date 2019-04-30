@@ -47,24 +47,32 @@ type
       DefaultCover: TTexture;
       Equalizer: Tms_Equalizer;
       PreviewOpened: Integer; //interaction of the song that is loaded for preview music -1 if nothing is opened
-      IsScrolling: boolean;   //true if song flow is about to move
+      IsScrolling: boolean; //true if song flow is about to move
       fCurrentVideo: IVideo;
       MinLine: integer; //current chessboard line
       LastMinLine: integer; //used on list mode
       ListFirstVisibleSongIndex: integer;
       MainListFirstVisibleSongIndex: integer;
+      TextArtist: integer;
+      TextNoSongs: integer;
+      TextNumber: integer;
+      TextTitle: integer;
+      TextYear: integer;
+      procedure ColorDuetNameSingers;
       procedure LoadCover(Const I: integer);
       procedure LoadMainCover();
       procedure SetJoker();
+      procedure SetScroll(Force: boolean = false);
+      procedure SetRouletteScroll();
+      procedure SetChessboardScroll();
+      procedure SetCarouselScroll();
+      procedure SetSlotMachineScroll();
+      procedure SetSlideScroll();
+      procedure SetListScroll();
       procedure StartMusicPreview();
       procedure StartVideoPreview();
       procedure UnloadCover(Const I: integer);
     public
-      TextArtist:   integer;
-      TextTitle:    integer;
-      TextNumber:   integer;
-      TextYear:     integer;
-
       MakeMedley:   boolean;
 
       //Video Icon Mod
@@ -93,9 +101,6 @@ type
       HighSpeed:    boolean;
       CoverFull:    boolean;
       CoverTime:    real;
-
-      is_jump:      boolean; // Jump to Song Mod
-      is_jump_title:boolean; //Jump to SOng MOd-YTrue if search for Title
 
       //Scores
       TextScore:       integer;
@@ -133,8 +138,6 @@ type
 
       // for chessboard songmenu
       MainCover: integer;
-      SongSelectionUp: integer;
-      SongSelectionDown: integer;
 
       // for list songmenu
       StaticList: array of integer;
@@ -186,13 +189,6 @@ type
       SongIndex:    integer; //Index of Song that is playing since UScreenScore...
 
       constructor Create; override;
-      procedure SetScroll(force: boolean = false);
-      procedure SetRouletteScroll;
-      procedure SetChessboardScroll;
-      procedure SetCarouselScroll;
-      procedure SetSlotMachineScroll;
-      procedure SetSlideScroll;
-      procedure SetListScroll;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       function ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean; override;
       function Draw: boolean; override;
@@ -206,7 +202,6 @@ type
       procedure SkipTo(Target: cardinal; Force: boolean = false);
       procedure Refresh(Sort: integer; Categories: boolean; Duets: boolean);
       procedure ChangeSorting(Tabs: integer; Duet: boolean; Sorting: integer);
-      procedure ChangeMusic;
       function FreeListMode: boolean;
       procedure SelectRandomSong(RandomCategory: boolean = false);
       procedure ColorizeJokers;
@@ -219,13 +214,9 @@ type
       procedure OnSongSelect;   // called when song flows movement stops at a song
       procedure OnSongDeSelect; // called before current song is deselected
 
-      procedure SongScore;
-
       //Medley
       procedure StartMedley(NumSongs: integer; MinSource: TMedleySource);
       function  getVisibleMedleyArr(MinSource: TMedleySource): TVisArr;
-
-      procedure ColorDuetNameSingers;
 
       procedure StopMusicPreview();
       procedure StopVideoPreview();
@@ -614,7 +605,7 @@ begin
                   I := (UThemes.Theme.Song.Cover.Cols * UThemes.Theme.Song.Cover.Rows);
                 SDLK_DOWN, SDLK_UP: //vertical
                   I := IfThen((UThemes.Theme.Song.Cover.Cols > 1) and (UThemes.Theme.Song.Cover.Rows > 1), UThemes.Theme.Song.Cover.Cols, 1);
-                SDLK_LEFT, SDLK_RIGHT: //horizontal
+                else //horizontal
                   I := 1;
               end;
               case PressedKey of
@@ -682,9 +673,9 @@ begin
                   Self.SkipTo(B);
 
             if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then
-              if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionUp].GetMouseOverArea()) then //arrow to page up
+              if Self.InRegion(X, Y, Self.Statics[0].GetMouseOverArea()) then //arrow to page up
                 Self.ParseInput(SDLK_PAGEUP, 0, true)
-              else if Self.InRegion(X, Y, Self.Statics[Self.SongSelectionDown].GetMouseOverArea()) then //arrow to page down
+              else if Self.InRegion(X, Y, Self.Statics[1].GetMouseOverArea()) then //arrow to page down
                 Self.ParseInput(SDLK_PAGEDOWN, 0, true);
           end;
         SDL_BUTTON_RIGHT: //go back
@@ -744,26 +735,17 @@ begin
 
   LoadFromTheme(Theme.Song);
 
-  TextArtist := AddText(Theme.Song.TextArtist);
-  TextTitle  := AddText(Theme.Song.TextTitle);
-  TextNumber := AddText(Theme.Song.TextNumber);
-  TextYear   := AddText(Theme.Song.TextYear);
-
-  //Show Cat in Top Left mod
-  TextCat := AddText(Theme.Song.TextCat);
-
-  //Show Video Icon Mod
-  VideoIcon := AddStatic(Theme.Song.VideoIcon);
-
-  //Meldey Icons
-  MedleyIcon := AddStatic(Theme.Song.MedleyIcon);
-  CalcMedleyIcon := AddStatic(Theme.Song.CalculatedMedleyIcon);
-
-  //Duet Icon
-  DuetIcon := AddStatic(Theme.Song.DuetIcon);
-
-  //Rap Icon
-  RapIcon := AddStatic(Theme.Song.RapIcon);
+  Self.TextArtist := Self.AddText(UThemes.Theme.Song.TextArtist);
+  Self.TextCat := Self.AddText(UThemes.Theme.Song.TextCat);
+  Self.TextNoSongs := Self.AddText(UThemes.Theme.Song.TextNoSongs);
+  Self.TextNumber := Self.AddText(UThemes.Theme.Song.TextNumber);
+  Self.TextTitle := Self.AddText(UThemes.Theme.Song.TextTitle);
+  Self.TextYear := Self.AddText(UThemes.Theme.Song.TextYear);
+  Self.CalcMedleyIcon := Self.AddStatic(UThemes.Theme.Song.CalculatedMedleyIcon);
+  Self.DuetIcon := Self.AddStatic(UThemes.Theme.Song.DuetIcon);
+  Self.MedleyIcon := Self.AddStatic(UThemes.Theme.Song.MedleyIcon);
+  Self.RapIcon := Self.AddStatic(UThemes.Theme.Song.RapIcon);
+  Self.VideoIcon := Self.AddStatic(UThemes.Theme.Song.VideoIcon);
 
   //Show Scores
   TextScore       := AddText(Theme.Song.TextScore);
@@ -812,9 +794,6 @@ begin
 
   //TextPartyTime := AddText(Theme.Song.TextPartyTime);
 
-  // Randomize Patch
-  Randomize;
-
   Equalizer := Tms_Equalizer.Create(AudioPlayback, Theme.Song.Equalizer);
 
   PreviewOpened := -1;
@@ -827,24 +806,21 @@ begin
   InfoMessageText := AddText(Theme.Song.InfoMessageText);
 
   // Duet Names Singers
-  Static4PlayersDuetSingerP3 := AddStatic(Theme.Song.Static4PlayersDuetSingerP3);
-  Static4PlayersDuetSingerP4 := AddStatic(Theme.Song.Static4PlayersDuetSingerP4);
-
-  Static6PlayersDuetSingerP4 := AddStatic(Theme.Song.Static6PlayersDuetSingerP4);
-  Static6PlayersDuetSingerP5 := AddStatic(Theme.Song.Static6PlayersDuetSingerP5);
-  Static6PlayersDuetSingerP6 := AddStatic(Theme.Song.Static6PlayersDuetSingerP6);
-
-  Text2PlayersDuetSingerP1 := AddText(Theme.Song.Text2PlayersDuetSingerP1);
-  Text2PlayersDuetSingerP2 := AddText(Theme.Song.Text2PlayersDuetSingerP2);
-  Static2PlayersDuetSingerP1 := AddStatic(Theme.Song.Static2PlayersDuetSingerP1);
-  Static2PlayersDuetSingerP2 := AddStatic(Theme.Song.Static2PlayersDuetSingerP2);
-
-  Text3PlayersDuetSingerP1 := AddText(Theme.Song.Text3PlayersDuetSingerP1);
-  Text3PlayersDuetSingerP2 := AddText(Theme.Song.Text3PlayersDuetSingerP2);
-  Text3PlayersDuetSingerP3 := AddText(Theme.Song.Text3PlayersDuetSingerP3);
-  Static3PlayersDuetSingerP1 := AddStatic(Theme.Song.Static3PlayersDuetSingerP1);
-  Static3PlayersDuetSingerP2 := AddStatic(Theme.Song.Static3PlayersDuetSingerP2);
-  Static3PlayersDuetSingerP3 := AddStatic(Theme.Song.Static3PlayersDuetSingerP3);
+  Self.Static2PlayersDuetSingerP1 := Self.AddStatic(UThemes.Theme.Song.Static2PlayersDuetSingerP1);
+  Self.Static2PlayersDuetSingerP2 := Self.AddStatic(UThemes.Theme.Song.Static2PlayersDuetSingerP2);
+  Self.Static4PlayersDuetSingerP3 := Self.AddStatic(UThemes.Theme.Song.Static4PlayersDuetSingerP3);
+  Self.Static4PlayersDuetSingerP4 := Self.AddStatic(UThemes.Theme.Song.Static4PlayersDuetSingerP4);
+  Self.Static3PlayersDuetSingerP1 := Self.AddStatic(UThemes.Theme.Song.Static3PlayersDuetSingerP1);
+  Self.Static3PlayersDuetSingerP2 := Self.AddStatic(UThemes.Theme.Song.Static3PlayersDuetSingerP2);
+  Self.Static3PlayersDuetSingerP3 := Self.AddStatic(UThemes.Theme.Song.Static3PlayersDuetSingerP3);
+  Self.Static6PlayersDuetSingerP4 := Self.AddStatic(UThemes.Theme.Song.Static6PlayersDuetSingerP4);
+  Self.Static6PlayersDuetSingerP5 := Self.AddStatic(UThemes.Theme.Song.Static6PlayersDuetSingerP5);
+  Self.Static6PlayersDuetSingerP6 := Self.AddStatic(UThemes.Theme.Song.Static6PlayersDuetSingerP6);
+  Self.Text2PlayersDuetSingerP1 := Self.AddText(UThemes.Theme.Song.Text2PlayersDuetSingerP1);
+  Self.Text2PlayersDuetSingerP2 := Self.AddText(UThemes.Theme.Song.Text2PlayersDuetSingerP2);
+  Self.Text3PlayersDuetSingerP1 := Self.AddText(UThemes.Theme.Song.Text3PlayersDuetSingerP1);
+  Self.Text3PlayersDuetSingerP2 := Self.AddText(UThemes.Theme.Song.Text3PlayersDuetSingerP2);
+  Self.Text3PlayersDuetSingerP3 := Self.AddText(UThemes.Theme.Song.Text3PlayersDuetSingerP3);
 
   // Medley Playlist
   SetLength(TextMedleyArtist, Theme.Song.TextMedleyMax);
@@ -867,8 +843,6 @@ begin
     Theme.Song.Cover.SelectH,
     PATH_NONE
   );
-  Self.SongSelectionUp := Self.AddStatic(UThemes.Theme.Song.SongSelectionUp);
-  Self.SongSelectionDown := Self.AddStatic(UThemes.Theme.Song.SongSelectionDown);
 
   Num := Theme.Song.ListCover.Rows;
 
@@ -876,7 +850,6 @@ begin
   for I := 0 to Num - 1 do
   begin
     StaticY := Theme.Song.ListCover.Y + I * (Theme.Song.ListCover.H + Theme.Song.ListCover.Padding);
-
     StaticList[I] := AddListItem(
       Theme.Song.ListCover.X,
       StaticY,
@@ -1061,178 +1034,6 @@ begin
   StopMusicPreview();
   StopVideoPreview();
   PreviewOpened := -1;
-end;
-
-procedure TScreenSong.SetScroll(force: boolean = false);
-var
-  B: integer;
-  DuetPlayer1: UTF8String = '';
-  DuetPlayer2: UTF8String = '';
-begin
-  if not (force or Self.IsScrolling) then //to avoid unnecessary modifications if nothing changes
-    Exit;
-
-  if USongs.CatSongs.GetVisibleSongs() > 0 then
-  begin
-    case TSongMenuMode(Ini.SongMenu) of
-      smRoulette: SetRouletteScroll;
-      smChessboard: SetChessboardScroll;
-      smCarousel: SetCarouselScroll;
-      smSlotMachine: SetSlotMachineScroll;
-      smSlide: SetSlideScroll;
-      smList: SetListScroll;
-      smMosaic: SetChessboardScroll;
-    end;
-
-    if (TSongMenuMode(Ini.SongMenu) <> smList) then
-    begin
-      // Set visibility of video icon
-      Statics[VideoIcon].Visible := CatSongs.Song[Interaction].Video.IsSet;
-
-      // Set visibility of medley icons
-      Statics[MedleyIcon].Visible := (CatSongs.Song[Interaction].Medley.Source = msTag) and not CatSongs.Song[Interaction].isDuet;
-      Statics[CalcMedleyIcon].Visible := (CatSongs.Song[Interaction].Medley.Source = msCalculated) and not CatSongs.Song[Interaction].isDuet;
-
-      //Set Visibility of Duet Icon
-      Statics[DuetIcon].Visible := CatSongs.Song[Interaction].isDuet;
-
-      //Set Visibility of Rap Icon
-      Statics[RapIcon].Visible := CatSongs.Song[Interaction].hasRap;
-
-      // Set texts
-      Text[TextArtist].Text := CatSongs.Song[Interaction].Artist;
-      Text[TextTitle].Text  :=  CatSongs.Song[Interaction].Title;
-      if ((Ini.Tabs = 0) or (TSortingType(Ini.Sorting) <> sYear))
-        and (CatSongs.Song[Interaction].Year <> 0) then
-          Text[TextYear].Text  :=  InttoStr(CatSongs.Song[Interaction].Year)
-      else
-        Text[TextYear].Text  :=  '';
-    end;
-
-    // Duet Singers
-    if USongs.CatSongs.Song[Interaction].isDuet then
-    begin
-      if (UNote.PlayersPlay = 3) or (UNote.PlayersPlay = 6) then
-      begin
-        Text[Text3PlayersDuetSingerP1].Visible := true;
-        Text[Text3PlayersDuetSingerP2].Visible := true;
-        Text[Text3PlayersDuetSingerP3].Visible := true;
-        Statics[Static3PlayersDuetSingerP1].Visible := true;
-        Statics[Static3PlayersDuetSingerP2].Visible := true;
-        Statics[Static3PlayersDuetSingerP3].Visible := true;
-        if (UGraphic.Screens = 1) and (UNote.PlayersPlay = 6) then
-        begin
-          Statics[Static6PlayersDuetSingerP4].Visible := true;
-          Statics[Static6PlayersDuetSingerP5].Visible := true;
-          Statics[Static6PlayersDuetSingerP6].Visible := true;
-        end;
-      end
-      else
-      begin
-        Text[Text2PlayersDuetSingerP1].Visible := true;
-        Text[Text2PlayersDuetSingerP2].Visible := true;
-        Statics[Static2PlayersDuetSingerP1].Visible := true;
-        Statics[Static2PlayersDuetSingerP2].Visible := true;
-        if (UGraphic.Screens = 1) and (UNote.PlayersPlay = 4) then
-        begin
-          Statics[Static4PlayersDuetSingerP3].Visible := true;
-          Statics[Static4PlayersDuetSingerP4].Visible := true;
-        end;
-      end;
-
-      // Set duet texts
-      if Self.DuetChange then
-      begin
-        DuetPlayer1 := CatSongs.Song[Interaction].DuetNames[1];
-        DuetPlayer2 := CatSongs.Song[Interaction].DuetNames[0];
-      end
-      else
-      begin
-        DuetPlayer1 := CatSongs.Song[Interaction].DuetNames[0];
-        DuetPlayer2 := CatSongs.Song[Interaction].DuetNames[1];
-      end;
-      case UNote.PlayersPlay of
-        6:
-          begin
-            if UGraphic.ScreenAct = 1 then
-            begin
-              Text[Text3PlayersDuetSingerP1].Text := DuetPlayer1;
-              Text[Text3PlayersDuetSingerP2].Text := DuetPlayer2;
-              Text[Text3PlayersDuetSingerP3].Text := DuetPlayer1;
-            end
-            else
-            begin
-              Text[Text3PlayersDuetSingerP1].Text := DuetPlayer2;
-              Text[Text3PlayersDuetSingerP2].Text := DuetPlayer1;
-              Text[Text3PlayersDuetSingerP3].Text := DuetPlayer2;
-            end
-          end;
-        3:
-          begin
-            Text[Text3PlayersDuetSingerP1].Text := DuetPlayer1;
-            Text[Text3PlayersDuetSingerP2].Text := DuetPlayer2;
-            Text[Text3PlayersDuetSingerP3].Text := DuetPlayer1;
-          end;
-        else //1 or 2 players
-          begin
-            Text[Text2PlayersDuetSingerP1].Text := DuetPlayer1;
-            Text[Text2PlayersDuetSingerP2].Text := DuetPlayer2;
-          end;
-      end;
-    end
-    else
-    begin
-      Text[Text2PlayersDuetSingerP1].Visible := false;
-      Text[Text2PlayersDuetSingerP2].Visible := false;
-      Text[Text3PlayersDuetSingerP1].Visible := false;
-      Text[Text3PlayersDuetSingerP2].Visible := false;
-      Text[Text3PlayersDuetSingerP3].Visible := false;
-      Statics[Static2PlayersDuetSingerP1].Visible := false;
-      Statics[Static2PlayersDuetSingerP2].Visible := false;
-      Statics[Static3PlayersDuetSingerP1].Visible := false;
-      Statics[Static3PlayersDuetSingerP2].Visible := false;
-      Statics[Static3PlayersDuetSingerP3].Visible := false;
-      Statics[Static4PlayersDuetSingerP3].Visible := false;
-      Statics[Static4PlayersDuetSingerP4].Visible := false;
-      Statics[Static6PlayersDuetSingerP4].Visible := false;
-      Statics[Static6PlayersDuetSingerP5].Visible := false;
-      Statics[Static6PlayersDuetSingerP6].Visible := false;
-    end;
-
-    //Set Song Score
-    SongScore;
-
-    if (USongs.CatSongs.CatNumShow = -1) and (UIni.Ini.Tabs = 1) and Self.FreeListMode() then
-    begin
-      Self.Text[Self.TextNumber].Text := IntToStr(USongs.CatSongs.Song[Self.Interaction].OrderNum);
-      Self.Text[Self.TextTitle].Text := '('
-        +IntToStr(USongs.CatSongs.Song[Self.Interaction].CatNumber)
-        +' '
-        +ULanguage.Language.Translate(IfThen(USongs.CatSongs.Song[Self.Interaction].CatNumber = 1, 'SING_SONG_IN_CAT', 'SING_SONGS_IN_CAT'))
-        +')'
-    end
-    else if USongs.CatSongs.CatNumShow < -1 then //in a search (-2) or in a playlist (-3)
-      Self.Text[Self.TextNumber].Text := FloatToStr(Self.SongTarget + 1)
-    else if USongs.CatSongs.CatNumShow > -1 then //into a category
-      Self.Text[Self.TextNumber].Text := IntToStr(USongs.CatSongs.Song[Self.Interaction].CatNumber)
-    else
-      Self.Text[Self.TextNumber].Text := IntToStr(Self.Interaction + 1);
-
-    Self.Text[Self.TextNumber].Text := Self.Text[Self.TextNumber].Text+'/'+IntToStr(USongs.CatSongs.GetVisibleSongs())
-  end
-  else
-  begin
-    Text[TextNumber].Text := '0/0';
-    Text[TextArtist].Text := '';
-    Text[TextTitle].Text  := '';
-    Text[TextYear].Text  := '';
-
-    Statics[VideoIcon].Visible := false;
-
-    for B := 0 to High(Button) do
-      Button[B].Visible := false;
-
-  end;
 end;
 
 procedure TScreenSong.SetRouletteScroll;
@@ -1624,22 +1425,6 @@ begin
   if USongs.CatSongs.Song[Interaction].Main then
     Self.MainListFirstVisibleSongIndex := 0;
 
-  for I := 0 to High(Self.StaticsList) do
-  begin
-    Self.Text[ListTextArtist[I]].Text := '';
-    Self.Text[ListTextTitle[I]].Text := '';
-    Self.Text[ListTextYear[I]].Text := '';
-    Self.Statics[ListVideoIcon[I]].Visible := false;
-    Self.Statics[ListMedleyIcon[I]].Visible := false;
-    Self.Statics[ListCalcMedleyIcon[I]].Visible := false;
-    Self.Statics[ListDuetIcon[I]].Visible := false;
-    Self.Statics[ListRapIcon[I]].Visible := false;
-    Self.StaticsList[I].Texture.TexNum := Self.StaticsList[I].TextureDeSelect.TexNum;
-    Self.StaticsList[I].Texture.W := Theme.Song.ListCover.W;
-    Self.StaticsList[I].Texture.H := Theme.Song.ListCover.H;
-    Self.StaticsList[I].Texture.X := Theme.Song.ListCover.X;
-  end;
-
   Line := 0;
   for B := 0 to High(Self.Button) do
   begin
@@ -1669,6 +1454,7 @@ begin
           Alpha := 0.7;
           Self.StaticsList[I].Texture.TexNum := Self.StaticsList[I].TextureDeSelect.TexNum;
         end;
+        Self.StaticsList[I].Visible := true;
         Self.Statics[ListVideoIcon[I]].Texture.Alpha := Alpha;
         Self.Statics[ListVideoIcon[I]].Visible := USongs.CatSongs.Song[B].Video.IsSet;
         Self.Statics[ListMedleyIcon[I]].Texture.Alpha := Alpha;
@@ -1684,7 +1470,7 @@ begin
         Self.Text[ListTextTitle[I]].Alpha := Alpha;
         Self.Text[ListTextTitle[I]].Text := USongs.CatSongs.Song[B].Title;
         Self.Text[ListTextYear[I]].Alpha := Alpha;
-        Self.Text[ListTextYear[I]].Text := IfThen(((UIni.Ini.Tabs = 0) or (TSortingType(UIni.Ini.Sorting) <> sYear)) and (USongs.CatSongs.Song[B].Year <> 0), IntToStr(USongs.CatSongs.Song[B].Year), '');
+        Self.Text[ListTextYear[I]].Text := IfThen(USongs.CatSongs.Song[B].Year <> 0, IntToStr(USongs.CatSongs.Song[B].Year), '');
       end
       else
         Self.UnloadCover(B);
@@ -1709,53 +1495,6 @@ begin
   end;
 
   Self.CloseMessage();
-
-  if (TSongMenuMode(Ini.SongMenu) <> smList) then
-  begin
-    for I := 0 to High(StaticsList) do
-    begin
-      StaticsList[StaticList[I]].Visible := false;
-      Text[ListTextArtist[I]].Visible := false;
-      Text[ListTextTitle[I]].Visible  := false;
-      Text[ListTextYear[I]].Visible   := false;
-      Statics[ListVideoIcon[I]].Visible  := false;
-      Statics[ListMedleyIcon[I]].Visible := false;
-      Statics[ListCalcMedleyIcon[I]].Visible := false;
-      Statics[ListDuetIcon[I]].Visible := false;
-      Statics[ListRapIcon[I]].Visible := false;
-    end;
-    Text[TextArtist].Visible := true;
-    Text[TextTitle].Visible  := true;
-    Text[TextYear].Visible   := true;
-    Statics[VideoIcon].Visible  := true;
-    Statics[MedleyIcon].Visible := true;
-    Statics[CalcMedleyIcon].Visible := true;
-    Statics[DuetIcon].Visible := true;
-    Statics[RapIcon].Visible := true;
-  end
-  else
-  begin
-    for I := 0 to High(StaticsList) do
-    begin
-      StaticsList[StaticList[I]].Visible := true;
-      Text[ListTextArtist[I]].Visible := true;
-      Text[ListTextTitle[I]].Visible  := true;
-      Text[ListTextYear[I]].Visible   := true;
-      Statics[ListVideoIcon[I]].Visible  := true;
-      Statics[ListMedleyIcon[I]].Visible := true;
-      Statics[ListCalcMedleyIcon[I]].Visible := true;
-      Statics[ListDuetIcon[I]].Visible := true;
-      Statics[ListRapIcon[I]].Visible := true;
-    end;
-    Text[TextArtist].Visible := false;
-    Text[TextTitle].Visible  := false;
-    Text[TextYear].Visible   := false;
-    Statics[VideoIcon].Visible  := false;
-    Statics[MedleyIcon].Visible := false;
-    Statics[CalcMedleyIcon].Visible := false;
-    Statics[DuetIcon].Visible := false;
-    Statics[RapIcon].Visible := false;
-  end;
 
   // for duet names
   ScreenSong.ColPlayer[0] := GetPlayerColor(Ini.SingColor[0]);
@@ -2190,16 +1929,6 @@ begin
   end;
 end;
 
-// Changes previewed song
-procedure TScreenSong.ChangeMusic;
-begin
-  StopMusicPreview();
-  StopVideoPreview();
-  PreviewOpened := -1;
-  StartMusicPreview();
-  StartVideoPreview();
-end;
-
 {* Move directly to a position of the song list *}
 procedure TScreenSong.SkipTo(Target: cardinal; Force: boolean = false);
 begin
@@ -2328,13 +2057,159 @@ begin
   end;
 end;
 
-{* SetSubselection adapted to accept ids as integers to show categories and playlist *}
+{ Set info of selected song and the position and visibility of all songs }
+procedure TScreenSong.SetScroll(Force: boolean = false);
+var
+  DuetPlayer1: UTF8String = '';
+  DuetPlayer2: UTF8String = '';
+  Song: USong.TSong;
+  Visibility, VisibilityNoList: boolean;
+  I: integer;
+begin
+  if not (Force or Self.IsScrolling) then //to avoid unnecessary modifications if nothing changes
+    Exit();
+
+  Visibility := USongs.CatSongs.GetVisibleSongs() <> 0;
+  VisibilityNoList := Visibility and (UIni.TSongMenuMode(UIni.Ini.SongMenu) <> smList);
+
+  Self.SetRangeVisibilityStatic(VisibilityNoList, [0, 2]); //0 arrow, 1 song info panel and 2 only for smChessboard down arrow
+  Self.SetRangeVisibilityStatic(VisibilityNoList, [Self.CalcMedleyIcon, Self.VideoIcon]); //icons
+  Self.Statics[Self.MainCover].Visible := Visibility;
+  Self.Text[Self.TextArtist].Visible := VisibilityNoList;
+  Self.Text[Self.TextNoSongs].Visible := not Visibility;
+  Self.Text[Self.TextNumber].Visible := Visibility;
+  Self.Text[Self.TextTitle].Visible := VisibilityNoList;
+  Self.Text[Self.TextYear].Visible := VisibilityNoList;
+  Self.SetRangeVisibility(Visibility and (Self.Mode = smNormal), [Self.StaticNonParty[0], Self.StaticNonParty[4]], [Self.TextNonParty[0], Self.TextNonParty[4]]); //set legend visibility
+  if High(Self.StaticsList) > 0 then //hide items in smList, too after change from other mode
+    for I := 0 to High(Self.StaticsList) do
+    begin
+      Self.StaticsList[I].Visible := false;
+      Self.Text[Self.ListTextArtist[I]].Text := '';
+      Self.Text[Self.ListTextTitle[I]].Text := '';
+      Self.Text[Self.ListTextYear[I]].Text := '';
+      Self.Statics[Self.ListCalcMedleyIcon[I]].Visible := false;
+      Self.Statics[Self.ListDuetIcon[I]].Visible := false;
+      Self.Statics[Self.ListMedleyIcon[I]].Visible := false;
+      Self.Statics[Self.ListRapIcon[I]].Visible := false;
+      Self.Statics[Self.ListVideoIcon[I]].Visible := false;
+    end;
+
+  if Visibility then
+  begin
+    Song := USongs.CatSongs.Song[Self.Interaction];
+    if UIni.TSongMenuMode(UIni.Ini.SongMenu) <> smList then
+    begin
+      Self.Statics[Self.CalcMedleyIcon].Visible := (Song.Medley.Source = msCalculated) and not Song.isDuet;
+      Self.Statics[Self.DuetIcon].Visible := Song.isDuet;
+      Self.Statics[Self.MedleyIcon].Visible := (Song.Medley.Source = msTag) and not Song.isDuet;
+      Self.Statics[Self.RapIcon].Visible := Song.hasRap;
+      Self.Statics[Self.VideoIcon].Visible := Song.Video.IsSet;
+      Self.Text[Self.TextArtist].Text := Song.Artist; //not visible on smList
+      Self.Text[Self.TextYear].Text := IfThen(Song.Year <> 0, IntToStr(Song.Year), '');
+    end;
+    if (USongs.CatSongs.CatNumShow = -1) and (UIni.Ini.Tabs = 1) and Self.FreeListMode() then //list of categories
+    begin
+      Self.Text[Self.TextNumber].Text := IntToStr(Song.OrderNum);
+      Self.Text[Self.TextTitle].Text := IntToStr(Song.CatNumber)+' '+ULanguage.Language.Translate(IfThen(Song.CatNumber = 1, 'SING_SONG_IN_CAT', 'SING_SONGS_IN_CAT'));
+    end
+    else
+    begin
+      Self.Text[Self.TextTitle].Text := Song.Title;
+      if USongs.CatSongs.CatNumShow < -1 then //in a search (-2) or in a playlist (-3)
+        Self.Text[Self.TextNumber].Text := FloatToStr(Self.SongTarget + 1)
+      else if USongs.CatSongs.CatNumShow > -1 then //into a category
+        Self.Text[Self.TextNumber].Text := IntToStr(Song.CatNumber)
+      else
+        Self.Text[Self.TextNumber].Text := IntToStr(Self.Interaction + 1);
+    end;
+    Self.Text[Self.TextNumber].Text := Self.Text[Self.TextNumber].Text+'/'+IntToStr(USongs.CatSongs.GetVisibleSongs());
+
+    if Song.isDuet then //show duets selectors
+    begin
+      if Self.DuetChange then
+      begin
+        DuetPlayer1 := Song.DuetNames[1];
+        DuetPlayer2 := Song.DuetNames[0];
+      end
+      else
+      begin
+        DuetPlayer1 := Song.DuetNames[0];
+        DuetPlayer2 := Song.DuetNames[1];
+      end;
+      if (UNote.PlayersPlay = 3) or (UNote.PlayersPlay = 6) then
+      begin
+        if (UGraphic.ScreenAct = 2) and (UNote.PlayersPlay = 6) then
+        begin
+          Self.Text[Self.Text3PlayersDuetSingerP1].Text := DuetPlayer2;
+          Self.Text[Self.Text3PlayersDuetSingerP2].Text := DuetPlayer1;
+          Self.Text[Self.Text3PlayersDuetSingerP3].Text := DuetPlayer2;
+        end
+        else
+        begin
+          Self.Text[Self.Text3PlayersDuetSingerP1].Text := DuetPlayer1;
+          Self.Text[Self.Text3PlayersDuetSingerP2].Text := DuetPlayer2;
+          Self.Text[Self.Text3PlayersDuetSingerP3].Text := DuetPlayer1;
+        end;
+        Visibility := true;
+      end
+      else
+      begin
+        Self.Text[Self.Text2PlayersDuetSingerP1].Text := DuetPlayer1;
+        Self.Text[Self.Text2PlayersDuetSingerP2].Text := DuetPlayer2;
+        Visibility := false; //small trick to use one variable :)
+      end;
+      Self.SetRangeVisibility(
+        Visibility,
+        [Self.Static3PlayersDuetSingerP1, IfThen(UNote.PlayersPlay = 3, Self.Static3PlayersDuetSingerP3, Self.Static6PlayersDuetSingerP6)],
+        [Self.Text3PlayersDuetSingerP1, Self.Text3PlayersDuetSingerP3]
+      );
+      Self.SetRangeVisibility(
+        not Visibility,
+        [Self.Static2PlayersDuetSingerP1, IfThen(UNote.PlayersPlay <= 2, Self.Static2PlayersDuetSingerP2, Self.Static4PlayersDuetSingerP4)],
+        [Self.Text2PlayersDuetSingerP1, Self.Text2PlayersDuetSingerP2]
+      );
+    end
+    else
+      Self.SetRangeVisibility(false, [Self.Static2PlayersDuetSingerP1, Self.Static6PlayersDuetSingerP6], [Self.Text2PlayersDuetSingerP1, Self.Text3PlayersDuetSingerP3]);
+
+    if (UIni.Ini.ShowScores > 0) and (Self.Mode = smNormal) and (not Song.isDuet) then //show scores
+    begin
+      Self.Text[Self.TextMaxScoreLocal].Text := IntToStr(UDataBase.DataBase.ReadMaxScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]));
+      Self.Text[Self.TextMediaScoreLocal].Text := IntToStr(UDataBase.DataBase.ReadAverageScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]));
+      Self.Text[Self.TextScoreUserLocal].Text := UDataBase.DataBase.ReadUserScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]);
+      if (High(UDllManager.DLLMan.Websites) >= 0) then
+      begin
+        Self.Text[Self.TextMaxScore2].Text := IntToStr(UDataBase.DataBase.ReadMaxScore(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]));
+        Self.Text[Self.TextMediaScore2].Text := IntToStr(UDataBase.DataBase.ReadAverageScore(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]));
+        Self.Text[Self.TextScore].Text := UTF8Encode(UDllManager.DLLMan.Websites[UIni.Ini.ShowWebScore].Name);
+        Self.Text[Self.TextScoreUser].Text := UDataBase.DataBase.ReadUser_Score(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]);
+      end;
+      //show local score, web score and captions
+      Self.SetRangeVisibilityText((UIni.Ini.ShowScores = 2) or (Self.Text[Self.TextMaxScoreLocal].Text <> '0'), [Self.TextMaxScoreLocal, Self.TextScoreUserLocal]);
+      Self.SetRangeVisibilityText((UIni.Ini.ShowScores = 2) or (Self.Text[Self.TextMaxScore2].Text <> '0'), [Self.TextMaxScore2, Self.TextScoreUser]);
+      Self.SetRangeVisibilityText(Self.Text[Self.TextMaxScoreLocal].Visible or Self.Text[Self.TextMaxScore2].Visible, [Self.TextScore, Self.TextMediaScore]);
+    end
+    else
+      Self.SetRangeVisibilityText(false, [Self.TextMaxScore, Self.TextScoreUserLocal]);
+  end;
+  case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
+    smRoulette: Self.SetRouletteScroll();
+    smChessboard, smMosaic: Self.SetChessboardScroll();
+    smCarousel: Self.SetCarouselScroll();
+    smSlotMachine: Self.SetSlotMachineScroll();
+    smSlide: Self.SetSlideScroll();
+    smList: Self.SetListScroll();
+  end;
+end;
+
+{ SetSubselection adapted to accept ids as integers to show categories and playlist }
 procedure TScreenSong.SetSubselection(Id: integer; Filter: TSongFilter);
 begin
   Self.SetSubselection(IntToStr(Id), Filter);
 end;
 
-{* Show a songs subselection depends on Id and Filter selected. It used to show categories, playlist, searches o full list *}
+{ Show a songs subselection depends on Id and Filter selected. It used to show categories, playlist, searches o full list }
 procedure TScreenSong.SetSubselection(Id: UTF8String = ''; Filter: TSongFilter = sfAll);
 var
   Caption: UTF8String;
@@ -2345,19 +2220,17 @@ begin
     sfCategory:
       Caption := USongs.CatSongs.Song[USongs.CatSongs.ShowCategory(StrToInt(Id))].Artist;
     sfPlaylist:
-    begin
-      USongs.CatSongs.ShowPlaylist(StrToInt(Id));
-      Caption := Format(ULanguage.Language.Translate('PLAYLIST_CATTEXT'), [UPlaylist.PlayListMan.SetPlayList(StrToInt(Id)).Name]);
-    end
+      begin
+        USongs.CatSongs.ShowPlaylist(StrToInt(Id));
+        Caption := Format(ULanguage.Language.Translate('PLAYLIST_CATTEXT'), [UPlaylist.PlayListMan.SetPlayList(StrToInt(Id)).Name]);
+      end;
     else //search using Id as string to found or show all songs if is empty
-    begin
       Caption := IfThen(Id = '', '', ULanguage.Language.Translate('SONG_JUMPTO_TYPE_DESC')+' '+Id);
       if (UIni.Ini.Tabs = 1) and (USongs.CatSongs.CatNumShow > -2) then //move to correct category after leave it or after OnShow if the category is in the middle of the list
         Position := IfThen(USongs.CatSongs.CatNumShow > -1, USongs.CatSongs.CatNumShow - 1, Round(Self.SongTarget));
 
       USongs.CatSongs.SetFilter(Id, sfAll);
     end;
-  end;
   Self.Text[Self.TextCat].Text := Caption;
   Self.SkipTo(Position, true);
 end;
@@ -2516,79 +2389,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure TScreenSong.SongScore;
-begin
-
-  if (CatSongs.Song[Interaction].isDuet) or ((Mode <> smNormal) or (Ini.ShowScores = 0) or (CatSongs.Song[Interaction].Edition = '') or ((Ini.ShowScores = 1) and ((Text[TextMaxScore2].Text = '0') and (Text[TextMaxScoreLocal].Text = '0')))) then
-  begin
-    Text[TextScore].Visible           := false;
-    Text[TextMaxScore].Visible        := false;
-    Text[TextMediaScore].Visible      := false;
-    Text[TextMaxScore2].Visible       := false;
-    Text[TextMediaScore2].Visible     := false;
-    Text[TextMaxScoreLocal].Visible   := false;
-    Text[TextMediaScoreLocal].Visible := false;
-    Text[TextScoreUserLocal].Visible  := false;
-    Text[TextScoreUser].Visible       := false;
-  end
-  else
-  begin
-    if (Ini.ShowScores = 1) and (Text[TextMaxScoreLocal].Text = '0') and (High(DLLMan.Websites) < 0) then
-    begin
-      Text[TextScore].Visible           := false;
-      Text[TextMaxScore].Visible        := false;
-      Text[TextMediaScore].Visible      := false;
-    end
-    else
-    begin
-      Text[TextScore].Visible           := true;
-      Text[TextMaxScore].Visible        := true;
-      Text[TextMediaScore].Visible      := true;
-    end;
-
-    if (Ini.ShowScores = 1) and (Text[TextMaxScore2].Text = '0') then
-    begin
-      Text[TextMaxScore2].Visible       := false;
-      Text[TextMediaScore2].Visible     := false;
-      Text[TextScoreUser].Visible       := false;
-    end
-    else
-    begin
-      Text[TextMaxScore2].Visible       := true;
-      Text[TextMediaScore2].Visible     := true;
-      Text[TextScoreUser].Visible       := true;
-    end;
-
-    if (Ini.ShowScores = 1) and (Text[TextMaxScoreLocal].Text = '0') then
-    begin
-      Text[TextMaxScoreLocal].Visible   := false;
-      Text[TextMediaScoreLocal].Visible := false;
-      Text[TextScoreUserLocal].Visible  := false;
-    end
-    else
-    begin
-      Text[TextMaxScoreLocal].Visible   := true;
-      Text[TextMediaScoreLocal].Visible := true;
-      Text[TextScoreUserLocal].Visible  := true;
-    end;
-
-  end;
-
-  //Set score
-  if (High(DLLMan.Websites) >= 0) then
-  begin
-    Text[TextScore].Text       := UTF8Encode(DLLMan.Websites[Ini.ShowWebScore].Name);
-    Text[TextMaxScore2].Text   := IntToStr(DataBase.ReadMax_Score(CatSongs.Song[Interaction].Artist, CatSongs.Song[Interaction].Title, DllMan.Websites[Ini.ShowWebScore].ID, Ini.PlayerLevel[0]));
-    Text[TextMediaScore2].Text := IntToStr(DataBase.ReadMedia_Score(CatSongs.Song[Interaction].Artist, CatSongs.Song[Interaction].Title, DllMan.Websites[Ini.ShowWebScore].ID, Ini.PlayerLevel[0]));
-    Text[TextScoreUser].Text   := DataBase.ReadUser_Score(CatSongs.Song[Interaction].Artist, CatSongs.Song[Interaction].Title, DllMan.Websites[Ini.ShowWebScore].ID, Ini.PlayerLevel[0]);
-  end;
-
-  Text[TextMaxScoreLocal].Text   := IntToStr(DataBase.ReadMax_ScoreLocal(CatSongs.Song[Interaction].Artist, CatSongs.Song[Interaction].Title, Ini.PlayerLevel[0]));
-  Text[TextMediaScoreLocal].Text := IntToStr(DataBase.ReadMedia_ScoreLocal(CatSongs.Song[Interaction].Artist, CatSongs.Song[Interaction].Title, Ini.PlayerLevel[0]));
-  Text[TextScoreUserLocal].Text  := DataBase.ReadUser_ScoreLocal(CatSongs.Song[Interaction].Artist, CatSongs.Song[Interaction].Title, Ini.PlayerLevel[0]);
-
 end;
 
 procedure TScreenSong.FadeMessage();
