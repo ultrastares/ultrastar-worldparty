@@ -37,7 +37,7 @@ uses
 type
   TScreenOptionsGame = class(TMenu)
     private
-      Language, SongMenu, Sorting, Tabs: integer;
+      Language, SongMenu: integer;
       procedure ReloadScreen();
       procedure ReloadScreens();
     protected
@@ -83,7 +83,7 @@ begin
       SDLK_BACKSPACE :
           Self.ReloadScreens();
       SDLK_RETURN:
-          if SelInteraction = 6 then
+          if SelInteraction = 7 then
             Self.ReloadScreens();
       SDLK_DOWN:
         InteractNext;
@@ -91,7 +91,7 @@ begin
         InteractPrev;
       SDLK_RIGHT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 5) then
+          if (SelInteraction >= 0) and (SelInteraction <= 6) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractInc;
@@ -101,7 +101,7 @@ begin
         end;
       SDLK_LEFT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 5) then
+          if (SelInteraction >= 0) and (SelInteraction <= 6) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractDec;
@@ -117,35 +117,17 @@ constructor TScreenOptionsGame.Create;
 begin
   inherited Create;
 
-  LoadFromTheme(Theme.OptionsGame);
-
-  Theme.OptionsGame.SelectLanguage.showArrows  := true;
-  Theme.OptionsGame.SelectLanguage.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGame.SelectLanguage, UIni.Ini.Language, UIni.ILanguage);
-
-  Theme.OptionsGame.SelectSongMenu.showArrows  := true;
-  Theme.OptionsGame.SelectSongMenu.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGame.SelectSongMenu, UIni.Ini.SongMenu, UIni.ISongMenuMode, 'OPTION_VALUE_');
-
-  Theme.OptionsGame.SelectTabs.showArrows  := true;
-  Theme.OptionsGame.SelectTabs.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGame.SelectTabs, UIni.Ini.Tabs, UIni.ITabs, 'OPTION_VALUE_');
-
-  Theme.OptionsGame.SelectSorting.showArrows  := true;
-  Theme.OptionsGame.SelectSorting.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGame.SelectSorting, UIni.Ini.Sorting, UIni.ISorting, 'OPTION_VALUE_');
-
-  Theme.OptionsGame.SelectShowScores.showArrows  := true;
-  Theme.OptionsGame.SelectShowScores.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGame.SelectShowScores, UIni.Ini.ShowScores, UIni.IShowScores, 'OPTION_VALUE_');
-
-  Theme.OptionsGame.SelectJoypad.showArrows := true;
-  Theme.OptionsGame.SelectJoypad.oneItemOnly := true;
-  SelectJoyPad := AddSelectSlide(Theme.OptionsGame.SelectJoypad, UIni.Ini.Joypad, UIni.IJoypad, 'OPTION_VALUE_');
-
-  AddButton(Theme.OptionsGame.ButtonExit);
-  if (Length(Button[0].Text) = 0) then
-    AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
+  Self.LoadFromTheme(UThemes.Theme.OptionsGame);
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectLanguage, UIni.Ini.Language, UIni.ILanguage);
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectSongMenu, UIni.Ini.SongMenu, UIni.ISongMenuMode, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectDuets, UIni.Ini.ShowDuets, UIni.Switch, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectTabs, UIni.Ini.Tabs, UIni.ITabs, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectSorting, UIni.Ini.Sorting, UIni.ISorting, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectShowScores, UIni.Ini.ShowScores, UIni.IShowScores, 'OPTION_VALUE_');
+  SelectJoyPad := Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectJoypad, UIni.Ini.Joypad, UIni.IJoypad, 'OPTION_VALUE_');
+  Self.AddButton(UThemes.Theme.OptionsGame.ButtonExit);
+  if (Length(Self.Button[0].Text) = 0) then
+    Self.AddButtonText(20, 5, UThemes.Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
 end;
 
 procedure TScreenOptionsGame.OnShow;
@@ -153,9 +135,7 @@ begin
   inherited;
   Self.Language := UIni.Ini.Language;
   Self.SongMenu := UIni.Ini.SongMenu;
-  Self.Sorting := UIni.Ini.Sorting;
-  Self.Tabs := UIni.Ini.Tabs;
-  Interaction := 0;
+  Self.Interaction := 0;
 end;
 
 // Reload all screens, after Language changed or screen song after songmenu, sorting or tabs changed

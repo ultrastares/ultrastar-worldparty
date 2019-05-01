@@ -127,6 +127,7 @@ type
       Difficulty:     integer;
       Language:       integer;
       SongMenu:       integer;
+      ShowDuets: integer;
       Tabs:           integer;
       Sorting:        integer;
       ShowScores:     integer;
@@ -314,6 +315,7 @@ var
 
 const
   IDifficulty:  array[0..2] of UTF8String = ('Easy', 'Medium', 'Hard');
+  Switch: array[0..1] of UTF8String = ('Off', 'On');
   ITabs:        array[0..1] of UTF8String = ('Off', 'On');
 
 const
@@ -1065,6 +1067,7 @@ begin
   SongMenu := ReadArrayIndex(ISongMenuMode, IniFile, 'Game', 'SongMenu', Ord(smChessboard));
 
   // Tabs
+  ShowDuets := Self.ReadArrayIndex(Switch, IniFile, 'Game', 'ShowDuets', 1);
   Tabs := ReadArrayIndex(ITabs, IniFile, 'Game', 'Tabs', 0);
 
   // Song Sorting
@@ -1367,6 +1370,7 @@ begin
   // Language
   IniFile.WriteString('Game', 'Language', ILanguage[Language]);
 
+  IniFile.WriteString('Game', 'ShowDuets', Switch[Self.ShowDuets]);
   // Tabs
   IniFile.WriteString('Game', 'Tabs', ITabs[Tabs]);
 

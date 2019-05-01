@@ -201,7 +201,6 @@ type
       procedure SetSubselection(Id: UTF8String = ''; Filter: TSongFilter = sfAll); overload;
       procedure SkipTo(Target: cardinal; Force: boolean = false);
       procedure Refresh(Sort: integer; Categories: boolean; Duets: boolean);
-      procedure ChangeSorting(Tabs: integer; Duet: boolean; Sorting: integer);
       function FreeListMode: boolean;
       procedure SelectRandomSong(RandomCategory: boolean = false);
       procedure ColorizeJokers;
@@ -355,83 +354,32 @@ begin
             StartMedley(99, msCalculated);
           end;
         end;
-
+      Ord('J'):
+        if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
+          UGraphic.ScreenSongJumpto.Visible := true;
       Ord('M'): //Show SongMenu
+        if USongs.CatSongs.GetVisibleSongs() > 0 then
         begin
-          if (Songs.SongList.Count > 0) then
-          begin
-
-            if not(MakeMedley) and (FreeListMode) and (Mode <> smPartyFree) and (Mode <> smPartyTournament) then
-            begin
-              if (not CatSongs.Song[Interaction].Main) then // clicked on Song
-              begin
-                if CatSongs.CatNumShow = -3 then
-                begin
-                  ScreenSongMenu.OnShow;
-
-                  if (ScreenSong.Mode = smJukebox) then
-                    ScreenSongMenu.MenuShow(SM_Jukebox)
-                  else
-                    ScreenSongMenu.MenuShow(SM_Playlist);
-                end
-                else
-                begin
-                  ScreenSongMenu.OnShow;
-
-                  if (ScreenSong.Mode = smJukebox) then
-                    ScreenSongMenu.MenuShow(SM_Jukebox)
-                  else
-                    ScreenSongMenu.MenuShow(SM_Main);
-                end;
-              end
-              else
-              begin
-                ScreenSongMenu.OnShow;
-                if (ScreenSong.Mode = smJukebox) then
-                  ScreenSongMenu.MenuShow(SM_Jukebox)
-                else
-                  ScreenSongMenu.MenuShow(SM_Playlist_Load);
-              end;
-            end //Party Mode -> Show Party Menu
+          if Self.MakeMedley then
+            UGraphic.ScreenSongMenu.MenuShow(SM_Medley)
+          else if Self.Mode = smJukebox then
+            UGraphic.ScreenSongMenu.MenuShow(SM_Jukebox)
+          else if Self.Mode = smNormal then
+            if USongs.CatSongs.Song[Interaction].Main then
+              UGraphic.ScreenSongMenu.MenuShow(SM_Sorting)
+            else if USongs.CatSongs.CatNumShow = -3 then
+              UGraphic.ScreenSongMenu.MenuShow(SM_Playlist)
             else
-            begin
-
-              if (MakeMedley) then
-              begin
-                ScreenSongMenu.MenuShow(SM_Medley)
-              end
-              else
-              begin
-                ScreenSongMenu.OnShow;
-                if (Mode <> smPartyFree) and (Mode <> smPartyTournament) then
-                  ScreenSongMenu.MenuShow(SM_Party_Main)
-                else
-                  ScreenSongMenu.MenuShow(SM_Party_Free_Main);
-              end;
-            end;
-          end;
-          Exit;
+              UGraphic.ScreenSongMenu.MenuShow(SM_Main)
+          else
+            UGraphic.ScreenSongMenu.MenuShow(IfThen(Self.Mode = smPartyClassic, SM_Party_Main, SM_Party_Free_Main));
         end;
-
-      Ord('P'): //Show Playlist Menu
-        begin
-          if (Songs.SongList.Count > 0) and (FreeListMode) then
-          begin
-            ScreenSongMenu.OnShow;
-            ScreenSongMenu.MenuShow(SM_Playlist_Load);
-          end;
-          Exit;
-        end;
-
-      Ord('J'): //Show Jumpto Menu
-        begin
-          if (Songs.SongList.Count > 0) and (FreeListMode) then
-          begin
-            ScreenSongJumpto.Visible := true;
-          end;
-          Exit;
-        end;
-
+      Ord('O'):
+        if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
+          UGraphic.ScreenSongMenu.MenuShow(SM_Sorting);
+      Ord('P'):
+        if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
+          UGraphic.ScreenSongMenu.MenuShow(SM_Playlist_Load);
       Ord('S'):
         begin
           if not (SDL_ModState = KMOD_LSHIFT) and (CatSongs.Song[Interaction].Medley.Source>=msTag)
@@ -1536,7 +1484,7 @@ begin
   end
   else
   begin
-    Self.Refresh(UIni.Ini.Sorting, UIni.Ini.Tabs = 1, true);
+    Self.Refresh(UIni.Ini.Sorting, UIni.Ini.Tabs = 1, UIni.Ini.ShowDuets = 1);
     if (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow = -1) then //fix scroll on show and when enter after on first time with a category selected in the middle of the list
       Self.SetSubselection();
   end;
@@ -2418,14 +2366,6 @@ procedure TScreenSong.CloseMessage();
 begin
   Statics[InfoMessageBG].Visible := false;
   Text[InfoMessageText].Visible := false;
-end;
-
-procedure TScreenSong.ChangeSorting(Tabs: integer; Duet: boolean; Sorting: integer);
-begin
-  UIni.Ini.Sorting := Sorting;
-  UIni.Ini.Tabs := Tabs;
-  USongs.CatSongs.Refresh(Sorting, Tabs = 1, Duet);
-  Self.SetSubselection();
 end;
 
 end.

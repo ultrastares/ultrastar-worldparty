@@ -840,6 +840,7 @@ type
   TThemeOptionsGame = class(TThemeBasic)
     SelectLanguage:     TThemeSelectSlide;
     SelectSongMenu:     TThemeSelectSlide;
+    SelectDuets: TThemeSelectSlide;
     SelectSorting:      TThemeSelectSlide;
     SelectTabs:         TThemeSelectSlide;
     SelectShowScores:   TThemeSelectSlide;
@@ -2161,6 +2162,7 @@ begin
 
       ThemeLoadSelectSlide(OptionsGame.SelectLanguage,   'OptionsGameSelectSlideLanguage');
       ThemeLoadSelectSlide(OptionsGame.SelectSongMenu,   'OptionsGameSelectSongMenu');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectDuets, 'OptionsGameSelectDuets');
       ThemeLoadSelectSlide(OptionsGame.SelectSorting,    'OptionsGameSelectSlideSorting');
       ThemeLoadSelectSlide(OptionsGame.SelectTabs,       'OptionsGameSelectTabs');
       ThemeLoadSelectSlide(OptionsGame.SelectShowScores, 'OptionsGameSelectShowScores');
