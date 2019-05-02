@@ -35,6 +35,7 @@ uses
   UMenu,
   UMenuEqualizer,
   UMusic,
+  UParty,
   USong,
   USongs,
   UTexture;
@@ -116,21 +117,7 @@ type
       //Party Mod
       Mode: TSingMode;
 
-      StaticTeam1Joker1: cardinal;
-      StaticTeam1Joker2: cardinal;
-      StaticTeam1Joker3: cardinal;
-      StaticTeam1Joker4: cardinal;
-      StaticTeam1Joker5: cardinal;
-      StaticTeam2Joker1: cardinal;
-      StaticTeam2Joker2: cardinal;
-      StaticTeam2Joker3: cardinal;
-      StaticTeam2Joker4: cardinal;
-      StaticTeam2Joker5: cardinal;
-      StaticTeam3Joker1: cardinal;
-      StaticTeam3Joker2: cardinal;
-      StaticTeam3Joker3: cardinal;
-      StaticTeam3Joker4: cardinal;
-      StaticTeam3Joker5: cardinal;
+      StaticTeamJoker: array [0..UParty.PartyTeamsMax - 1, 0..UParty.PartyJokers - 1] of integer;
       StaticParty:    array of cardinal;
       TextParty:      array of cardinal;
       StaticNonParty: array of cardinal;
@@ -237,7 +224,6 @@ uses
   UMain,
   UMenuButton,
   UNote,
-  UParty,
   UPath,
   UPlaylist,
   UScreenPlayerSelection,
@@ -649,31 +635,9 @@ begin
   end;
 end;
 
-procedure TScreenSong.ColorizeJokers;
-var
-  StartJoker, I, J: integer;
-  Col: TRGB;
-begin
-
-  StartJoker := StaticTeam1Joker1;
-
-  for I:= 0 to 2 do
-  begin
-    Col := GetPlayerColor(Ini.SingColor[I]);
-
-    for J := StartJoker + I * 5 to (StartJoker + I * 5 - 1) + 5  do
-    begin
-      Statics[J].Texture.ColR := Col.R;
-      Statics[J].Texture.ColG := Col.G;
-      Statics[J].Texture.ColB := Col.B;
-    end;
-  end;
-
-end;
-
 constructor TScreenSong.Create;
 var
-  I, Num, Padding: integer;
+  I, J, Num, Padding: integer;
   TextArtistY, TextTitleY, TextYearY, StaticMedCY,
   StaticMedMY, StaticVideoY, StaticDuetY, StaticRapY: integer;
   StaticY: real;
@@ -708,21 +672,13 @@ begin
   TextScoreUserLocal  := AddText(Theme.Song.TextScoreUserLocal);
 
   //Party Mode
-  StaticTeam1Joker1 := AddStatic(Theme.Song.StaticTeam1Joker1);
-  StaticTeam1Joker2 := AddStatic(Theme.Song.StaticTeam1Joker2);
-  StaticTeam1Joker3 := AddStatic(Theme.Song.StaticTeam1Joker3);
-  StaticTeam1Joker4 := AddStatic(Theme.Song.StaticTeam1Joker4);
-  StaticTeam1Joker5 := AddStatic(Theme.Song.StaticTeam1Joker5);
-  StaticTeam2Joker1 := AddStatic(Theme.Song.StaticTeam2Joker1);
-  StaticTeam2Joker2 := AddStatic(Theme.Song.StaticTeam2Joker2);
-  StaticTeam2Joker3 := AddStatic(Theme.Song.StaticTeam2Joker3);
-  StaticTeam2Joker4 := AddStatic(Theme.Song.StaticTeam2Joker4);
-  StaticTeam2Joker5 := AddStatic(Theme.Song.StaticTeam2Joker5);
-  StaticTeam3Joker1 := AddStatic(Theme.Song.StaticTeam3Joker1);
-  StaticTeam3Joker2 := AddStatic(Theme.Song.StaticTeam3Joker2);
-  StaticTeam3Joker3 := AddStatic(Theme.Song.StaticTeam3Joker3);
-  StaticTeam3Joker4 := AddStatic(Theme.Song.StaticTeam3Joker4);
-  StaticTeam3Joker5 := AddStatic(Theme.Song.StaticTeam3Joker5);
+  for I := 0 to UParty.PartyTeamsMax - 1 do
+    for J := 0 to UParty.PartyJokers - 1 do
+    begin
+      Self.StaticTeamJoker[I][J] := Self.AddStatic(UThemes.Theme.Song.StaticTeamJoker);
+      Self.Statics[Self.StaticTeamJoker[I][J]].Texture.X += (Self.Statics[Self.StaticTeamJoker[I][J]].Texture.W + Self.Statics[Self.StaticTeamJoker[I][J]].Texture.PaddingX) * J;
+      Self.Statics[Self.StaticTeamJoker[I][J]].Texture.Y += (Self.Statics[Self.StaticTeamJoker[I][J]].Texture.H + Self.Statics[Self.StaticTeamJoker[I][J]].Texture.PaddingY) * I;
+    end;
 
   //Load Party or NonParty specific Statics and Texts
   SetLength(StaticParty, Length(Theme.Song.StaticParty));
@@ -1938,6 +1894,24 @@ begin
   FadeTo(@ScreenName);
 end;
 
+{ Set teams jokers colors }
+procedure TScreenSong.ColorizeJokers();
+var
+  I, J: integer;
+  Col: TRGB;
+begin
+  for I := 0 to UParty.PartyTeamsMax - 1 do
+  begin
+    Col := UThemes.GetPlayerColor(UIni.Ini.SingColor[I]);
+    for J := 0 to UParty.PartyJokers - 1 do
+    begin
+      Self.Statics[Self.StaticTeamJoker[I][J]].Texture.ColR := Col.R;
+      Self.Statics[Self.StaticTeamJoker[I][J]].Texture.ColG := Col.G;
+      Self.Statics[Self.StaticTeamJoker[I][J]].Texture.ColB := Col.B;
+    end;
+  end;
+end;
+
 { Load a cover dynamically in a song button }
 procedure TScreenSong.LoadCover(Const I: integer);
 begin
@@ -1991,20 +1965,20 @@ begin
   end;
 end;
 
-{* Set joker visibility *}
+{ Set joker visibility }
 procedure TScreenSong.SetJoker();
 var
-  I, J, Count, Max: integer;
+  I, JokersLeft: integer;
 begin
-  Count := Self.StaticTeam1Joker1; //start in the first static joker
-  for I := 0 to UParty.PartyTeamsMax - 1 do //for each team
+  for I := 0 to UParty.PartyTeamsMax - 1 do
   begin
-    Max := Count + UParty.PartyJokers - 1; //last static joker of this team
-    for J := Count to Max do //set joker visibility
+    JokersLeft := 0;
+    if I <= High(UParty.Party.Teams) then
     begin
-      Self.Statics[Count].Visible := (I <= High(UParty.Party.Teams)) and (UParty.Party.Teams[I].JokersLeft >= UParty.PartyJokers - (Max - J));
-      Inc(Count);
+      JokersLeft := UParty.Party.Teams[I].JokersLeft;
+      Self.SetRangeVisibilityStatic(true, [Self.StaticTeamJoker[I][0], Self.StaticTeamJoker[I][JokersLeft - 1]]);
     end;
+    Self.SetRangeVisibilityStatic(false, [Self.StaticTeamJoker[I][JokersLeft], Self.StaticTeamJoker[I][UParty.PartyJokers - 1]]);
   end;
 end;
 
@@ -2031,7 +2005,7 @@ begin
   Self.Text[Self.TextNumber].Visible := Visibility;
   Self.Text[Self.TextTitle].Visible := VisibilityNoList;
   Self.Text[Self.TextYear].Visible := VisibilityNoList;
-  Self.SetRangeVisibility(Visibility and (Self.Mode = smNormal), [Self.StaticNonParty[0], Self.StaticNonParty[4]], [Self.TextNonParty[0], Self.TextNonParty[4]]); //set legend visibility
+  Self.SetRangeVisibility(Visibility and Self.FreeListMode(), [Self.StaticNonParty[0], Self.StaticNonParty[4]], [Self.TextNonParty[0], Self.TextNonParty[4]]); //set legend visibility
   if High(Self.StaticsList) > 0 then //hide items in smList, too after change from other mode
     for I := 0 to High(Self.StaticsList) do
     begin

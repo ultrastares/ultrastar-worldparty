@@ -345,7 +345,6 @@ uses
 
   //BassMIDI                in 'lib\bassmidi\bassmidi.pas',
 
-  UMenuStaticList in 'menu\UMenuStaticList.pas',
   UWebcam                 in 'base\UWebcam.pas',
 
   UDLLManager             in 'base\UDLLManager.pas',

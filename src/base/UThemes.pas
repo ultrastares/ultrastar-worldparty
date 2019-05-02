@@ -91,6 +91,8 @@ type
     Z:      real;
     W:      integer;
     H:      integer;
+    PaddingX: integer;
+    PaddingY: integer;
     Color:  string;
     ColR:   real;
     ColG:   real;
@@ -388,21 +390,7 @@ type
     TextScoreUserLocal:  TThemeText;
 
     //Party Mode
-    StaticTeam1Joker1: TThemeStatic;
-    StaticTeam1Joker2: TThemeStatic;
-    StaticTeam1Joker3: TThemeStatic;
-    StaticTeam1Joker4: TThemeStatic;
-    StaticTeam1Joker5: TThemeStatic;
-    StaticTeam2Joker1: TThemeStatic;
-    StaticTeam2Joker2: TThemeStatic;
-    StaticTeam2Joker3: TThemeStatic;
-    StaticTeam2Joker4: TThemeStatic;
-    StaticTeam2Joker5: TThemeStatic;
-    StaticTeam3Joker1: TThemeStatic;
-    StaticTeam3Joker2: TThemeStatic;
-    StaticTeam3Joker3: TThemeStatic;
-    StaticTeam3Joker4: TThemeStatic;
-    StaticTeam3Joker5: TThemeStatic;
+    StaticTeamJoker: TThemeStatic;
 
     TextPartyTime    : TThemeText;
 
@@ -2622,18 +2610,23 @@ end;
 procedure TTheme.ThemeLoadStatic(var ThemeStatic: TThemeStatic; const Name: string);
 var
   C: integer;
+  Heritage: string;
 begin
-  ThemeStatic.Tex := ThemeIni.ReadString(Name, 'Tex', '');
+  Heritage := ThemeIni.ReadString(Name, 'Heritage', ''); //heritage from other static
+  ThemeStatic.Tex := ThemeIni.ReadString(Name, 'Tex', ThemeIni.ReadString(Heritage, 'Tex', ''));
+  ThemeStatic.X := ThemeIni.ReadInteger(Name, 'X', ThemeIni.ReadInteger(Heritage, 'X', 0));
+  ThemeStatic.Y := ThemeIni.ReadInteger(Name, 'Y', ThemeIni.ReadInteger(Heritage, 'Y', 0));
+  ThemeStatic.Z := ThemeIni.ReadFloat(Name, 'Z', ThemeIni.ReadFloat(Heritage, 'Z', 0));
+  ThemeStatic.W := ThemeIni.ReadInteger(Name, 'W', ThemeIni.ReadInteger(Heritage, 'W', 0));
+  ThemeStatic.H := ThemeIni.ReadInteger(Name, 'H', ThemeIni.ReadInteger(Heritage, 'H', 0));
+  ThemeStatic.PaddingX := Self.ThemeIni.ReadInteger(Name, 'PaddingX', ThemeIni.ReadInteger(Heritage, 'PaddingX', 0));
+  ThemeStatic.PaddingY := Self.ThemeIni.ReadInteger(Name, 'PaddingY', ThemeIni.ReadInteger(Heritage, 'PaddingY', 0));
+  ThemeStatic.Alpha := ThemeIni.ReadFloat(Name, 'Alpha', ThemeIni.ReadFloat(Heritage, 'Alpha', 1));
+  if ThemeIni.ReadString(Name, 'Type', ThemeIni.ReadString(Heritage, 'Type', '')) = '' then
+    ULog.Log.LogError('no texture type for ' + Name + ' found.', 'TTheme.ThemeLoadStatic');
 
-  ThemeStatic.X := ThemeIni.ReadInteger(Name, 'X', 0);
-  ThemeStatic.Y := ThemeIni.ReadInteger(Name, 'Y', 0);
-  ThemeStatic.Z := ThemeIni.ReadFloat  (Name, 'Z', 0);
-  ThemeStatic.W := ThemeIni.ReadInteger(Name, 'W', 0);
-  ThemeStatic.H := ThemeIni.ReadInteger(Name, 'H', 0);
-  ThemeStatic.Alpha := ThemeIni.ReadFloat(Name, 'Alpha', 1);
-  if ThemeIni.ReadString(Name, 'Type', '') = '' then Log.LogError('no texture type for ' + Name + ' found.', 'TTheme.ThemeLoadStatic');
-  ThemeStatic.Typ   := ParseTextureType(ThemeIni.ReadString(Name, 'Type', ''), TEXTURE_TYPE_PLAIN);
-  ThemeStatic.Color := ThemeIni.ReadString(Name, 'Color', '');
+  ThemeStatic.Typ := ParseTextureType(ThemeIni.ReadString(Name, 'Type', ThemeIni.ReadString(Heritage, 'Type', '')), TEXTURE_TYPE_PLAIN);
+  ThemeStatic.Color := ThemeIni.ReadString(Name, 'Color', ThemeIni.ReadString(Heritage, 'Color', ''));
 
   C := ColorExists(ThemeStatic.Color);
   if C >= 0 then
@@ -2643,14 +2636,14 @@ begin
     ThemeStatic.ColB := Color[C].RGB.B;
   end;
 
-  ThemeStatic.TexX1 := ThemeIni.ReadFloat(Name, 'TexX1', 0);
-  ThemeStatic.TexY1 := ThemeIni.ReadFloat(Name, 'TexY1', 0);
-  ThemeStatic.TexX2 := ThemeIni.ReadFloat(Name, 'TexX2', 1);
-  ThemeStatic.TexY2 := ThemeIni.ReadFloat(Name, 'TexY2', 1);
+  ThemeStatic.TexX1 := ThemeIni.ReadFloat(Name, 'TexX1', ThemeIni.ReadFloat(Name, 'TexX1', 0));
+  ThemeStatic.TexY1 := ThemeIni.ReadFloat(Name, 'TexY1', ThemeIni.ReadFloat(Name, 'TexY1', 0));
+  ThemeStatic.TexX2 := ThemeIni.ReadFloat(Name, 'TexX2', ThemeIni.ReadFloat(Name, 'TexX2', 1));
+  ThemeStatic.TexY2 := ThemeIni.ReadFloat(Name, 'TexY2', ThemeIni.ReadFloat(Name, 'TexY2', 1));
 
   //Reflection Mod
-  ThemeStatic.Reflection        := (ThemeIni.ReadInteger(Name, 'Reflection', 0) = 1);
-  ThemeStatic.ReflectionSpacing := ThemeIni.ReadFloat(Name, 'ReflectionSpacing', 15);
+  ThemeStatic.Reflection        := (ThemeIni.ReadInteger(Name, 'Reflection', ThemeIni.ReadInteger(Heritage, 'Reflection', 0)) = 1);
+  ThemeStatic.ReflectionSpacing := ThemeIni.ReadFloat(Name, 'ReflectionSpacing', ThemeIni.ReadFloat(Heritage, 'ReflectionSpacing', 15));
 end;
 
 procedure TTheme.ThemeLoadStatics(var ThemeStatic: AThemeStatic; const Name: string);
@@ -4331,23 +4324,7 @@ begin
   ThemeLoadStatic (Song.Static6PlayersDuetSingerP6, 'Song' + prefix + 'Static6PlayersDuetSingerP6');
 
   //Party Mode
-  ThemeLoadStatic(Song.StaticTeam1Joker1, 'Song' + prefix + 'StaticTeam1Joker1');
-  ThemeLoadStatic(Song.StaticTeam1Joker2, 'Song' + prefix + 'StaticTeam1Joker2');
-  ThemeLoadStatic(Song.StaticTeam1Joker3, 'Song' + prefix + 'StaticTeam1Joker3');
-  ThemeLoadStatic(Song.StaticTeam1Joker4, 'Song' + prefix + 'StaticTeam1Joker4');
-  ThemeLoadStatic(Song.StaticTeam1Joker5, 'Song' + prefix + 'StaticTeam1Joker5');
-
-  ThemeLoadStatic(Song.StaticTeam2Joker1, 'Song' + prefix + 'StaticTeam2Joker1');
-  ThemeLoadStatic(Song.StaticTeam2Joker2, 'Song' + prefix + 'StaticTeam2Joker2');
-  ThemeLoadStatic(Song.StaticTeam2Joker3, 'Song' + prefix + 'StaticTeam2Joker3');
-  ThemeLoadStatic(Song.StaticTeam2Joker4, 'Song' + prefix + 'StaticTeam2Joker4');
-  ThemeLoadStatic(Song.StaticTeam2Joker5, 'Song' + prefix + 'StaticTeam2Joker5');
-
-  ThemeLoadStatic(Song.StaticTeam3Joker1, 'Song' + prefix + 'StaticTeam3Joker1');
-  ThemeLoadStatic(Song.StaticTeam3Joker2, 'Song' + prefix + 'StaticTeam3Joker2');
-  ThemeLoadStatic(Song.StaticTeam3Joker3, 'Song' + prefix + 'StaticTeam3Joker3');
-  ThemeLoadStatic(Song.StaticTeam3Joker4, 'Song' + prefix + 'StaticTeam3Joker4');
-  ThemeLoadStatic(Song.StaticTeam3Joker5, 'Song' + prefix + 'StaticTeam3Joker5');
+  Self.ThemeLoadStatic(Song.StaticTeamJoker, 'Song'+prefix+'StaticTeamJoker');
 
   ThemeLoadText (Song.TextPartyTime, 'Song' + prefix + 'TextPartyTime');
 

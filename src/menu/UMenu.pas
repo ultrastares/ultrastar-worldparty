@@ -105,7 +105,8 @@ type
       function AddStatic(X, Y, W, H, Z: real; ColR, ColG, ColB: real; const TexName: IPath; Typ: TTextureType): integer; overload;
       function AddStatic(X, Y, W, H: real; ColR, ColG, ColB: real; const TexName: IPath; Typ: TTextureType; Color: integer): integer; overload;
       function AddStatic(X, Y, W, H, Z: real; ColR, ColG, ColB: real; const TexName: IPath; Typ: TTextureType; Color: integer): integer; overload;
-      function AddStatic(X, Y, W, H, Z: real; ColR, ColG, ColB: real; TexX1, TexY1, TexX2, TexY2: real; Alpha: real; const TexName: IPath; Typ: TTextureType; Color: integer; Reflection: boolean; ReflectionSpacing: real): integer; overload;
+      function AddStatic(X, Y, W, H, Z: real; PaddingX, PaddingY: integer; ColR, ColG, ColB: real; TexX1, TexY1, TexX2, TexY2: real; Alpha: real;
+        const TexName: IPath; Typ: TTextureType; Color: integer; Reflection: boolean; ReflectionSpacing: real): integer; overload;
 
       // list
       function AddListItem(X, Y, W, H, Z: real; ColR, ColG, ColB: real; DColR, DColG, DColB: real; const TexName: IPath; const DTexName: IPath; Typ: TTextureType; Reflection: boolean; ReflectionSpacing: real): integer;
@@ -616,6 +617,7 @@ end;
 function TMenu.AddStatic(ThemeStatic: TThemeStatic): integer;
 begin
   Result := AddStatic(ThemeStatic.X, ThemeStatic.Y, ThemeStatic.W, ThemeStatic.H, ThemeStatic.Z,
+    ThemeStatic.PaddingX, ThemeStatic.PaddingY,
     ThemeStatic.ColR, ThemeStatic.ColG, ThemeStatic.ColB,
     ThemeStatic.TexX1, ThemeStatic.TexY1, ThemeStatic.TexX2, ThemeStatic.TexY2, ThemeStatic.Alpha,
     Skin.GetTextureFileName(ThemeStatic.Tex),
@@ -678,10 +680,10 @@ function TMenu.AddStatic(X, Y, W, H, Z: real;
 			 Typ: TTextureType;
 			 Color: integer): integer;
 begin
-  Result := AddStatic(X, Y, W, H, Z, ColR, ColG, ColB, 0, 0, 1, 1, 1, TexName, Typ, Color, false, 0);
+  Result := AddStatic(X, Y, W, H, Z, 0, 0, ColR, ColG, ColB, 0, 0, 1, 1, 1, TexName, Typ, Color, false, 0);
 end;
 
-function TMenu.AddStatic(X, Y, W, H, Z: real;
+function TMenu.AddStatic(X, Y, W, H, Z: real; PaddingX, PaddingY: integer;
                          ColR, ColG, ColB: real;
 			 TexX1, TexY1, TexX2, TexY2: real; Alpha: real;
 			 const TexName: IPath;
@@ -710,6 +712,8 @@ begin
   // configures static
   Statics[StatNum].Texture.X := X;
   Statics[StatNum].Texture.Y := Y;
+  Self.Statics[StatNum].Texture.PaddingX := PaddingX;
+  Self.Statics[StatNum].Texture.PaddingY := PaddingY;
 
   //Set height and width via sprite size if omitted
   if(H = 0) then
@@ -735,11 +739,8 @@ begin
   Statics[StatNum].Texture.TexY2 := TexY2;
   Statics[StatNum].Texture.Alpha := Alpha;
   Statics[StatNum].Visible := true;
-
-  //ReflectionMod
   Statics[StatNum].Reflection := Reflection;
   Statics[StatNum].ReflectionSpacing := ReflectionSpacing;
-
   Result := StatNum;
 end;
 

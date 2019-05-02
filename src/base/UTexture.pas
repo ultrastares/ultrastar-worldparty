@@ -48,6 +48,8 @@ type
     Z:        real;
     W:        real;
     H:        real;
+    PaddingX: integer;
+    PaddingY: integer;
     ScaleW:   real; // for dynamic scalling while leaving width constant
     ScaleH:   real; // for dynamic scalling while leaving height constant
     Rot:      real; // 0 - 2*pi
