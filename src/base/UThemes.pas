@@ -1244,6 +1244,7 @@ type
 
   TTheme = class
   private
+    Inheritance: array of string;
     {$IFDEF THEMESAVE}
     ThemeIni:         TIniFile;
     {$ELSE}
@@ -1253,6 +1254,11 @@ type
     LastThemeBasic:   TThemeBasic;
     procedure CreateThemeObjects();
     procedure LoadHeader(FileName: IPath);
+    procedure SetInheritance(const Section: string);
+    procedure ReadProperty(const Section: string; const Identifier: string; const Default: integer; var Field: integer);
+    procedure ReadProperty(const Section: string; const Identifier: string; const Default: real; var Field: real);
+    procedure ReadProperty(const Section: string; const Identifier: string; const Default: string; var Field: string);
+    procedure ReadProperty(const Section: string; const Identifier: string; const Default: UTF8String; var Field: UTF8String; const FieldType: integer = 0);
   public
     Themes:           array of TThemeEntry;
     Loading:          TThemeLoading;
@@ -1392,7 +1398,8 @@ uses
   TextGL,
   dglOpenGL,
   math,
-  StrUtils;
+  StrUtils,
+  UUnicodeUtils;
 
 //-----------
 //Helper procs to use TRGB in Opengl ...maybe this should be somewhere else
@@ -1547,6 +1554,74 @@ begin
     Log.LogStatus('Found Theme: ' + FileInfo.Name.ToNative, 'Theme.LoadList');
     LoadHeader(Fileinfo.Name);
   end;
+end;
+
+procedure TTheme.SetInheritance(const Section: string);
+var
+  I: integer;
+  CurrentInheritance: string;
+begin
+  I := 1;
+  SetLength(Self.Inheritance, 1);
+  CurrentInheritance := Section;
+  repeat
+    CurrentInheritance := ThemeIni.ReadString(CurrentInheritance, 'Inheritance', '');
+    if CurrentInheritance <> '' then
+    begin
+      SetLength(Self.Inheritance, I + 1);
+      Self.Inheritance[I] := CurrentInheritance;
+      Inc(I);
+    end;
+  until CurrentInheritance = '';
+end;
+
+{ Integer type overload of ReadProperty }
+procedure TTheme.ReadProperty(const Section: string; const Identifier: string; const Default: integer; var Field: integer);
+var
+  TempString: UTF8String;
+begin
+  TempString := IntToStr(Field);
+  Self.ReadProperty(Section, Identifier, UTF8String(IntToStr(Default)), TempString, 1);
+  Field := StrToInt(TempString);
+end;
+
+{ Real type overload of ReadProperty }
+procedure TTheme.ReadProperty(const Section: string; const Identifier: string; const Default: real; var Field: real);
+var
+  TempString: UTF8String;
+begin
+  TempString := FloatToStr(Field);
+  Self.ReadProperty(Section, Identifier, UTF8String(FloatToStr(Default)), TempString, 2);
+  Field := StrToFloat(TempString);
+end;
+
+{ String overload of ReadProperty }
+procedure TTheme.ReadProperty(const Section: string; const Identifier: string; const Default: string; var Field: string);
+var
+  TempString: UTF8String;
+begin
+  TempString :=  UTF8String(Field);
+  Self.ReadProperty(Section, Identifier, Default, TempString);
+  Field := TempString;
+end;
+
+{ Read a property from a section of a ini file using inheritance. It's mandatory call SetInheritance before read anything }
+procedure TTheme.ReadProperty(const Section: string; const Identifier: string; const Default: UTF8String; var Field: UTF8String; const FieldType: integer = 0);
+var
+  I: integer;
+  MaxDeep: integer;
+begin
+  MaxDeep := High(Self.Inheritance);
+  Self.Inheritance[0] := Section;
+  I := 0;
+  repeat
+    case FieldType of
+      0: Field := ThemeIni.ReadString(Self.Inheritance[I], Identifier, Default);
+      1: Field := IntToStr(ThemeIni.ReadInteger(Self.Inheritance[I], Identifier, StrToInt(Default)));
+      2: Field := FloatToStr(ThemeIni.ReadFloat(Self.Inheritance[I], Identifier, StrToFloat(Default)));
+    end;
+    Inc(I);
+  until (Field <> Default) or (I > MaxDeep);
 end;
 
 function TTheme.LoadTheme(ThemeNum: integer; sColor: integer): boolean;
@@ -2549,29 +2624,23 @@ end;
 procedure TTheme.ThemeLoadText(var ThemeText: TThemeText; const Name: string);
 var
   C: integer;
+  Reflection: integer;
 begin
-  ThemeText.X     := ThemeIni.ReadInteger(Name, 'X', 0);
-  ThemeText.Y     := ThemeIni.ReadInteger(Name, 'Y', 0);
-  ThemeText.W     := ThemeIni.ReadInteger(Name, 'W', 0);
+  Self.SetInheritance(Name);
+  Self.ReadProperty(Name, 'X', 0, ThemeText.X);
+  Self.ReadProperty(Name, 'Y', 0, ThemeText.Y);
+  Self.ReadProperty(Name, 'W', 0, ThemeText.W);
+  Self.ReadProperty(Name, 'Z', 0, ThemeText.Z);
+  Self.ReadProperty(Name, 'ColR', 0, ThemeText.ColR);
+  Self.ReadProperty(Name, 'ColG', 0, ThemeText.ColG);
+  Self.ReadProperty(Name, 'ColB', 0, ThemeText.ColB);
+  Self.ReadProperty(Name, 'Font', ftNormal, ThemeText.Font);
+  Self.ReadProperty(Name, 'Size', 0, ThemeText.Size);
+  Self.ReadProperty(Name, 'Align', 0, ThemeText.Align);
+  Self.ReadProperty(Name, 'Text', '', ThemeText.Text);
+  ThemeText.Text := ULanguage.Language.Translate(ThemeText.Text);
 
-  ThemeText.Z     := ThemeIni.ReadFloat(Name, 'Z', 0);
-
-  ThemeText.ColR  := ThemeIni.ReadFloat(Name, 'ColR', 0);
-  ThemeText.ColG  := ThemeIni.ReadFloat(Name, 'ColG', 0);
-  ThemeText.ColB  := ThemeIni.ReadFloat(Name, 'ColB', 0);
-
-  ThemeText.Font  := ThemeIni.ReadInteger(Name, 'Font', ftNormal);
-  ThemeText.Size  := ThemeIni.ReadInteger(Name, 'Size', 0);
-  ThemeText.Align := ThemeIni.ReadInteger(Name, 'Align', 0);
-
-  ThemeText.Text  := Language.Translate(ThemeIni.ReadString(Name, 'Text', ''));
-  ThemeText.Color := ThemeIni.ReadString(Name, 'Color', '');
-  ThemeText.DColor := ThemeIni.ReadString(Name, 'DColor', '');
-
-  //Reflection
-  ThemeText.Reflection         := (ThemeIni.ReadInteger(Name, 'Reflection', 0)) = 1;
-  ThemeText.Reflectionspacing  := ThemeIni.ReadFloat(Name, 'ReflectionSpacing', 15);
-
+  Self.ReadProperty(Name, 'Color', '', ThemeText.Color);
   C := ColorExists(ThemeText.Color);
   if C >= 0 then
   begin
@@ -2580,6 +2649,7 @@ begin
     ThemeText.ColB := Color[C].RGB.B;
   end;
 
+  Self.ReadProperty(Name, 'DColor', '', ThemeText.DColor);
   C := ColorExists(ThemeText.DColor);
   if C >= 0 then
   begin
@@ -2587,6 +2657,11 @@ begin
     ThemeText.DColG := Color[C].RGB.G;
     ThemeText.DColB := Color[C].RGB.B;
   end;
+
+  Self.ReadProperty(Name, 'Size', 0, ThemeText.Size);
+  Self.ReadProperty(Name, 'Reflection', 0, Reflection);
+  ThemeText.Reflection := Reflection = 1;
+  Self.ReadProperty(Name, 'ReflectionSpacing', 15, ThemeText.ReflectionSpacing);
 end;
 
 procedure TTheme.ThemeLoadTexts(var ThemeText: AThemeText; const Name: string);
@@ -2605,24 +2680,25 @@ end;
 procedure TTheme.ThemeLoadStatic(var ThemeStatic: TThemeStatic; const Name: string);
 var
   C: integer;
-  Heritage: string;
+  TextureType: string;
+  Reflection: integer;
 begin
-  Heritage := ThemeIni.ReadString(Name, 'Heritage', ''); //heritage from other static
-  ThemeStatic.Tex := ThemeIni.ReadString(Name, 'Tex', ThemeIni.ReadString(Heritage, 'Tex', ''));
-  ThemeStatic.X := ThemeIni.ReadInteger(Name, 'X', ThemeIni.ReadInteger(Heritage, 'X', 0));
-  ThemeStatic.Y := ThemeIni.ReadInteger(Name, 'Y', ThemeIni.ReadInteger(Heritage, 'Y', 0));
-  ThemeStatic.Z := ThemeIni.ReadFloat(Name, 'Z', ThemeIni.ReadFloat(Heritage, 'Z', 0));
-  ThemeStatic.W := ThemeIni.ReadInteger(Name, 'W', ThemeIni.ReadInteger(Heritage, 'W', 0));
-  ThemeStatic.H := ThemeIni.ReadInteger(Name, 'H', ThemeIni.ReadInteger(Heritage, 'H', 0));
-  ThemeStatic.PaddingX := Self.ThemeIni.ReadInteger(Name, 'PaddingX', ThemeIni.ReadInteger(Heritage, 'PaddingX', 0));
-  ThemeStatic.PaddingY := Self.ThemeIni.ReadInteger(Name, 'PaddingY', ThemeIni.ReadInteger(Heritage, 'PaddingY', 0));
-  ThemeStatic.Alpha := ThemeIni.ReadFloat(Name, 'Alpha', ThemeIni.ReadFloat(Heritage, 'Alpha', 1));
-  if ThemeIni.ReadString(Name, 'Type', ThemeIni.ReadString(Heritage, 'Type', '')) = '' then
+  Self.SetInheritance(Name);
+  Self.ReadProperty(Name, 'Tex', '', ThemeStatic.Tex);
+  Self.ReadProperty(Name, 'X', 0, ThemeStatic.X);
+  Self.ReadProperty(Name, 'Y', 0, ThemeStatic.Y);
+  Self.ReadProperty(Name, 'Z', 0, ThemeStatic.Z);
+  Self.ReadProperty(Name, 'W', 0, ThemeStatic.W);
+  Self.ReadProperty(Name, 'H', 0, ThemeStatic.H);
+  Self.ReadProperty(Name, 'PaddingX', 0, ThemeStatic.PaddingX);
+  Self.ReadProperty(Name, 'PaddingY', 0, ThemeStatic.PaddingY);
+  Self.ReadProperty(Name, 'Alpha', 1, ThemeStatic.Alpha);
+  Self.ReadProperty(Name, 'Type', '', TextureType);
+  if TextureType = '' then
     ULog.Log.LogError('no texture type for ' + Name + ' found.', 'TTheme.ThemeLoadStatic');
 
-  ThemeStatic.Typ := ParseTextureType(ThemeIni.ReadString(Name, 'Type', ThemeIni.ReadString(Heritage, 'Type', '')), TEXTURE_TYPE_PLAIN);
-  ThemeStatic.Color := ThemeIni.ReadString(Name, 'Color', ThemeIni.ReadString(Heritage, 'Color', ''));
-
+  ThemeStatic.Typ := UTexture.ParseTextureType(TextureType, TEXTURE_TYPE_PLAIN);
+  Self.ReadProperty(Name, 'Color', '', ThemeStatic.Color);
   C := ColorExists(ThemeStatic.Color);
   if C >= 0 then
   begin
@@ -2630,15 +2706,13 @@ begin
     ThemeStatic.ColG := Color[C].RGB.G;
     ThemeStatic.ColB := Color[C].RGB.B;
   end;
-
-  ThemeStatic.TexX1 := ThemeIni.ReadFloat(Name, 'TexX1', ThemeIni.ReadFloat(Name, 'TexX1', 0));
-  ThemeStatic.TexY1 := ThemeIni.ReadFloat(Name, 'TexY1', ThemeIni.ReadFloat(Name, 'TexY1', 0));
-  ThemeStatic.TexX2 := ThemeIni.ReadFloat(Name, 'TexX2', ThemeIni.ReadFloat(Name, 'TexX2', 1));
-  ThemeStatic.TexY2 := ThemeIni.ReadFloat(Name, 'TexY2', ThemeIni.ReadFloat(Name, 'TexY2', 1));
-
-  //Reflection Mod
-  ThemeStatic.Reflection        := (ThemeIni.ReadInteger(Name, 'Reflection', ThemeIni.ReadInteger(Heritage, 'Reflection', 0)) = 1);
-  ThemeStatic.ReflectionSpacing := ThemeIni.ReadFloat(Name, 'ReflectionSpacing', ThemeIni.ReadFloat(Heritage, 'ReflectionSpacing', 15));
+  Self.ReadProperty(Name, 'TexX1', 0, ThemeStatic.TexX1);
+  Self.ReadProperty(Name, 'TexY1', 0, ThemeStatic.TexY1);
+  Self.ReadProperty(Name, 'TexX2', 1, ThemeStatic.TexX2);
+  Self.ReadProperty(Name, 'TexY2', 1, ThemeStatic.TexY2);
+  Self.ReadProperty(Name, 'Reflection', 0, Reflection);
+  ThemeStatic.Reflection := Reflection = 1;
+  Self.ReadProperty(Name, 'ReflectionSpacing', 15, ThemeStatic.ReflectionSpacing);
 end;
 
 procedure TTheme.ThemeLoadStatics(var ThemeStatic: AThemeStatic; const Name: string);
