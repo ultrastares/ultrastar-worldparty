@@ -2006,6 +2006,7 @@ begin
   Self.Text[Self.TextTitle].Visible := VisibilityNoList;
   Self.Text[Self.TextYear].Visible := VisibilityNoList;
   Self.SetRangeVisibility(Visibility and Self.FreeListMode(), [Self.StaticNonParty[0], Self.StaticNonParty[4]], [Self.TextNonParty[0], Self.TextNonParty[4]]); //set legend visibility
+  Self.SetRangeVisibility(false, [Self.Static2PlayersDuetSingerP1, Self.Static6PlayersDuetSingerP6], [Self.Text2PlayersDuetSingerP1, Self.Text3PlayersDuetSingerP3]); //hide duets
   if High(Self.StaticsList) > 0 then //hide items in smList, too after change from other mode
     for I := 0 to High(Self.StaticsList) do
     begin
@@ -2094,9 +2095,7 @@ begin
         [Self.Static2PlayersDuetSingerP1, IfThen(UNote.PlayersPlay <= 2, Self.Static2PlayersDuetSingerP2, Self.Static4PlayersDuetSingerP4)],
         [Self.Text2PlayersDuetSingerP1, Self.Text2PlayersDuetSingerP2]
       );
-    end
-    else
-      Self.SetRangeVisibility(false, [Self.Static2PlayersDuetSingerP1, Self.Static6PlayersDuetSingerP6], [Self.Text2PlayersDuetSingerP1, Self.Text3PlayersDuetSingerP3]);
+    end;
 
     if (UIni.Ini.ShowScores > 0) and (Self.Mode = smNormal) and (not Song.isDuet) then //show scores
     begin
