@@ -2811,17 +2811,16 @@ begin
   Self.ReadProperty(Name, 'DInt', 1, ThemeButton.DInt);
   Self.ReadProperty(Name, 'Visible', 1, TempInt);
   ThemeButton.Visible := TempInt = 1;
-  Self.ReadProperty(Name, 'SelectH', 0, ThemeButton.SelectH);
-  Self.ReadProperty(Name, 'SelectW', 0, ThemeButton.SelectW);
-  Self.ReadProperty(Name, 'DeSelectReflectionSpacing', 0, ThemeButton.Reflectionspacing);
-  ThemeButton.DeSelectReflectionspacing := ThemeButton.Reflectionspacing;
+  Self.ReadProperty(Name, 'SelectH', ThemeButton.H, ThemeButton.SelectH);
+  Self.ReadProperty(Name, 'SelectW', ThemeButton.W, ThemeButton.SelectW);
+  Self.ReadProperty(Name, 'DeSelectReflectionSpacing', ThemeButton.Reflectionspacing, ThemeButton.DeSelectReflectionspacing);
   Self.ReadProperty(Name, 'Fade', 1, TempInt);
   ThemeButton.Fade := TempInt = 1;
   Self.ReadProperty(Name, 'FadeText', 1, TempInt);
   ThemeButton.FadeText := TempInt = 1;
   Self.ReadProperty(Name, 'FadeTex', '', ThemeButton.FadeTex);
   Self.ReadProperty(Name, 'FadeTexPos', 0, ThemeButton.FadeTexPos);
-  if (ThemeButton.FadeTexPos > 4) Or (ThemeButton.FadeTexPos < 0) then
+  if (ThemeButton.FadeTexPos > 4) or (ThemeButton.FadeTexPos < 0) then
     ThemeButton.FadeTexPos := 0;
 
   //Button Collection Mod
@@ -2845,7 +2844,7 @@ begin
   Self.ReadProperty(Name, 'Texts', 0, TLen);
   SetLength(ThemeButton.Text, TLen);
   for T := 1 to TLen do
-    ThemeLoadText(ThemeButton.Text[T-1], Name + 'Text' + IntToStr(T));
+    Self.ThemeLoadText(ThemeButton.Text[T - 1], Name+'Text'+IntToStr(T));
 end;
 
 procedure TTheme.ThemeLoadSelectSlide(var ThemeSelectS: TThemeSelectSlide; const Name: string);
