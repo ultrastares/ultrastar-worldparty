@@ -2759,9 +2759,8 @@ end;
 
 procedure TTheme.ThemeLoadButton(var ThemeButton: TThemeButton; const Name: string; Collections: PAThemeButtonCollection);
 var
-  C:    integer;
-  TLen: integer;
-  T:    integer;
+  C, T, TempInt, TLen: integer;
+  TempString: string;
   Collections2: PAThemeButtonCollection;
 begin
   if not ThemeIni.SectionExists(Name) then
@@ -2769,28 +2768,23 @@ begin
     ThemeButton.Visible := False;
     exit;
   end;
-  ThemeButton.Tex := ThemeIni.ReadString(Name, 'Tex', '');
-  ThemeButton.X := ThemeIni.ReadInteger (Name, 'X', 0);
-  ThemeButton.Y := ThemeIni.ReadInteger (Name, 'Y', 0);
-  ThemeButton.Z := ThemeIni.ReadFloat   (Name, 'Z', 0);
-  ThemeButton.W := ThemeIni.ReadInteger (Name, 'W', 0);
-  ThemeButton.H := ThemeIni.ReadInteger (Name, 'H', 0);
-  ThemeButton.Typ := ParseTextureType(ThemeIni.ReadString(Name, 'Type', ''), TEXTURE_TYPE_PLAIN);
+  Self.SetInheritance(Name);
+  Self.ReadProperty(Name, 'Tex', '', ThemeButton.Tex);
+  Self.ReadProperty(Name, 'X', 0, ThemeButton.X);
+  Self.ReadProperty(Name, 'Y', 0, ThemeButton.Y);
+  Self.ReadProperty(Name, 'Z', 0, ThemeButton.Z);
+  Self.ReadProperty(Name, 'W', 0, ThemeButton.W);
+  Self.ReadProperty(Name, 'H', 0, ThemeButton.H);
+  Self.ReadProperty(Name, 'Type', '', TempString);
+  if TempString = '' then
+    ULog.Log.LogError('no texture type for ' + Name + ' found.', 'TTheme.ThemeLoadButton');
 
-  //Reflection Mod
-  ThemeButton.Reflection := (ThemeIni.ReadInteger(Name, 'Reflection', 0) = 1);
-  ThemeButton.ReflectionSpacing := ThemeIni.ReadFloat(Name, 'ReflectionSpacing', 15);
+  ThemeButton.Typ := UTexture.ParseTextureType(TempString, TEXTURE_TYPE_PLAIN);
+  Self.ReadProperty(Name, 'Reflection', 0, TempInt);
+  ThemeButton.Reflection := TempInt = 1;
+  Self.ReadProperty(Name, 'ReflectionSpacing', 15, ThemeButton.ReflectionSpacing);
 
-  ThemeButton.ColR := ThemeIni.ReadFloat(Name, 'ColR', 1);
-  ThemeButton.ColG := ThemeIni.ReadFloat(Name, 'ColG', 1);
-  ThemeButton.ColB := ThemeIni.ReadFloat(Name, 'ColB', 1);
-  ThemeButton.Int :=  ThemeIni.ReadFloat(Name, 'Int', 1);
-  ThemeButton.DColR := ThemeIni.ReadFloat(Name, 'DColR', 1);
-  ThemeButton.DColG := ThemeIni.ReadFloat(Name, 'DColG', 1);
-  ThemeButton.DColB := ThemeIni.ReadFloat(Name, 'DColB', 1);
-  ThemeButton.DInt :=  ThemeIni.ReadFloat(Name, 'DInt', 1);
-
-  ThemeButton.Color := ThemeIni.ReadString(Name, 'Color', '');
+  Self.ReadProperty(Name, 'Color', '', ThemeButton.Color);
   C := ColorExists(ThemeButton.Color);
   if C >= 0 then
   begin
@@ -2799,7 +2793,7 @@ begin
     ThemeButton.ColB := Color[C].RGB.B;
   end;
 
-  ThemeButton.DColor := ThemeIni.ReadString(Name, 'DColor', '');
+  Self.ReadProperty(Name, 'DColor', '', ThemeButton.DColor);
   C := ColorExists(ThemeButton.DColor);
   if C >= 0 then
   begin
@@ -2807,26 +2801,31 @@ begin
     ThemeButton.DColG := Color[C].RGB.G;
     ThemeButton.DColB := Color[C].RGB.B;
   end;
-
-  ThemeButton.Visible := (ThemeIni.ReadInteger(Name, 'Visible', 1) = 1);
-
-  //Fade Mod
-  ThemeButton.SelectH := ThemeIni.ReadInteger (Name, 'SelectH', ThemeButton.H);
-  ThemeButton.SelectW := ThemeIni.ReadInteger (Name, 'SelectW', ThemeButton.W);
-
-  ThemeButton.DeSelectReflectionspacing := ThemeIni.ReadFloat(Name, 'DeSelectReflectionSpacing', ThemeButton.Reflectionspacing);
-
-  ThemeButton.Fade := (ThemeIni.ReadInteger(Name, 'Fade', 0) = 1);
-  ThemeButton.FadeText := (ThemeIni.ReadInteger(Name, 'FadeText', 0) = 1);
-
-
-  ThemeButton.FadeTex := ThemeIni.ReadString(Name, 'FadeTex', '');
-  ThemeButton.FadeTexPos:= ThemeIni.ReadInteger(Name, 'FadeTexPos', 0);
+  Self.ReadProperty(Name, 'ColR', 1, ThemeButton.ColR);
+  Self.ReadProperty(Name, 'ColG', 1, ThemeButton.ColG);
+  Self.ReadProperty(Name, 'ColB', 1, ThemeButton.ColB);
+  Self.ReadProperty(Name, 'Int', 1, ThemeButton.Int);
+  Self.ReadProperty(Name, 'DColR', 1, ThemeButton.DColR);
+  Self.ReadProperty(Name, 'DColG', 1, ThemeButton.DColG);
+  Self.ReadProperty(Name, 'DColB', 1, ThemeButton.DColB);
+  Self.ReadProperty(Name, 'DInt', 1, ThemeButton.DInt);
+  Self.ReadProperty(Name, 'Visible', 1, TempInt);
+  ThemeButton.Visible := TempInt = 1;
+  Self.ReadProperty(Name, 'SelectH', 0, ThemeButton.SelectH);
+  Self.ReadProperty(Name, 'SelectW', 0, ThemeButton.SelectW);
+  Self.ReadProperty(Name, 'DeSelectReflectionSpacing', 0, ThemeButton.Reflectionspacing);
+  ThemeButton.DeSelectReflectionspacing := ThemeButton.Reflectionspacing;
+  Self.ReadProperty(Name, 'Fade', 1, TempInt);
+  ThemeButton.Fade := TempInt = 1;
+  Self.ReadProperty(Name, 'FadeText', 1, TempInt);
+  ThemeButton.FadeText := TempInt = 1;
+  Self.ReadProperty(Name, 'FadeTex', '', ThemeButton.FadeTex);
+  Self.ReadProperty(Name, 'FadeTexPos', 0, ThemeButton.FadeTexPos);
   if (ThemeButton.FadeTexPos > 4) Or (ThemeButton.FadeTexPos < 0) then
     ThemeButton.FadeTexPos := 0;
 
   //Button Collection Mod
-  T := ThemeIni.ReadInteger(Name, 'Parent', 0);
+  Self.ReadProperty(Name, 'Parent', 0, T);
 
   //Set Collections to Last Basic Collections if no valid Value
   if (Collections = nil) then
@@ -2843,7 +2842,7 @@ begin
     ThemeButton.Parent := 0;
 
   //Read ButtonTexts
-  TLen := ThemeIni.ReadInteger(Name, 'Texts', 0);
+  Self.ReadProperty(Name, 'Texts', 0, TLen);
   SetLength(ThemeButton.Text, TLen);
   for T := 1 to TLen do
     ThemeLoadText(ThemeButton.Text[T-1], Name + 'Text' + IntToStr(T));
