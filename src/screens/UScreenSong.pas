@@ -1887,11 +1887,11 @@ procedure TScreenSong.SelectPlayers;
 begin
   CatSongs.Selected := Interaction;
   StopMusicPreview();
-  if not Assigned(UGraphic.ScreenName) then
-    UGraphic.ScreenName := UScreenPlayerSelection.TScreenName.Create();
+  if not Assigned(UGraphic.ScreenPlayerSelector) then
+    UGraphic.ScreenPlayerSelector := TScreenPlayerSelector.Create();
 
-  ScreenName.Goto_SingScreen := true;
-  FadeTo(@ScreenName);
+  UGraphic.ScreenPlayerSelector.Goto_SingScreen := true;
+  FadeTo(@UGraphic.ScreenPlayerSelector);
 end;
 
 { Set teams jokers colors }

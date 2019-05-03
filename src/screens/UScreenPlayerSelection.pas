@@ -50,7 +50,7 @@ uses
   UThemes;
 
 type
-  TScreenName = class(TMenu)
+  TScreenPlayerSelector = class(TMenu)
     private
       PlayersCount:  cardinal;
       PlayerAvatar:  cardinal;
@@ -133,7 +133,7 @@ uses
   UTime,
   UUnicodeUtils;
 
-function TScreenName.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
+function TScreenPlayerSelector.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 var
   I: integer;
   Btn: integer;
@@ -234,17 +234,14 @@ begin
   end;
 end;
 
-function TScreenName.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
-  var
-    I: integer;
-    SDL_ModState: word;
-    Col: TRGB;
-
+function TScreenPlayerSelector.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
+var
+  I: integer;
+  Col: TRGB;
 begin
   Result := true;
   if (PressedDown) then
   begin // Key Down
-    SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
     if (not Button[PlayerName].Selected) then
     begin
       // check normal keys
@@ -469,7 +466,7 @@ begin
   end;
 end;
 
-procedure TScreenName.GenerateAvatars();
+procedure TScreenPlayerSelector.GenerateAvatars();
 var
   I: integer;
   AvatarTexture: TTexture;
@@ -488,7 +485,7 @@ begin
   end;
 
   // create no-avatar
-  PlayerAvatarButton[0] := AddButton(Theme.Name.PlayerAvatar);
+  Self.PlayerAvatarButton[0] := Self.AddButton(UThemes.Theme.PlayerSelector.PlayerAvatar);
   Button[PlayerAvatarButton[0]].Texture := NoAvatarTexture[1];
   Button[PlayerAvatarButton[0]].Selectable := false;
   Button[PlayerAvatarButton[0]].Selected := false;
@@ -498,7 +495,7 @@ begin
   for I := 1 to High(AvatarsList) do
   begin
     // create avatar
-    PlayerAvatarButton[I] := AddButton(Theme.Name.PlayerAvatar);
+    Self.PlayerAvatarButton[I] := Self.AddButton(UThemes.Theme.PlayerSelector.PlayerAvatar);
 
     AvatarFile := AvatarsList[I];
 
@@ -525,12 +522,12 @@ begin
 
 end;
 
-procedure TScreenName.ChangeSelectPlayerPosition(Player: integer);
+procedure TScreenPlayerSelector.ChangeSelectPlayerPosition(Player: integer);
 begin
-  Button[PlayerSelect].X := Theme.Name.PlayerSelect[Player].X + Theme.Name.PlayerSelectCurrent.X;
+  Self.Button[Self.PlayerSelect].X := UThemes.Theme.PlayerSelector.PlayerSelect[Player].X + UThemes.Theme.PlayerSelector.PlayerSelectCurrent.X;
 end;
 
-procedure TScreenName.RefreshPlayers();
+procedure TScreenPlayerSelector.RefreshPlayers();
 var
   Count, I: integer;
   DesCol: TRGB;
@@ -577,7 +574,7 @@ begin
 
 end;
 
-procedure TScreenName.RefreshProfile();
+procedure TScreenPlayerSelector.RefreshProfile();
 var
   ITmp: array of UTF8String;
   Count, Max, I, J, Index: integer;
@@ -624,7 +621,7 @@ begin
     end;
   end;
 
-  UpdateSelectSlideOptions(Theme.Name.SelectPlayerColor, PlayerColor, ITmp, ColorIndex);
+  Self.UpdateSelectSlideOptions(UThemes.Theme.PlayerSelector.SelectPlayerColor, Self.PlayerColor, ITmp, Self.ColorIndex);
 
   for I := 0 to High(APlayerColor) do
   begin
@@ -637,14 +634,14 @@ begin
 
 end;
 
-procedure TScreenName.RefreshColor();
+procedure TScreenPlayerSelector.RefreshColor();
 begin
 
   PlayerColorButton(APlayerColor[ColorIndex]);
 
 end;
 
-function TScreenName.NoRepeatColors(ColorP:integer; Interaction:integer; Pos:integer):integer;
+function TScreenPlayerSelector.NoRepeatColors(ColorP:integer; Interaction:integer; Pos:integer):integer;
 var
   Z, Count:integer;
 begin
@@ -666,7 +663,7 @@ begin
 
 end;
 
-procedure TScreenName.PlayerColorButton(K: integer);
+procedure TScreenPlayerSelector.PlayerColorButton(K: integer);
 var
   Col, DesCol: TRGB;
 begin
@@ -731,52 +728,50 @@ begin
   Ini.PlayerColor[PlayerIndex] := K;
 end;
 
-constructor TScreenName.Create;
+constructor TScreenPlayerSelector.Create;
 var
   I: integer;
 begin
   inherited Create;
 
-  LoadFromTheme(Theme.Name);
-
-  PlayerSelect := AddButton(Theme.Name.PlayerSelectCurrent);
-
-  Theme.Name.SelectPlayersCount.oneItemOnly := true;
-  Theme.Name.SelectPlayersCount.showArrows := true;
-  PlayersCount := AddSelectSlide(Theme.Name.SelectPlayersCount, CountIndex, IPlayers);
+  Self.LoadFromTheme(UThemes.Theme.PlayerSelector);
+  Self.PlayerSelect := Self.AddButton(UThemes.Theme.PlayerSelector.PlayerSelectCurrent);
+  UThemes.Theme.PlayerSelector.SelectPlayersCount.oneItemOnly := true;
+  UThemes.Theme.PlayerSelector.SelectPlayersCount.showArrows := true;
+  Self.PlayersCount := Self.AddSelectSlide(UThemes.Theme.PlayerSelector.SelectPlayersCount, Self.CountIndex, UIni.IPlayers);
 
   for I := 0 to UIni.IMaxPlayerCount -1 do
   begin
-    PlayerCurrentAvatar[I] := AddStatic(Theme.Name.PlayerSelectAvatar[I]);
-    PlayerCurrent[I] := AddStatic(Theme.Name.PlayerSelect[I]);
-    PlayerCurrentText[I] := AddText(Theme.Name.PlayerSelectText[I]);
+    Self.PlayerCurrentAvatar[I] := Self.AddStatic(UThemes.Theme.PlayerSelector.PlayerSelectAvatar[I]);
+    Self.PlayerCurrent[I] := Self.AddStatic(UThemes.Theme.PlayerSelector.PlayerSelect[I]);
+    Self.PlayerCurrentText[I] := Self.AddText(UThemes.Theme.PlayerSelector.PlayerSelectText[I]);
   end;
 
 
-  PlayerName := AddButton(Theme.Name.PlayerButtonName);
+  Self.PlayerName := Self.AddButton(UThemes.Theme.PlayerSelector.PlayerButtonName);
   Button[PlayerName].Text[0].Writable := true;
 
-  Theme.Name.SelectPlayerColor.oneItemOnly := true;
-  Theme.Name.SelectPlayerColor.showArrows := true;
-  PlayerColor := AddSelectSlide(Theme.Name.SelectPlayerColor, ColorIndex, PlayerColors, 'OPTION_VALUE_');
+  UThemes.Theme.PlayerSelector.SelectPlayerColor.oneItemOnly := true;
+  UThemes.Theme.PlayerSelector.SelectPlayerColor.showArrows := true;
+  Self.PlayerColor := AddSelectSlide(UThemes.Theme.PlayerSelector.SelectPlayerColor, Self.ColorIndex, PlayerColors, 'OPTION_VALUE_');
 
-  Theme.Name.SelectPlayerLevel.oneItemOnly := true;
-  Theme.Name.SelectPlayerLevel.showArrows := true;
-  PlayerSelectLevel := AddSelectSlide(Theme.Name.SelectPlayerLevel, LevelIndex, UIni.IDifficulty, 'OPTION_VALUE_');
+  UThemes.Theme.PlayerSelector.SelectPlayerLevel.oneItemOnly := true;
+  UThemes.Theme.PlayerSelector.SelectPlayerLevel.showArrows := true;
+  Self.PlayerSelectLevel := Self.AddSelectSlide(UThemes.Theme.PlayerSelector.SelectPlayerLevel, Self.LevelIndex, UIni.IDifficulty, 'OPTION_VALUE_');
 
-  PlayerAvatar := AddButton(Theme.Name.PlayerButtonAvatar);
+  Self.PlayerAvatar := Self.AddButton(UThemes.Theme.PlayerSelector.PlayerButtonAvatar);
   PlayerAvatarIID := High(Interactions);
 
   isScrolling := false;
   GenerateAvatars();
 
-  NumVisibleAvatars := Theme.Name.PlayerScrollAvatar.NumAvatars;
-  DistanceVisibleAvatars := Theme.Name.PlayerScrollAvatar.DistanceAvatars;
+  Self.NumVisibleAvatars := UThemes.Theme.PlayerSelector.PlayerScrollAvatar.NumAvatars;
+  Self.DistanceVisibleAvatars := UThemes.Theme.PlayerSelector.PlayerScrollAvatar.DistanceAvatars;
 
   Interaction := 0;
 end;
 
-procedure TScreenName.SetPlayerAvatar(Player: integer);
+procedure TScreenPlayerSelector.SetPlayerAvatar(Player: integer);
 var
   Col: TRGB;
 begin
@@ -794,17 +789,17 @@ begin
   else
     Statics[PlayerCurrentAvatar[Player]].Texture := Button[PlayerAvatarButton[PlayerAvatars[Player]]].Texture;
 
-  Statics[PlayerCurrentAvatar[Player]].Texture.X := Theme.Name.PlayerSelectAvatar[Player].X;
-  Statics[PlayerCurrentAvatar[Player]].Texture.Y := Theme.Name.PlayerSelectAvatar[Player].Y;
-  Statics[PlayerCurrentAvatar[Player]].Texture.W := Theme.Name.PlayerSelectAvatar[Player].W;
-  Statics[PlayerCurrentAvatar[Player]].Texture.H := Theme.Name.PlayerSelectAvatar[Player].H;
-  Statics[PlayerCurrentAvatar[Player]].Texture.Z := Theme.Name.PlayerSelectAvatar[Player].Z;
+  Self.Statics[Self.PlayerCurrentAvatar[Player]].Texture.X := UThemes.Theme.PlayerSelector.PlayerSelectAvatar[Player].X;
+  Self.Statics[Self.PlayerCurrentAvatar[Player]].Texture.Y := UThemes.Theme.PlayerSelector.PlayerSelectAvatar[Player].Y;
+  Self.Statics[Self.PlayerCurrentAvatar[Player]].Texture.W := UThemes.Theme.PlayerSelector.PlayerSelectAvatar[Player].W;
+  Self.Statics[Self.PlayerCurrentAvatar[Player]].Texture.H := UThemes.Theme.PlayerSelector.PlayerSelectAvatar[Player].H;
+  Self.Statics[Self.PlayerCurrentAvatar[Player]].Texture.Z := UThemes.Theme.PlayerSelector.PlayerSelectAvatar[Player].Z;
 
   Statics[PlayerCurrentAvatar[Player]].Texture.Int := 1;
 
 end;
 
-procedure TScreenName.OnShow;
+procedure TScreenPlayerSelector.OnShow;
 var
   I: integer;
 begin
@@ -842,7 +837,7 @@ begin
   Interaction := 0;
 end;
 
-procedure TScreenName.SetAvatarScroll;
+procedure TScreenPlayerSelector.SetAvatarScroll;
 var
   B:        integer;
   Angle:    real;
@@ -887,17 +882,17 @@ begin
       begin
         Angle := Pi * (Pos / Min(VS, NumVisibleAvatars)); // Range: (-1/4*Pi .. +1/4*Pi)
 
-        Button[B].H := Abs(Theme.Name.PlayerAvatar.H * cos(Angle*0.8));
-        Button[B].W := Abs(Theme.Name.PlayerAvatar.W * cos(Angle*0.8));
+        Self.Button[B].H := Abs(UThemes.Theme.PlayerSelector.PlayerAvatar.H * cos(Angle*0.8));
+        Self.Button[B].W := Abs(UThemes.Theme.PlayerSelector.PlayerAvatar.W * cos(Angle*0.8));
 
         //Button[B].Reflectionspacing := 15 * Button[B].H/Theme.Song.Cover.H;
-        Button[B].DeSelectReflectionspacing := 15 * Button[B].H/Theme.Name.PlayerAvatar.H;
+        Self.Button[B].DeSelectReflectionspacing := 15 * Self.Button[B].H/UThemes.Theme.PlayerSelector.PlayerAvatar.H;
 
-        Padding := (Button[B].W - Theme.Name.PlayerAvatar.W)/2;
+        Padding := (Self.Button[B].W - UThemes.Theme.PlayerSelector.PlayerAvatar.W)/2;
         X := Sin(Angle*1.3) * 0.9;
 
-        Button[B].X := Theme.Name.PlayerAvatar.X + (Theme.Name.PlayerAvatar.W * Factor + DistanceVisibleAvatars) * X - Padding;
-        Button[B].Y := (Theme.Name.PlayerAvatar.Y  + (Theme.Name.PlayerAvatar.H - Abs(Theme.Name.PlayerAvatar.H * cos(Angle))) * 0.5);
+        Self.Button[B].X := UThemes.Theme.PlayerSelector.PlayerAvatar.X + (UThemes.Theme.PlayerSelector.PlayerAvatar.W * Factor + DistanceVisibleAvatars) * X - Padding;
+        Self.Button[B].Y := (UThemes.Theme.PlayerSelector.PlayerAvatar.Y  + (UThemes.Theme.PlayerSelector.PlayerAvatar.H - Abs(UThemes.Theme.PlayerSelector.PlayerAvatar.H * cos(Angle))) * 0.5);
         Button[B].Z := 0.95 - Abs(Pos) * 0.01;
 
         Button[B].Reflection := true;
@@ -914,8 +909,8 @@ begin
       end
       else
       begin
-        Button[B].X := Theme.Name.PlayerAvatar.X;
-        Button[B].Y := Theme.Name.PlayerAvatar.Y;
+        Self.Button[B].X := UThemes.Theme.PlayerSelector.PlayerAvatar.X;
+        Self.Button[B].Y := UThemes.Theme.PlayerSelector.PlayerAvatar.Y;
 
         AvatarCurrent := AvatarTarget;
 
@@ -932,11 +927,11 @@ begin
 
 end;
 
-procedure TScreenName.SetAnimationProgress(Progress: real);
+procedure TScreenPlayerSelector.SetAnimationProgress(Progress: real);
 begin
 end;
 
-procedure TScreenName.SelectNext;
+procedure TScreenPlayerSelector.SelectNext;
 var
   VS:   integer;
 begin
@@ -963,7 +958,7 @@ begin
 
 end;
 
-procedure TScreenName.SelectPrev;
+procedure TScreenPlayerSelector.SelectPrev;
 var
   VS:   integer;
 begin
@@ -989,7 +984,7 @@ begin
 
 end;
 
-function TScreenName.Draw: boolean;
+function TScreenPlayerSelector.Draw: boolean;
 var
   dx: real;
   dt: real;

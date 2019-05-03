@@ -118,11 +118,11 @@ begin
                   FadeTo(@ScreenSong)
                 else
                 begin
-                  if not Assigned(UGraphic.ScreenName) then
-                    UGraphic.ScreenName := TScreenName.Create();
+                  if not Assigned(UGraphic.ScreenPlayerSelector) then
+                    UGraphic.ScreenPlayerSelector := TScreenPlayerSelector.Create();
 
-                  ScreenName.Goto_SingScreen := false;
-                  FadeTo(@ScreenName, SoundLib.Start);
+                  UGraphic.ScreenPlayerSelector.Goto_SingScreen := false;
+                  FadeTo(@UGraphic.ScreenPlayerSelector, SoundLib.Start);
                 end;
               end;
             end;

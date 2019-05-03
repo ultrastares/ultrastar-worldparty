@@ -127,7 +127,7 @@ var
 
   ScreenLoading:      TScreenLoading;
   ScreenMain:         TScreenMain;
-  ScreenName:         TScreenName;
+  ScreenPlayerSelector: TScreenPlayerSelector;
   ScreenSong:         TScreenSong;
   ScreenSing:         TScreenSingController;
 
@@ -706,7 +706,7 @@ end;
 procedure UnloadScreens;
 begin
   FreeAndNil(ScreenMain);
-  FreeAndNil(ScreenName);
+  FreeAndNil(ScreenPlayerSelector);
   FreeAndNil(ScreenSong);
   FreeAndNil(ScreenScore);
   FreeAndNil(ScreenOptions);

@@ -24,9 +24,7 @@ unit UThemes;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
@@ -267,7 +265,7 @@ type
 
   end;
 
-  TThemeName = class(TThemeBasic)
+  TThemePlayerSelector = class(TThemeBasic)
     PlayerButtonName:          TThemeButton;
     PlayerButtonAvatar:        TThemeButton;
 
@@ -1259,7 +1257,7 @@ type
     Themes:           array of TThemeEntry;
     Loading:          TThemeLoading;
     Main:             TThemeMain;
-    Name:             TThemeName;
+    PlayerSelector:             TThemePlayerSelector;
     Song:             TThemeSong;
     Sing:             TThemeSing;
     LyricBar:         TThemeLyricBar;
@@ -1425,7 +1423,7 @@ begin
 
   Loading := TThemeLoading.Create;
   Main := TThemeMain.Create;
-  Name := TThemeName.Create;
+  Self.PlayerSelector := TThemePlayerSelector.Create;
   Song := TThemeSong.Create;
   Sing := TThemeSing.Create;
   Score := TThemeScore.Create;
@@ -1588,8 +1586,6 @@ begin
 
       LoadColors;
 
-//      ThemeIni.Free;
-//      ThemeIni := TIniFile.Create('Themes\Singstar\Main.ini');
 
       // Loading
       ThemeLoadBasic(Loading, 'Loading');
@@ -1632,28 +1628,28 @@ begin
       Main.TextDescriptionLong.Text := Main.DescriptionLong[0];
 
       // Name
-      ThemeLoadBasic(Name, 'Name');
+      ThemeLoadBasic(PlayerSelector, 'Name');
 
-      ThemeLoadButton(Name.PlayerButtonName, 'NamePlayerButtonName');
-      ThemeLoadButton(Name.PlayerButtonAvatar, 'NamePlayerButtonAvatar');
+      ThemeLoadButton(PlayerSelector.PlayerButtonName, 'NamePlayerButtonName');
+      ThemeLoadButton(PlayerSelector.PlayerButtonAvatar, 'NamePlayerButtonAvatar');
 
-      Name.PlayerScrollAvatar.NumAvatars := ThemeIni.ReadInteger('NamePlayerScrollAvatar', 'Count', 5);
-      Name.PlayerScrollAvatar.DistanceAvatars := ThemeIni.ReadInteger('NamePlayerScrollAvatar', 'Distance', 40);
+      PlayerSelector.PlayerScrollAvatar.NumAvatars := ThemeIni.ReadInteger('NamePlayerScrollAvatar', 'Count', 5);
+      PlayerSelector.PlayerScrollAvatar.DistanceAvatars := ThemeIni.ReadInteger('NamePlayerScrollAvatar', 'Distance', 40);
 
-      ThemeLoadButton(Name.PlayerAvatar, 'NamePlayerAvatar');
+      ThemeLoadButton(PlayerSelector.PlayerAvatar, 'NamePlayerAvatar');
 
-      ThemeLoadSelectSlide(Name.SelectPlayersCount, 'NameSelectPlayerCount');
-      ThemeLoadSelectSlide(Name.SelectPlayerColor, 'NameSelectPlayerColor');
-      ThemeLoadSelectSlide(Name.SelectPlayerLevel, 'NameSelectPlayerLevel');
+      ThemeLoadSelectSlide(PlayerSelector.SelectPlayersCount, 'NameSelectPlayerCount');
+      ThemeLoadSelectSlide(PlayerSelector.SelectPlayerColor, 'NameSelectPlayerColor');
+      ThemeLoadSelectSlide(PlayerSelector.SelectPlayerLevel, 'NameSelectPlayerLevel');
 
       for I := 0 to UIni.IMaxPlayerCount-1 do
       begin
-        ThemeLoadStatic(Name.PlayerSelect[I], 'NamePlayerSelectStatic' + IntToStr((I + 1)));
-        ThemeLoadText(Name.PlayerSelectText[I], 'NamePlayerSelectStatic' + IntToStr((I + 1)) + 'Text');
-        ThemeLoadStatic(Name.PlayerSelectAvatar[I], 'NamePlayerSelectStatic' + IntToStr((I + 1)) + 'Avatar');
+        ThemeLoadStatic(PlayerSelector.PlayerSelect[I], 'NamePlayerSelectStatic' + IntToStr((I + 1)));
+        ThemeLoadText(PlayerSelector.PlayerSelectText[I], 'NamePlayerSelectStatic' + IntToStr((I + 1)) + 'Text');
+        ThemeLoadStatic(PlayerSelector.PlayerSelectAvatar[I], 'NamePlayerSelectStatic' + IntToStr((I + 1)) + 'Avatar');
       end;
 
-      ThemeLoadButton(Name.PlayerSelectCurrent, 'NamePlayerSelectCurrent');
+      ThemeLoadButton(PlayerSelector.PlayerSelectCurrent, 'NamePlayerSelectCurrent');
 
       //Song
       ThemeSongLoad();
@@ -2591,7 +2587,6 @@ begin
     ThemeText.DColG := Color[C].RGB.G;
     ThemeText.DColB := Color[C].RGB.B;
   end;
-
 end;
 
 procedure TTheme.ThemeLoadTexts(var ThemeText: AThemeText; const Name: string);
@@ -3768,7 +3763,7 @@ begin
   ThemeSaveButton(Main.ButtonOptions, 'MainButtonOptions');
   ThemeSaveButton(Main.ButtonExit, 'MainButtonExit');
 
-  ThemeSaveBasic(Name, 'Name');
+  ThemeSaveBasic(PlayerSelector, 'Name');
 
   //ThemeSaveButton(Name.PlayerName, 'NameButtonPlayer');
 
@@ -4340,8 +4335,8 @@ begin
   freeandnil(Main);
   Main := TThemeMain.Create;
 
-  freeandnil(Name);
-  Name := TThemeName.Create;
+  FreeAndNil(PlayerSelector);
+  Self.PlayerSelector := TThemePlayerSelector.Create;
 
   freeandnil(Song);
   Song := TThemeSong.Create;
