@@ -465,41 +465,14 @@ begin
   inherited Create;
 
   LoadFromTheme(Theme.OptionsJukebox);
-
-  Theme.OptionsJukebox.SelectLyricsFont.showArrows := true;
-  Theme.OptionsJukebox.SelectLyricsFont.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsJukebox.SelectLyricsFont, UIni.Ini.JukeboxFont, UIni.ILyricsFont, 'OPTION_VALUE_');
-
-  Theme.OptionsJukebox.SelectLyricsEffect.showArrows := true;
-  Theme.OptionsJukebox.SelectLyricsEffect.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsJukebox.SelectLyricsEffect, UIni.Ini.JukeboxEffect, UIni.ILyricsEffect, 'OPTION_VALUE_');
-
-  Theme.OptionsJukebox.SelectLyricsAlpha.showArrows := true;
-  Theme.OptionsJukebox.SelectLyricsAlpha.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsJukebox.SelectLyricsAlpha, Ini.JukeboxAlpha, ILyricsAlpha);
-
-  Theme.OptionsJukebox.SelectLine.showArrows := true;
-  Theme.OptionsJukebox.SelectLine.oneItemOnly := true;
   LineSelect := AddSelectSlide(Theme.OptionsJukebox.SelectLine, UIni.Ini.JukeboxLine, UIni.ILineTranslated, 'OPTION_VALUE_');
-
-  Theme.OptionsJukebox.SelectProperty.showArrows := true;
-  Theme.OptionsJukebox.SelectProperty.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsJukebox.SelectProperty, UIni.Ini.JukeboxProperty, UIni.IPropertyTranslated, 'OPTION_VALUE_');
-
-  Theme.OptionsJukebox.SelectColor.showArrows := true;
-  Theme.OptionsJukebox.SelectColor.oneItemOnly := true;
   LineColorSelect := AddSelectSlide(Theme.OptionsJukebox.SelectColor, UIni.Ini.JukeboxSingLineColor, UIni.ISingLineColorTranslated, 'OPTION_VALUE_');
-
-  Theme.OptionsJukebox.SelectR.showArrows := false;
-  Theme.OptionsJukebox.SelectR.oneItemOnly := true;
   RedSelect := AddSelectSlide(Theme.OptionsJukebox.SelectR, Red, IRed);
-
-  Theme.OptionsJukebox.SelectG.showArrows := false;
-  Theme.OptionsJukebox.SelectG.oneItemOnly := true;
   GreenSelect := AddSelectSlide(Theme.OptionsJukebox.SelectG, Green, IGreen);
-
-  Theme.OptionsJukebox.SelectB.showArrows := false;
-  Theme.OptionsJukebox.SelectB.oneItemOnly := true;
   BlueSelect := AddSelectSlide(Theme.OptionsJukebox.SelectB, Blue, IBlue);
 
   TexR := AddStatic(Theme.OptionsJukebox.TexR);

@@ -442,44 +442,13 @@ begin
       IUsername[I] := DataBase.NetworkUser[CurrentWebsiteIndex].UserList[I].Username;
       //IPassword[I] := DataBase.NetworkUser[CurrentWebsiteIndex].UserList[I].Password;
     end;
-
-    if (High(IWebsite) > 0) then
-      Theme.OptionsNetwork.SelectWebsite.showArrows := true
-    else
-      Theme.OptionsNetwork.SelectWebsite.showArrows := false;
-
-    Theme.OptionsNetwork.SelectWebsite.oneItemOnly := true;
     AddSelectSlide(Theme.OptionsNetwork.SelectWebsite, CurrentWebsiteIndex, IWebsite);
-
-    if (High(IUsername) > 0) then
-      Theme.OptionsNetwork.SelectUsername.showArrows := true
-    else
-      Theme.OptionsNetwork.SelectUsername.showArrows := false;
-    Theme.OptionsNetwork.SelectUsername.oneItemOnly := true;
     AddSelectSlide(Theme.OptionsNetwork.SelectUsername, CurrentUserIndex, IUsername);
-
-    Theme.OptionsNetwork.SelectSendName.showArrows := true;
-    Theme.OptionsNetwork.SelectSendName.oneItemOnly := true;
     AddSelectSlide(Theme.OptionsNetwork.SelectSendName, CurrentUserSendNameIndex, ISendNameTranslated);
-
-    Theme.OptionsNetwork.SelectAutoMode.showArrows := true;
-    Theme.OptionsNetwork.SelectAutoMode.oneItemOnly := true;
     AddSelectSlide(Theme.OptionsNetwork.SelectAutoMode, CurrentUserModeIndex, IAutoModeTranslated);
-
-    Theme.OptionsNetwork.SelectAutoPlayer.showArrows := true;
-    Theme.OptionsNetwork.SelectAutoPlayer.oneItemOnly := true;
     AddSelectSlide(Theme.OptionsNetwork.SelectAutoPlayer, CurrentUserPlayerIndex, IAutoPlayerTranslated);
-
-    Theme.OptionsNetwork.SelectAutoScoreEasy.showArrows := true;
-    Theme.OptionsNetwork.SelectAutoScoreEasy.oneItemOnly := true;
     AddSelectSlide(Theme.OptionsNetwork.SelectAutoScoreEasy, CurrentUserScoreEasyIndex, IAutoScoreEasyTranslated);
-
-    Theme.OptionsNetwork.SelectAutoScoreMedium.showArrows := true;
-    Theme.OptionsNetwork.SelectAutoScoreMedium.oneItemOnly := true;
     AddSelectSlide(Theme.OptionsNetwork.SelectAutoScoreMedium, CurrentUserScoreMediumIndex, IAutoScoreMediumTranslated);
-
-    Theme.OptionsNetwork.SelectAutoScoreHard.showArrows := true;
-    Theme.OptionsNetwork.SelectAutoScoreHard.oneItemOnly := true;
     AddSelectSlide(Theme.OptionsNetwork.SelectAutoScoreHard, CurrentUserScoreHardIndex, IAutoScoreHardTranslated);
 
     Theme.OptionsNetwork.TextInsertUser.Text := Language.Translate('SING_OPTIONS_NETWORK_INSERT_USER_INFO');
@@ -552,10 +521,6 @@ begin
   //  IPassword[I] := DataBase.NetworkUser[CurrentWebsiteIndex].UserList[I].Password;
   end;
 
-  if (High(IUsername) > 0) then
-    SelectsS[1].ShowArrows := true
-  else
-    SelectsS[1].ShowArrows := false;
   UpdateSelectSlideOptions(Theme.OptionsNetwork.SelectUsername, 1, IUsername, CurrentUserIndex);
 //  UpdateSelectSlideOptions(Theme.OptionsNetwork.SelectPassword, 2, IPassword, CurrentUserIndex);
 
@@ -647,9 +612,6 @@ begin
 
   if (High(IUsername) > -1) then
   begin
-    if (High(IUsername) = 0) then
-      SelectsS[1].ShowArrows := false;
-
     UpdateSelectSlideOptions(Theme.OptionsNetwork.SelectUsername, 1, IUsername, CurrentUserIndex);
     //UpdateSelectSlideOptions(Theme.OptionsNetwork.SelectPassword, 2, IPassword, CurrentUserIndex);
     UpdateUsernameSettings;
@@ -658,8 +620,6 @@ begin
   begin
     // Show Text Insert User
     Text[TextInsertUser_Warning].Visible := true;
-
-    SelectsS[1].ShowArrows := false;
     for I := 1 to 7 do
       SelectsS[I].Visible := false;
     Interaction := 0;

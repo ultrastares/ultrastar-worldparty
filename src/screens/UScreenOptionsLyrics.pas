@@ -114,17 +114,8 @@ begin
   inherited Create;
 
   LoadFromTheme(Theme.OptionsLyrics);
-
-  Theme.OptionsLyrics.SelectLyricsFont.showArrows := true;
-  Theme.OptionsLyrics.SelectLyricsFont.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsLyrics.SelectLyricsFont, UIni.Ini.LyricsFont, UIni.ILyricsFont, 'OPTION_VALUE_');
-
-  Theme.OptionsLyrics.SelectLyricsEffect.showArrows := true;
-  Theme.OptionsLyrics.SelectLyricsEffect.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsLyrics.SelectLyricsEffect, UIni.Ini.LyricsEffect, UIni.ILyricsEffect, 'OPTION_VALUE_');
-
-  Theme.OptionsLyrics.SelectNoteLines.showArrows := true;
-  Theme.OptionsLyrics.SelectNoteLines.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsLyrics.SelectNoteLines, UIni.Ini.NoteLines, UIni.INoteLines, 'OPTION_VALUE_');
 
   AddButton(Theme.OptionsLyrics.ButtonExit);

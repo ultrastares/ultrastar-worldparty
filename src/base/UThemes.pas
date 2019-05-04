@@ -181,8 +181,8 @@ type
 
     TextSize: integer;
 
-    showArrows:boolean;
-    oneItemOnly:boolean;
+    ShowArrows:boolean;
+    OneItemOnly:boolean;
 
     Text:   UTF8String;
     ColR,  ColG,  ColB,  Int:     real;
@@ -2819,55 +2819,72 @@ begin
 end;
 
 procedure TTheme.ThemeLoadSelectSlide(var ThemeSelectS: TThemeSelectSlide; const Name: string);
+var
+  TempString: string;
+  TempInt: integer;
 begin
-  ThemeSelectS.Text := Language.Translate(ThemeIni.ReadString(Name, 'Text', ''));
+  Self.SetInheritance(Name);
+  Self.ReadProperty(Name, 'Text', '', TempString);
+  ThemeSelectS.Text := ULanguage.Language.Translate(TempString);
 
-  ThemeSelectS.Tex := {Skin.SkinPath + }ThemeIni.ReadString(Name, 'Tex', '');
-  ThemeSelectS.Typ := ParseTextureType(ThemeIni.ReadString(Name, 'Type', ''), TEXTURE_TYPE_PLAIN);
-  ThemeSelectS.TexSBG := {Skin.SkinPath + }ThemeIni.ReadString(Name, 'TexSBG', '');
-  ThemeSelectS.TypSBG := ParseTextureType(ThemeIni.ReadString(Name, 'TypeSBG', ''), TEXTURE_TYPE_PLAIN);
+  Self.ReadProperty(Name, 'Tex', '', ThemeSelectS.Tex);
+  Self.ReadProperty(Name, 'Type', '', TempString);
+  ThemeSelectS.Typ := UTexture.ParseTextureType(TempString, TEXTURE_TYPE_PLAIN);
+  if TempString = '' then
+    ULog.Log.LogError('no texture type for ' + Name + ' found.', 'TTheme.ThemeLoadSelectSlide');
 
-  ThemeSelectS.X := ThemeIni.ReadInteger(Name, 'X', 0);
-  ThemeSelectS.Y := ThemeIni.ReadInteger(Name, 'Y', 0);
-  ThemeSelectS.W := ThemeIni.ReadInteger(Name, 'W', 0);
-  ThemeSelectS.H := ThemeIni.ReadInteger(Name, 'H', 0);
+  Self.ReadProperty(Name, 'TexSBG', '', ThemeSelectS.TexSBG);
+  Self.ReadProperty(Name, 'TypeSBG', '', TempString);
+  ThemeSelectS.TypSBG := ParseTextureType(TempString, TEXTURE_TYPE_PLAIN);
 
-  ThemeSelectS.Z := ThemeIni.ReadFloat(Name, 'Z', 0);
+  Self.ReadProperty(Name, 'X', 0, ThemeSelectS.X);
+  Self.ReadProperty(Name, 'Y', 0, ThemeSelectS.Y);
+  Self.ReadProperty(Name, 'Z', 0, ThemeSelectS.Z);
+  Self.ReadProperty(Name, 'W', 0, ThemeSelectS.W);
+  Self.ReadProperty(Name, 'H', 0, ThemeSelectS.H);
+  Self.ReadProperty(Name, 'TextSize', 30, ThemeSelectS.TextSize);
+  Self.ReadProperty(Name, 'SkipX', 0, ThemeSelectS.SkipX);
+  Self.ReadProperty(Name, 'SBGW', 400, ThemeSelectS.SBGW);
 
-  ThemeSelectS.TextSize := ThemeIni.ReadInteger(Name, 'TextSize', 30);
+  Self.ReadProperty(Name, 'Color', '', TempString);
+  LoadColor(ThemeSelectS.ColR, ThemeSelectS.ColG,  ThemeSelectS.ColB, TempString);
+  Self.ReadProperty(Name, 'Int', 1, ThemeSelectS.Int);
+  Self.ReadProperty(Name, 'DColor', '', TempString);
+  LoadColor(ThemeSelectS.DColR, ThemeSelectS.DColG,  ThemeSelectS.DColB, TempString);
+  Self.ReadProperty(Name, 'DInt', 1, ThemeSelectS.DInt);
 
-  ThemeSelectS.SkipX := ThemeIni.ReadInteger(Name, 'SkipX', 0);
+  Self.ReadProperty(Name, 'TColor', '', TempString);
+  LoadColor(ThemeSelectS.TColR, ThemeSelectS.TColG,  ThemeSelectS.TColB, TempString);
+  Self.ReadProperty(Name, 'TInt', 1, ThemeSelectS.TInt);
+  Self.ReadProperty(Name, 'TDColor', '', TempString);
+  LoadColor(ThemeSelectS.TDColR, ThemeSelectS.TDColG,  ThemeSelectS.TDColB, TempString);
+  Self.ReadProperty(Name, 'TDInt', 1, ThemeSelectS.TDInt);
 
-  ThemeSelectS.SBGW := ThemeIni.ReadInteger(Name, 'SBGW', 400);
+  Self.ReadProperty(Name, 'SBGColor', '', TempString);
+  LoadColor(ThemeSelectS.SBGColR, ThemeSelectS.SBGColG,  ThemeSelectS.SBGColB, TempString);
+  Self.ReadProperty(Name, 'SBGInt', 1, ThemeSelectS.SBGInt);
+  Self.ReadProperty(Name, 'SBGDColor', '', TempString);
+  LoadColor(ThemeSelectS.SBGDColR, ThemeSelectS.SBGDColG,  ThemeSelectS.SBGDColB, TempString);
+  Self.ReadProperty(Name, 'SBGDInt', 1, ThemeSelectS.SBGDInt);
 
-  LoadColor(ThemeSelectS.ColR, ThemeSelectS.ColG,  ThemeSelectS.ColB, ThemeIni.ReadString(Name, 'Color', ''));
-  ThemeSelectS.Int :=  ThemeIni.ReadFloat(Name, 'Int', 1);
-  LoadColor(ThemeSelectS.DColR, ThemeSelectS.DColG,  ThemeSelectS.DColB, ThemeIni.ReadString(Name, 'DColor', ''));
-  ThemeSelectS.DInt :=  ThemeIni.ReadFloat(Name, 'DInt', 1);
+  Self.ReadProperty(Name, 'STColor', '', TempString);
+  LoadColor(ThemeSelectS.STColR, ThemeSelectS.STColG,  ThemeSelectS.STColB, TempString);
+  Self.ReadProperty(Name, 'STInt', 1, ThemeSelectS.STInt);
+  Self.ReadProperty(Name, 'STDColor', '', TempString);
+  LoadColor(ThemeSelectS.STDColR, ThemeSelectS.STDColG,  ThemeSelectS.STDColB, TempString);
+  Self.ReadProperty(Name, 'STDInt', 1, ThemeSelectS.STDInt);
 
-  LoadColor(ThemeSelectS.TColR, ThemeSelectS.TColG,  ThemeSelectS.TColB, ThemeIni.ReadString(Name, 'TColor', ''));
-  ThemeSelectS.TInt :=  ThemeIni.ReadFloat(Name, 'TInt', 1);
-  LoadColor(ThemeSelectS.TDColR, ThemeSelectS.TDColG,  ThemeSelectS.TDColB, ThemeIni.ReadString(Name, 'TDColor', ''));
-  ThemeSelectS.TDInt :=  ThemeIni.ReadFloat(Name, 'TDInt', 1);
 
-  LoadColor(ThemeSelectS.SBGColR, ThemeSelectS.SBGColG,  ThemeSelectS.SBGColB, ThemeIni.ReadString(Name, 'SBGColor', ''));
-  ThemeSelectS.SBGInt :=  ThemeIni.ReadFloat(Name, 'SBGInt', 1);
-  LoadColor(ThemeSelectS.SBGDColR, ThemeSelectS.SBGDColG,  ThemeSelectS.SBGDColB, ThemeIni.ReadString(Name, 'SBGDColor', ''));
-  ThemeSelectS.SBGDInt :=  ThemeIni.ReadFloat(Name, 'SBGDInt', 1);
-
-  LoadColor(ThemeSelectS.STColR, ThemeSelectS.STColG,  ThemeSelectS.STColB, ThemeIni.ReadString(Name, 'STColor', ''));
-  ThemeSelectS.STInt :=  ThemeIni.ReadFloat(Name, 'STInt', 1);
-  LoadColor(ThemeSelectS.STDColR, ThemeSelectS.STDColG,  ThemeSelectS.STDColB, ThemeIni.ReadString(Name, 'STDColor', ''));
-  ThemeSelectS.STDInt :=  ThemeIni.ReadFloat(Name, 'STDInt', 1);
-
-  ThemeSelectS.showArrows := (ThemeIni.ReadInteger(Name, 'ShowArrows', 0) = 1);
-  ThemeSelectS.oneItemOnly := (ThemeIni.ReadInteger(Name, 'OneItemOnly', 0) = 1);
+  Self.ReadProperty(Name, 'ShowArrows', -1, TempInt);
+  ThemeSelectS.showArrows := TempInt = 1;
+  Self.ReadProperty(Name, 'OneItemOnly', -1, TempInt);
+  ThemeSelectS.oneItemOnly := TempInt = 1;
 end;
 
 procedure TTheme.ThemeLoadEqualizer(var ThemeEqualizer: TThemeEqualizer; const Name: string);
 var
   I: integer;
-  TmpString: string;
+  TempString: string;
 begin
   Self.SetInheritance(Name);
   Self.ReadProperty(Name, 'Visible', 1, I);
@@ -2886,8 +2903,8 @@ begin
   Self.ReadProperty(Name, 'Reflection', 0, I);
   ThemeEqualizer.Reflection := I = 1;
   Self.ReadProperty(Name, 'ReflectionSpacing', 15, ThemeEqualizer.ReflectionSpacing);
-  Self.ReadProperty(Name, 'Color', 'Black', TmpString);
-  I := ColorExists(TmpString);
+  Self.ReadProperty(Name, 'Color', 'Black', TempString);
+  I := ColorExists(TempString);
   if I >= 0 then
   begin
     ThemeEqualizer.ColR := Color[I].RGB.R;

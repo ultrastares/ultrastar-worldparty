@@ -137,37 +137,16 @@ begin
   inherited Create;
 
   LoadFromTheme(Theme.OptionsSound);
-
-  Theme.OptionsSound.SelectSlideVoicePassthrough.showArrows := true;
-  Theme.OptionsSound.SelectSlideVoicePassthrough.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsSound.SelectSlideVoicePassthrough, UIni.Ini.VoicePassthrough, UIni.IVoicePassthrough, 'OPTION_VALUE_');
-
-  Theme.OptionsSound.SelectBackgroundMusic.showArrows := true;
-  Theme.OptionsSound.SelectBackgroundMusic.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsSound.SelectBackgroundMusic, UIni.Ini.BackgroundMusicOption, UIni.IBackgroundMusic, 'OPTION_VALUE_');
-
-  Theme.OptionsSound.SelectClickAssist.showArrows := true;
-  Theme.OptionsSound.SelectClickAssist.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsSound.SelectClickAssist, UIni.Ini.ClickAssist, UIni.IClickAssist, 'OPTION_VALUE_');
-
-  Theme.OptionsSound.SelectBeatClick.showArrows := true;
-  Theme.OptionsSound.SelectBeatClick.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsSound.SelectBeatClick, UIni.Ini.BeatClick, UIni.IBeatClick, 'OPTION_VALUE_');
-
-  Theme.OptionsSound.SelectSlideMusicAutoGain.showArrows := true;
-  Theme.OptionsSound.SelectSlideMusicAutoGain.oneItemOnly := true;
   IMusicAutoGainTranslated := UIni.IMusicAutoGain;
   for I := 1 to High(UIni.IMusicAutoGain) do
     IMusicAutoGainTranslated[I] := 'GAIN_'+IMusicAutoGainTranslated[I];
 
   AddSelectSlide(Theme.OptionsSound.SelectSlideMusicAutoGain, UIni.Ini.MusicAutoGain, IMusicAutoGainTranslated, 'OPTION_VALUE_');
-
-  Theme.OptionsSound.SelectSlidePreviewVolume.showArrows := true;
-  Theme.OptionsSound.SelectSlidePreviewVolume.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsSound.SelectSlidePreviewVolume, UIni.Ini.PreviewVolume, UIni.IPreviewVolume);
-
-  Theme.OptionsSound.SelectSlidePreviewFading.showArrows := true;
-  Theme.OptionsSound.SelectSlidePreviewFading.oneItemOnly := true;
   IPreviewFadingTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_OFF');
   IPreviewFadingTranslated[1] := '1 '+LowerCase(ULanguage.Language.Translate('OPTION_VALUE_SEC'));
   IPreviewFadingTranslated[2] := '2 '+LowerCase(ULanguage.Language.Translate('OPTION_VALUE_SECS'));

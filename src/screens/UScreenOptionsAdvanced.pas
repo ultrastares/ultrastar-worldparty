@@ -122,33 +122,12 @@ begin
   inherited Create;
 
   LoadFromTheme(Theme.OptionsAdvanced);
-
-  Theme.OptionsAdvanced.SelectDebug.showArrows  := true;
-  Theme.OptionsAdvanced.SelectDebug.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsAdvanced.SelectDebug, UIni.Ini.Debug, UIni.IDebug, 'OPTION_VALUE_');
-
-  Theme.OptionsAdvanced.SelectOscilloscope.showArrows := true;
-  Theme.OptionsAdvanced.SelectOscilloscope.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsAdvanced.SelectOscilloscope, UIni.Ini.Oscilloscope, UIni.IOscilloscope, 'OPTION_VALUE_');
-
-  Theme.OptionsAdvanced.SelectOnSongClick.showArrows := true;
-  Theme.OptionsAdvanced.SelectOnSongClick.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsAdvanced.SelectOnSongClick, UIni.Ini.OnSongClick, UIni.IOnSongClick, 'OPTION_VALUE_');
-
-  Theme.OptionsAdvanced.SelectAskbeforeDel.showArrows := true;
-  Theme.OptionsAdvanced.SelectAskbeforeDel.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsAdvanced.SelectAskbeforeDel, UIni.Ini.AskBeforeDel, UIni.IAskbeforeDel, 'OPTION_VALUE_');
-
-  Theme.OptionsAdvanced.SelectPartyPopup.showArrows := true;
-  Theme.OptionsAdvanced.SelectPartyPopup.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsAdvanced.SelectPartyPopup, UIni.Ini.PartyPopup, UIni.IPartyPopup, 'OPTION_VALUE_');
-
-  Theme.OptionsAdvanced.SelectSingScores.showArrows := true;
-  Theme.OptionsAdvanced.SelectSingScores.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsAdvanced.SelectSingScores, UIni.Ini.SingScores, UIni.ISingScores, 'OPTION_VALUE_');
-
-  Theme.OptionsAdvanced.SelectTopScores.showArrows := true;
-  Theme.OptionsAdvanced.SelectTopScores.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsAdvanced.SelectTopScores, UIni.Ini.TopScores, UIni.ITopScores, 'OPTION_VALUE_');
 
   AddButton(Theme.OptionsAdvanced.ButtonExit);
