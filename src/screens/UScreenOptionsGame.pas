@@ -167,13 +167,14 @@ begin
   ULanguage.Language.ChangeLanguage(ILanguage[Ini.Language]);
   UThemes.Theme.OptionsGame.SelectLanguage.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_LANGUAGE');
   UThemes.Theme.OptionsGame.SelectSongMenu.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SONGMENU');
+  UThemes.Theme.OptionsGame.SelectDuets.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_DUETS');
   UThemes.Theme.OptionsGame.SelectTabs.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_TABS');
   UThemes.Theme.OptionsGame.SelectSorting.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SORTING');
   UThemes.Theme.OptionsGame.SelectShowScores.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SHOWSCORES');
   UThemes.Theme.OptionsGame.SelectJoypad.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_JOYPAD_SUPPORT');
-  // UThemes.Theme.OptionsGame.ButtonExit.Text[0].Text := ULanguage.Language.Translate('SING_OPTIONS_EXIT'); //FIXME idk why silently fails
+  UThemes.Theme.OptionsGame.ButtonExit.Text[0].Text := ULanguage.Language.Translate('SING_OPTIONS_EXIT');
   UGraphic.ScreenOptionsGame.Free();
-  UGraphic.ScreenOptionsGame := TScreenOptionsGame.Create;
+  UGraphic.ScreenOptionsGame := TScreenOptionsGame.Create();
 end;
 
 end.
