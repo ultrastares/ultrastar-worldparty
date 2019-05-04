@@ -2894,24 +2894,29 @@ begin
 end;
 
 procedure TTheme.ThemeLoadEqualizer(var ThemeEqualizer: TThemeEqualizer; const Name: string);
-var I: integer;
+var
+  I: integer;
+  TmpString: string;
 begin
-  ThemeEqualizer.Visible := (ThemeIni.ReadInteger(Name, 'Visible', 0) = 1);
-  ThemeEqualizer.Direction := (ThemeIni.ReadInteger(Name, 'Direction', 0) = 1);
-  ThemeEqualizer.Alpha := ThemeIni.ReadInteger(Name, 'Alpha', 1);
-  ThemeEqualizer.Space := ThemeIni.ReadInteger(Name, 'Space', 1);
-  ThemeEqualizer.X := ThemeIni.ReadInteger(Name, 'X', 0);
-  ThemeEqualizer.Y := ThemeIni.ReadInteger(Name, 'Y', 0);
-  ThemeEqualizer.Z := ThemeIni.ReadInteger(Name, 'Z', 1);
-  ThemeEqualizer.W := ThemeIni.ReadInteger(Name, 'PieceW', 8);
-  ThemeEqualizer.H := ThemeIni.ReadInteger(Name, 'PieceH', 8);
-  ThemeEqualizer.Bands := ThemeIni.ReadInteger(Name, 'Bands', 5);
-  ThemeEqualizer.Length := ThemeIni.ReadInteger(Name, 'Length', 12);
-  ThemeEqualizer.Reflection := (ThemeIni.ReadInteger(Name, 'Reflection', 0) = 1);
-  ThemeEqualizer.ReflectionSpacing := ThemeIni.ReadFloat(Name, 'ReflectionSpacing', 15);
-
-  //Color
-  I := ColorExists(ThemeIni.ReadString(Name, 'Color', 'Black'));
+  Self.SetInheritance(Name);
+  Self.ReadProperty(Name, 'Visible', 1, I);
+  ThemeEqualizer.Visible := I = 1;
+  Self.ReadProperty(Name, 'Direction', 1, I);
+  ThemeEqualizer.Direction := I = 1;
+  Self.ReadProperty(Name, 'Alpha', 1, ThemeEqualizer.Alpha);
+  Self.ReadProperty(Name, 'Space', 1, ThemeEqualizer.Space);
+  Self.ReadProperty(Name, 'X', 0, ThemeEqualizer.X);
+  Self.ReadProperty(Name, 'Y', 0, ThemeEqualizer.Y);
+  Self.ReadProperty(Name, 'Z', 1, ThemeEqualizer.Z);
+  Self.ReadProperty(Name, 'W', 8, ThemeEqualizer.W);
+  Self.ReadProperty(Name, 'H', 8, ThemeEqualizer.H);
+  Self.ReadProperty(Name, 'Bands', 5, ThemeEqualizer.Bands);
+  Self.ReadProperty(Name, 'Length', 12, ThemeEqualizer.Length);
+  Self.ReadProperty(Name, 'Reflection', 0, I);
+  ThemeEqualizer.Reflection := I = 1;
+  Self.ReadProperty(Name, 'ReflectionSpacing', 15, ThemeEqualizer.ReflectionSpacing);
+  Self.ReadProperty(Name, 'Color', 'Black', TmpString);
+  I := ColorExists(TmpString);
   if I >= 0 then
   begin
     ThemeEqualizer.ColR := Color[I].RGB.R;
