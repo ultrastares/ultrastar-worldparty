@@ -1306,7 +1306,7 @@ type
     ILevel: array[0..2] of UTF8String;
     IMode:  array[0..2] of UTF8String;
 
-    constructor Create;
+    constructor Create();
 
     procedure LoadList;
 
@@ -1326,16 +1326,6 @@ type
     procedure ThemeLoadSelectSlide(var ThemeSelectS: TThemeSelectSlide; const Name: string);
     procedure ThemeLoadEqualizer(var ThemeEqualizer: TThemeEqualizer; const Name: string);
     procedure ThemeLoadPosition(var ThemePosition: TThemePosition; const Name: string);
-
-    procedure ThemeSave(const FileName: string);
-    procedure ThemeSaveBasic(Theme: TThemeBasic; const Name: string);
-    procedure ThemeSaveBackground(ThemeBackground: TThemeBackground; const Name: string);
-    procedure ThemeSaveStatic(ThemeStatic: TThemeStatic; const Name: string);
-    procedure ThemeSaveStatics(ThemeStatic: AThemeStatic; const Name: string);
-    procedure ThemeSaveText(ThemeText: TThemeText; const Name: string);
-    procedure ThemeSaveTexts(ThemeText: AThemeText; const Name: string);
-    procedure ThemeSaveButton(ThemeButton: TThemeButton; const Name: string);
-
     procedure ThemeScoreLoad;
     procedure ThemePartyLoad;
     procedure ThemeSongLoad;
@@ -1411,63 +1401,9 @@ begin
   glColor4f(Color.R, Color.G, Color.B, Min(Color.A, Alpha));
 end;
 
-constructor TTheme.Create;
+constructor TTheme.Create();
 begin
   inherited Create();
-
-  Loading := TThemeLoading.Create;
-  Main := TThemeMain.Create;
-  Self.PlayerSelector := TThemePlayerSelector.Create;
-  Song := TThemeSong.Create;
-  Sing := TThemeSing.Create;
-  Score := TThemeScore.Create;
-  Top5 := TThemeTop5.Create;
-  Options := TThemeOptions.Create;
-  OptionsGame := TThemeOptionsGame.Create;
-  OptionsGraphics := TThemeOptionsGraphics.Create;
-  OptionsSound := TThemeOptionsSound.Create;
-  OptionsLyrics := TThemeOptionsLyrics.Create;
-  OptionsThemes := TThemeOptionsThemes.Create;
-  OptionsMicrophones := TThemeOptionsMicrophones.Create;
-  OptionsAdvanced := TThemeOptionsAdvanced.Create;
-  OptionsNetwork := TThemeOptionsNetwork.Create;
-  OptionsWebcam := TThemeOptionsWebcam.Create;
-  OptionsJukebox := TThemeOptionsJukebox.Create;
-
-  ErrorPopup := TThemeError.Create;
-  CheckPopup := TThemeCheck.Create;
-  InsertUserPopup := TThemeInsertUser.Create;
-  SendScorePopup := TThemeSendScore.Create;
-  ScoreDownloadPopup := TThemeScoreDownload.Create;
-
-  SongMenu := TThemeSongMenu.Create;
-  SongJumpto := TThemeSongJumpto.Create;
-
-  //Party Screens
-  PartyNewRound := TThemePartyNewRound.Create;
-  PartyWin := TThemePartyWin.Create;
-  PartyScore := TThemePartyScore.Create;
-  PartyOptions := TThemePartyOptions.Create;
-  PartyPlayer := TThemePartyPlayer.Create;
-  PartyRounds := TThemePartyRounds.Create;
-
-  // Tournament
-  PartyTournamentPlayer := TThemePartyTournamentPlayer.Create;
-  PartyTournamentOptions := TThemePartyTournamentOptions.Create;
-  PartyTournamentRounds := TThemePartyTournamentRounds.Create;
-  PartyTournamentWin := TThemePartyTournamentWin.Create;
-
-  // About
-  AboutMain :=   TThemeAboutMain.Create;
-  Developers :=   TThemeDevelopers.Create;
-
-  //Stats Screens:
-  StatMain :=   TThemeStatMain.Create;
-  StatDetail := TThemeStatDetail.Create;
-
-  JukeboxPlaylist := TThemeJukeboxPlaylist.Create;
-
-  //LoadTheme(FileName, Color);
   LoadList;
 end;
 
@@ -2933,7 +2869,7 @@ var
   C:      integer;
   S:      string;
 begin
-  SL := TStringList.Create;
+  SL := TStringList.Create();
   ThemeIni.ReadSection('Colors', SL);
 
   // normal colors
@@ -3810,217 +3746,6 @@ begin
   Result := GetPlayerColor(Color);
 end;
 
-procedure TTheme.ThemeSave(const FileName: string);
-begin
-  {$IFDEF THEMESAVE}
-  ThemeIni := TIniFile.Create(FileName);
-  {$ELSE}
-  ThemeIni := TMemIniFile.Create(FileName);
-  {$ENDIF}
-
-  ThemeSaveBasic(Loading, 'Loading');
-
-  ThemeSaveBasic(Main, 'Main');
-  ThemeSaveText(Main.TextDescription, 'MainTextDescription');
-  ThemeSaveText(Main.TextDescriptionLong, 'MainTextDescriptionLong');
-  ThemeSaveButton(Main.ButtonSolo, 'MainButtonSolo');
-
-  ThemeSaveButton(Main.ButtonOptions, 'MainButtonOptions');
-  ThemeSaveButton(Main.ButtonExit, 'MainButtonExit');
-
-  ThemeSaveBasic(PlayerSelector, 'Name');
-
-  //ThemeSaveButton(Name.PlayerName, 'NameButtonPlayer');
-
-  ThemeSaveBasic(Song, 'Song');
-  ThemeSaveText(Song.TextArtist, 'SongTextArtist');
-  ThemeSaveText(Song.TextTitle, 'SongTextTitle');
-  ThemeSaveText(Song.TextNoSongs, 'SongTextNoSongs');
-  ThemeSaveText(Song.TextNumber, 'SongTextNumber');
-
-  //Show CAt in Top Left Mod
-  ThemeSaveText(Song.TextCat, 'SongTextCat');
-
-  ThemeSaveBasic(Sing, 'Sing');
-
-  //TimeBar mod
-  ThemeSaveStatic(Sing.StaticTimeProgress, 'SingTimeProgress');
-  ThemeSaveText(Sing.TextTimeText, 'SingTimeText');
-  //eoa TimeBar mod
-
-  ThemeSaveStatic(Sing.StaticP1, 'SingP1Static');
-  ThemeSaveText(Sing.TextP1, 'SingP1Text');
-  ThemeSaveStatic(Sing.StaticP1ScoreBG, 'SingP1Static2');
-  ThemeSaveText(Sing.TextP1Score, 'SingP1TextScore');
-
-  //moveable singbar mod
-  ThemeSaveStatic(Sing.StaticP1SingBar, 'SingP1SingBar');
-  ThemeSaveStatic(Sing.StaticP1TwoPSingBar, 'SingP1TwoPSingBar');
-  ThemeSaveStatic(Sing.StaticP1ThreePSingBar, 'SingP1ThreePSingBar');
-  ThemeSaveStatic(Sing.StaticP2RSingBar, 'SingP2RSingBar');
-  ThemeSaveStatic(Sing.StaticP2MSingBar, 'SingP2MSingBar');
-  ThemeSaveStatic(Sing.StaticP3SingBar, 'SingP3SingBar');
-  //eoa moveable singbar
-
-  //Added for ps3 skin
-  //This one is shown in 2/4P mode
-  ThemeSaveStatic(Sing.StaticP1TwoP, 'SingP1TwoPStatic');
-  ThemeSaveText(Sing.TextP1TwoP, 'SingP1TwoPText');
-  ThemeSaveStatic(Sing.StaticP1TwoPScoreBG, 'SingP1TwoPStatic2');
-  ThemeSaveText(Sing.TextP1TwoPScore, 'SingP1TwoPTextScore');
-
-  //This one is shown in 3/6P mode
-  ThemeSaveStatic(Sing.StaticP1ThreeP, 'SingP1ThreePStatic');
-  ThemeSaveText(Sing.TextP1ThreeP, 'SingP1ThreePText');
-  ThemeSaveStatic(Sing.StaticP1ThreePScoreBG, 'SingP1ThreePStatic2');
-  ThemeSaveText(Sing.TextP1ThreePScore, 'SingP1ThreePTextScore');
-  //eoa
-
-  ThemeSaveStatic(Sing.StaticP2R, 'SingP2RStatic');
-  ThemeSaveText(Sing.TextP2R, 'SingP2RText');
-  ThemeSaveStatic(Sing.StaticP2RScoreBG, 'SingP2RStatic2');
-  ThemeSaveText(Sing.TextP2RScore, 'SingP2RTextScore');
-
-  ThemeSaveStatic(Sing.StaticP2M, 'SingP2MStatic');
-  ThemeSaveText(Sing.TextP2M, 'SingP2MText');
-  ThemeSaveStatic(Sing.StaticP2MScoreBG, 'SingP2MStatic2');
-  ThemeSaveText(Sing.TextP2MScore, 'SingP2MTextScore');
-
-  ThemeSaveStatic(Sing.StaticP3R, 'SingP3RStatic');
-  ThemeSaveText(Sing.TextP3R, 'SingP3RText');
-  ThemeSaveStatic(Sing.StaticP3RScoreBG, 'SingP3RStatic2');
-  ThemeSaveText(Sing.TextP3RScore, 'SingP3RTextScore');
-
-  ThemeSaveBasic(Score, 'Score');
-  ThemeSaveText(Score.TextArtist, 'ScoreTextArtist');
-  ThemeSaveText(Score.TextTitle, 'ScoreTextTitle');
-
-  ThemeSaveBasic(Top5, 'Top5');
-  ThemeSaveText(Top5.TextLevel, 'Top5TextLevel');
-  ThemeSaveText(Top5.TextArtistTitle, 'Top5TextArtistTitle');
-  ThemeSaveStatics(Top5.StaticNumber, 'Top5StaticNumber');
-  ThemeSaveTexts(Top5.TextNumber, 'Top5TextNumber');
-  ThemeSaveTexts(Top5.TextName, 'Top5TextName');
-  ThemeSaveTexts(Top5.TextScore, 'Top5TextScore');
-
-  ThemeIni.Free;
-end;
-
-procedure TTheme.ThemeSaveBasic(Theme: TThemeBasic; const Name: string);
-begin
-  ThemeIni.WriteInteger(Name, 'Texts', Length(Theme.Text));
-
-  ThemeSaveBackground(Theme.Background, Name + 'Background');
-  ThemeSaveStatics(Theme.Statics, Name + 'Static');
-  ThemeSaveTexts(Theme.Text, Name + 'Text');
-end;
-
-procedure TTheme.ThemeSaveBackground(ThemeBackground: TThemeBackground; const Name: string);
-begin
-  if ThemeBackground.Tex <> '' then
-    ThemeIni.WriteString(Name, 'Tex', ThemeBackground.Tex)
-  else
-  begin
-    ThemeIni.EraseSection(Name);
-  end;
-end;
-
-procedure TTheme.ThemeSaveStatic(ThemeStatic: TThemeStatic; const Name: string);
-begin
-  ThemeIni.WriteInteger(Name, 'X', ThemeStatic.X);
-  ThemeIni.WriteInteger(Name, 'Y', ThemeStatic.Y);
-  ThemeIni.WriteInteger(Name, 'W', ThemeStatic.W);
-  ThemeIni.WriteInteger(Name, 'H', ThemeStatic.H);
-
-  ThemeIni.WriteString(Name, 'Tex', ThemeStatic.Tex);
-  ThemeIni.WriteString(Name, 'Type', TextureTypeToStr(ThemeStatic.Typ));
-  ThemeIni.WriteString(Name, 'Color', ThemeStatic.Color);
-
-  ThemeIni.WriteFloat(Name, 'TexX1', ThemeStatic.TexX1);
-  ThemeIni.WriteFloat(Name, 'TexY1', ThemeStatic.TexY1);
-  ThemeIni.WriteFloat(Name, 'TexX2', ThemeStatic.TexX2);
-  ThemeIni.WriteFloat(Name, 'TexY2', ThemeStatic.TexY2);
-end;
-
-procedure TTheme.ThemeSaveStatics(ThemeStatic: AThemeStatic; const Name: string);
-var
-  S: integer;
-begin
-  for S := 0 to Length(ThemeStatic)-1 do
-    ThemeSaveStatic(ThemeStatic[S], Name + {'Static' +} IntToStr(S+1));
-
-  ThemeIni.EraseSection(Name + {'Static' + }IntToStr(S+1));
-end;
-
-procedure TTheme.ThemeSaveText(ThemeText: TThemeText; const Name: string);
-begin
-  ThemeIni.WriteInteger(Name, 'X', ThemeText.X);
-  ThemeIni.WriteInteger(Name, 'Y', ThemeText.Y);
-
-  ThemeIni.WriteInteger(Name, 'Font', ThemeText.Font);
-  ThemeIni.WriteInteger(Name, 'Size', ThemeText.Size);
-  ThemeIni.WriteInteger(Name, 'Align', ThemeText.Align);
-
-  ThemeIni.WriteString(Name, 'Text', ThemeText.Text);
-  ThemeIni.WriteString(Name, 'Color', ThemeText.Color);
-
-  ThemeIni.WriteBool(Name, 'Reflection', ThemeText.Reflection);
-  ThemeIni.WriteFloat(Name, 'ReflectionSpacing', ThemeText.ReflectionSpacing);
-end;
-
-procedure TTheme.ThemeSaveTexts(ThemeText: AThemeText; const Name: string);
-var
-  T: integer;
-begin
-  for T := 0 to Length(ThemeText)-1 do
-    ThemeSaveText(ThemeText[T], Name + {'Text' + }IntToStr(T+1));
-
-  ThemeIni.EraseSection(Name + {'Text' + }IntToStr(T+1));
-end;
-
-procedure TTheme.ThemeSaveButton(ThemeButton: TThemeButton; const Name: string);
-var
-  T: integer;
-begin
-  ThemeIni.WriteString(Name, 'Tex', ThemeButton.Tex);
-  ThemeIni.WriteInteger(Name, 'X', ThemeButton.X);
-  ThemeIni.WriteInteger(Name, 'Y', ThemeButton.Y);
-  ThemeIni.WriteInteger(Name, 'W', ThemeButton.W);
-  ThemeIni.WriteInteger(Name, 'H', ThemeButton.H);
-  ThemeIni.WriteString(Name, 'Type', TextureTypeToStr(ThemeButton.Typ));
-  ThemeIni.WriteInteger(Name, 'Texts', Length(ThemeButton.Text));
-
-  ThemeIni.WriteString(Name, 'Color', ThemeButton.Color);
-
-{  ThemeButton.ColR := ThemeIni.ReadFloat(Name, 'ColR', 1);
-  ThemeButton.ColG := ThemeIni.ReadFloat(Name, 'ColG', 1);
-  ThemeButton.ColB := ThemeIni.ReadFloat(Name, 'ColB', 1);
-  ThemeButton.Int :=  ThemeIni.ReadFloat(Name, 'Int', 1);
-  ThemeButton.DColR := ThemeIni.ReadFloat(Name, 'DColR', 1);
-  ThemeButton.DColG := ThemeIni.ReadFloat(Name, 'DColG', 1);
-  ThemeButton.DColB := ThemeIni.ReadFloat(Name, 'DColB', 1);
-  ThemeButton.DInt :=  ThemeIni.ReadFloat(Name, 'DInt', 1);}
-
-{  C := ColorExists(ThemeIni.ReadString(Name, 'Color', ''));
-  if C >= 0 then
-  begin
-    ThemeButton.ColR := Color[C].RGB.R;
-    ThemeButton.ColG := Color[C].RGB.G;
-    ThemeButton.ColB := Color[C].RGB.B;
-  end;
-
-  C := ColorExists(ThemeIni.ReadString(Name, 'DColor', ''));
-  if C >= 0 then
-  begin
-    ThemeButton.DColR := Color[C].RGB.R;
-    ThemeButton.DColG := Color[C].RGB.G;
-    ThemeButton.DColB := Color[C].RGB.B;
-  end;}
-
-  for T := 0 to High(ThemeButton.Text) do
-    ThemeSaveText(ThemeButton.Text[T], Name + 'Text' + IntToStr(T+1));
-end;
-
 procedure TTheme.ThemePartyLoad;
 begin
 
@@ -4394,116 +4119,47 @@ end;
 
 procedure TTheme.CreateThemeObjects();
 begin
-  freeandnil(Loading);
-  Loading := TThemeLoading.Create;
-
-  freeandnil(Main);
-  Main := TThemeMain.Create;
-
-  FreeAndNil(PlayerSelector);
-  Self.PlayerSelector := TThemePlayerSelector.Create;
-
-  freeandnil(Song);
-  Song := TThemeSong.Create;
-
-  freeandnil(Sing);
-  Sing := TThemeSing.Create;
-
-  freeandnil(Jukebox);
-  Jukebox := TThemeJukebox.Create;
-
-  freeandnil(JukeboxPlaylist);
-  JukeboxPlaylist := TThemeJukeboxPlaylist.Create;
-
-  freeandnil(AboutMain);
-  AboutMain := TThemeAboutMain.Create;
-
-  freeandnil(Developers);
-  Developers := TThemeDevelopers.Create;
-
-  freeandnil(Score);
-  Score := TThemeScore.Create;
-
-  freeandnil(Top5);
-  Top5 := TThemeTop5.Create;
-
-  freeandnil(Options);
-  Options := TThemeOptions.Create;
-
-  freeandnil(OptionsGame);
-  OptionsGame := TThemeOptionsGame.Create;
-
-  freeandnil(OptionsGraphics);
-  OptionsGraphics := TThemeOptionsGraphics.Create;
-
-  freeandnil(OptionsSound);
-  OptionsSound := TThemeOptionsSound.Create;
-
-  freeandnil(OptionsLyrics);
-  OptionsLyrics := TThemeOptionsLyrics.Create;
-
-  freeandnil(OptionsThemes);
-  OptionsThemes := TThemeOptionsThemes.Create;
-
-  freeandnil(OptionsMicrophones);
-  OptionsMicrophones := TThemeOptionsMicrophones.Create;
-
-  freeandnil(OptionsAdvanced);
-  OptionsAdvanced := TThemeOptionsAdvanced.Create;
-
-  freeandnil(OptionsNetwork);
-  OptionsNetwork := TThemeOptionsNetwork.Create;
-
-  freeandnil(OptionsWebcam);
-  OptionsWebcam := TThemeOptionsWebcam.Create;
-
-  freeandnil(OptionsJukebox);
-  OptionsJukebox := TThemeOptionsJukebox.Create;
-
-  freeandnil(ErrorPopup);
-  ErrorPopup := TThemeError.Create;
-
-  freeandnil(CheckPopup);
-  CheckPopup := TThemeCheck.Create;
-
-  freeandnil(InsertUserPopup);
-  InsertUserPopup := TThemeInsertUser.Create;
-
-  freeandnil(SendScorePopup);
-  SendScorePopup := TThemeSendScore.Create;
-
-  freeandnil(ScoreDownloadPopup);
-  ScoreDownloadPopup := TThemeScoreDownload.Create;
-
-  freeandnil(SongMenu);
-  SongMenu := TThemeSongMenu.Create;
-
-  freeandnil(SongJumpto);
-  SongJumpto := TThemeSongJumpto.Create;
-
-  //Party Screens
-  freeandnil(PartyNewRound);
-  PartyNewRound := TThemePartyNewRound.Create;
-
-  freeandnil(PartyWin);
-  PartyWin := TThemePartyWin.Create;
-
-  freeandnil(PartyScore);
-  PartyScore := TThemePartyScore.Create;
-
-  freeandnil(PartyOptions);
-  PartyOptions := TThemePartyOptions.Create;
-
-  freeandnil(PartyPlayer);
-  PartyPlayer := TThemePartyPlayer.Create;
-
-  //Stats Screens:
-  freeandnil(StatMain);
-  StatMain := TThemeStatMain.Create;
-
-  freeandnil(StatDetail);
-  StatDetail := TThemeStatDetail.Create;
-
- end;
+  Self.Loading := TThemeLoading.Create();
+  Self.Main := TThemeMain.Create();
+  Self.PlayerSelector := TThemePlayerSelector.Create();
+  Self.Song := TThemeSong.Create();
+  Self.Sing := TThemeSing.Create();
+  Self.Jukebox := TThemeJukebox.Create();
+  Self.JukeboxPlaylist := TThemeJukeboxPlaylist.Create();
+  Self.AboutMain := TThemeAboutMain.Create();
+  Self.Developers := TThemeDevelopers.Create();
+  Self.Score := TThemeScore.Create();
+  Self.Top5 := TThemeTop5.Create();
+  Self.Options := TThemeOptions.Create();
+  Self.OptionsGame := TThemeOptionsGame.Create();
+  Self.OptionsGraphics := TThemeOptionsGraphics.Create();
+  Self.OptionsSound := TThemeOptionsSound.Create();
+  Self.OptionsLyrics := TThemeOptionsLyrics.Create();
+  Self.OptionsThemes := TThemeOptionsThemes.Create();
+  Self.OptionsMicrophones := TThemeOptionsMicrophones.Create();
+  Self.OptionsAdvanced := TThemeOptionsAdvanced.Create();
+  Self.OptionsNetwork := TThemeOptionsNetwork.Create();
+  Self.OptionsWebcam := TThemeOptionsWebcam.Create();
+  Self.OptionsJukebox := TThemeOptionsJukebox.Create();
+  Self.ErrorPopup := TThemeError.Create();
+  Self.CheckPopup := TThemeCheck.Create();
+  Self.InsertUserPopup := TThemeInsertUser.Create();
+  Self.SendScorePopup := TThemeSendScore.Create();
+  Self.ScoreDownloadPopup := TThemeScoreDownload.Create();
+  Self.SongMenu := TThemeSongMenu.Create();
+  Self.SongJumpto := TThemeSongJumpto.Create();
+  Self.PartyNewRound := TThemePartyNewRound.Create();
+  Self.PartyWin := TThemePartyWin.Create();
+  Self.PartyScore := TThemePartyScore.Create();
+  Self.PartyOptions := TThemePartyOptions.Create();
+  Self.PartyPlayer := TThemePartyPlayer.Create();
+  Self.PartyRounds := TThemePartyRounds.Create();
+  Self.PartyTournamentPlayer := TThemePartyTournamentPlayer.Create();
+  Self.PartyTournamentOptions := TThemePartyTournamentOptions.Create();
+  Self.PartyTournamentRounds := TThemePartyTournamentRounds.Create();
+  Self.PartyTournamentWin := TThemePartyTournamentWin.Create();
+  Self.StatMain := TThemeStatMain.Create();
+  Self.StatDetail := TThemeStatDetail.Create();
+end;
 
 end.
