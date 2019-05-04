@@ -215,25 +215,6 @@ end;
 
 constructor TScreenOptions.Create;
 
-  // TODO: Generalize method and implement it into base code (to be used by every screen/menu)
-  function AddButtonChecked(Btn: TThemeButton; DescIndex: byte; out IIDvar: cardinal; AddX: real = 14; AddY: real = 20): cardinal;
-  var OldPos: integer;
-  begin
-    OldPos := Length(Button);
-    Result := AddButton(Btn);
-    if Length(Button) <> OldPos then // check if button was succesfully added
-    begin
-      IIDvar := High(Interactions);
-
-      // update mapping, IID to Desc index
-      SetLength(MapIIDtoDescID, IIDvar+1);
-      MapIIDtoDescID[IIDvar] := DescIndex;
-
-      if (Length(Button[Result].Text) = 0) then // update text if not already set
-        AddButtonText(AddX, AddY, Theme.Options.Description[DescIndex]);
-    end;
-
-  end;
 begin
   inherited Create;
 
@@ -241,23 +222,18 @@ begin
 
   LoadFromTheme(Theme.Options);
 
-  // Order is irrelevant to the represenatation, however InteractNext/Prev is not working with a different order
-  AddButtonChecked(Theme.Options.ButtonGame, OPTIONS_DESC_INDEX_GAME,  ButtonGameIID);
-  AddButtonChecked(Theme.Options.ButtonGraphics, OPTIONS_DESC_INDEX_GRAPHICS,  ButtonGraphicsIID);
-  AddButtonChecked(Theme.Options.ButtonSound, OPTIONS_DESC_INDEX_SOUND,  ButtonSoundIID);
-
-  AddButtonChecked(Theme.Options.ButtonLyrics, OPTIONS_DESC_INDEX_LYRICS,  ButtonLyricsIID);
-  AddButtonChecked(Theme.Options.ButtonThemes, OPTIONS_DESC_INDEX_THEMES,  ButtonThemesIID);
-  AddButtonChecked(Theme.Options.ButtonMicrophones, OPTIONS_DESC_INDEX_MICROPHONES,  ButtonMicrophonesIID);
-  AddButtonChecked(Theme.Options.ButtonAdvanced, OPTIONS_DESC_INDEX_ADVANCED,  ButtonAdvancedIID);
-  AddButtonChecked(Theme.Options.ButtonNetwork, OPTIONS_DESC_INDEX_NETWORK,  ButtonNetworkIID);
-
-  AddButtonChecked(Theme.Options.ButtonWebcam, OPTIONS_DESC_INDEX_WEBCAM,  ButtonWebcamIID);
-  AddButtonChecked(Theme.Options.ButtonJukebox, OPTIONS_DESC_INDEX_JUKEBOX,  ButtonJukeboxIID);
-
-  AddButtonChecked(Theme.Options.ButtonExit, OPTIONS_DESC_INDEX_BACK,  ButtonExitIID);
-
-  Interaction := 0;
+  Self.ButtonGameIID := Self.AddButton(Theme.Options.ButtonGame);
+  Self.ButtonGraphicsIID := Self.AddButton(Theme.Options.ButtonGraphics);
+  Self.ButtonSoundIID := Self.AddButton(Theme.Options.ButtonSound);
+  Self.ButtonLyricsIID := Self.AddButton(Theme.Options.ButtonLyrics);
+  Self.ButtonThemesIID := Self.AddButton(Theme.Options.ButtonThemes);
+  Self.ButtonMicrophonesIID := Self.AddButton(Theme.Options.ButtonMicrophones);
+  Self.ButtonAdvancedIID := Self.AddButton(Theme.Options.ButtonAdvanced);
+  Self.ButtonNetworkIID := Self.AddButton(Theme.Options.ButtonNetwork);
+  Self.ButtonWebcamIID := Self.AddButton(Theme.Options.ButtonWebcam);
+  Self.ButtonJukeboxIID := Self.AddButton(Theme.Options.ButtonJukebox);
+  Self.ButtonExitIID := Self.AddButton(Theme.Options.ButtonExit);
+  Self.Interaction := 0;
 end;
 
 procedure TScreenOptions.OnShow;

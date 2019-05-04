@@ -205,8 +205,6 @@ begin
   AddSelectSlide(Theme.OptionsThemes.SelectColor, UIni.Ini.Color, UIni.IColor, 'OPTION_VALUE_');
 
   AddButton(Theme.OptionsThemes.ButtonExit);
-  if (Length(Button[0].Text)=0) then
-    AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
 
 end;
 

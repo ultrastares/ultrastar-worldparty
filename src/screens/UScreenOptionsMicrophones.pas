@@ -321,7 +321,7 @@ begin
       end;
     end;
 
-    Theme.OptionsMicrophones.SelectThreshold.showArrows := true; 
+    Theme.OptionsMicrophones.SelectThreshold.showArrows := true;
     Theme.OptionsMicrophones.SelectThreshold.oneItemOnly := true;
     SelectThresholdID := AddSelectSlide(Theme.OptionsMicrophones.SelectThreshold, Ini.ThresholdIndex, IThreshold);
 
@@ -334,8 +334,6 @@ begin
 
   // add Exit-button
   AddButton(Theme.OptionsMicrophones.ButtonExit);
-  if (Length(Button[0].Text) = 0) then
-    AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
   // store InteractionID
   if (Length(AudioInputProcessor.DeviceList) > 0) then
     ExitButtonIID := MaxChannelCount + 4

@@ -629,7 +629,7 @@ begin
           Button[2].Visible := true;
           Button[2].Text[0].Text := Language.Translate('SONG_MENU_REFRESH_SCORES_NO_WEB');
           Button[2].Selectable := false;
-          Button[3].Text[0].Text := Theme.Options.Description[OPTIONS_DESC_INDEX_NETWORK];
+          Button[3].Text[0].Text := ULanguage.Language.Translate('SING_OPTIONS_NETWORK_DESC');
           Interaction := 7;
         end;
       end;

@@ -173,11 +173,7 @@ begin
   Theme.OptionsGraphics.SelectMovieSize.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsGraphics.SelectMovieSize, UIni.Ini.MovieSize, ['HALF', 'FULL_VID', 'FULL_VID_BG'], 'OPTION_VALUE_');
 
-  // TODO: Add apply button
   AddButton(Theme.OptionsGraphics.ButtonExit);
-  if (Length(Button[0].Text)=0) then
-    AddButtonText(20, 6, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
-
 end;
 
 procedure TScreenOptionsGraphics.OnShow;

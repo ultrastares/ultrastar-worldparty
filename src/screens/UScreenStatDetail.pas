@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -84,7 +84,7 @@ begin
           Exit;
         end;
     end;
-    
+
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -170,8 +170,6 @@ begin
     AddButtonText(14, 20, Language.Translate('STAT_REVERSE'));
 
   AddButton(Theme.StatDetail.ButtonExit);
-  if (Length(Button[3].Text)=0) then
-    AddButtonText(14, 20, Theme.Options.Description[OPTIONS_DESC_INDEX_NETWORK]);
 
   Interaction := 0;
   Typ := TStatType(0);
@@ -275,7 +273,7 @@ begin
     else
       PerPage := Count;
 
-    try      
+    try
       Text[Count+1].Text := Format(Theme.StatDetail.PageStr,
           [Page + 1, TotPages, PerPage, TotEntrys]);
     except

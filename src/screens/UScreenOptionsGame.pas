@@ -126,8 +126,6 @@ begin
   Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectShowScores, UIni.Ini.ShowScores, UIni.IShowScores, 'OPTION_VALUE_');
   SelectJoyPad := Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectJoypad, UIni.Ini.Joypad, UIni.IJoypad, 'OPTION_VALUE_');
   Self.AddButton(UThemes.Theme.OptionsGame.ButtonExit);
-  if (Length(Self.Button[0].Text) = 0) then
-    Self.AddButtonText(20, 5, UThemes.Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
 end;
 
 procedure TScreenOptionsGame.OnShow;
