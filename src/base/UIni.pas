@@ -72,7 +72,7 @@ const
   CHANNEL_OFF = 0;         // for field ChannelToPlayerMap
   LATENCY_AUTODETECT = -1; // for field Latency
   DEFAULT_RESOLUTION = '800x600';
-  DEFAULT_THEME = 'Fantasy';
+  DefaultTheme = 'Fantasy';
   IMaxPlayerCount = 12; //TODO change to 6 and fix UScreenPlayerSelection RETURN key
   IPlayers: array[0..4] of UTF8String = ('1', '2', '3', '4', '6');
   IPlayersVals: array[0..4] of integer = (1, 2, 3, 4, 6);
@@ -834,7 +834,7 @@ begin
     Log.CriticalError('Could not find any valid Themes.');
   end;
 
-  Theme := ReadArrayIndex(ITheme, IniFile, 'Themes', 'Theme', IGNORE_INDEX, DEFAULT_THEME, true);
+  Theme := ReadArrayIndex(ITheme, IniFile, 'Themes', 'Theme', IGNORE_INDEX, DefaultTheme, true);
   if (Theme = -1) then
     Theme := 0;
 

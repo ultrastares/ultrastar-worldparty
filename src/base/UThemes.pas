@@ -1227,14 +1227,20 @@ type
     Creator: string;
   end;
 
+  TInheritance = record
+    Section: string;
+    Base: boolean;
+  end;
+
   TTheme = class
   private
-    Inheritance: array of string;
-    ThemeIni:         TMemIniFile;
-
+    Inheritance: array of TInheritance;
+    ThemeBase: TMemIniFile;
+    ThemeIni: TMemIniFile;
     LastThemeBasic:   TThemeBasic;
     procedure CreateThemeObjects();
     procedure LoadHeader(FileName: IPath);
+    function SectionExists(const Section: string): boolean;
     procedure SetInheritance(const Section: string);
     procedure ReadProperty(const Section: string; const Identifier: string; const Default: integer; var Field: integer);
     procedure ReadProperty(const Section: string; const Identifier: string; const Default: real; var Field: real);
@@ -1424,6 +1430,9 @@ begin
 
   Ini.Free;
 
+  if Entry.Name = UIni.DefaultTheme then
+    Self.ThemeBase := TMemIniFile.Create(Entry.Filename.ToNative());
+
   // don't load theme with wrong version tag
   if ThemeVersion <> 'USD 110' then
   begin
@@ -1474,6 +1483,13 @@ begin
   end;
 end;
 
+{ Check if a section exist in current theme or in base theme }
+function TTheme.SectionExists(const Section: string): boolean;
+begin
+  Result := Self.ThemeIni.SectionExists(Section) or Self.ThemeBase.SectionExists(Section);
+end;
+
+{ Try to search a section inheritance in current theme or, if don't exists, in the base theme }
 procedure TTheme.SetInheritance(const Section: string);
 var
   I: integer;
@@ -1481,13 +1497,20 @@ var
 begin
   I := 1;
   SetLength(Self.Inheritance, 1);
+  Self.Inheritance[0].Section := Section;
+  Self.Inheritance[0].Base := not Self.ThemeIni.SectionExists(Section);
   CurrentInheritance := Section;
   repeat
-    CurrentInheritance := ThemeIni.ReadString(CurrentInheritance, 'Inheritance', '');
+    CurrentInheritance := IfThen(
+      Self.Inheritance[I - 1].Base,
+      Self.ThemeBase.ReadString(CurrentInheritance, 'Inheritance', ''),
+      Self.ThemeIni.ReadString(CurrentInheritance, 'Inheritance', '')
+    );
     if CurrentInheritance <> '' then
     begin
       SetLength(Self.Inheritance, I + 1);
-      Self.Inheritance[I] := CurrentInheritance;
+      Self.Inheritance[I].Section := CurrentInheritance;
+      Self.Inheritance[I].Base := not Self.ThemeIni.SectionExists(CurrentInheritance);
       Inc(I);
     end;
   until CurrentInheritance = '';
@@ -1536,14 +1559,17 @@ var
   MaxDeep: integer;
 begin
   MaxDeep := High(Self.Inheritance);
-  Self.Inheritance[0] := Section;
   I := 0;
   repeat
-    case FieldType of
-      0: Field := ThemeIni.ReadString(Self.Inheritance[I], Identifier, Default);
-      1: Field := IntToStr(ThemeIni.ReadInteger(Self.Inheritance[I], Identifier, StrToInt(Default)));
-      2: Field := FloatToStr(ThemeIni.ReadFloat(Self.Inheritance[I], Identifier, StrToFloat(Default)));
-      3: Field := BoolToStr(ThemeIni.ReadBool(Self.Inheritance[I], Identifier, StrtoBool(Default)));
+    case IfThen(Self.Inheritance[I].Base, FieldType, FieldType + 4) of
+      0: Field := Self.ThemeBase.ReadString(Self.Inheritance[I].Section, Identifier, Default);
+      1: Field := IntToStr(Self.ThemeBase.ReadInteger(Self.Inheritance[I].Section, Identifier, StrToInt(Default)));
+      2: Field := FloatToStr(Self.ThemeBase.ReadFloat(Self.Inheritance[I].Section, Identifier, StrToFloat(Default)));
+      3: Field := BoolToStr(Self.ThemeBase.ReadBool(Self.Inheritance[I].Section, Identifier, StrtoBool(Default)));
+      4: Field := Self.ThemeIni.ReadString(Self.Inheritance[I].Section, Identifier, Default);
+      5: Field := IntToStr(Self.ThemeIni.ReadInteger(Self.Inheritance[I].Section, Identifier, StrToInt(Default)));
+      6: Field := FloatToStr(Self.ThemeIni.ReadFloat(Self.Inheritance[I].Section, Identifier, StrToFloat(Default)));
+      7: Field := BoolToStr(Self.ThemeIni.ReadBool(Self.Inheritance[I].Section, Identifier, StrtoBool(Default)));
     end;
     Inc(I);
   until (Field <> Default) or (I > MaxDeep);
@@ -1567,10 +1593,8 @@ begin
   if Themes[ThemeNum].FileName.IsFile() then
   begin
     Result := true;
-
-    ThemeIni := TMemIniFile.Create(Themes[ThemeNum].FileName.ToNative);
-
-    if ThemeIni.ReadString('Theme', 'Name', '') <> '' then
+    Self.ThemeIni := TMemIniFile.Create(Self.Themes[ThemeNum].FileName.ToNative());
+    if Self.ThemeIni.ReadString('Theme', 'Name', '') <> '' then
     begin
 
       {Skin.SkinName := ThemeIni.ReadString('Theme', 'Name', 'Singstar');
@@ -1585,12 +1609,10 @@ begin
 
       // Loading
       ThemeLoadBasic(Loading, 'Loading');
-      ThemeLoadText(Loading.TextLoading, 'LoadingTextLoading');
 
       // Main
       ThemeLoadBasic(Main, 'Main');
 
-      ThemeLoadText(Main.TextDescription, 'MainTextDescription');
       ThemeLoadText(Main.TextDescriptionLong, 'MainTextDescriptionLong');
       ThemeLoadText(Main.ProgressSongsText, 'MainProgressSongsText');
       ThemeLoadButton(Main.ButtonSolo, 'MainButtonSolo');
@@ -1808,7 +1830,7 @@ begin
   //Added for ps3 skin
   //This one is shown in 2/4P mode
   //if it exists, otherwise the one Player equivaltents are used
-      if (ThemeIni.SectionExists('SingP1TwoPTextScore')) then
+      if Self.SectionExists('SingP1TwoPTextScore') then
       begin
         ThemeLoadStatic(Sing.StaticP1TwoP, 'SingP1TwoPStatic');
         ThemeLoadStatic(Sing.StaticP1TwoPAvatar, 'SingP1TwoPAvatar');
@@ -1827,7 +1849,7 @@ begin
 
   //This one is shown in 3/6P mode
   //if it exists, otherwise the one Player equivaltents are used
-      if (ThemeIni.SectionExists('SingP1TwoPTextScore')) then
+      if Self.SectionExists('SingP1TwoPTextScore') then
       begin
         ThemeLoadStatic(Sing.StaticP1ThreeP, 'SingP1ThreePStatic');
         ThemeLoadStatic(Sing.StaticP1ThreePAvatar, 'SingP1ThreePAvatar');
@@ -2574,7 +2596,7 @@ var
   T: integer;
 begin
   T := 1;
-  while ThemeIni.SectionExists(Name + IntToStr(T)) do
+  while Self.SectionExists(Name + IntToStr(T)) do
   begin
     SetLength(ThemeText, T);
     ThemeLoadText(ThemeText[T-1], Name + IntToStr(T));
@@ -2623,7 +2645,7 @@ var
   S: integer;
 begin
   S := 1;
-  while ThemeIni.SectionExists(Name + IntToStr(S)) do
+  while Self.SectionExists(Name + IntToStr(S)) do
   begin
     SetLength(ThemeStatic, S);
     ThemeLoadStatic(ThemeStatic[S-1], Name + IntToStr(S));
@@ -2652,7 +2674,7 @@ var
   I: integer;
 begin
   I := 1;
-  while ThemeIni.SectionExists(Name + IntToStr(I)) do
+  while Self.SectionExists(Name + IntToStr(I)) do
   begin
     SetLength(Collections, I);
     ThemeLoadButtonCollection(Collections[I-1], Name + IntToStr(I));
@@ -2667,7 +2689,7 @@ var
   TempString: string;
   Collections2: PAThemeButtonCollection;
 begin
-  if not ThemeIni.SectionExists(Name) then
+  if not Self.SectionExists(Name) then
   begin
     ThemeButton.Visible := False;
     exit;
@@ -2857,8 +2879,11 @@ var
   S:      string;
 begin
   SL := TStringList.Create();
-  ThemeIni.ReadSection('Colors', SL);
   Self.SetInheritance('Colors');
+  if Self.Inheritance[0].Base then
+    Self.ThemeBase.ReadSection('Colors', SL)
+  else
+    Self.ThemeIni.ReadSection('Colors', SL);
 
   // normal colors
   SetLength(Color, SL.Count);
@@ -3959,6 +3984,7 @@ begin
   ThemeLoadText(Song.TextCat, 'Song' + prefix + 'TextCat');
 
   //Load Cover Pos and Size from Theme Mod
+  Self.SetInheritance('Song'+prefix+'Cover');
   Self.ReadProperty('Song'+prefix+'Cover', 'Cols', 4, Self.Song.Cover.Cols);
   Self.ReadProperty('Song'+prefix+'Cover', 'H', 200, Self.Song.Cover.H);
   Self.ReadProperty('Song'+prefix+'Cover', 'W', 300, Self.Song.Cover.W);
@@ -3981,6 +4007,7 @@ begin
 
   if (TSongMenuMode(Ini.SongMenu) = smList) then
   begin
+    Self.SetInheritance('Song'+prefix+'SelectSong');
     Self.ReadProperty('Song'+prefix+'SelectSong', 'X', 300, Self.Song.ListCover.X);
     Self.ReadProperty('Song'+prefix+'SelectSong', 'Y', 100, Self.Song.ListCover.Y);
     Self.ReadProperty('Song'+prefix+'SelectSong', 'W', 300, Self.Song.ListCover.W);
