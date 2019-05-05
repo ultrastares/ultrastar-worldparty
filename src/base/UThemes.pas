@@ -1244,6 +1244,7 @@ type
     procedure SetInheritance(const Section: string);
     procedure ReadProperty(const Section: string; const Identifier: string; const Default: integer; var Field: integer);
     procedure ReadProperty(const Section: string; const Identifier: string; const Default: real; var Field: real);
+    procedure ReadProperty(const Section: string; const Identifier: string; const Default: boolean; var Field: boolean);
     procedure ReadProperty(const Section: string; const Identifier: string; const Default: string; var Field: string);
     procedure ReadProperty(const Section: string; const Identifier: string; const Default: UTF8String; var Field: UTF8String; const FieldType: integer = 0);
   public
@@ -1518,6 +1519,16 @@ begin
   Field := StrToFloat(TempString);
 end;
 
+{ Boolean type overload of ReadProperty }
+procedure TTheme.ReadProperty(const Section: string; const Identifier: string; const Default: boolean; var Field: boolean);
+var
+  TempString: UTF8String;
+begin
+  TempString := BoolToStr(Field);
+  Self.ReadProperty(Section, Identifier, UTF8String(BoolToStr(Default)), TempString, 3);
+  Field := StrtoBool(TempString);
+end;
+
 { String overload of ReadProperty }
 procedure TTheme.ReadProperty(const Section: string; const Identifier: string; const Default: string; var Field: string);
 var
@@ -1542,6 +1553,7 @@ begin
       0: Field := ThemeIni.ReadString(Self.Inheritance[I], Identifier, Default);
       1: Field := IntToStr(ThemeIni.ReadInteger(Self.Inheritance[I], Identifier, StrToInt(Default)));
       2: Field := FloatToStr(ThemeIni.ReadFloat(Self.Inheritance[I], Identifier, StrToFloat(Default)));
+      3: Field := BoolToStr(ThemeIni.ReadBool(Self.Inheritance[I], Identifier, StrtoBool(Default)));
     end;
     Inc(I);
   until (Field <> Default) or (I > MaxDeep);
@@ -2567,8 +2579,7 @@ begin
   end;
 
   Self.ReadProperty(Name, 'Size', 0, ThemeText.Size);
-  Self.ReadProperty(Name, 'Reflection', 0, Reflection);
-  ThemeText.Reflection := Reflection = 1;
+  Self.ReadProperty(Name, 'Reflection', false, ThemeText.Reflection);
   Self.ReadProperty(Name, 'ReflectionSpacing', 15, ThemeText.ReflectionSpacing);
 end;
 
@@ -2618,8 +2629,7 @@ begin
   Self.ReadProperty(Name, 'TexY1', 0, ThemeStatic.TexY1);
   Self.ReadProperty(Name, 'TexX2', 1, ThemeStatic.TexX2);
   Self.ReadProperty(Name, 'TexY2', 1, ThemeStatic.TexY2);
-  Self.ReadProperty(Name, 'Reflection', 0, Reflection);
-  ThemeStatic.Reflection := Reflection = 1;
+  Self.ReadProperty(Name, 'Reflection', false, ThemeStatic.Reflection);
   Self.ReadProperty(Name, 'ReflectionSpacing', 15, ThemeStatic.ReflectionSpacing);
 end;
 
@@ -2667,7 +2677,7 @@ end;
 
 procedure TTheme.ThemeLoadButton(var ThemeButton: TThemeButton; const Name: string; Collections: PAThemeButtonCollection);
 var
-  C, T, TempInt, TLen: integer;
+  C, T, TLen: integer;
   TempString: string;
   Collections2: PAThemeButtonCollection;
 begin
@@ -2688,8 +2698,7 @@ begin
     ULog.Log.LogError('no texture type for ' + Name + ' found.', 'TTheme.ThemeLoadButton');
 
   ThemeButton.Typ := UTexture.ParseTextureType(TempString, TEXTURE_TYPE_PLAIN);
-  Self.ReadProperty(Name, 'Reflection', 0, TempInt);
-  ThemeButton.Reflection := TempInt = 1;
+  Self.ReadProperty(Name, 'Reflection', false, ThemeButton.Reflection);
   Self.ReadProperty(Name, 'ReflectionSpacing', 15, ThemeButton.ReflectionSpacing);
   Self.ReadProperty(Name, 'ColR', 1, ThemeButton.ColR);
   Self.ReadProperty(Name, 'ColG', 1, ThemeButton.ColG);
@@ -2716,15 +2725,12 @@ begin
     ThemeButton.DColG := Color[C].RGB.G;
     ThemeButton.DColB := Color[C].RGB.B;
   end;
-  Self.ReadProperty(Name, 'Visible', 1, TempInt);
-  ThemeButton.Visible := TempInt = 1;
+  Self.ReadProperty(Name, 'Visible', true, ThemeButton.Visible);
   Self.ReadProperty(Name, 'SelectH', ThemeButton.H, ThemeButton.SelectH);
   Self.ReadProperty(Name, 'SelectW', ThemeButton.W, ThemeButton.SelectW);
   Self.ReadProperty(Name, 'DeSelectReflectionSpacing', ThemeButton.Reflectionspacing, ThemeButton.DeSelectReflectionspacing);
-  Self.ReadProperty(Name, 'Fade', 1, TempInt);
-  ThemeButton.Fade := TempInt = 1;
-  Self.ReadProperty(Name, 'FadeText', 1, TempInt);
-  ThemeButton.FadeText := TempInt = 1;
+  Self.ReadProperty(Name, 'Fade', true, ThemeButton.Fade);
+  Self.ReadProperty(Name, 'FadeText', true, ThemeButton.FadeText);
   Self.ReadProperty(Name, 'FadeTex', '', ThemeButton.FadeTex);
   Self.ReadProperty(Name, 'FadeTexPos', 0, ThemeButton.FadeTexPos);
   if (ThemeButton.FadeTexPos > 4) or (ThemeButton.FadeTexPos < 0) then
@@ -2757,7 +2763,6 @@ end;
 procedure TTheme.ThemeLoadSelectSlide(var ThemeSelectS: TThemeSelectSlide; const Name: string);
 var
   TempString: string;
-  TempInt: integer;
 begin
   Self.SetInheritance(Name);
   Self.ReadProperty(Name, 'Text', '', TempString);
@@ -2811,10 +2816,8 @@ begin
   Self.ReadProperty(Name, 'STDInt', 1, ThemeSelectS.STDInt);
 
 
-  Self.ReadProperty(Name, 'ShowArrows', -1, TempInt);
-  ThemeSelectS.showArrows := TempInt = 1;
-  Self.ReadProperty(Name, 'OneItemOnly', -1, TempInt);
-  ThemeSelectS.oneItemOnly := TempInt = 1;
+  Self.ReadProperty(Name, 'ShowArrows', true, ThemeSelectS.showArrows);
+  Self.ReadProperty(Name, 'OneItemOnly', true, ThemeSelectS.oneItemOnly);
 end;
 
 procedure TTheme.ThemeLoadEqualizer(var ThemeEqualizer: TThemeEqualizer; const Name: string);
@@ -2823,10 +2826,8 @@ var
   TempString: string;
 begin
   Self.SetInheritance(Name);
-  Self.ReadProperty(Name, 'Visible', 1, I);
-  ThemeEqualizer.Visible := I = 1;
-  Self.ReadProperty(Name, 'Direction', 1, I);
-  ThemeEqualizer.Direction := I = 1;
+  Self.ReadProperty(Name, 'Visible', true, ThemeEqualizer.Visible);
+  Self.ReadProperty(Name, 'Direction', true, ThemeEqualizer.Direction);
   Self.ReadProperty(Name, 'Alpha', 1, ThemeEqualizer.Alpha);
   Self.ReadProperty(Name, 'Space', 1, ThemeEqualizer.Space);
   Self.ReadProperty(Name, 'X', 0, ThemeEqualizer.X);
@@ -2836,8 +2837,7 @@ begin
   Self.ReadProperty(Name, 'H', 8, ThemeEqualizer.H);
   Self.ReadProperty(Name, 'Bands', 5, ThemeEqualizer.Bands);
   Self.ReadProperty(Name, 'Length', 12, ThemeEqualizer.Length);
-  Self.ReadProperty(Name, 'Reflection', 0, I);
-  ThemeEqualizer.Reflection := I = 1;
+  Self.ReadProperty(Name, 'Reflection', false, ThemeEqualizer.Reflection);
   Self.ReadProperty(Name, 'ReflectionSpacing', 15, ThemeEqualizer.ReflectionSpacing);
   Self.ReadProperty(Name, 'Color', 'Black', TempString);
   I := ColorExists(TempString);
