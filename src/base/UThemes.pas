@@ -308,7 +308,6 @@ type
 
     //Cover Mod
     Cover: record
-      Reflections: boolean;
       X: integer;
       Y: integer;
       Z: integer;
@@ -317,6 +316,8 @@ type
       Rows: integer;
       Cols: integer;
       Padding: integer;
+      Reflections: boolean;
+      ReflectionSpacing: integer;
       SelectX: integer;
       SelectY: integer;
       SelectW: integer;
@@ -325,8 +326,6 @@ type
       SelectReflectionSpacing: integer;
       ZoomThumbW: integer;
       ZoomThumbH: integer;
-      ZoomThumbStyle: integer;
-      Tex: string;
     end;
 
     //Equalizer Mod
@@ -339,7 +338,6 @@ type
       Z: integer;
       W: integer;
       H: integer;
-      Rows: integer;
       Padding: integer;
       Reflection: boolean;
       ReflectionSpacing: integer;
@@ -1232,11 +1230,7 @@ type
   TTheme = class
   private
     Inheritance: array of string;
-    {$IFDEF THEMESAVE}
-    ThemeIni:         TIniFile;
-    {$ELSE}
     ThemeIni:         TMemIniFile;
-    {$ENDIF}
 
     LastThemeBasic:   TThemeBasic;
     procedure CreateThemeObjects();
@@ -1578,11 +1572,7 @@ begin
   begin
     Result := true;
 
-    {$IFDEF THEMESAVE}
-    ThemeIni := TIniFile.Create(Themes[ThemeNum].FileName.ToNative);
-    {$ELSE}
     ThemeIni := TMemIniFile.Create(Themes[ThemeNum].FileName.ToNative);
-    {$ENDIF}
 
     if ThemeIni.ReadString('Theme', 'Name', '') <> '' then
     begin
@@ -2502,8 +2492,6 @@ begin
       IMode[2] := Language.Translate('PARTY_MODE_TOURNAMENT');
       //IMode[3] := Language.Translate('PARTY_MODE_CHALLENGE'); //Hidden for the moment. Check in the future
     end;
-
-    ThemeIni.Free;
   end;
 end;
 
@@ -2544,7 +2532,6 @@ end;
 procedure TTheme.ThemeLoadText(var ThemeText: TThemeText; const Name: string);
 var
   C: integer;
-  Reflection: integer;
 begin
   Self.SetInheritance(Name);
   Self.ReadProperty(Name, 'X', 0, ThemeText.X);
@@ -2600,7 +2587,6 @@ procedure TTheme.ThemeLoadStatic(var ThemeStatic: TThemeStatic; const Name: stri
 var
   C: integer;
   TextureType: string;
-  Reflection: integer;
 begin
   Self.SetInheritance(Name);
   Self.ReadProperty(Name, 'Tex', '', ThemeStatic.Tex);
@@ -3748,9 +3734,6 @@ end;
 
 procedure TTheme.ThemePartyLoad;
 begin
-
-  ThemeIni := TMemIniFile.Create(Themes[Ini.Theme].FileName.ToNative);
-
   //Party Screens:
   //Party NewRound
   ThemeLoadBasic(PartyNewRound, 'PartyNewRound');
@@ -3858,10 +3841,6 @@ begin
   ThemeLoadStatic (PartyWin.StaticTeam3Deco, 'PartyWinStaticTeam3Deco');
 
   ThemeLoadText (PartyWin.TextWinner,        'PartyWinTextWinner');
-
-
-  ThemeIni.Free;
-
 end;
 
 procedure TTheme.ThemeScoreLoad;
@@ -3869,9 +3848,6 @@ var
   I: integer;
   prefix: string;
 begin
-
-  ThemeIni := TMemIniFile.Create(Themes[Ini.Theme].FileName.ToNative);
-
   // Score
   ThemeLoadBasic(Score, 'Score');
 
@@ -3919,14 +3895,12 @@ begin
     ThemeLoadStatic(Score.StaticLevelRound[I],     'Score' + prefix + 'StaticLevelRound'     + IntToStr(I));
     ThemeLoadStatic(Score.StaticRatings[I],        'Score' + prefix + 'StaticRatingPicture'  + IntToStr(I));
   end;
-
-  ThemeIni.Free;
 end;
 
 procedure TTheme.ThemeSongLoad;
 var
   I, C: integer;
-  prefix: string;
+  prefix, TempString: string;
 begin
   case (TSongMenuMode(Ini.SongMenu)) of
     smRoulette: prefix := 'Roulette';
@@ -3937,9 +3911,6 @@ begin
     smList: prefix := 'List';
     smMosaic: prefix := 'Mosaic';
   end;
-
-  ThemeIni := TMemIniFile.Create(Themes[Ini.Theme].FileName.ToNative);
-
   // Song
   ThemeLoadBasic(Song, 'Song' + prefix);
 
@@ -3950,7 +3921,7 @@ begin
   ThemeLoadText(Song.TextYear, 'Song' + prefix + 'TextYear');
 
   // medley playlist
-  Song.TextMedleyMax := ThemeIni.ReadInteger('Song' + prefix + 'TextMedleyMax', 'N', 4);
+  Self.ReadProperty('Song'+prefix+'TextMedleyMax', 'N', 4, Self.Song.TextMedleyMax);
 
   SetLength(Song.TextArtistMedley, Song.TextMedleyMax);
   SetLength(Song.TextTitleMedley, Song.TextMedleyMax);
@@ -3982,67 +3953,41 @@ begin
   ThemeLoadText(Song.TextCat, 'Song' + prefix + 'TextCat');
 
   //Load Cover Pos and Size from Theme Mod
-  Song.Cover.X := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'X', 300);
-  Song.Cover.Y := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Y', 190);
-  Song.Cover.W := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'W', 300);
-  Song.Cover.H := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'H', 200);
-  Self.Song.Cover.Rows := Self.ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Rows', 4);
-  Self.Song.Cover.Cols := Self.ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Cols', 4);
-
-  // 0 - roulette
-  // 1 - chessboard
-  // 2 - carousel
-  // 3 - slotmachine
-  // 4 - slide
-  // 5 - list
-  // 6 - mosaic
-
-  if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic]) then
-  begin
-    Song.Cover.Padding := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Padding', 0);
-    Song.Cover.SelectX := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectX', 300);
-    Song.Cover.SelectY := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectY', 120);
-    Song.Cover.SelectW := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectW', 325);
-    Song.Cover.SelectH := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectH', 200);
-    Song.Cover.SelectReflection := ThemeIni.ReadBool('Song' + prefix + 'Cover', 'SelectReflection', false);
-    Song.Cover.SelectReflectionSpacing := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectReflectionSpacing', 0);
-    Song.Cover.ZoomThumbW := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'ZoomThumbW', 120);
-    Song.Cover.ZoomThumbH := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'ZoomThumbH', 120);
-    Song.Cover.ZoomThumbStyle := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'ZoomThumbStyle', 0);
-    Song.Cover.Tex := ThemeIni.ReadString('Song' + prefix + 'Cover',  'Text', '');
-  end;
-
-  if (TSongMenuMode(Ini.SongMenu) in [smCarousel, smSlide]) then
-  begin
-    Song.Cover.Padding := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Padding', 60);
-  end;
+  Self.ReadProperty('Song'+prefix+'Cover', 'Cols', 4, Self.Song.Cover.Cols);
+  Self.ReadProperty('Song'+prefix+'Cover', 'H', 200, Self.Song.Cover.H);
+  Self.ReadProperty('Song'+prefix+'Cover', 'W', 300, Self.Song.Cover.W);
+  Self.ReadProperty('Song'+prefix+'Cover', 'X', 300, Self.Song.Cover.X);
+  Self.ReadProperty('Song'+prefix+'Cover', 'Y', 100, Self.Song.Cover.Y);
+  Self.ReadProperty('Song'+prefix+'Cover', 'Padding', 0, Self.Song.Cover.Padding);
+  Self.ReadProperty('Song'+prefix+'Cover', 'Reflections', false, Self.Song.Cover.Reflections);
+  Self.ReadProperty('Song'+prefix+'Cover', 'ReflectionSpacing', 0, Self.Song.Cover.ReflectionSpacing);
+  Self.ReadProperty('Song'+prefix+'Cover', 'Rows', 4, Self.Song.Cover.Rows);
+  //MainCover for smChessboard, smList and smMosaic
+  Self.ReadProperty('Song'+prefix+'Cover', 'SelectX', 300, Self.Song.Cover.SelectX);
+  Self.ReadProperty('Song'+prefix+'Cover', 'SelectY', 120, Self.Song.Cover.SelectY);
+  Self.ReadProperty('Song'+prefix+'Cover', 'SelectW', 325, Self.Song.Cover.SelectW);
+  Self.ReadProperty('Song'+prefix+'Cover', 'SelectH', 200, Self.Song.Cover.SelectH);
+  Self.ReadProperty('Song'+prefix+'Cover', 'SelectReflection', false, Self.Song.Cover.SelectReflection);
+  Self.ReadProperty('Song'+prefix+'Cover', 'SelectReflectionSpacing', 0, Self.Song.Cover.SelectReflectionSpacing);
+  //zoom for smChessboard and smMosaic
+  Self.ReadProperty('Song'+prefix+'Cover', 'ZoomThumbW', 0, Self.Song.Cover.ZoomThumbW);
+  Self.ReadProperty('Song'+prefix+'Cover', 'ZoomThumbH', 0, Self.Song.Cover.ZoomThumbH);
 
   if (TSongMenuMode(Ini.SongMenu) = smList) then
   begin
-    Song.Cover.SelectX := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectX', 300);
-    Song.Cover.SelectY := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectY', 120);
-    Song.Cover.SelectW := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectW', 325);
-    Song.Cover.SelectH := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectH', 200);
-    Song.Cover.SelectReflection := ThemeIni.ReadBool('Song' + prefix + 'Cover', 'SelectReflection', false);
-    Song.Cover.SelectReflectionSpacing := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'SelectReflectionSpacing', 0);
-    Song.Cover.Padding := ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Padding', 4);
-
-    Song.ListCover.Rows := ThemeIni.ReadInteger('Song' + prefix + 'SelectSong', 'Rows', 5);
-    Song.ListCover.X := ThemeIni.ReadInteger('Song' + prefix + 'SelectSong', 'X', 300);
-    Song.ListCover.Y := ThemeIni.ReadInteger('Song' + prefix + 'SelectSong', 'Y', 120);
-    Song.ListCover.W := ThemeIni.ReadInteger('Song' + prefix + 'SelectSong', 'W', 325);
-    Song.ListCover.H := ThemeIni.ReadInteger('Song' + prefix + 'SelectSong', 'H', 200);
-    Song.ListCover.Z := ThemeIni.ReadInteger('Song' + prefix + 'SelectSong', 'Z', 1);
-    Song.ListCover.Reflection := ThemeIni.ReadBool('Song' + prefix + 'SelectSong', 'Reflection', false);
-    Song.ListCover.ReflectionSpacing := ThemeIni.ReadInteger('Song' + prefix + 'SelectSong', 'ReflectionSpacing', 0);
-    Song.ListCover.Padding := ThemeIni.ReadInteger('Song' + prefix + 'SelectSong', 'Padding', 4);
-
-    Song.ListCover.Typ   := ParseTextureType(ThemeIni.ReadString('Song' + prefix + 'SelectSong', 'Type', ''), TEXTURE_TYPE_PLAIN);
-    Song.ListCover.Tex := ThemeIni.ReadString('Song' + prefix + 'SelectSong', 'Tex', '');
-    Song.ListCover.DTex := ThemeIni.ReadString('Song' + prefix + 'SelectSong', 'DTex', '');
-
-    Song.ListCover.Color := ThemeIni.ReadString('Song' + prefix + 'SelectSong', 'Color', '');
-
+    Self.ReadProperty('Song'+prefix+'SelectSong', 'X', 300, Self.Song.ListCover.X);
+    Self.ReadProperty('Song'+prefix+'SelectSong', 'Y', 100, Self.Song.ListCover.Y);
+    Self.ReadProperty('Song'+prefix+'SelectSong', 'W', 300, Self.Song.ListCover.W);
+    Self.ReadProperty('Song'+prefix+'SelectSong', 'H', 200, Self.Song.ListCover.H);
+    Self.ReadProperty('Song'+prefix+'SelectSong', 'Z', 1, Self.Song.ListCover.Z);
+    Self.ReadProperty('Song'+prefix+'SelectSong', 'Reflection', false, Self.Song.ListCover.Reflection);
+    Self.ReadProperty('Song'+prefix+'SelectSong', 'ReflectionSpacing', 0, Self.Song.ListCover.ReflectionSpacing);
+    Self.ReadProperty('Song'+prefix+'SelectSong', 'Padding', 4, Self.Song.ListCover.Padding);
+    Self.ReadProperty('Song'+prefix+'SelectSong', 'Type', '', TempString);
+    Song.ListCover.Typ := ParseTextureType(TempString, TEXTURE_TYPE_PLAIN);
+    Self.ReadProperty('Song'+prefix+'SelectSong', 'Tex', '', Self.Song.ListCover.Tex);
+    Self.ReadProperty('Song'+prefix+'SelectSong', 'DTex', '', Self.Song.ListCover.DTex);
+    Self.ReadProperty('Song'+prefix+'SelectSong', 'Color', '', Self.Song.ListCover.Color);
     C := ColorExists(Song.ListCover.Color);
     if C >= 0 then
     begin
@@ -4050,9 +3995,7 @@ begin
       Song.ListCover.ColG := Color[C].RGB.G;
       Song.ListCover.ColB := Color[C].RGB.B;
     end;
-
-    Song.ListCover.DColor := ThemeIni.ReadString('Song' + prefix + 'SelectSong', 'DColor', '');
-
+    Self.ReadProperty('Song'+prefix+'SelectSong', 'DColor', '', Self.Song.ListCover.DColor);
     C := ColorExists(Song.ListCover.DColor);
     if C >= 0 then
     begin
@@ -4060,12 +4003,7 @@ begin
       Song.ListCover.DColG := Color[C].RGB.G;
       Song.ListCover.DColB := Color[C].RGB.B;
     end;
-
   end;
-
-  //  Song.Cover.Style := ThemeIni.ReadInteger('SongCover', 'Style', 4);
-  Song.Cover.Reflections := (ThemeIni.ReadInteger('Song' + prefix + 'Cover', 'Reflections', 0) = 1);
-  //Load Cover Pos and Size from Theme Mod End
 
   ThemeLoadEqualizer(Song.Equalizer, 'Song' + prefix + 'Equalizer');
 

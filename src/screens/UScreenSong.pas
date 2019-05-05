@@ -749,7 +749,7 @@ begin
     PATH_NONE
   );
 
-  Num := Theme.Song.ListCover.Rows;
+  Num := IfThen(UIni.TSongMenuMode(UIni.Ini.SongMenu) = smList, UThemes.Theme.Song.Cover.Rows, 0);
 
   SetLength(StaticList, Num);
   for I := 0 to Num - 1 do
@@ -1336,7 +1336,7 @@ begin
     Self.Button[B].Visible := CatSongs.Song[B].Visible;
     if (Self.Button[B].Visible) then
     begin
-      if (Line >= Self.MinLine) and (Line - Self.MinLine < Theme.Song.ListCover.Rows) then
+      if (Line >= Self.MinLine) and (Line - Self.MinLine < UThemes.Theme.Song.Cover.Rows) then
       begin
         I := Line - Self.MinLine;
         if I = 0 then
@@ -1945,22 +1945,17 @@ end;
 
 procedure TScreenSong.Refresh(Sort: integer; Categories: boolean; Duets: boolean);
 var
-  I: integer;
+  I, B: integer;
 begin
   if USongs.CatSongs.Refresh(Sort, Categories, Duets) or (Length(Self.Button) = 0) then
   begin
     Self.ClearButtons();
     for I := 0 to High(USongs.CatSongs.Song) do
-      Self.AddButton(
-        UThemes.Theme.Song.Cover.X,
-        UThemes.Theme.Song.Cover.Y,
-        UThemes.Theme.Song.Cover.W,
-        UThemes.Theme.Song.Cover.H,
-        PATH_NONE,
-        TEXTURE_TYPE_PLAIN,
-        UThemes.Theme.Song.Cover.Reflections
-      );
-
+    begin
+      B := Self.AddButton(UThemes.Theme.Song.Cover.X, UThemes.Theme.Song.Cover.Y, UThemes.Theme.Song.Cover.W, UThemes.Theme.Song.Cover.H, PATH_NONE);
+      Self.Button[B].Reflection := UThemes.Theme.Song.Cover.Reflections;
+      Self.Button[B].ReflectionSpacing := UThemes.Theme.Song.Cover.ReflectionSpacing;
+    end;
     Self.SkipTo(0);
   end;
 end;
@@ -2007,20 +2002,18 @@ begin
   Self.Text[Self.TextYear].Visible := VisibilityNoList;
   Self.SetRangeVisibility(Visibility and Self.FreeListMode(), [Self.StaticNonParty[0], Self.StaticNonParty[4]], [Self.TextNonParty[0], Self.TextNonParty[4]]); //set legend visibility
   Self.SetRangeVisibility(false, [Self.Static6PlayersDuetSingerP6, Self.Static2PlayersDuetSingerP1], [Self.Text2PlayersDuetSingerP1, Self.Text3PlayersDuetSingerP3]); //hide duets
-  if High(Self.StaticsList) > 0 then //hide items in smList, too after change from other mode
-    for I := 0 to High(Self.StaticsList) do
-    begin
-      Self.StaticsList[I].Visible := false;
-      Self.Text[Self.ListTextArtist[I]].Text := '';
-      Self.Text[Self.ListTextTitle[I]].Text := '';
-      Self.Text[Self.ListTextYear[I]].Text := '';
-      Self.Statics[Self.ListCalcMedleyIcon[I]].Visible := false;
-      Self.Statics[Self.ListDuetIcon[I]].Visible := false;
-      Self.Statics[Self.ListMedleyIcon[I]].Visible := false;
-      Self.Statics[Self.ListRapIcon[I]].Visible := false;
-      Self.Statics[Self.ListVideoIcon[I]].Visible := false;
-    end;
-
+  for I := 0 to High(Self.StaticsList) do //hide items in smList, too after change from other mode
+  begin
+    Self.StaticsList[I].Visible := false;
+    Self.Text[Self.ListTextArtist[I]].Text := '';
+    Self.Text[Self.ListTextTitle[I]].Text := '';
+    Self.Text[Self.ListTextYear[I]].Text := '';
+    Self.Statics[Self.ListCalcMedleyIcon[I]].Visible := false;
+    Self.Statics[Self.ListDuetIcon[I]].Visible := false;
+    Self.Statics[Self.ListMedleyIcon[I]].Visible := false;
+    Self.Statics[Self.ListRapIcon[I]].Visible := false;
+    Self.Statics[Self.ListVideoIcon[I]].Visible := false;
+  end;
   if Visibility then
   begin
     Song := USongs.CatSongs.Song[Self.Interaction];
