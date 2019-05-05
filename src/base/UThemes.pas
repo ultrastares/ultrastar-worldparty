@@ -1498,7 +1498,6 @@ procedure TTheme.ReadProperty(const Section: string; const Identifier: string; c
 var
   TempString: UTF8String;
 begin
-  TempString := IntToStr(Field);
   Self.ReadProperty(Section, Identifier, UTF8String(IntToStr(Default)), TempString, 1);
   Field := StrToInt(TempString);
 end;
@@ -1508,7 +1507,6 @@ procedure TTheme.ReadProperty(const Section: string; const Identifier: string; c
 var
   TempString: UTF8String;
 begin
-  TempString := FloatToStr(Field);
   Self.ReadProperty(Section, Identifier, UTF8String(FloatToStr(Default)), TempString, 2);
   Field := StrToFloat(TempString);
 end;
@@ -1518,7 +1516,6 @@ procedure TTheme.ReadProperty(const Section: string; const Identifier: string; c
 var
   TempString: UTF8String;
 begin
-  TempString := BoolToStr(Field);
   Self.ReadProperty(Section, Identifier, UTF8String(BoolToStr(Default)), TempString, 3);
   Field := StrtoBool(TempString);
 end;
@@ -1528,7 +1525,6 @@ procedure TTheme.ReadProperty(const Section: string; const Identifier: string; c
 var
   TempString: UTF8String;
 begin
-  TempString :=  UTF8String(Field);
   Self.ReadProperty(Section, Identifier, Default, TempString);
   Field := TempString;
 end;
@@ -1633,8 +1629,9 @@ begin
       ThemeLoadButton(PlayerSelector.PlayerButtonName, 'NamePlayerButtonName');
       ThemeLoadButton(PlayerSelector.PlayerButtonAvatar, 'NamePlayerButtonAvatar');
 
-      PlayerSelector.PlayerScrollAvatar.NumAvatars := ThemeIni.ReadInteger('NamePlayerScrollAvatar', 'Count', 5);
-      PlayerSelector.PlayerScrollAvatar.DistanceAvatars := ThemeIni.ReadInteger('NamePlayerScrollAvatar', 'Distance', 40);
+      Self.SetInheritance('NamePlayerScrollAvatar');
+      Self.ReadProperty('NamePlayerScrollAvatar', 'Count', 5, PlayerSelector.PlayerScrollAvatar.NumAvatars);
+      Self.ReadProperty('NamePlayerScrollAvatar', 'Distance', 40, PlayerSelector.PlayerScrollAvatar.DistanceAvatars);
 
       ThemeLoadButton(PlayerSelector.PlayerAvatar, 'NamePlayerAvatar');
 
@@ -1655,59 +1652,54 @@ begin
       ThemeSongLoad();
 
       //LyricBar
-      LyricBar.UpperX := ThemeIni.ReadInteger('SingLyricsUpperBar', 'X', 0);
-      LyricBar.UpperW := ThemeIni.ReadInteger('SingLyricsUpperBar', 'W', 0);
-      LyricBar.UpperY := ThemeIni.ReadInteger('SingLyricsUpperBar', 'Y', 0);
-      LyricBar.UpperH := ThemeIni.ReadInteger('SingLyricsUpperBar', 'H', 0);
-      LyricBar.IndicatorYOffset := ThemeIni.ReadInteger('SingLyricsUpperBar', 'IndicatorYOffset', 0);
-      LyricBar.LowerX := ThemeIni.ReadInteger('SingLyricsLowerBar', 'X', 0);
-      LyricBar.LowerW := ThemeIni.ReadInteger('SingLyricsLowerBar', 'W', 0);
-      LyricBar.LowerY := ThemeIni.ReadInteger('SingLyricsLowerBar', 'Y', 0);
-      LyricBar.LowerH := ThemeIni.ReadInteger('SingLyricsLowerBar', 'H', 0);
+      Self.SetInheritance('SingLyricsUpperBar');
+      Self.ReadProperty('SingLyricsUpperBar', 'H', 0, LyricBar.UpperH);
+      Self.ReadProperty('SingLyricsUpperBar', 'W', 0, LyricBar.UpperW);
+      Self.ReadProperty('SingLyricsUpperBar', 'X', 0, LyricBar.UpperX);
+      Self.ReadProperty('SingLyricsUpperBar', 'Y', 0, LyricBar.UpperY);
+      Self.ReadProperty('SingLyricsUpperBar', 'IndicatorYOffset', 0, LyricBar.IndicatorYOffset);
+      Self.SetInheritance('SingLyricsLowerBar');
+      Self.ReadProperty('SingLyricsLowerBar', 'H', 0, LyricBar.LowerH);
+      Self.ReadProperty('SingLyricsLowerBar', 'W', 0, LyricBar.LowerW);
+      Self.ReadProperty('SingLyricsLowerBar', 'X', 0, LyricBar.LowerX);
+      Self.ReadProperty('SingLyricsLowerBar', 'Y', 0, LyricBar.LowerY);
 
       //LyricBarDuet
-      LyricBarDuetP1.UpperX := ThemeIni.ReadInteger('SingLyricsDuetP1UpperBar', 'X', 0);
-      LyricBarDuetP1.UpperW := ThemeIni.ReadInteger('SingLyricsDuetP1UpperBar', 'W', 0);
-      LyricBarDuetP1.UpperY := ThemeIni.ReadInteger('SingLyricsDuetP1UpperBar', 'Y', 0);
-      LyricBarDuetP1.UpperH := ThemeIni.ReadInteger('SingLyricsDuetP1UpperBar', 'H', 0);
-      LyricBarDuetP1.IndicatorYOffset := ThemeIni.ReadInteger('SingLyricsDuetP1UpperBar', 'IndicatorYOffset', 0);
-      LyricBarDuetP1.LowerX := ThemeIni.ReadInteger('SingLyricsDuetP1LowerBar', 'X', 0);
-      LyricBarDuetP1.LowerW := ThemeIni.ReadInteger('SingLyricsDuetP1LowerBar', 'W', 0);
-      LyricBarDuetP1.LowerY := ThemeIni.ReadInteger('SingLyricsDuetP1LowerBar', 'Y', 0);
-      LyricBarDuetP1.LowerH := ThemeIni.ReadInteger('SingLyricsDuetP1LowerBar', 'H', 0);
+      Self.SetInheritance('SingLyricDuetP1UpperBar');
+      Self.ReadProperty('SingLyricDuetP1UpperBar', 'H', 0, LyricBarDuetP1.UpperH);
+      Self.ReadProperty('SingLyricDuetP1UpperBar', 'W', 0, LyricBarDuetP1.UpperW);
+      Self.ReadProperty('SingLyricDuetP1UpperBar', 'X', 0, LyricBarDuetP1.UpperX);
+      Self.ReadProperty('SingLyricDuetP1UpperBar', 'Y', 0, LyricBarDuetP1.UpperY);
+      Self.ReadProperty('SingLyricDuetP1UpperBar', 'IndicatorYOffset', 0, LyricBarDuetP1.IndicatorYOffset);
+      Self.SetInheritance('SingLyricDuetP1LowerBar');
+      Self.ReadProperty('SingLyricDuetP1LowerBar', 'H', 0, LyricBarDuetP1.LowerH);
+      Self.ReadProperty('SingLyricDuetP1LowerBar', 'W', 0, LyricBarDuetP1.LowerW);
+      Self.ReadProperty('SingLyricDuetP1LowerBar', 'X', 0, LyricBarDuetP1.LowerX);
+      Self.ReadProperty('SingLyricDuetP1LowerBar', 'Y', 0, LyricBarDuetP1.LowerY);
+      Self.SetInheritance('SingLyricDuetP2UpperBar');
+      Self.ReadProperty('SingLyricDuetP2UpperBar', 'H', 0, LyricBarDuetP2.UpperH);
+      Self.ReadProperty('SingLyricDuetP2UpperBar', 'W', 0, LyricBarDuetP2.UpperW);
+      Self.ReadProperty('SingLyricDuetP2UpperBar', 'X', 0, LyricBarDuetP2.UpperX);
+      Self.ReadProperty('SingLyricDuetP2UpperBar', 'Y', 0, LyricBarDuetP2.UpperY);
+      Self.ReadProperty('SingLyricDuetP2UpperBar', 'IndicatorYOffset', 0, LyricBarDuetP2.IndicatorYOffset);
+      Self.SetInheritance('SingLyricDuetP2LowerBar');
+      Self.ReadProperty('SingLyricDuetP2LowerBar', 'H', 0, LyricBarDuetP2.LowerH);
+      Self.ReadProperty('SingLyricDuetP2LowerBar', 'W', 0, LyricBarDuetP2.LowerW);
+      Self.ReadProperty('SingLyricDuetP2LowerBar', 'X', 0, LyricBarDuetP2.LowerX);
+      Self.ReadProperty('SingLyricDuetP2LowerBar', 'Y', 0, LyricBarDuetP2.LowerY);
 
-      LyricBarDuetP2.UpperX := ThemeIni.ReadInteger('SingLyricsDuetP2UpperBar', 'X', 0);
-      LyricBarDuetP2.UpperW := ThemeIni.ReadInteger('SingLyricsDuetP2UpperBar', 'W', 0);
-      LyricBarDuetP2.UpperY := ThemeIni.ReadInteger('SingLyricsDuetP2UpperBar', 'Y', 0);
-      LyricBarDuetP2.UpperH := ThemeIni.ReadInteger('SingLyricsDuetP2UpperBar', 'H', 0);
-      LyricBarDuetP2.IndicatorYOffset := ThemeIni.ReadInteger('SingLyricsDuetP2UpperBar', 'IndicatorYOffset', 0);
-      LyricBarDuetP2.LowerX := ThemeIni.ReadInteger('SingLyricsDuetP2LowerBar', 'X', 0);
-      LyricBarDuetP2.LowerW := ThemeIni.ReadInteger('SingLyricsDuetP2LowerBar', 'W', 0);
-      LyricBarDuetP2.LowerY := ThemeIni.ReadInteger('SingLyricsDuetP2LowerBar', 'Y', 0);
-      LyricBarDuetP2.LowerH := ThemeIni.ReadInteger('SingLyricsDuetP2LowerBar', 'H', 0);
 
       // Lyric Jukebox
-      { Need to change calculation in SongOptions
-      LyricBarJukebox.UpperX := ThemeIni.ReadInteger('JukeboxLyricsUpperBar', 'X', 0);
-      LyricBarJukebox.UpperW := ThemeIni.ReadInteger('JukeboxLyricsUpperBar', 'W', 0);
-      LyricBarJukebox.UpperY := ThemeIni.ReadInteger('JukeboxLyricsUpperBar', 'Y', 0);
-      LyricBarJukebox.UpperH := ThemeIni.ReadInteger('JukeboxLyricsUpperBar', 'H', 0);
-      LyricBarJukebox.LowerX := ThemeIni.ReadInteger('JukeboxLyricsLowerBar', 'X', 0);
-      LyricBarJukebox.LowerW := ThemeIni.ReadInteger('JukeboxLyricsLowerBar', 'W', 0);
-      LyricBarJukebox.LowerY := ThemeIni.ReadInteger('JukeboxLyricsLowerBar', 'Y', 0);
-      LyricBarJukebox.LowerH := ThemeIni.ReadInteger('JukeboxLyricsLowerBar', 'H', 0);
-      LyricBarJukebox.IndicatorYOffset := ThemeIni.ReadInteger('JukeboxLyricsUpperBar', 'IndicatorYOffset', 0);
-      }
-
-      LyricBarJukebox.UpperX := 40;
-      LyricBarJukebox.UpperW := 720;
-      LyricBarJukebox.UpperY := 490;
-      LyricBarJukebox.UpperH := 52;
-      LyricBarJukebox.LowerX := 40;
-      LyricBarJukebox.LowerW := 720;
-      LyricBarJukebox.LowerY := 540;
-      LyricBarJukebox.LowerH := 52;
-      LyricBarJukebox.IndicatorYOffset := 8;
+      Self.SetInheritance('JukeboxLyricsUpperBar');
+      Self.ReadProperty('JukeboxLyricsUpperBar', 'H', 0, LyricBarJukebox.UpperH);
+      Self.ReadProperty('JukeboxLyricsUpperBar', 'W', 0, LyricBarJukebox.UpperW);
+      Self.ReadProperty('JukeboxLyricsUpperBar', 'X', 0, LyricBarJukebox.UpperX);
+      Self.ReadProperty('JukeboxLyricsUpperBar', 'Y', 0, LyricBarJukebox.UpperY);
+      Self.ReadProperty('JukeboxLyricsUpperBar', 'IndicatorYOffset', 0, LyricBarJukebox.IndicatorYOffset);
+      Self.ReadProperty('JukeboxLyricsLowerBar', 'H', 0, LyricBarJukebox.LowerH);
+      Self.ReadProperty('JukeboxLyricsLowerBar', 'W', 0, LyricBarJukebox.LowerW);
+      Self.ReadProperty('JukeboxLyricsLowerBar', 'X', 0, LyricBarJukebox.LowerX);
+      Self.ReadProperty('JukeboxLyricsLowerBar', 'Y', 0, LyricBarJukebox.LowerY);
 
       // Jukebox
       ThemeLoadStatic(Jukebox.StaticTimeProgress, 'JukeboxTimeProgress');
@@ -2255,14 +2247,15 @@ begin
       ThemeLoadStatic(OptionsJukebox.TexB,            'OptionsJukeboxBlue');
       ThemeLoadStatic(OptionsJukebox.TexColor,        'OptionsJukeboxColor');
 
-      OptionsJukebox.UpperX := ThemeIni.ReadInteger('OptionsJukeboxUpperBar', 'X', 0);
-      OptionsJukebox.UpperW := ThemeIni.ReadInteger('OptionsJukeboxUpperBar', 'W', 0);
-      OptionsJukebox.UpperY := ThemeIni.ReadInteger('OptionsJukeboxUpperBar', 'Y', 0);
-      OptionsJukebox.UpperH := ThemeIni.ReadInteger('OptionsJukeboxUpperBar', 'H', 0);
-      OptionsJukebox.LowerX := ThemeIni.ReadInteger('OptionsJukeboxLowerBar', 'X', 0);
-      OptionsJukebox.LowerW := ThemeIni.ReadInteger('OptionsJukeboxLowerBar', 'W', 0);
-      OptionsJukebox.LowerY := ThemeIni.ReadInteger('OptionsJukeboxLowerBar', 'Y', 0);
-      OptionsJukebox.LowerH := ThemeIni.ReadInteger('OptionsJukeboxLowerBar', 'H', 0);
+      Self.SetInheritance('OptionsJukeboxUpperBar');
+      Self.ReadProperty('OptionsJukeboxUpperBar', 'H', 0, OptionsJukebox.UpperH);
+      Self.ReadProperty('OptionsJukeboxUpperBar', 'W', 0, OptionsJukebox.UpperW);
+      Self.ReadProperty('OptionsJukeboxUpperBar', 'X', 0, OptionsJukebox.UpperX);
+      Self.ReadProperty('OptionsJukeboxUpperBar', 'Y', 0, OptionsJukebox.UpperY);
+      Self.ReadProperty('OptionsJukeboxLowerBar', 'H', 0, OptionsJukebox.LowerH);
+      Self.ReadProperty('OptionsJukeboxLowerBar', 'W', 0, OptionsJukebox.LowerW);
+      Self.ReadProperty('OptionsJukeboxLowerBar', 'X', 0, OptionsJukebox.LowerX);
+      Self.ReadProperty('OptionsJukeboxLowerBar', 'Y', 0, OptionsJukebox.LowerY);
 
       ThemeLoadButton(OptionsJukebox.ButtonExit,              'OptionsJukeboxButtonExit');
 
@@ -2509,8 +2502,11 @@ procedure TTheme.ThemeLoadBackground(var ThemeBackground: TThemeBackground; cons
 var
   BGType: string;
   I: TBackgroundType;
+  TempColor: integer;
 begin
-  BGType := LowerCase(ThemeIni.ReadString(Name + 'Background', 'Type', 'auto'));
+  Self.SetInheritance(Name+'Background');
+  Self.ReadProperty(Name+'Background', 'Type', 'auto', BGType);
+  BGType := LowerCase(BGType);
 
   ThemeBackground.BGType := bgtAuto;
   for I := Low(BGT_Names) to High(BGT_Names) do
@@ -2522,11 +2518,14 @@ begin
     end;
   end;
 
-  ThemeBackground.Tex     := ThemeIni.ReadString(Name + 'Background', 'Tex', '');
-  ThemeBackground.Color.R := ThemeIni.ReadFloat(Name + 'Background', 'ColR', 1);
-  ThemeBackground.Color.G := ThemeIni.ReadFloat(Name + 'Background', 'ColG', 1);
-  ThemeBackground.Color.B := ThemeIni.ReadFloat(Name + 'Background', 'ColB', 1);
-  ThemeBackground.Alpha   := ThemeIni.ReadFloat(Name + 'Background', 'Alpha', 1);
+  Self.ReadProperty(Name+'Background', 'Tex', '', ThemeBackground.Tex);
+  Self.ReadProperty(Name+'Background', 'ColR', 1, TempColor);
+  ThemeBackground.Color.R := TempColor;
+  Self.ReadProperty(Name+'Background', 'ColG', 1, TempColor);
+  ThemeBackground.Color.G := TempColor;
+  Self.ReadProperty(Name+'Background', 'ColB', 1, TempColor);
+  ThemeBackground.Color.B := TempColor;
+  Self.ReadProperty(Name+'Background', 'Alpha', 1, ThemeBackground.Alpha);
 end;
 
 procedure TTheme.ThemeLoadText(var ThemeText: TThemeText; const Name: string);
@@ -2640,7 +2639,8 @@ begin
   ThemeLoadButton(Collection.Style, Name);
 
   //Load Other Attributes
-  T := ThemeIni.ReadInteger (Name, 'FirstChild', 0);
+  Self.SetInheritance(Name);
+  Self.ReadProperty(Name, 'FirstChild', 0, T);
   if (T > 0) And (T < 256) then
     Collection.FirstChild := T
   else
@@ -2843,10 +2843,11 @@ end;
 
 procedure TTheme.ThemeLoadPosition(var ThemePosition: TThemePosition; const Name: string);
 begin
-  ThemePosition.X := ThemeIni.ReadInteger(Name, 'X', 0);
-  ThemePosition.Y := ThemeIni.ReadInteger(Name, 'Y', 0);
-  ThemePosition.H := ThemeIni.ReadInteger(Name, 'H', 0);
-  ThemePosition.W := ThemeIni.ReadInteger(Name, 'W', 0);
+  Self.SetInheritance(Name);
+  Self.ReadProperty(Name, 'H', 0, ThemePosition.H);
+  Self.ReadProperty(Name, 'W', 0, ThemePosition.W);
+  Self.ReadProperty(Name, 'X', 0, ThemePosition.X);
+  Self.ReadProperty(Name, 'Y', 0, ThemePosition.Y);
 end;
 
 procedure TTheme.LoadColors;
@@ -2857,6 +2858,7 @@ var
 begin
   SL := TStringList.Create();
   ThemeIni.ReadSection('Colors', SL);
+  Self.SetInheritance('Colors');
 
   // normal colors
   SetLength(Color, SL.Count);
@@ -2864,7 +2866,7 @@ begin
   begin
     Color[C].Name := SL.Strings[C];
 
-    S := ThemeIni.ReadString('Colors', SL.Strings[C], '');
+    Self.ReadProperty('Colors', SL.Strings[C], '', S);
 
     Color[C].RGB.R := StrToInt(Copy(S, 1, Pos(' ' , S)-1))/255;
     Delete(S, 1, Pos(' ', S));
@@ -3733,6 +3735,8 @@ begin
 end;
 
 procedure TTheme.ThemePartyLoad;
+var
+  TempString: string;
 begin
   //Party Screens:
   //Party NewRound
@@ -3805,18 +3809,20 @@ begin
   ThemeLoadStatic (PartyScore.StaticTeam3Deco, 'PartyScoreStaticTeam3Deco');
 
   //Load Party Score DecoTextures Object
-  PartyScore.DecoTextures.ChangeTextures := (ThemeIni.ReadInteger('PartyScoreDecoTextures', 'ChangeTextures', 0) = 1);
-  PartyScore.DecoTextures.FirstTexture   :=  ThemeIni.ReadString('PartyScoreDecoTextures',  'FirstTexture', '');
-  PartyScore.DecoTextures.FirstTyp       :=  ParseTextureType(ThemeIni.ReadString('PartyScoreDecoTextures', 'FirstTyp', ''), TEXTURE_TYPE_COLORIZED);
-  PartyScore.DecoTextures.FirstColor     :=  ThemeIni.ReadString('PartyScoreDecoTextures',  'FirstColor', 'Black');
-
-  PartyScore.DecoTextures.SecondTexture  :=  ThemeIni.ReadString('PartyScoreDecoTextures',  'SecondTexture', '');
-  PartyScore.DecoTextures.SecondTyp      :=  ParseTextureType(ThemeIni.ReadString('PartyScoreDecoTextures', 'SecondTyp', ''), TEXTURE_TYPE_COLORIZED);
-  PartyScore.DecoTextures.SecondColor    :=  ThemeIni.ReadString('PartyScoreDecoTextures',  'SecondColor', 'Black');
-
-  PartyScore.DecoTextures.ThirdTexture   :=  ThemeIni.ReadString('PartyScoreDecoTextures',  'ThirdTexture', '');
-  PartyScore.DecoTextures.ThirdTyp       :=  ParseTextureType(ThemeIni.ReadString('PartyScoreDecoTextures', 'ThirdTyp', ''), TEXTURE_TYPE_COLORIZED);
-  PartyScore.DecoTextures.ThirdColor     :=  ThemeIni.ReadString('PartyScoreDecoTextures',  'ThirdColor', 'Black');
+  Self.SetInheritance('PartyScoreDecoTextures');
+  Self.ReadProperty('PartyScoreDecoTextures', 'ChangeTextures', false, PartyScore.DecoTextures.ChangeTextures);
+  Self.ReadProperty('PartyScoreDecoTextures', 'FirstColor', 'Black', PartyScore.DecoTextures.FirstColor);
+  Self.ReadProperty('PartyScoreDecoTextures', 'FirstTexture', '', PartyScore.DecoTextures.FirstTexture);
+  Self.ReadProperty('PartyScoreDecoTextures', 'FirstTyp', '', TempString);
+  PartyScore.DecoTextures.FirstTyp :=  ParseTextureType(TempString, TEXTURE_TYPE_COLORIZED);
+  Self.ReadProperty('PartyScoreDecoTextures', 'SecondColor', 'Black', PartyScore.DecoTextures.SecondColor);
+  Self.ReadProperty('PartyScoreDecoTextures', 'SecondTexture', '', PartyScore.DecoTextures.SecondTexture);
+  Self.ReadProperty('PartyScoreDecoTextures', 'SecondTyp', '', TempString);
+  PartyScore.DecoTextures.SecondTyp :=  ParseTextureType(TempString, TEXTURE_TYPE_COLORIZED);
+  Self.ReadProperty('PartyScoreDecoTextures', 'ThirdColor', 'Black', PartyScore.DecoTextures.ThirdColor);
+  Self.ReadProperty('PartyScoreDecoTextures', 'ThirdTexture', '', PartyScore.DecoTextures.ThirdTexture);
+  Self.ReadProperty('PartyScoreDecoTextures', 'ThirdTyp', '', TempString);
+  PartyScore.DecoTextures.ThirdTyp :=  ParseTextureType(TempString, TEXTURE_TYPE_COLORIZED);
 
   ThemeLoadText (PartyScore.TextWinner, 'PartyScoreTextWinner');
 
