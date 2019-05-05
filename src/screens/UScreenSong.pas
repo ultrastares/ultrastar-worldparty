@@ -711,16 +711,16 @@ begin
   InfoMessageText := AddText(Theme.Song.InfoMessageText);
 
   // Duet Names Singers
-  Self.Static2PlayersDuetSingerP1 := Self.AddStatic(UThemes.Theme.Song.Static2PlayersDuetSingerP1);
-  Self.Static2PlayersDuetSingerP2 := Self.AddStatic(UThemes.Theme.Song.Static2PlayersDuetSingerP2);
-  Self.Static4PlayersDuetSingerP3 := Self.AddStatic(UThemes.Theme.Song.Static4PlayersDuetSingerP3);
-  Self.Static4PlayersDuetSingerP4 := Self.AddStatic(UThemes.Theme.Song.Static4PlayersDuetSingerP4);
-  Self.Static3PlayersDuetSingerP1 := Self.AddStatic(UThemes.Theme.Song.Static3PlayersDuetSingerP1);
-  Self.Static3PlayersDuetSingerP2 := Self.AddStatic(UThemes.Theme.Song.Static3PlayersDuetSingerP2);
-  Self.Static3PlayersDuetSingerP3 := Self.AddStatic(UThemes.Theme.Song.Static3PlayersDuetSingerP3);
-  Self.Static6PlayersDuetSingerP4 := Self.AddStatic(UThemes.Theme.Song.Static6PlayersDuetSingerP4);
+  Self.Static6PlayersDuetSingerP6 := Self.AddStatic(UThemes.Theme.Song.Static6PlayersDuetSingerP6); //it's very important the order to overlap 6 and 4 with 3 and 2 statics
   Self.Static6PlayersDuetSingerP5 := Self.AddStatic(UThemes.Theme.Song.Static6PlayersDuetSingerP5);
-  Self.Static6PlayersDuetSingerP6 := Self.AddStatic(UThemes.Theme.Song.Static6PlayersDuetSingerP6);
+  Self.Static6PlayersDuetSingerP4 := Self.AddStatic(UThemes.Theme.Song.Static6PlayersDuetSingerP4);
+  Self.Static3PlayersDuetSingerP3 := Self.AddStatic(UThemes.Theme.Song.Static3PlayersDuetSingerP3);
+  Self.Static3PlayersDuetSingerP2 := Self.AddStatic(UThemes.Theme.Song.Static3PlayersDuetSingerP2);
+  Self.Static3PlayersDuetSingerP1 := Self.AddStatic(UThemes.Theme.Song.Static3PlayersDuetSingerP1);
+  Self.Static4PlayersDuetSingerP4 := Self.AddStatic(UThemes.Theme.Song.Static4PlayersDuetSingerP4);
+  Self.Static4PlayersDuetSingerP3 := Self.AddStatic(UThemes.Theme.Song.Static4PlayersDuetSingerP3);
+  Self.Static2PlayersDuetSingerP2 := Self.AddStatic(UThemes.Theme.Song.Static2PlayersDuetSingerP2);
+  Self.Static2PlayersDuetSingerP1 := Self.AddStatic(UThemes.Theme.Song.Static2PlayersDuetSingerP1);
   Self.Text2PlayersDuetSingerP1 := Self.AddText(UThemes.Theme.Song.Text2PlayersDuetSingerP1);
   Self.Text2PlayersDuetSingerP2 := Self.AddText(UThemes.Theme.Song.Text2PlayersDuetSingerP2);
   Self.Text3PlayersDuetSingerP1 := Self.AddText(UThemes.Theme.Song.Text3PlayersDuetSingerP1);
@@ -2006,7 +2006,7 @@ begin
   Self.Text[Self.TextTitle].Visible := VisibilityNoList;
   Self.Text[Self.TextYear].Visible := VisibilityNoList;
   Self.SetRangeVisibility(Visibility and Self.FreeListMode(), [Self.StaticNonParty[0], Self.StaticNonParty[4]], [Self.TextNonParty[0], Self.TextNonParty[4]]); //set legend visibility
-  Self.SetRangeVisibility(false, [Self.Static2PlayersDuetSingerP1, Self.Static6PlayersDuetSingerP6], [Self.Text2PlayersDuetSingerP1, Self.Text3PlayersDuetSingerP3]); //hide duets
+  Self.SetRangeVisibility(false, [Self.Static6PlayersDuetSingerP6, Self.Static2PlayersDuetSingerP1], [Self.Text2PlayersDuetSingerP1, Self.Text3PlayersDuetSingerP3]); //hide duets
   if High(Self.StaticsList) > 0 then //hide items in smList, too after change from other mode
     for I := 0 to High(Self.StaticsList) do
     begin
@@ -2077,24 +2077,22 @@ begin
           Self.Text[Self.Text3PlayersDuetSingerP2].Text := DuetPlayer2;
           Self.Text[Self.Text3PlayersDuetSingerP3].Text := DuetPlayer1;
         end;
-        Visibility := true;
+        Self.SetRangeVisibility(
+          true,
+          [IfThen(UNote.PlayersPlay = 3, Self.Static3PlayersDuetSingerP3, Self.Static6PlayersDuetSingerP6), Self.Static3PlayersDuetSingerP1],
+          [Self.Text3PlayersDuetSingerP1, Self.Text3PlayersDuetSingerP3]
+        );
       end
       else
       begin
         Self.Text[Self.Text2PlayersDuetSingerP1].Text := DuetPlayer1;
         Self.Text[Self.Text2PlayersDuetSingerP2].Text := DuetPlayer2;
-        Visibility := false; //small trick to use one variable :)
+        Self.SetRangeVisibility(
+          true,
+          [IfThen(UNote.PlayersPlay <= 2, Self.Static2PlayersDuetSingerP2, Self.Static4PlayersDuetSingerP4), Self.Static2PlayersDuetSingerP1],
+          [Self.Text2PlayersDuetSingerP1, Self.Text2PlayersDuetSingerP2]
+        );
       end;
-      Self.SetRangeVisibility(
-        Visibility,
-        [Self.Static3PlayersDuetSingerP1, IfThen(UNote.PlayersPlay = 3, Self.Static3PlayersDuetSingerP3, Self.Static6PlayersDuetSingerP6)],
-        [Self.Text3PlayersDuetSingerP1, Self.Text3PlayersDuetSingerP3]
-      );
-      Self.SetRangeVisibility(
-        not Visibility,
-        [Self.Static2PlayersDuetSingerP1, IfThen(UNote.PlayersPlay <= 2, Self.Static2PlayersDuetSingerP2, Self.Static4PlayersDuetSingerP4)],
-        [Self.Text2PlayersDuetSingerP1, Self.Text2PlayersDuetSingerP2]
-      );
     end;
 
     if (UIni.Ini.ShowScores > 0) and (Self.Mode = smNormal) and (not Song.isDuet) then //show scores
