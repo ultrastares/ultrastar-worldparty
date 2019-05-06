@@ -73,7 +73,7 @@ const
   LATENCY_AUTODETECT = -1; // for field Latency
   DEFAULT_RESOLUTION = '800x600';
   DefaultTheme = 'Fantasy';
-  IMaxPlayerCount = 12; //TODO change to 6 and fix UScreenPlayerSelection RETURN key
+  IMaxPlayerCount = 6;
   IPlayers: array[0..4] of UTF8String = ('1', '2', '3', '4', '6');
   IPlayersVals: array[0..4] of integer = (1, 2, 3, 4, 6);
 
@@ -582,8 +582,7 @@ begin
   IAutoModeTranslated[1]         := ULanguage.Language.Translate('OPTION_VALUE_SEND');
   IAutoModeTranslated[2]         := ULanguage.Language.Translate('OPTION_VALUE_SAVE');
 
-  //TODO change 6 with IMaxPlayerCount when change 12 value in this variable
-  for I:=0 to 6-1 do
+  for I:=0 to IMaxPlayerCount-1 do
     IAutoPlayerTranslated[I]       :=ULanguage.Language.Translate('OPTION_PLAYER_' + IntToStr(I));
 
   IAutoPlayerTranslated[6] := ULanguage.Language.Translate('OPTION_ALL_PLAYERS');
@@ -1049,7 +1048,7 @@ begin
   // Templates for Names Mod
   for I := 0 to 2 do
     NameTeam[I] := IniFile.ReadString('NameTeam', 'T'+IntToStr(I+1), 'Team'+IntToStr(I+1));
-  for I := 0 to 11 do
+  for I := 0 to IMaxPlayerCount - 1 do
     NameTemplate[I] := IniFile.ReadString('NameTemplate', 'Name'+IntToStr(I+1), 'Template'+IntToStr(I+1));
 
   // Players
