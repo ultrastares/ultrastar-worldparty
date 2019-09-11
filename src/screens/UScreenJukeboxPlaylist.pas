@@ -25,61 +25,48 @@ unit UScreenJukeboxPlaylist;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
 uses
-  UMenu,
-  sdl2,
-  UDisplay,
-  UMusic,
-  UNote,
-  ULog,
-  UFiles,
-  SysUtils,
-  UThemes;
+  UMenu;
 
 type
   TScreenJukeboxPlaylist = class(TMenu)
-    private
-      SelectPlayList:  cardinal;
-      SelectPlayListItems: cardinal;
-
-      IPlaylist:  array of UTF8String;
-      IPlayListItems: array of UTF8String;
-
-      PlayList:  integer;
+    protected
+      PlayList: integer;
       PlayListItems: integer;
-
-      procedure SetPlaylists;
+      PlayListItemsStrings: array of UTF8String;
+      SelectPlayList: integer;
+      SelectPlayListItems: integer;
+      procedure SetPlaylistsItems(); //sets playlist and playlist items slider
     public
-      constructor Create; override;
+      constructor Create(); override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
-      procedure OnShow; override;
-      procedure SetAnimationProgress(Progress: real); override;
-
-      procedure InitJukebox;
+      procedure OnShow(); override;
   end;
 
 implementation
 
 uses
+  sdl2,
+  SysUtils,
   UGraphic,
   UIni,
   ULanguage,
-  UMain,
-  UParty,
+  ULog,
+  UMusic,
   UPlaylist,
   USong,
   USongs,
   UScreenJukebox,
-  UTexture,
+  UThemes,
   UUnicodeUtils;
 
 function TScreenJukeboxPlaylist.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
+var
+  I: integer;
 begin
   Result := true;
   if (PressedDown) then
@@ -97,225 +84,134 @@ begin
     case PressedKey of
       SDLK_ESCAPE,
       SDLK_BACKSPACE :
-        begin
-          AudioPlayback.PlaySound(SoundLib.Back);
-          FadeTo(@ScreenMain);
-        end;
-
+        Self.FadeTo(@ScreenMain, UMusic.SoundLib.Back);
       SDLK_RETURN:
         begin
-          //Don'T start when Playlist is Selected and there are no Playlists
-          if (Playlist = 3) and (Length(PlaylistMan.Playlists) = 0) then
-            Exit;
+          UGraphic.ScreenSong.Mode := smJukebox;
+          SetLength(UGraphic.ScreenJukebox.JukeboxSongsList, 0);
+          SetLength(UGraphic.ScreenJukebox.JukeboxVisibleSongs, 0);
+          UGraphic.ScreenJukebox.ActualInteraction := 0;
+          UGraphic.ScreenJukebox.CurrentSongList := 0;
+          UGraphic.ScreenJukebox.ListMin := 0;
+          UGraphic.ScreenJukebox.Interaction := 0;
+          case Self.Playlist of
+            0: ;
+            1:
+              begin
+                if Length(UPlaylist.PlaylistMan.Playlists) = 0 then
+                  Exit();
 
+                USongs.CatSongs.ShowPlaylist(Self.PlayListItems);
+                UPlaylist.PlaylistMan.SetPlayList(Self.PlayListItems);
+              end;
+            11:
+              begin
+                Self.FadeTo(@UGraphic.ScreenSong, UMusic.SoundLib.Start);
+                Exit();
+              end;
+            else
+              USongs.CatSongs.ShowCategory(Self.PlayListItems + 1);
+          end;
           try
-            InitJukebox;
+            for I := 0 to High(USongs.CatSongs.Song) do
+              if USongs.CatSongs.Song[I].Visible then
+                UGraphic.ScreenJukebox.AddSongToJukeboxList(I);
+
+            UGraphic.ScreenJukebox.CurrentSongID := UGraphic.ScreenJukebox.JukeboxVisibleSongs[0];
+            FadeTo(@UGraphic.ScreenJukebox, UMusic.SoundLib.Start);
           except
             Log.LogWarn('Starting jukebox failed. Most likely no folder / empty folder / paylist with not available songs was selected.', 'UScreenJokeboxPlaylist.ParseInput');
           end;
         end;
-      // Up and Down could be done at the same time,
-      // but I don't want to declare variables inside
-      // functions like this one, called so many times
-      SDLK_DOWN:    InteractNext;
-      SDLK_UP:      InteractPrev;
+      SDLK_DOWN:
+        Self.InteractNext();
+      SDLK_UP:
+        Self.InteractPrev();
       SDLK_RIGHT:
         begin
-          AudioPlayback.PlaySound(SoundLib.Option);
-          InteractInc;
-
-          //Change PlayListItems if Playlist is Changed
-          if (Interaction = SelectPlayList) then
-          begin
-            SetPlaylists;
-          end;
-
+          UMusic.AudioPlayback.PlaySound(UMusic.SoundLib.Option);
+          Self.InteractInc();
+          Self.SetPlaylistsItems();
         end;
       SDLK_LEFT:
         begin
-          AudioPlayback.PlaySound(SoundLib.Option);
-          InteractDec;
-
-          //Change PlayListItems if Playlist is Changed
-          if (Interaction = SelectPlayList) then
-          begin
-            SetPlaylists;
-          end;
-
+          UMusic.AudioPlayback.PlaySound(UMusic.SoundLib.Option);
+          Self.InteractDec();
+          Self.SetPlaylistsItems();
         end;
     end;
   end;
 end;
 
-constructor TScreenJukeboxPlaylist.Create;
-begin
-  inherited Create;
-
-  //Clear all Selects
-  PlayList := 0;
-  PlayListItems := 0;
-
-  // playlist modes
-  SetLength(IPlayListItems, 1);
-  IPlayListItems[0] := '---';
-
-  SetLength(IPlaylist, 4);
-
-  IPlaylist[0] := Language.Translate('PARTY_PLAYLIST_ALL');
-  IPlaylist[1] := Language.Translate('PARTY_PLAYLIST_CATEGORY');
-  IPlaylist[2] := Language.Translate('PARTY_PLAYLIST_PLAYLIST');
-  IPlaylist[3] := Language.Translate('PARTY_PLAYLIST_MANUAL');
-
-  //Load Screen From Theme
-  LoadFromTheme(Theme.JukeboxPlaylist);
-
-  Theme.JukeboxPlaylist.SelectPlayList.oneItemOnly := true;
-  Theme.JukeboxPlaylist.SelectPlayList.showArrows := true;
-  SelectPlayList  := AddSelectSlide(Theme.JukeboxPlaylist.SelectPlayList, PlayList, IPlaylist);
-
-  Theme.JukeboxPlaylist.SelectPlayListItems.oneItemOnly := true;
-  Theme.JukeboxPlaylist.SelectPlayListItems.showArrows := true;
-  SelectPlayListItems := AddSelectSlide(Theme.JukeboxPlaylist.SelectPlayListItems, PlayListItems, IPlayListItems);
-
-  Interaction := 0;
-end;
-
-procedure TScreenJukeboxPlaylist.SetPlaylists;
-var
-  I: integer;
-begin
-  case Playlist of
-    0:
-      begin
-        SetLength(IPlayListItems, 1);
-        IPlayListItems[0] := '---';
-      end;
-    1:
-      begin
-        SetLength(IPlayListItems, 0);
-        for I := 0 to high(CatSongs.Song) do
-        begin
-          if (CatSongs.Song[I].Main) then
-          begin
-            SetLength(IPlayListItems, Length(IPlayListItems) + 1);
-            IPlayListItems[high(IPlayListItems)] := CatSongs.Song[I].Artist;
-          end;
-        end;
-
-        if (Length(IPlayListItems) = 0) then
-        begin
-          SetLength(IPlayListItems, 1);
-          IPlayListItems[0] := 'No Categories found';
-        end;
-      end;
-    2:
-      begin
-        if (Length(PlaylistMan.Playlists) > 0) then
-        begin
-          SetLength(IPlayListItems, Length(PlaylistMan.Playlists));
-          PlaylistMan.GetNames(IPlayListItems);
-        end
-        else
-        begin
-          SetLength(IPlayListItems, 1);
-          IPlayListItems[0] := 'No Playlists found';
-        end;
-      end;
-    3:
-      begin
-        SetLength(IPlayListItems, 1);
-        IPlayListItems[0] := '---';
-      end;
-  end;
-
-  PlayListItems := 0;
-  UpdateSelectSlideOptions(Theme.PartyOptions.SelectPlayListItems, SelectPlayListItems, IPlayListItems, PlayListItems);
-end;
-
-procedure TScreenJukeboxPlaylist.OnShow;
+constructor TScreenJukeboxPlaylist.Create();
 begin
   inherited;
-  if not Assigned(UGraphic.ScreenJukebox) then //load the screen only the first time
-    UGraphic.ScreenJukebox := TScreenJukebox.Create();
+  Self.LoadFromTheme(UThemes.Theme.JukeboxPlaylist);
+  Self.SelectPlayList := Self.AddSelectSlide(UThemes.Theme.JukeboxPlaylist.SelectPlayList, Self.PlayList, [
+    ULanguage.Language.Translate('PARTY_PLAYLIST_ALL'),
+    ULanguage.Language.Translate('PARTY_PLAYLIST_PLAYLIST'),
+    ULanguage.Language.Translate('OPTION_VALUE_EDITION'),
+    ULanguage.Language.Translate('OPTION_VALUE_GENRE'),
+    ULanguage.Language.Translate('OPTION_VALUE_LANGUAGE'),
+    ULanguage.Language.Translate('OPTION_VALUE_FOLDER'),
+    ULanguage.Language.Translate('OPTION_VALUE_TITLE'),
+    ULanguage.Language.Translate('OPTION_VALUE_ARTIST'),
+    ULanguage.Language.Translate('OPTION_VALUE_ARTIST2'),
+    ULanguage.Language.Translate('OPTION_VALUE_YEAR'),
+    ULanguage.Language.Translate('OPTION_VALUE_DECADE'),
+    ULanguage.Language.Translate('PARTY_PLAYLIST_MANUAL')
+  ]);
+  Self.SelectPlayListItems := Self.AddSelectSlide(UThemes.Theme.JukeboxPlaylist.SelectPlayListItems, Self.PlayListItems, Self.PlayListItemsStrings);
 end;
 
-procedure TScreenJukeboxPlaylist.InitJukebox;
+procedure TScreenJukeboxPlaylist.OnShow();
+begin
+  inherited;
+  Self.Interaction := 0;
+  if not Assigned(UGraphic.ScreenJukebox) then //load the screen only the first time
+    UGraphic.ScreenJukebox := TScreenJukebox.Create();
+
+  Self.SetPlaylistsItems();
+end;
+
+procedure TScreenJukeboxPlaylist.SetPlaylistsItems();
 var
   I, J: integer;
 begin
-  ScreenSong.Mode := smJukebox;
-  AudioPlayback.PlaySound(SoundLib.Start);
-
-  SetLength(ScreenJukebox.JukeboxSongsList, 0);
-  SetLength(ScreenJukebox.JukeboxVisibleSongs, 0);
-
-  ScreenJukebox.ActualInteraction := 0;
-  ScreenJukebox.CurrentSongList := 0;
-  ScreenJukebox.ListMin := 0;
-  ScreenJukebox.Interaction := 0;
-
-  if PlayList = 0 then
-  begin
-    for I := 0 to High(CatSongs.Song) do
-    begin
-      if not (CatSongs.Song[I].Main) then
-        ScreenJukebox.AddSongToJukeboxList(I);
-    end;
-
-    ScreenJukebox.CurrentSongID := ScreenJukebox.JukeboxVisibleSongs[0];
-
-    FadeTo(@ScreenJukebox);
-  end;
-
-  if Playlist = 1 then
-  begin
-    J := -1;
-    for I := 0 to high(CatSongs.Song) do
-    begin
-      if CatSongs.Song[I].Main then
-        Inc(J);
-
-      if J = PlayListItems then
+  Self.SelectsS[Self.SelectPlayList].Visible := true;
+  Self.SelectsS[Self.SelectPlayListItems].Visible := true;
+  case Self.Playlist of
+    0, 11: //all or manual selection
       begin
-        ScreenJukebox.AddSongToJukeboxList(I);
+        UGraphic.ScreenSong.Refresh(UIni.Ini.Sorting, false, false);
+        Self.SelectsS[Self.SelectPlayListItems].Visible := false;
       end;
-    end;
-
-    ScreenJukebox.CurrentSongID := ScreenJukebox.JukeboxVisibleSongs[0];
-
-    FadeTo(@ScreenJukebox);
+    1: //playlist
+      begin
+        UGraphic.ScreenSong.Refresh(UIni.Ini.Sorting, false, false);
+        if Length(UPlaylist.PlaylistMan.Playlists) > 0 then
+        begin
+          SetLength(Self.PlayListItemsStrings, Length(UPlaylist.PlaylistMan.Playlists));
+          UPlaylist.PlaylistMan.GetNames(Self.PlayListItemsStrings);
+        end
+        else
+        begin
+          SetLength(Self.PlayListItemsStrings, 1);
+          Self.PlayListItemsStrings[0] := ULanguage.Language.Translate('SONG_MENU_PLAYLIST_NOEXISTING');
+        end;
+      end;
+    else //categories
+      UGraphic.ScreenSong.Refresh(Self.Playlist - 2, true, false);
+      SetLength(Self.PlayListItemsStrings, 0);
+      for I := 0 to High(USongs.CatSongs.Song) do
+        if USongs.CatSongs.Song[I].Main then
+        begin
+          J := Length(Self.PlayListItemsStrings);
+          SetLength(Self.PlayListItemsStrings, J + 1);
+          Self.PlayListItemsStrings[J] := USongs.CatSongs.Song[I].Artist+' ('+IntToStr(USongs.CatSongs.Song[I].CatNumber)+')';
+        end;
   end;
-
-  if Playlist = 2 then
-  begin
-    if(High(PlaylistMan.PlayLists[PlayListItems].Items)>0) then
-    begin
-    for I := 0 to High(PlaylistMan.PlayLists[PlayListItems].Items) do
-    begin
-      ScreenJukebox.AddSongToJukeboxList(PlaylistMan.PlayLists[PlayListItems].Items[I].SongID);
-    end;
-
-    ScreenJukebox.CurrentSongID := ScreenJukebox.JukeboxVisibleSongs[0];
-
-    FadeTo(@ScreenJukebox);
-    end
-    else
-    begin
-      Log.LogWarn('Can not play selected playlist in JukeBox because playlist is empty or no song found.', 'ScreenJukeboxPlaylist.InitJukeBox');
-    end;
-  end;
-
-  if PlayList = 3 then
-  begin
-    FadeTo(@ScreenSong);
-  end;
-
-end;
-
-procedure TScreenJukeboxPlaylist.SetAnimationProgress(Progress: real);
-begin
-  //for I := 0 to 6 do
-  //  SelectS[I].Texture.ScaleW := Progress;
+  Self.UpdateSelectSlideOptions(UThemes.Theme.JukeboxPlaylist.SelectPlayListItems, Self.SelectPlayListItems, Self.PlayListItemsStrings, Self.PlayListItems);
 end;
 
 end.
