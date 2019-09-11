@@ -55,7 +55,6 @@ uses
   UScreenOptionsAdvanced,
   UScreenOptionsNetwork,
   UScreenOptionsWebcam,
-  UScreenOptionsJukebox,
   UScreenSong,
   UScreenSingController,
   UScreenJukebox,
@@ -147,7 +146,6 @@ var
   ScreenOptionsAdvanced:  TScreenOptionsAdvanced;
   ScreenOptionsNetwork:   TScreenOptionsNetwork;
   ScreenOptionsWebcam:    TScreenOptionsWebcam;
-  ScreenOptionsJukebox:   TScreenOptionsJukebox;
   ScreenOpen:         TScreenOpen;
   ScreenAbout:        TScreenAbout;
   ScreenDevelopers:   TScreenDevelopers;
@@ -719,7 +717,6 @@ begin
   FreeAndNil(ScreenOptionsAdvanced);
   FreeAndNil(ScreenOptionsNetwork);
   FreeAndNil(ScreenOptionsWebcam);
-  FreeAndNil(ScreenOptionsJukebox);
   FreeAndNil(ScreenJukebox);
   FreeAndNil(ScreenJukeboxOptions);
   FreeAndNil(ScreenJukeboxPlaylist);

@@ -87,7 +87,6 @@ type
 
   TIni = class
     private
-
       function ExtractKeyIndex(const Key, Prefix, Suffix: string): integer;
       function GetMaxKeyIndex(Keys: TStringList; const Prefix, Suffix: string): integer;
       function ReadArrayIndex(const SearchArray: array of UTF8String; IniFile: TCustomIniFile;
@@ -99,11 +98,9 @@ type
       procedure LoadInputDeviceCfg(IniFile: TMemIniFile);
       procedure SaveInputDeviceCfg(IniFile: TIniFile);
       procedure LoadThemes(IniFile: TCustomIniFile);
-
       procedure LoadPaths(IniFile: TCustomIniFile);
       procedure LoadScreenModes(IniFile: TCustomIniFile);
       procedure LoadWebcamSettings(IniFile: TCustomIniFile);
-
     public
       // Players or Teams colors
       SingColor:      array[0..(IMaxPlayerCount-1)] of integer;
@@ -171,10 +168,30 @@ type
       PreviewVolume:  integer;
       PreviewFading:  integer;
 
-      // Lyrics
-      LyricsFont:     integer;
-      LyricsEffect:   integer;
-      NoteLines:      integer;
+      //lyrics
+      NoteLines: integer;
+      LyricsFont: integer;
+      LyricsEffect: integer;
+      LyricsTransparency: integer;
+      LyricsSingColor: string;
+      LyricsSingOutlineColor: string;
+      LyricsCurrentColor: string;
+      LyricsCurrentOutlineColor: string;
+      LyricsNextColor: string;
+      LyricsNextOutlineColor: string;
+
+      // Jukebox
+      JukeboxOffset: integer;
+      JukeboxSongMenu: integer;
+      JukeboxFont: integer;
+      JukeboxEffect: integer;
+      JukeboxTransparency: integer;
+      JukeboxSingColor: string;
+      JukeboxSingOutlineColor: string;
+      JukeboxCurrentColor: string;
+      JukeboxCurrentOutlineColor: string;
+      JukeboxNextColor: string;
+      JukeboxNextOutlineColor: string;
 
       // Themes
       Theme:          integer;
@@ -211,54 +228,6 @@ type
       WebCamSaturation: integer;
       WebCamHue:        integer;
       WebCamEffect:     integer;
-
-      // Jukebox
-      JukeboxSongMenu: integer;
-
-      JukeboxFont:     integer;
-      JukeboxEffect:   integer;
-      JukeboxAlpha:    integer;
-
-      JukeboxLine:      integer;
-      JukeboxProperty:  integer;
-
-      // Jukebox Lyric Fill Color
-      JukeboxSingLineColor:   integer;
-      JukeboxActualLineColor: integer;
-      JukeboxNextLineColor:   integer;
-
-      JukeboxSingLineOutlineColor:   integer;
-      JukeboxActualLineOutlineColor: integer;
-      JukeboxNextLineOutlineColor:   integer;
-
-      CurrentJukeboxSingLineOutlineColor:   integer;
-      CurrentJukeboxActualLineOutlineColor: integer;
-      CurrentJukeboxNextLineOutlineColor:   integer;
-
-      JukeboxSingLineOtherColorR: integer;
-      JukeboxSingLineOtherColorG: integer;
-      JukeboxSingLineOtherColorB: integer;
-
-      JukeboxActualLineOtherColorR: integer;
-      JukeboxActualLineOtherColorG: integer;
-      JukeboxActualLineOtherColorB: integer;
-
-      JukeboxNextLineOtherColorR: integer;
-      JukeboxNextLineOtherColorG: integer;
-      JukeboxNextLineOtherColorB: integer;
-
-      JukeboxSingLineOtherOColorR: integer;
-      JukeboxSingLineOtherOColorG: integer;
-      JukeboxSingLineOtherOColorB: integer;
-
-      JukeboxActualLineOtherOColorR: integer;
-      JukeboxActualLineOtherOColorG: integer;
-      JukeboxActualLineOtherOColorB: integer;
-
-      JukeboxNextLineOtherOColorR: integer;
-      JukeboxNextLineOtherOColorG: integer;
-      JukeboxNextLineOtherOColorB: integer;
-
 
       // default encoding for texts (lyrics, song-name, ...)
       DefaultEncoding: TEncoding;
@@ -314,6 +283,7 @@ var
  *}
 
 const
+  YesNo: array[0..1] of UTF8String = ('Off', 'On');
   IDifficulty:  array[0..2] of UTF8String = ('Easy', 'Medium', 'Hard');
   Switch: array[0..1] of UTF8String = ('Off', 'On');
   ITabs:        array[0..1] of UTF8String = ('Off', 'On');
@@ -385,30 +355,22 @@ const
 
   ILyricsFont:    array[0..2] of UTF8String = ('Plain', 'OLine1', 'OLine2');
   ILyricsEffect:  array[0..4] of UTF8String = ('Simple', 'Zoom', 'Slide', 'Ball', 'Shift');
-  ILyricsAlpha:   array[0..20] of UTF8String = ('0.00', '0.05', '0.10', '0.15', '0.20', '0.25', '0.30', '0.35', '0.40', '0.45', '0.50',
-                                                '0.55', '0.60', '0.65', '0.70', '0.75', '0.80', '0.85', '0.90', '0.95', '1.00');
-  ILyricsAlphaVals: array[0..20] of single = (0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50,
-                                              0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 1.00);
-
-  INoteLines:     array[0..1] of UTF8String = ('Off', 'On');
+  ILyricsAlpha: array[0..19] of UTF8String = ('0.05', '0.10', '0.15', '0.20', '0.25', '0.30', '0.35', '0.40', '0.45', '0.50', '0.55', '0.60', '0.65', '0.70', '0.75', '0.80', '0.85', '0.90', '0.95', '1.00');
 
   //for lyric colors
   ILine:             array[0..2] of UTF8String = ('Sing', 'Actual', 'Next');
-  IAttribute:        array[0..1] of UTF8String = ('Fill', 'Outline');
-  ISingLineColor:    array[0..21] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
-  IActualLineColor:  array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
-  INextLineColor:    array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
-  //outline
-  ISingLineOColor:    array[0..2] of UTF8String = ('Black', 'White', 'Other');
-  IActualLineOColor:  array[0..2] of UTF8String = ('Black', 'White', 'Other');
-  INextLineOColor:    array[0..2] of UTF8String = ('Black', 'White', 'Other');
+  IProperty: array[0..1] of UTF8String = ('Fill', 'Outline');
+  LineColor: array[0..21] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
+  LineInactiveColor: array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
+  OutlineColor: array[0..2] of UTF8String = ('Black', 'White', 'Other');
 
   IHexSingColor: array[0..21] of UTF8String = ('0096FF', '3FBF3F', 'FF3FC0', 'DC0000', 'B43FE6', 'FF9000', 'FFFF00', 'D7006F', 'C07F1F', '000000', '00FFE6', 'FF7F66', '99FF66', 'CCCCFF', 'FFE6CC', '339999', '9900CC', '336699', 'FF99FF', '8A5C2E', 'FFCC33', '');
   IHexGrayColor: array[0..9] of UTF8String = ('000000', '202020', '404040', '606060', '808080', 'A0A0A0', 'C0C0C0', 'D6D6D6', 'FFFFFF', '');
   IHexOColor:    array[0..2] of UTF8String = ('000000', 'FFFFFF', '');
 
   IJukeboxSongMenu: array[0..1] of UTF8String = ('Off', 'On');
-
+  JukeboxOffsetLyric: array [0..100] of UTF8String = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49',
+                                                        '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100');
   IColor:         array[0..9] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black');
 
   // Advanced
@@ -447,21 +409,7 @@ const
  *}
 
 var
-  ILyricsFontTranslated:       array[0..2] of UTF8String = ('Plain', 'OLine1', 'OLine2');
-  ILyricsEffectTranslated:     array[0..4] of UTF8String = ('Simple', 'Zoom', 'Slide', 'Ball', 'Shift');
-  INoteLinesTranslated:        array[0..1] of UTF8String = ('Off', 'On');
-
-  //for lyric colors
-  ILineTranslated:             array[0..2] of UTF8String = ('Sing', 'Actual', 'Next');
-  IPropertyTranslated:         array[0..1] of UTF8String = ('Fill', 'Outline');
-
-  ISingLineColorTranslated:    array[0..21] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
-  IActualLineColorTranslated:  array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
-  INextLineColorTranslated:    array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
-  ISingLineOColorTranslated:   array[0..2] of UTF8String = ('Black', 'White', 'Other');
-  IActualLineOColorTranslated: array[0..2] of UTF8String = ('Black', 'White', 'Other');
-  INextLineOColorTranslated:   array[0..2] of UTF8String = ('Black', 'White', 'Other');
-
+  GreyScaleColor: array[0..9] of UTF8String;
   // Network
   ISendNameTranslated:        array[0..1] of UTF8String = ('Off', 'On');
   IAutoModeTranslated:        array[0..2] of UTF8String = ('Off', 'Send', 'Guardar');
@@ -520,62 +468,16 @@ begin
     IBlue[I]  := IntToStr(I);
   end;
 
-  ISingLineColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLUE');
-  ISingLineColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_GREEN');
-  ISingLineColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_PINK');
-  ISingLineColorTranslated[3] := ULanguage.Language.Translate('OPTION_VALUE_RED');
-  ISingLineColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_VIOLET');
-  ISingLineColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_ORANGE');
-  ISingLineColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_YELLOW');
-  ISingLineColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_MAGENTA');
-  ISingLineColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_BROWN');
-  ISingLineColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
-  ISingLineColorTranslated[10] := ULanguage.Language.Translate('OPTION_VALUE_TURQUOISE');
-  ISingLineColorTranslated[11] := ULanguage.Language.Translate('OPTION_VALUE_SALMON');
-  ISingLineColorTranslated[12] := ULanguage.Language.Translate('OPTION_VALUE_GREENYELLOW');
-  ISingLineColorTranslated[13] := ULanguage.Language.Translate('OPTION_VALUE_LAVENDER');
-  ISingLineColorTranslated[14] := ULanguage.Language.Translate('OPTION_VALUE_BEIGE');
-  ISingLineColorTranslated[15] := ULanguage.Language.Translate('OPTION_VALUE_TEAL');
-  ISingLineColorTranslated[16] := ULanguage.Language.Translate('OPTION_VALUE_ORCHID');
-  ISingLineColorTranslated[17] := ULanguage.Language.Translate('OPTION_VALUE_STEELBLUE');
-  ISingLineColorTranslated[18] := ULanguage.Language.Translate('OPTION_VALUE_PLUM');
-  ISingLineColorTranslated[19] := ULanguage.Language.Translate('OPTION_VALUE_CHOCOLATE');
-  ISingLineColorTranslated[20] := ULanguage.Language.Translate('OPTION_VALUE_GOLD');
-  ISingLineColorTranslated[21] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
-
-  IActualLineColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
-  IActualLineColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +3';
-  IActualLineColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +2';
-  IActualLineColorTranslated[3] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +1';
-  IActualLineColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_GRAY');
-  IActualLineColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -1';
-  IActualLineColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -2';
-  IActualLineColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -3';
-  IActualLineColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_WHITE');
-  IActualLineColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
-
-  INextLineColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
-  INextLineColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +3';
-  INextLineColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +2';
-  INextLineColorTranslated[3] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +1';
-  INextLineColorTranslated[4] := ULanguage.Language.Translate('OPTION_VALUE_GRAY');
-  INextLineColorTranslated[5] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -1';
-  INextLineColorTranslated[6] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -2';
-  INextLineColorTranslated[7] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -3';
-  INextLineColorTranslated[8] := ULanguage.Language.Translate('OPTION_VALUE_WHITE');
-  INextLineColorTranslated[9] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
-
-  ISingLineOColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
-  ISingLineOColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_WHITE');
-  ISingLineOColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
-
-  IActualLineOColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
-  IActualLineOColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_WHITE');
-  IActualLineOColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
-
-  INextLineOColorTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
-  INextLineOColorTranslated[1] := ULanguage.Language.Translate('OPTION_VALUE_WHITE');
-  INextLineOColorTranslated[2] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
+  GreyScaleColor[0] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
+  GreyScaleColor[1] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +3';
+  GreyScaleColor[2] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +2';
+  GreyScaleColor[3] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +1';
+  GreyScaleColor[4] := ULanguage.Language.Translate('OPTION_VALUE_GRAY');
+  GreyScaleColor[5] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -1';
+  GreyScaleColor[6] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -2';
+  GreyScaleColor[7] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -3';
+  GreyScaleColor[8] := ULanguage.Language.Translate('OPTION_VALUE_WHITE');
+  GreyScaleColor[9] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
 
   // Network
   IAutoModeTranslated[0]         := ULanguage.Language.Translate('OPTION_VALUE_OFF');
@@ -1014,8 +916,6 @@ var
   IniFile: TMemIniFile;
   I:       integer;
   IShowWebScore: array of UTF8String;
-  HexColor: string;
-  Col: TRGB;
 begin
   GamePath := Platform.GetGameUserPath;
 
@@ -1154,14 +1054,30 @@ begin
 
   SoundFont := IniFile.ReadString('Sound', 'SoundFont', '');
 
-  // Lyrics Font
-  LyricsFont := ReadArrayIndex(ILyricsFont, IniFile, 'Lyrics', 'LyricsFont', 0);
+  //lyrics
+  Self.NoteLines := ReadArrayIndex(YesNo, IniFile, 'Lyrics', 'NoteLines', 0);
+  Self.LyricsFont := ReadArrayIndex(ILyricsFont, IniFile, 'Lyrics', 'Font', 0);
+  Self.LyricsEffect := ReadArrayIndex(ILyricsEffect, IniFile, 'Lyrics', 'Effect', 2);
+  Self.LyricsTransparency := ReadArrayIndex(ILyricsAlpha, IniFile, 'Lyrics', 'Transparency', 20);
+  Self.LyricsSingColor := IniFile.ReadString('Lyrics', 'SingColor', IHexSingColor[7]);
+  Self.LyricsSingOutlineColor := IniFile.ReadString('Lyrics', 'SingOutlineColor', IHexOColor[0]);
+  Self.LyricsCurrentColor := IniFile.ReadString('Lyrics', 'CurrentColor', IHexGrayColor[6]);
+  Self.LyricsCurrentOutlineColor := IniFile.ReadString('Lyrics', 'CurrentOutlineColor', IHexOColor[0]);
+  Self.LyricsNextColor := IniFile.ReadString('Lyrics', 'NextColor', IHexGrayColor[5]);
+  Self.LyricsNextOutlineColor := IniFile.ReadString('Lyrics', 'NextOutlineColor', IHexOColor[0]);
 
-  // Lyrics Effect
-  LyricsEffect := ReadArrayIndex(ILyricsEffect, IniFile, 'Lyrics', 'LyricsEffect', 2);
-
-  // NoteLines
-  NoteLines := ReadArrayIndex(INoteLines, IniFile, 'Lyrics', 'NoteLines', 0);
+  // Jukebox
+  Self.JukeboxOffset := IniFile.ReadInteger('Jukebox', 'Position', 100);
+  Self.JukeboxFont := ReadArrayIndex(ILyricsFont, IniFile, 'Jukebox', 'Font', 2);
+  Self.JukeboxEffect := ReadArrayIndex(ILyricsEffect, IniFile, 'Jukebox', 'Effect', 2);
+  Self.JukeboxTransparency := ReadArrayIndex(ILyricsAlpha, IniFile, 'Jukebox', 'Transparency', 20);
+  Self.JukeboxSingColor := IniFile.ReadString('Jukebox', 'SingColor', IHexSingColor[7]);
+  Self.JukeboxSingOutlineColor := IniFile.ReadString('Jukebox', 'SingOutlineColor', IHexOColor[0]);
+  Self.JukeboxCurrentColor := IniFile.ReadString('Jukebox', 'CurrentColor', IHexGrayColor[6]);
+  Self.JukeboxCurrentOutlineColor := IniFile.ReadString('Jukebox', 'CurrentOutlineColor', IHexOColor[0]);
+  Self.JukeboxNextColor := IniFile.ReadString('Jukebox', 'NextColor', IHexGrayColor[5]);
+  Self.JukeboxNextOutlineColor := IniFile.ReadString('Jukebox', 'NextOutlineColor', IHexOColor[0]);
+  Self.JukeboxSongMenu := ReadArrayIndex(IJukeboxSongMenu, IniFile, 'Jukebox', 'SongMenu', IGNORE_INDEX, 'On');
 
   // DefaultEncoding
   DefaultEncoding := ParseEncoding(IniFile.ReadString('Lyrics', 'Encoding', ''), encAuto);
@@ -1242,100 +1158,7 @@ begin
   WebCamHue := ReadArrayIndex(IWebcamHue, IniFile, 'Webcam', 'Hue', IGNORE_INDEX, '0');
   WebCamEffect := IniFile.ReadInteger('Webcam', 'Effect', 0);
 
-  // Jukebox
-  JukeboxFont := ReadArrayIndex(ILyricsFont, IniFile, 'Jukebox', 'LyricsFont', 2);
-  JukeboxEffect := ReadArrayIndex(ILyricsEffect, IniFile, 'Jukebox', 'LyricsEffect', 2);
-  JukeboxAlpha := ReadArrayIndex(ILyricsAlpha, IniFile, 'Jukebox', 'LyricsAlpha', 20);
-
   JukeboxSongMenu := ReadArrayIndex(IJukeboxSongMenu, IniFile, 'Jukebox', 'SongMenu', IGNORE_INDEX, 'On');
-
-
-  JukeboxSingLineColor := ReadArrayIndex(IHexSingColor, IniFile, 'Jukebox', 'SingLineColor', High(IHexSingColor));
-
-  // SingLine color
-  if (JukeboxSingLineColor = -1) or (JukeboxSingLineColor = High(IHexSingColor)) then
-  begin
-    JukeboxSingLineColor := High(IHexSingColor);
-
-    HexColor := IniFile.ReadString('Jukebox', 'SingLineColor', IHexSingColor[7]);
-    Col := HexToRGB(HexColor);
-
-    Ini.JukeboxSingLineOtherColorR := Round(Col.R);
-    Ini.JukeboxSingLineOtherColorG := Round(Col.G);
-    Ini.JukeboxSingLineOtherColorB := Round(Col.B);
-  end;
-
-  JukeboxActualLineColor := ReadArrayIndex(IHexGrayColor, IniFile, 'Jukebox', 'ActualLineColor', High(IHexGrayColor));
-
-  // UpperLine Fill color
-  if (JukeboxActualLineColor = -1) or (JukeboxActualLineColor = High(IHexGrayColor)) then
-  begin
-    JukeboxActualLineColor := High(IHexGrayColor);
-
-    HexColor := IniFile.ReadString('Jukebox', 'ActualLineColor', 'FFF5EB');
-    Col := HexToRGB(HexColor);
-
-    Ini.JukeboxActualLineOtherColorR := Round(Col.R);
-    Ini.JukeboxActualLineOtherColorG := Round(Col.G);
-    Ini.JukeboxActualLineOtherColorB := Round(Col.B);
-
-  end;
-
-  JukeboxNextLineColor := ReadArrayIndex(IHexGrayColor, IniFile, 'Jukebox', 'NextLineColor', High(IHexGrayColor));
-  // BottomLine Fill color
-  if (JukeboxNextLineColor = -1) or (JukeboxNextLineColor = High(IHexGrayColor)) then
-  begin
-    JukeboxNextLineColor := High(IHexGrayColor);
-
-    HexColor := IniFile.ReadString('Jukebox', 'NextLineColor', IHexGrayColor[5]);
-    Col := HexToRGB(HexColor);
-
-    Ini.JukeboxNextLineOtherColorR := Round(Col.R);
-    Ini.JukeboxNextLineOtherColorG := Round(Col.G);
-    Ini.JukeboxNextLineOtherColorB := Round(Col.B);
-  end;
-
-  JukeboxSingLineOutlineColor := ReadArrayIndex(IHexOColor, IniFile, 'Jukebox', 'SingLineOColor', 0);
-  // SingLine Outline color
-  if (JukeboxSingLineOutlineColor = -1) then
-  begin
-    JukeboxSingLineOutlineColor := High(IHexOColor);
-
-    HexColor := IniFile.ReadString('Jukebox', 'SingLineOColor', IHexOColor[0]);
-    Col := HexToRGB(HexColor);
-
-    Ini.JukeboxSingLineOtherOColorR := Round(Col.R);
-    Ini.JukeboxSingLineOtherOColorG := Round(Col.G);
-    Ini.JukeboxSingLineOtherOColorB := Round(Col.B);
-  end;
-
-  JukeboxActualLineOutlineColor := ReadArrayIndex(IHexOColor, IniFile, 'Jukebox', 'ActualLineOColor', 0);
-  // UpperLine Outline color
-  if (JukeboxActualLineOutlineColor = -1) then
-  begin
-    JukeboxActualLineOutlineColor := High(IHexOColor);
-
-    HexColor := IniFile.ReadString('Jukebox', 'ActualLineOColor', IHexOColor[0]);
-    Col := HexToRGB(HexColor);
-
-    Ini.JukeboxActualLineOtherOColorR := Round(Col.R);
-    Ini.JukeboxActualLineOtherOColorG := Round(Col.G);
-    Ini.JukeboxActualLineOtherOColorB := Round(Col.B);
-  end;
-
-  JukeboxNextLineOutlineColor := ReadArrayIndex(IHexOColor, IniFile, 'Jukebox', 'NextLineOColor', 0);
-	// BottomLine Outline color
-  if (JukeboxNextLineOutlineColor = -1) then
-  begin
-    JukeboxNextLineOutlineColor := High(IHexOColor);
-
-    HexColor := IniFile.ReadString('Jukebox', 'NextLineOColor', IHexOColor[0]);
-    Col := HexToRGB(HexColor);
-
-    Ini.JukeboxNextLineOtherOColorR := Round(Col.R);
-    Ini.JukeboxNextLineOtherOColorG := Round(Col.G);
-    Ini.JukeboxNextLineOtherOColorB := Round(Col.B);
-  end;
 
   LoadPaths(IniFile);
 
@@ -1461,14 +1284,29 @@ begin
   // MusicAutoGain
   IniFile.WriteString('Sound', 'MusicAutoGain', IMusicAutoGain[MusicAutoGain]);
 
-  // Lyrics Font
-  IniFile.WriteString('Lyrics', 'LyricsFont', ILyricsFont[LyricsFont]);
+  //lyrics
+  IniFile.WriteString('Lyrics', 'NoteLines', YesNo[Self.NoteLines]);
+  IniFile.WriteString('Lyrics', 'Font', ILyricsFont[Self.LyricsFont]);
+  IniFile.WriteString('Lyrics', 'Effect', ILyricsEffect[Self.LyricsEffect]);
+  IniFile.WriteString('Lyrics', 'Transparency', ILyricsAlpha[Self.LyricsTransparency]);
+  IniFile.WriteString('Lyrics', 'SingColor', Self.LyricsSingColor);
+  IniFile.WriteString('Lyrics', 'SingOutlineColor', Self.LyricsSingOutlineColor);
+  IniFile.WriteString('Lyrics', 'CurrentColor', Self.LyricsCurrentColor);
+  IniFile.WriteString('Lyrics', 'CurrentOutlineColor', Self.LyricsCurrentOutlineColor);
+  IniFile.WriteString('Lyrics', 'NextColor', Self.LyricsNextColor);
+  IniFile.WriteString('Lyrics', 'NextOutlineColor', Self.LyricsNextOutlineColor);
 
-  // Lyrics Effect
-  IniFile.WriteString('Lyrics', 'LyricsEffect', ILyricsEffect[LyricsEffect]);
-
-  // NoteLines
-  IniFile.WriteString('Lyrics', 'NoteLines', INoteLines[NoteLines]);
+  // Jukebox
+  IniFile.WriteInteger('Jukebox', 'Position', Self.JukeboxOffset);
+  IniFile.WriteString('Jukebox', 'Font', ILyricsFont[Self.JukeboxFont]);
+  IniFile.WriteString('Jukebox', 'Effect', ILyricsEffect[Self.JukeboxEffect]);
+  IniFile.WriteString('Jukebox', 'Transparency', ILyricsAlpha[Self.JukeboxTransparency]);
+  IniFile.WriteString('Jukebox', 'SingColor', Self.JukeboxSingColor);
+  IniFile.WriteString('Jukebox', 'SingOutlineColor', Self.JukeboxSingOutlineColor);
+  IniFile.WriteString('Jukebox', 'CurrentColor', Self.JukeboxCurrentColor);
+  IniFile.WriteString('Jukebox', 'CurrentOutlineColor', Self.JukeboxCurrentOutlineColor);
+  IniFile.WriteString('Jukebox', 'NextColor', Self.JukeboxNextColor);
+  IniFile.WriteString('Jukebox', 'NextOutlineColor', Self.JukeboxNextOutlineColor);
 
   //Encoding default
   IniFile.WriteString('Lyrics', 'Encoding', EncodingName(DefaultEncoding));
@@ -1527,73 +1365,6 @@ begin
 
   if (not IniFile.ValueExists('Directories', 'WebScoresDir')) then
     IniFile.WriteString('Directories', 'WebScoresDir', ' ');
-
-  // Jukebox
-  IniFile.WriteString('Jukebox', 'LyricsFont', ILyricsFont[JukeboxFont]);
-  IniFile.WriteString('Jukebox', 'LyricsEffect', ILyricsEffect[JukeboxEffect]);
-  IniFile.WriteString('Jukebox', 'LyricsAlpha', ILyricsAlpha[JukeboxAlpha]);
-
-  if (JukeboxSingLineColor <> High(ISingLineColor)) then
-  begin
-    C := GetLyricColor(JukeboxSingLineColor);
-    HexColor := RGBToHex(Round(C.R * 255), Round(C.G * 255), Round(C.B * 255));
-  end
-  else
-    HexColor := RGBToHex(JukeboxSingLineOtherColorR, JukeboxSingLineOtherColorG, JukeboxSingLineOtherColorB);
-
-  IniFile.WriteString('Jukebox', 'SingLineColor', HexColor);
-
-  if (JukeboxActualLineColor <> High(IActualLineColor)) then
-  begin
-    C := GetLyricGrayColor(JukeboxActualLineColor);
-    HexColor := RGBToHex(Round(C.R * 255), Round(C.G * 255), Round(C.B * 255));
-  end
-  else
-    HexColor := RGBToHex(JukeboxActualLineOtherColorR, JukeboxActualLineOtherColorG, JukeboxActualLineOtherColorB);
-
-  IniFile.WriteString('Jukebox', 'ActualLineColor', HexColor);
-
-  if (JukeboxNextLineColor <> High(INextLineColor)) then
-  begin
-    C := GetLyricGrayColor(JukeboxNextLineColor);
-    HexColor := RGBToHex(Round(C.R * 255), Round(C.G * 255), Round(C.B * 255));
-  end
-  else
-    HexColor := RGBToHex(JukeboxNextLineOtherColorR, JukeboxNextLineOtherColorG, JukeboxNextLineOtherColorB);
-
-  IniFile.WriteString('Jukebox', 'NextLineColor', HexColor);
-
-  if (JukeboxSingLineOutlineColor <> High(ISingLineOColor)) then
-  begin
-    C := GetLyricOutlineColor(JukeboxSingLineOutlineColor);
-    HexColor := RGBToHex(Round(C.R * 255), Round(C.G * 255), Round(C.B * 255));
-  end
-  else
-    HexColor := RGBToHex(JukeboxSingLineOtherOColorR, JukeboxSingLineOtherOColorG, JukeboxSingLineOtherOColorB);
-
-  IniFile.WriteString('Jukebox', 'SingLineOColor', HexColor);
-
-  if (JukeboxActualLineOutlineColor <> High(IActualLineOColor)) then
-  begin
-    C := GetLyricOutlineColor(JukeboxActualLineOutlineColor);
-    HexColor := RGBToHex(Round(C.R * 255), Round(C.G * 255), Round(C.B * 255));
-  end
-  else
-    HexColor := RGBToHex(JukeboxActualLineOtherOColorR, JukeboxActualLineOtherOColorG, JukeboxActualLineOtherOColorB);
-
-  IniFile.WriteString('Jukebox', 'ActualLineOColor', HexColor);
-
-  if (JukeboxNextLineOutlineColor <> High(INextLineOColor)) then
-  begin
-    C := GetLyricOutlineColor(JukeboxNextLineOutlineColor);
-    HexColor := RGBToHex(Round(C.R * 255), Round(C.G * 255), Round(C.B * 255));
-  end
-  else
-    HexColor := RGBToHex(JukeboxNextLineOtherOColorR, JukeboxNextLineOtherOColorG, JukeboxNextLineOtherOColorB);
-
-    IniFile.WriteString('Jukebox', 'NextLineOColor', HexColor);
-
-    IniFile.Free;
 
   end
   except

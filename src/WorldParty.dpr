@@ -359,7 +359,6 @@ uses
 
   UScreenOptionsNetwork in 'screens\UScreenOptionsNetwork.pas',
   UScreenOptionsWebcam  in 'screens\UScreenOptionsWebcam.pas',
-  UScreenOptionsJukebox in 'screens\UScreenOptionsJukebox.pas',
 
   UAvatars                in 'base\UAvatars.pas',
   UScreenAbout            in 'screens\UScreenAbout.pas',

@@ -30,30 +30,119 @@ interface
 {$I switches.inc}
 
 uses
-  UMenu,
   sdl2,
-  UDisplay,
-  UMusic,
-  UFiles,
-  UIni,
-  UThemes;
+  ULyrics,
+  UMenu;
 
 type
   TScreenOptionsLyrics = class(TMenu)
+    protected
+      Lyrics: TLyricEngine;
+      SelectModeProperty: integer;
+      SelectFont: integer;
+      SelectEffect: integer;
+      SelectTransparency: integer;
+      SelectLines: integer;
+      SelectProperty: integer;
+      SelectColor: integer;
+      SelectMode: integer;
+      TexColor: integer;
+      Red: integer;
+      Green: integer;
+      Blue: integer;
+      PointerStart: integer;
+      SingColor: string;
+      SingOutlineColor: string;
+      CurrentColor: string;
+      CurrentOutlineColor: string;
+      NextColor: string;
+      NextOutlineColor: string;
+      function GetColorPosition(Colors: array of UTF8String; HexColor: string): integer; //Get color position from ini array or set the last for personalized color
+      procedure SetColor(); //Change range colors and selected color for each line type and property
+      procedure SetModeValues(); //Set ini values into selects for each mode
+      procedure SetValues(); //Set lyric sample and slides properties
     public
-      constructor Create; override;
+      constructor Create(); override;
+      function Draw(): boolean; override;
+      procedure OnShow(); override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
-      procedure OnShow; override;
   end;
 
 implementation
 
 uses
+  Math,
+  UCommon,
   UGraphic,
-  UUnicodeUtils,
-  SysUtils;
+  UIni,
+  ULanguage,
+  UMusic,
+  UThemes,
+  UUnicodeUtils;
+
+constructor TScreenOptionsLyrics.Create();
+var
+  Line: TLine;
+begin
+  inherited Create();
+
+  Self.LoadFromTheme(UThemes.Theme.OptionsLyrics);
+  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectModeProperty, Self.SelectModeProperty, UIni.YesNo, 'PARTY_MODE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectFont, Self.SelectFont, UIni.ILyricsFont, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectEffect, Self.SelectEffect, UIni.ILyricsEffect, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectTransparency, Self.SelectTransparency, UIni.ILyricsAlpha);
+  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectLines, Self.SelectLines, UIni.ILine, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectProperty, Self.SelectProperty, UIni.IProperty, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectColor, Self.SelectColor, UIni.LineColor, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectR, Self.Red, IRed);
+  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectG, Self.Green, IGreen);
+  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectB, Self.Blue, IBlue);
+  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectMode, Self.SelectMode, ['CLASSIC', 'JUKEBOX'], 'PARTY_MODE_');
+  Self.PointerStart := Self.AddStatic(UThemes.Theme.OptionsLyrics.PointerR);
+  Self.AddStatic(UThemes.Theme.OptionsLyrics.PointerG);
+  Self.AddStatic(UThemes.Theme.OptionsLyrics.PointerB);
+  Self.TexColor := Self.AddStatic(UThemes.Theme.OptionsLyrics.TexColor);
+  Self.AddButton(UThemes.Theme.OptionsLyrics.ButtonExit);
+  Self.SetModeValues();
+  Self.SetValues();
+
+  //add lyric lines
+  Self.Lyrics := TLyricEngine.Create(UThemes.Theme.OptionsLyrics.LyricBar, -1);
+  SetLength(Line.Note, 3);
+  Line.Note[0].Text := 'Lor';
+  Line.Note[1].Text := 'em';
+  Line.Note[2].Text := ' ipsum dolor sit amet';
+  Line.Note[0].Start := 0;
+  Line.Note[1].Start := 10;
+  Line.Note[2].Start := 20;
+  Line.Note[0].Length := 10;
+  Line.Note[1].Length := 10;
+  Line.Note[2].Length := 40;
+  Self.Lyrics.AddLine(@Line);
+  SetLength(Line.Note, 1);
+  Line.Note[0].Text := 'consectetur adipiscing elit';
+  Line.Note[0].Start := 60;
+  Self.Lyrics.AddLine(@Line);
+end;
+
+function TScreenOptionsLyrics.Draw(): boolean;
+begin
+  Result := inherited Draw();
+  Self.Lyrics.Draw(13); //to see effects in the second note in slide mode too
+end;
+
+procedure TScreenOptionsLyrics.OnShow();
+begin
+  inherited;
+  Self.Interaction := 0;
+end;
 
 function TScreenOptionsLyrics.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
+var
+  SDL_ModState:  word;
+  LeftPressedKey: boolean;
+  HexColor: UTF8String;
+  ColorValue: integer;
 begin
   Result := true;
   if (PressedDown) then
@@ -62,70 +151,243 @@ begin
     case UCS4UpperCase(CharCode) of
       Ord('Q'):
         begin
+          UIni.Ini.Save();
           Result := false;
           Exit;
         end;
     end;
 
+    SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
+
     // check special keys
     case PressedKey of
-      SDLK_ESCAPE,
-      SDLK_BACKSPACE :
+      SDLK_BACKSPACE, SDLK_ESCAPE:
         begin
-          Ini.Save;
-          AudioPlayback.PlaySound(SoundLib.Back);
-          FadeTo(@ScreenOptions);
+          UIni.Ini.Save();
+          Self.FadeTo(@UGraphic.ScreenOptions, UMusic.SoundLib.Back);
         end;
       SDLK_RETURN:
-        begin
-          if SelInteraction = 3 then
-          begin
-            Ini.Save;
-            AudioPlayback.PlaySound(SoundLib.Back);
-            FadeTo(@ScreenOptions);
-          end;
-        end;
+        if Self.SelInteraction = 11 then
+          Self.ParseInput(SDLK_ESCAPE, 0, true);
       SDLK_DOWN:
-        InteractNext;
+        Self.InteractNext();
       SDLK_UP :
-        InteractPrev;
-      SDLK_RIGHT:
+        Self.InteractPrev();
+      SDLK_LEFT, SDLK_RIGHT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 3) then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Option);
-            InteractInc;
-          end;
-        end;
-      SDLK_LEFT:
-        begin
-          if (SelInteraction >= 0) and (SelInteraction <= 3) then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Option);
-            InteractDec;
+          if Self.SelInteraction = 11 then
+            Exit();
+
+          UMusic.AudioPlayback.PlaySound(UMusic.SoundLib.Option);
+          LeftPressedKey := PressedKey = SDLK_LEFT;
+          if LeftPressedKey then
+            Self.InteractDec()
+          else
+            Self.InteractInc();
+
+          case Self.Interaction of
+            10: //change mode
+              Self.SetModeValues();
+            4, 5: //set line type color
+              Self.SetColor();
+            6: //change color
+              if Self.SelectProperty = 0 then //fill
+                case Self.SelectLines of
+                  0:
+                    if Self.SelectColor < High(UIni.IHexSingColor) then
+                      Self.SingColor := UIni.IHexSingColor[Self.SelectColor];
+                  1:
+                    if Self.SelectColor < High(UIni.IHexGrayColor) then
+                      Self.CurrentColor := UIni.IHexGrayColor[Self.SelectColor];
+                  2:
+                    if Self.SelectColor < High(UIni.IHexGrayColor) then
+                      Self.NextColor := UIni.IHexGrayColor[Self.SelectColor];
+                end
+              else if Self.SelectColor < High(UIni.IHexOColor) then //outline
+                case Self.SelectLines of
+                  0: Self.SingOutlineColor := UIni.IHexOColor[Self.SelectColor];
+                  1: Self.CurrentOutlineColor := UIni.IHexOColor[Self.SelectColor];
+                  2: Self.NextOutlineColor := UIni.IHexOColor[Self.SelectColor];
+                end;
+            7..9: //change personalized color
+              begin
+                ColorValue := Self.SelectsS[Self.SelInteraction].SelectedOption + IfThen(LeftPressedKey, -1, 1) * IfThen(SDL_ModState and (KMOD_LSHIFT or KMOD_RSHIFT) <> 0, 9, 1);
+                if (ColorValue >= 0) and (ColorValue <= 255) then
+                  Self.SelectsS[Self.SelInteraction].SelectedOption := ColorValue;
+
+                HexColor := RGBToHex(Self.Red, Self.Green, Self.Blue);
+                //set color and change to known color position if possible
+                if Self.SelectProperty = 0 then //fill
+                  case Self.SelectLines of
+                    0:
+                      begin
+                        Self.SingColor := HexColor;
+                        Self.SelectsS[6].SelectedOption := Self.GetColorPosition(UIni.IHexSingColor, HexColor);
+                      end;
+                    1:
+                      begin
+                        Self.CurrentColor := HexColor;
+                        Self.SelectsS[6].SelectedOption := Self.GetColorPosition(UIni.IHexGrayColor, HexColor)
+                      end;
+                    2:
+                      begin
+                        Self.NextColor := HexColor;
+                        Self.SelectsS[6].SelectedOption := Self.GetColorPosition(UIni.IHexGrayColor, HexColor)
+                      end;
+                  end
+                else //outline
+                begin
+                  case Self.SelectLines of
+                    0: Self.SingOutlineColor := HexColor;
+                    1: Self.CurrentOutlineColor := HexColor;
+                    2: Self.NextOutlineColor := HexColor;
+                  end;
+                  Self.SelectsS[6].SelectedOption := Self.GetColorPosition(UIni.IHexOColor, HexColor);
+                end;
+              end;
           end;
         end;
     end;
+    if Self.SelectMode = 0 then
+    begin
+      UIni.Ini.NoteLines := Self.SelectModeProperty;
+      UIni.Ini.LyricsFont := Self.SelectFont;
+      UIni.Ini.LyricsEffect := Self.SelectEffect;
+      UIni.Ini.LyricsTransparency := Self.SelectTransparency;
+      UIni.Ini.LyricsSingColor := Self.SingColor;
+      UIni.Ini.LyricsSingOutlineColor := Self.SingOutlineColor;
+      UIni.Ini.LyricsCurrentColor := Self.CurrentColor;
+      UIni.Ini.LyricsCurrentOutlineColor := Self.CurrentOutlineColor;
+      UIni.Ini.LyricsNextColor := Self.NextColor;
+      UIni.Ini.LyricsNextOutlineColor := Self.NextOutlineColor;
+    end
+    else
+    begin
+      UIni.Ini.JukeboxOffset := Self.SelectModeProperty;
+      UIni.Ini.JukeboxFont := Self.SelectFont;
+      UIni.Ini.JukeboxEffect := Self.SelectEffect;
+      UIni.Ini.JukeboxTransparency := Self.SelectTransparency;
+      UIni.Ini.JukeboxSingColor := Self.SingColor;
+      UIni.Ini.JukeboxSingOutlineColor := Self.SingOutlineColor;
+      UIni.Ini.JukeboxCurrentColor := Self.CurrentColor;
+      UIni.Ini.JukeboxCurrentOutlineColor := Self.CurrentOutlineColor;
+      UIni.Ini.JukeboxNextColor := Self.NextColor;
+      UIni.Ini.JukeboxNextOutlineColor := Self.NextOutlineColor;
+    end;
+    Self.Lyrics.SetProperties(Self.SelectMode = 1);
+    Self.SetValues();
   end;
 end;
 
-constructor TScreenOptionsLyrics.Create;
+{ Get color position from ini array or set the last for personalized color }
+function TScreenOptionsLyrics.GetColorPosition(Colors: array of UTF8String; HexColor: string): integer;
 begin
-  inherited Create;
-
-  LoadFromTheme(Theme.OptionsLyrics);
-  AddSelectSlide(Theme.OptionsLyrics.SelectLyricsFont, UIni.Ini.LyricsFont, UIni.ILyricsFont, 'OPTION_VALUE_');
-  AddSelectSlide(Theme.OptionsLyrics.SelectLyricsEffect, UIni.Ini.LyricsEffect, UIni.ILyricsEffect, 'OPTION_VALUE_');
-  AddSelectSlide(Theme.OptionsLyrics.SelectNoteLines, UIni.Ini.NoteLines, UIni.INoteLines, 'OPTION_VALUE_');
-
-  AddButton(Theme.OptionsLyrics.ButtonExit);
+  Result := UCommon.GetArrayIndex(Colors, HexColor);
+  if Result = -1 then
+    Result := High(Colors);
 end;
 
-procedure TScreenOptionsLyrics.OnShow;
+{ Change range colors and selected color for each line type and property }
+procedure TScreenOptionsLyrics.SetColor();
 begin
-  inherited;
+  if Self.SelectProperty = 0 then //fill
+    case Self.SelectLines of
+      0: //sing
+        begin
+          Self.SelectColor := Self.GetColorPosition(UIni.IHexSingColor, Self.SingColor);
+          Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectColor, 6, UIni.LineColor, Self.SelectColor, 'OPTION_VALUE_');
+        end;
+      1: //upper
+        begin
+          Self.SelectColor := Self.GetColorPosition(UIni.IHexGrayColor, Self.CurrentColor);
+          Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectColor, 6, UIni.GreyScaleColor, Self.SelectColor);
+        end;
+      2: //lower
+        begin
+          Self.SelectColor := Self.GetColorPosition(UIni.IHexGrayColor, Self.NextColor);
+          Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectColor, 6, UIni.GreyScaleColor, Self.SelectColor);
+        end;
+    end
+  else //outline
+  begin
+    case Self.SelectLines of
+      0: Self.SelectColor := Self.GetColorPosition(UIni.IHexOColor, Self.SingOutlineColor);
+      1: Self.SelectColor := Self.GetColorPosition(UIni.IHexOColor, Self.CurrentOutlineColor);
+      2: Self.SelectColor := Self.GetColorPosition(UIni.IHexOColor, Self.NextOutlineColor);
+    end;
+    Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectColor, 6, UIni.OutlineColor, Self.SelectColor, 'OPTION_VALUE_');
+  end;
+end;
 
-  Interaction := 0;
+{ Set ini values into selects for each mode }
+procedure TScreenOptionsLyrics.SetModeValues();
+begin
+  if Self.SelectMode = 0 then
+  begin
+    Self.SelectModeProperty := UIni.Ini.NoteLines;
+    Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectModeProperty, 0, UIni.YesNo, Self.SelectModeProperty, 'OPTION_VALUE_');
+    Self.SelectsS[0].Text.Text := ULanguage.Language.Translate('SING_OPTIONS_LYRICS_NOTELINES');
+    Self.SelectsS[1].SelectedOption := UIni.Ini.LyricsFont;
+    Self.SelectsS[2].SelectedOption := UIni.Ini.LyricsEffect;
+    Self.SelectsS[3].SelectedOption := UIni.Ini.LyricsTransparency;
+    Self.SingColor := UIni.Ini.LyricsSingColor;
+    Self.SingOutlineColor := UIni.Ini.LyricsSingOutlineColor;
+    Self.CurrentColor := UIni.Ini.LyricsCurrentColor;
+    Self.CurrentOutlineColor := UIni.Ini.LyricsCurrentOutlineColor;
+    Self.NextColor := UIni.Ini.LyricsNextColor;
+    Self.NextOutlineColor := UIni.Ini.LyricsNextOutlineColor;
+  end
+  else
+  begin
+    Self.SelectModeProperty := UIni.Ini.JukeboxOffset;
+    Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectModeProperty, 0, UIni.JukeboxOffsetLyric, Self.SelectModeProperty);
+    Self.SelectsS[0].Text.Text := ULanguage.Language.Translate('JUKEBOX_SONGOPTIONS_LYRIC_POSITION');
+    Self.SelectsS[1].SelectedOption := UIni.Ini.JukeboxFont;
+    Self.SelectsS[2].SelectedOption := UIni.Ini.JukeboxEffect;
+    Self.SelectsS[3].SelectedOption := UIni.Ini.JukeboxTransparency;
+    Self.SingColor := UIni.Ini.JukeboxSingColor;
+    Self.SingOutlineColor := UIni.Ini.JukeboxSingOutlineColor;
+    Self.CurrentColor := UIni.Ini.JukeboxCurrentColor;
+    Self.CurrentOutlineColor := UIni.Ini.JukeboxCurrentOutlineColor;
+    Self.NextColor := UIni.Ini.JukeboxNextColor;
+    Self.NextOutlineColor := UIni.Ini.JukeboxNextOutlineColor;
+  end;
+  Self.SetColor();
+end;
+
+{ Set lyric sample and slides properties }
+procedure TScreenOptionsLyrics.SetValues();
+var
+  HexColor: string;
+  RGBColor: TRGB;
+begin
+  Self.SelectsS[5].Visible := Self.SelectFont <> 0;
+  if Self.SelectProperty = 0 then //fill
+    case Self.SelectLines of
+      0: HexColor := Self.SingColor;
+      1: HexColor := Self.CurrentColor;
+      2: HexColor := Self.NextColor;
+    end
+  else //outline
+    case Self.SelectLines of
+      0: HexColor := Self.SingOutlineColor;
+      1: HexColor := Self.CurrentOutlineColor;
+      2: HexColor := Self.NextOutlineColor;
+    end;
+
+  RGBColor := UCommon.HexToRGB(HexColor, false);
+  Self.SelectsS[7].SelectedOption := Round(RGBColor.R);
+  Self.SelectsS[8].SelectedOption := Round(RGBColor.G);
+  Self.SelectsS[9].SelectedOption := Round(RGBColor.B);
+  Self.Statics[Self.PointerStart].Texture.X := Self.SelectsS[7].TextureSBG.X + ((Self.SelectsS[7].TextureSBG.W - Self.Statics[Self.PointerStart].Texture.W) / 255) * RGBColor.R;
+  Self.Statics[Self.PointerStart + 1].Texture.X := Self.SelectsS[7].TextureSBG.X + ((Self.SelectsS[7].TextureSBG.W - Self.Statics[Self.PointerStart].Texture.W) / 255) * RGBColor.G;
+  Self.Statics[Self.PointerStart + 2].Texture.X := Self.SelectsS[7].TextureSBG.X + ((Self.SelectsS[7].TextureSBG.W - Self.Statics[Self.PointerStart].Texture.W) / 255) * RGBColor.B;
+  if Self.TexColor <> 0 then //only in option lyrics
+  begin
+    Self.Statics[Self.TexColor].Texture.ColR := RGBColor.R / 255;
+    Self.Statics[Self.TexColor].Texture.ColG := RGBColor.G / 255;
+    Self.Statics[Self.TexColor].Texture.ColB := RGBColor.B / 255;
+  end;
 end;
 
 end.

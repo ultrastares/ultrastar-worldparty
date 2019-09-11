@@ -55,7 +55,6 @@ type
       ButtonAdvancedIID,
       ButtonNetworkIID,
       ButtonWebcamIID,
-      ButtonJukeboxIID,
       ButtonExitIID: cardinal;
 
       MapIIDtoDescID: array of integer;
@@ -86,7 +85,6 @@ uses
   UScreenOptionsAdvanced,
   UScreenOptionsNetwork,
   UScreenOptionsWebcam,
-  UScreenOptionsJukebox,
   UWebcam,
   UUnicodeUtils;
 
@@ -190,14 +188,6 @@ begin
           AudioPlayback.PlaySound(SoundLib.Back);
           FadeTo(@ScreenOptionsWebcam);
         end
-        else if Interaction = ButtonJukeboxIID then
-        begin
-          if not Assigned(UGraphic.ScreenOptionsJukebox) then
-            UGraphic.ScreenOptionsJukebox := TScreenOptionsJukebox.Create();
-
-          AudioPlayback.PlaySound(SoundLib.Start);
-          FadeTo(@ScreenOptionsJukebox);
-        end
         else if Interaction = ButtonExitIID then
         begin
           Ini.Save;
@@ -231,7 +221,6 @@ begin
   Self.ButtonAdvancedIID := Self.AddButton(Theme.Options.ButtonAdvanced);
   Self.ButtonNetworkIID := Self.AddButton(Theme.Options.ButtonNetwork);
   Self.ButtonWebcamIID := Self.AddButton(Theme.Options.ButtonWebcam);
-  Self.ButtonJukeboxIID := Self.AddButton(Theme.Options.ButtonJukebox);
   Self.ButtonExitIID := Self.AddButton(Theme.Options.ButtonExit);
   Self.Interaction := 0;
 end;

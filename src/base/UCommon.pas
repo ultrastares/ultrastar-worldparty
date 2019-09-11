@@ -1,8 +1,8 @@
 ﻿{*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -32,6 +32,7 @@ interface
 {$I switches.inc}
 
 uses
+  StrUtils,
   SysUtils,
   Classes,
   {$IFDEF MSWINDOWS}
@@ -85,7 +86,7 @@ type
   end;
 
 function RGBToHex(R, G, B: integer):string;
-function HexToRGB(Hex: string): TRGB;
+function HexToRGB(Hex: string; ToShow: boolean = true): TRGB;
 
 type
   TMessageType = (mtInfo, mtError);
@@ -245,15 +246,14 @@ begin
   Result := IntToHex(R, 2) + IntToHex(G, 2) + IntToHex(B, 2);
 end;
 
-function HexToRGB(Hex: string): TRGB;
+function HexToRGB(Hex: string; ToShow: boolean = true): TRGB;
 var
-  Col: TRGB;
+  Color: Byte;
 begin
-  Col.R := StrToInt('$'+Copy(Hex, 1, 2));
-  Col.G := StrToInt('$'+Copy(Hex, 3, 2));
-  Col.B := StrToInt('$'+Copy(Hex, 5, 2));
-
-  Result := Col;
+  Color := IfThen(ToShow, 255, 1);
+  Result.R := StrToInt('$'+Copy(Hex, 1, 2)) / Color;
+  Result.G := StrToInt('$'+Copy(Hex, 3, 2)) / Color;
+  Result.B := StrToInt('$'+Copy(Hex, 5, 2)) / Color;
 end;
 
 // data used by the ...Locale() functions

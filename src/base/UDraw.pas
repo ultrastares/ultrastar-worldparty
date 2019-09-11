@@ -911,12 +911,12 @@ begin
       if (CurrentSong.isDuet) and (PlayersPlay <> 1) then
       begin
         if (CP = 0) then
-          Bounds.Top := Theme.LyricBarDuetP1.IndicatorYOffset + Theme.LyricBarDuetP1.UpperY
+          Bounds.Top := Theme.LyricBarDuetP1.IndicatorYOffset + Theme.LyricBarDuetP1.Upper.Y
         else
-          Bounds.Top := Theme.LyricBarDuetP2.IndicatorYOffset + Theme.LyricBarDuetP2.UpperY ;
+          Bounds.Top := Theme.LyricBarDuetP2.IndicatorYOffset + Theme.LyricBarDuetP2.Upper.Y ;
       end
       else
-        Bounds.Top := Theme.LyricBar.IndicatorYOffset + Theme.LyricBar.UpperY ;
+        Bounds.Top := Theme.LyricBar.IndicatorYOffset + Theme.LyricBar.Upper.Y ;
 
       Bounds.Bottom := Bounds.Top + BarHeight + 3;
 
@@ -939,16 +939,11 @@ begin
               Col := GetLyricBarColor(CP + 1);
           end
           else
-          begin
-            if ScreenAct = 1 then
-              Col := GetLyricColor(Ini.JukeboxSingLineColor)
-            else
-              Col := GetLyricColor(Ini.JukeboxSingLineColor);
-          end;
+            Col := HexToRGB(UIni.Ini.LyricsSingColor)
         end;
       end
       else
-        Col := GetLyricColor(Ini.JukeboxSingLineColor);
+        Col := HexToRGB(UIni.Ini.LyricsSingColor);
 
       glColor4f(Col.R, Col.G, Col.B, BarAlpha);
 
@@ -1049,7 +1044,7 @@ begin
       end;
 
       Bounds.Right := Bounds.Left + BarWidth;
-      Bounds.Top := Theme.LyricBarJukebox.IndicatorYOffset + ScreenJukeBox.Lyrics.UpperLineY;
+      Bounds.Top := Theme.LyricBarJukebox.IndicatorYOffset + Theme.LyricBarJukebox.Upper.Y + LyricEngine.GetOffset();
       Bounds.Bottom := Bounds.Top + BarHeight + 3;
 
       // draw lyric help bar
