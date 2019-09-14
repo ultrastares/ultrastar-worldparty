@@ -67,6 +67,7 @@ type
 
   TProgressSong = record
     Folder: UTF8String;
+    FolderProcesed: UTF8String;
     Total: integer;
     Finished: boolean;
   end;
@@ -74,14 +75,17 @@ type
   TSongsParse = class(TThread)
     private
       Event: PRTLEvent; //event to fire parsing songs
-      Txt: integer; //number of txts parsed
-      Txts: TList; //list to store all parsed songs as TSong object
+      TxtParsed: integer; //number of txts parsed
+      TxtsParsed: TList; //list to store all parsed songs as TSong object
+      Txts: TList; //list to store only correct songs from TxtsParsed
     protected
       procedure Execute; override;
     public
       constructor Create();
       destructor Destroy(); override;
       procedure AddSong(const TxtFile: IPath);
+      function GetTxtParsed(): integer;
+      function GetTxts(): TList;
   end;
 
   TSongs = class(TThread)
@@ -152,14 +156,16 @@ begin
   inherited Create(false);
   Self.Event := RTLEventCreate();
   Self.FreeOnTerminate := true;
-  Self.Txt := 0;
+  Self.TxtParsed := 0;
   Self.Txts := TList.Create();
+  Self.TxtsParsed := TList.Create();
 end;
 
 destructor TSongsParse.Destroy();
 begin
   RTLeventDestroy(Self.Event);
   Self.Txts.Destroy();
+  Self.TxtsParsed.Destroy();
   inherited;
 end;
 
@@ -171,21 +177,30 @@ begin
   while not Self.Terminated do
   begin
     RtlEventWaitFor(Self.Event);
-    for I := Self.Txt to Self.Txts.Count - 1 do //start to parse from the last position
+    for I := Self.TxtParsed to Self.TxtsParsed.Count - 1 do //start to parse from the last position
     begin
-      Song := TSong(Self.Txts.Items[I]);
+      Inc(Self.TxtParsed);
+      Song := TSong(Self.TxtsParsed.Items[I]);
       if Song.Analyse() then
-        Inc(Self.Txt)
-      else
-        Self.Txts.Remove(Song);
+        Self.Txts.Add(Song);
     end;
   end;
 end;
 
 procedure TSongsParse.AddSong(const TxtFile: IPath);
 begin
-  Self.Txts.Add(TSong.Create(TxtFile));
+  Self.TxtsParsed.Add(USong.TSong.Create(TxtFile));
   RtlEventSetEvent(Self.Event);
+end;
+
+function TSongsParse.GetTxtParsed(): integer;
+begin
+  Result := Self.TxtParsed;
+end;
+
+function TSongsParse.GetTxts(): TList;
+begin
+  Result := Self.Txts;
 end;
 
 constructor TSongs.Create();
@@ -194,7 +209,7 @@ var
 begin
   inherited Create(false);
   Self.Event := RTLEventCreate();
-  Self.FreeOnTerminate := false;
+  Self.FreeOnTerminate := true;
   Self.SongList := TList.Create();
   Self.Thread := 0;
   Self.CoresAvailable := Max(1, CpuCount.GetLogicalCpuCount() - 2); //total core - main and songs threads
@@ -217,15 +232,18 @@ end;
 { Search for all files and directories }
 procedure TSongs.FindTxts(const Dir: IPath);
 var
-  Iter: IFileIterator;
   FileInfo: TFileInfo;
+  Iter: IFileIterator;
 begin
   Iter := FileSystem.FileFind(Dir.Append('*'), faAnyFile);
   while Iter.HasNext do //content of current folder
   begin
     FileInfo := Iter.Next; //get file info
     if ((FileInfo.Attr and faDirectory) <> 0) and (not (FileInfo.Name.ToUTF8()[1] = '.')) then //if is a directory try to find more
+    begin
+      Self.ProgressSong.FolderProcesed := FileInfo.Name.ToNative();
       Self.FindTxts(Dir.Append(FileInfo.Name))
+    end
     else if FileInfo.Name.GetExtension().ToNative() = '.txt' then //if is a txt file send to a thread to parse it
     begin
       Inc(Self.ProgressSong.Total);
@@ -241,11 +259,11 @@ end;
 { Create a new thread to load songs and update main screen with progress }
 procedure TSongs.Execute();
 var
-  I: integer;
+  I, Procesed: integer;
   Song: TSong;
 begin
   Log.BenchmarkStart(2);
-  Log.LogStatus('Searching For Songs', 'SongList');
+  Log.LogStatus('Searching for songs', 'SongList');
   Self.ProgressSong.Total := 0;
   Self.ProgressSong.Finished := false;
   for I := 0 to UPathUtils.SongPaths.Count - 1 do //find txt files on directories and add songs
@@ -253,26 +271,41 @@ begin
     Self.ProgressSong.Folder := Format(ULanguage.Language.Translate('SING_LOADING_SONGS'), [IPath(UPathUtils.SongPaths[I]).ToNative()]);
     Self.FindTxts(IPath(UPathUtils.SongPaths[I]));
   end;
-  for I := 0 to Self.CoresAvailable do //add all songs parsed to main list
-    Self.SongList.AddList(Self.Threads[I].Txts);
-
-  Log.LogStatus('Search Complete', 'SongList');
-  Self.ProgressSong.Folder := '';
-  Self.ProgressSong.Finished := true;
-  Log.LogBenchmark('Song loading', 2);
-
-  //preloading covers in HDD cache only touching the file
-  Log.BenchmarkStart(3);
-  Self.PreloadCover := true;
-  for I := 0 to Self.SongList.Count - 1 do
+  while not Self.ProgressSong.Finished do
   begin
-    Song := TSong(Self.SongList.Items[I]);
-    if not Self.PreloadCover then
-      RtlEventWaitFor(Self.Event);
+    //wait a little to finish parsing last songs
+    Procesed := 0;
+    for I := 0 to Self.CoresAvailable do
+      Inc(Procesed, Self.Threads[I].GetTxtParsed());
 
-    SDL_FreeSurface(UImage.LoadImage(Song.Path.Append(Song.Cover)));
+    if Procesed = Self.ProgressSong.Total then
+    begin
+      for I := 0 to Self.CoresAvailable do
+      begin
+        Self.SongList.AddList(Self.Threads[I].GetTxts()); //add all songs parsed to main list
+        Self.Threads[I].Terminate();
+      end;
+
+      Log.LogStatus('Search complete', 'SongList');
+      Self.ProgressSong.Folder := '';
+      Self.ProgressSong.Finished := true;
+      Log.LogBenchmark('Song loading', 2);
+
+      //preloading covers in HDD cache only touching the file
+      Log.BenchmarkStart(3);
+      Self.PreloadCover := true;
+      for I := 0 to Self.SongList.Count - 1 do
+      begin
+        Song := TSong(Self.SongList.Items[I]);
+        if not Self.PreloadCover then
+          RtlEventWaitFor(Self.Event);
+
+        SDL_FreeSurface(UImage.LoadImage(Song.Path.Append(Song.Cover)));
+      end;
+      Log.LogBenchmark('Cover loading', 3);
+    end;
   end;
-  Log.LogBenchmark('Cover loading', 3);
+  Self.Terminate();
 end;
 
 function TSongs.GetLoadProgress(): TProgressSong;
