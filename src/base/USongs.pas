@@ -209,7 +209,7 @@ var
 begin
   inherited Create(false);
   Self.Event := RTLEventCreate();
-  Self.FreeOnTerminate := true;
+  Self.FreeOnTerminate := false;
   Self.SongList := TList.Create();
   Self.Thread := 0;
   Self.CoresAvailable := Max(1, CpuCount.GetLogicalCpuCount() - 2); //total core - main and songs threads
