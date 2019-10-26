@@ -42,6 +42,8 @@ type
     (bgtNone, bgtColor, bgtTexture, bgtVideo, bgtFade, bgtAuto);
 
 const
+  ThemeMinVersion = 19.10;
+  DefaultTheme = 'Fantasy';
   BGT_Names: array [TBackgroundType] of string =
     ('none', 'color', 'texture', 'video', 'fade', 'auto');
 
@@ -1206,7 +1208,6 @@ type
     Name: string;
     Filename: IPath;
     DefaultSkin: integer;
-    Creator: string;
   end;
 
   TInheritance = record
@@ -1221,7 +1222,6 @@ type
     ThemeIni: TMemIniFile;
     LastThemeBasic:   TThemeBasic;
     procedure CreateThemeObjects();
-    procedure LoadHeader(FileName: IPath);
     function SectionExists(const Section: string): boolean;
     procedure SetInheritance(const Section: string);
     procedure ReadProperty(const Section: string; const Identifier: string; const Default: integer; var Field: integer);
@@ -1386,55 +1386,34 @@ begin
   LoadList;
 end;
 
-procedure TTheme.LoadHeader(FileName: IPath);
-  var
-    Entry: TThemeEntry;
-    Ini: TMemIniFile;
-    SkinName: string;
-    SkinsFound: boolean;
-    ThemeVersion: string;
-    I: integer;
-    Len: integer;
-    Skins: TUTF8StringDynArray;
+procedure TTheme.LoadList;
+var
+  Iter: IFileIterator;
+  FileInfo: TFileInfo;
+  Entry: TThemeEntry;
+  SkinIni: TMemIniFile;
+  DefaultSkin: UTF8String;
+  Len: integer;
 begin
-  Entry.Filename := ThemePath.Append(FileName);
-  //read info from theme header
-  Ini := TMemIniFile.Create(Entry.Filename.ToNative);
-
-  Entry.Name := Ini.ReadString('Theme', 'Name', FileName.SetExtension('').ToNative);
-  ThemeVersion := Trim(UpperCase(Ini.ReadString('Theme', 'US_Version', 'no version tag')));
-  Entry.Creator := Ini.ReadString('Theme', 'Creator', 'Unknown');
-  SkinName := Ini.ReadString('Theme', 'DefaultSkin', FileName.SetExtension('').ToNative);
-
-  Ini.Free;
-
-  if Entry.Name = UIni.DefaultTheme then
-    Self.ThemeBase := TMemIniFile.Create(Entry.Filename.ToNative());
-
-  // don't load theme with wrong version tag
-  if ThemeVersion <> 'USD 110' then
+  Log.LogStatus('Searching for ini file themes in '+ThemePath.ToNative(), 'Theme.LoadList');
+  Iter := UFileSystem.FileSystem.FileFind(ThemePath.Append('*.ini'), 0);
+  while Iter.HasNext() do
   begin
-    Log.LogWarn('Wrong Version (' + ThemeVersion + ') in Theme : ' + Entry.Name, 'Theme.LoadHeader');
-  end
-  else
-  begin
-    //Search for Skins for this Theme
-    SkinsFound := false;
-    for I := Low(Skin.Skin) to High(Skin.Skin) do
+    FileInfo := Iter.Next();
+    Entry.Name := FileInfo.Name.SetExtension('').ToNative();
+    Entry.Filename := ThemePath.Append(FileInfo.Name);
+    SkinIni := TMemIniFile.Create(Entry.Filename.ToNative());
+    DefaultSkin := SkinIni.ReadString('Theme', 'DefaultSkin', Entry.Name);
+    Entry.DefaultSkin := USkins.Skin.GetSkinNumber(DefaultSkin, Entry.Name);
+    if Entry.DefaultSkin = -1 then
+      Log.CriticalError('Could not find the default skin '+DefaultSkin+' of theme '+Entry.Name)
+    else if SkinIni.ReadFloat('Theme', 'Version', 0) < ThemeMinVersion then
+      Log.CriticalError('The theme '+Entry.Name+' must be updated to be compatible with the '+FormatFloat('00.00', ThemeMinVersion)+' version themes style')
+    else
     begin
-      if (CompareText(Skin.Skin[I].Theme, Entry.Name) = 0) then
-      begin
-        SkinsFound := true;
-        break;
-      end;
-    end;
-
-    if SkinsFound then
-    begin
-      { found a valid Theme }
-      // set correct default skin
-      Skin.GetSkinsByTheme(Entry.Name, Skins);
-      Entry.DefaultSkin := max(0, GetArrayIndex(Skins, SkinName, true));
+      Log.LogStatus('Found theme '+Entry.Name, 'Theme.LoadList');
+      if Entry.Name = DefaultTheme then
+        Self.ThemeBase := TMemIniFile.Create(Entry.Filename.ToNative());
 
       Len := Length(Themes);
       SetLength(Themes, Len + 1);
@@ -1442,23 +1421,10 @@ begin
       Themes[Len] := Entry;
       ITheme[Len] := Entry.Name;
     end;
+    SkinIni.Free();
   end;
-end;
-
-procedure TTheme.LoadList;
-  var
-    Iter: IFileIterator;
-    FileInfo: TFileInfo;
-begin
-  Log.LogStatus('Searching for Theme : ' + ThemePath.ToNative + '*.ini', 'Theme.LoadList');
-
-  Iter := FileSystem.FileFind(ThemePath.Append('*.ini'), 0);
-  while (Iter.HasNext) do
-  begin
-    FileInfo := Iter.Next;
-    Log.LogStatus('Found Theme: ' + FileInfo.Name.ToNative, 'Theme.LoadList');
-    LoadHeader(Fileinfo.Name);
-  end;
+  if not Assigned(Self.ThemeBase) then
+    Log.CriticalError('Could not find the default theme '+DefaultTheme);
 end;
 
 { Check if a section exist in current theme or in base theme }
@@ -1572,12 +1538,7 @@ begin
   begin
     Result := true;
     Self.ThemeIni := TMemIniFile.Create(Self.Themes[ThemeNum].FileName.ToNative());
-    if Self.ThemeIni.ReadString('Theme', 'Name', '') <> '' then
-    begin
-
-      {Skin.SkinName := ThemeIni.ReadString('Theme', 'Name', 'Singstar');
-      Skin.SkinPath := 'Skins\' + Skin.SkinName + '\';
-      Skin.SkinReg := false; }
+    begin //deleted previous if asking for theme name because don't have sense now
       Skin.Color := sColor;
 
       Skin.LoadSkin(ISkin[Ini.SkinNo], Themes[ThemeNum].Name);

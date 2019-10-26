@@ -1,8 +1,8 @@
 {*
     UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar Deluxe WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -31,8 +31,9 @@ interface
 {$I switches.inc}
 
 uses
-  UPath,
-  UCommon;
+  IniFiles,
+  UCommon,
+  UPath;
 
 type
   TSkinTexture = record
@@ -45,16 +46,17 @@ type
     Name:     string;
     Path:     IPath;
     FileName: IPath;
-
     DefaultColor: integer;
-    Creator:  string; // not used yet
+    Creator:  string;
   end;
 
   TSkin = class
-    Skin:        array of TSkinEntry;
+    Color: integer;
+    Skin: array of TSkinEntry;
+    SkinBase: TMemIniFile;
+    SkinIni: TMemIniFile;
+    SkinPath: IPath;
     SkinTexture: array of TSkinTexture;
-    SkinPath:    IPath;
-    Color:       integer;
     constructor Create;
     procedure LoadList;
     procedure ParseDir(Dir: IPath);
@@ -75,15 +77,15 @@ var
 implementation
 
 uses
-  IniFiles,
   Classes,
   SysUtils,
   Math,
+  UFileSystem,
   UIni,
   ULog,
   UMain,
   UPathUtils,
-  UFileSystem;
+  UThemes;
 
 constructor TSkin.Create;
 begin
@@ -129,41 +131,45 @@ begin
 
   S := Length(Skin);
   SetLength(Skin, S+1);
-  
+
   Skin[S].Path     := FileName.GetPath;
   Skin[S].FileName := FileName.GetName;
   Skin[S].Theme    := SkinIni.ReadString('Skin', 'Theme', '');
   Skin[S].Name     := SkinIni.ReadString('Skin', 'Name', '');
   Skin[S].Creator  := SkinIni.ReadString('Skin', 'Creator', '');
   Skin[S].DefaultColor := Max(0, GetArrayIndex(IColor, SkinIni.ReadString('Skin', 'Color', ''), true));
-
   SkinIni.Free;
 end;
 
 procedure TSkin.LoadSkin(Name, Theme: string);
 var
-  SkinIni: TMemIniFile;
-  SL:      TStringList;
-  T:       integer;
-  S:       integer;
+  Textures:      TStringList;
+  Texture: UTF8String;
+  SkinNumber: integer;
+  I: integer;
+  SkinsByTheme: TUTF8StringDynArray;
 begin
-  S        := GetSkinNumber(Name, Theme);
-  SkinPath := Skin[S].Path;
+  SkinNumber := Self.GetSkinNumber(Name, Theme);
+  Self.SkinPath := Skin[SkinNumber].Path;
+  Self.SkinIni := TMemIniFile.Create(Self.SkinPath.Append(Skin[SkinNumber].FileName).ToNative());
+  for I := 0 to High(UThemes.Theme.Themes) do
+    if Theme = UThemes.Theme.Themes[I].Name then
+      Self.SkinBase := TMemIniFile.Create(Self.SkinPath.Append(Skin[UThemes.Theme.Themes[I].DefaultSkin].FileName).ToNative());
 
-  SkinIni  := TMemIniFile.Create(SkinPath.Append(Skin[S].FileName).ToNative);
-
-  SL := TStringList.Create;
-  SkinIni.ReadSection('Textures', SL);
-
-  SetLength(SkinTexture, SL.Count);
-  for T := 0 to SL.Count-1 do
+  Textures := TStringList.Create();
+  Self.SkinBase.ReadSection('Textures', Textures);
+  SetLength(SkinTexture, Textures.Count);
+  for I := 0 to Textures.Count - 1 do
   begin
-    SkinTexture[T].Name     := SL.Strings[T];
-    SkinTexture[T].FileName := Path(SkinIni.ReadString('Textures', SL.Strings[T], ''));
-  end;
+    SkinTexture[I].Name := Textures.Strings[I];
+    Texture := Self.SkinIni.ReadString('Textures', Textures.Strings[I], '');
+    if Texture = '' then
+      Texture := Self.SkinBase.ReadString('Textures', Textures.Strings[I], '');
 
-  SL.Free;
-  SkinIni.Free;
+    SkinTexture[I].FileName := Path(Texture);
+  end;
+  Textures.Free();
+  SkinIni.Free();
 end;
 
 function TSkin.GetTextureFileName(TextureName: string): IPath;
@@ -171,7 +177,7 @@ var
   T: integer;
 begin
   Result := PATH_NONE;
-  
+
   for T := 0 to High(SkinTexture) do
   begin
     if (SkinTexture[T].Name = TextureName) and
@@ -192,7 +198,7 @@ function TSkin.GetSkinNumber(Name, Theme: string): integer;
 var
   S: integer;
 begin
-  Result := 0; // set default to the first available skin
+  Result := -1;
   for S := 0 to High(Skin) do
     if (CompareText(Skin[S].Name, Name) = 0) and (CompareText(Skin[S].Theme, Theme) = 0) then
       Result := S;

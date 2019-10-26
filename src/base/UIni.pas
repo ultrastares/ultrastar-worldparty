@@ -72,7 +72,6 @@ const
   CHANNEL_OFF = 0;         // for field ChannelToPlayerMap
   LATENCY_AUTODETECT = -1; // for field Latency
   DEFAULT_RESOLUTION = '800x600';
-  DefaultTheme = 'Fantasy';
   IMaxPlayerCount = 6;
   IPlayers: array[0..4] of UTF8String = ('1', '2', '3', '4', '6');
   IPlayersVals: array[0..4] of integer = (1, 2, 3, 4, 6);
@@ -729,13 +728,7 @@ end;
 
 procedure TIni.LoadThemes(IniFile: TCustomIniFile);
 begin
-  // No Theme Found
-  if (Length(ITheme) = 0) then
-  begin
-    Log.CriticalError('Could not find any valid Themes.');
-  end;
-
-  Theme := ReadArrayIndex(ITheme, IniFile, 'Themes', 'Theme', IGNORE_INDEX, DefaultTheme, true);
+  Theme := ReadArrayIndex(ITheme, IniFile, 'Themes', 'Theme', IGNORE_INDEX, UThemes.DefaultTheme, true);
   if (Theme = -1) then
     Theme := 0;
 
