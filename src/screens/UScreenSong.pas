@@ -604,13 +604,13 @@ begin
               if Self.Button[B].Visible and (Self.Button[B].Z > 0.9) and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) then //z to roulette mode fix
                 if Self.Interaction = B then
                   Self.ParseInput(SDLK_RETURN, 0, true)
-                else
+                else if Self.FreeListMode() then
                   Self.SkipTo(B);
 
             if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then
               if Self.InRegion(X, Y, Self.Statics[0].GetMouseOverArea()) then //arrow to page up
                 Self.ParseInput(SDLK_PAGEUP, 0, true)
-              else if Self.InRegion(X, Y, Self.Statics[1].GetMouseOverArea()) then //arrow to page down
+              else if Self.InRegion(X, Y, Self.Statics[2].GetMouseOverArea()) then //arrow to page down
                 Self.ParseInput(SDLK_PAGEDOWN, 0, true);
           end;
         SDL_BUTTON_RIGHT: //go back
@@ -624,7 +624,7 @@ begin
           Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_LEFT, SDLK_UP), 0, true);
       end;
     end
-    else if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then //hover cover
+    else if Self.FreeListMode() and (UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard) then //hover cover
       for B := 0 to High(Self.Button) do
         if Self.Button[B].Visible and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) and (Self.Interaction <> B) then
         begin
