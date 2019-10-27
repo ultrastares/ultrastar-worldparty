@@ -1177,7 +1177,7 @@ var
   FirstCover, LastCover, LeftCover, VisibleCover: boolean;
 begin
   VisibleIndex := 0; //counter of visible covers
-  VisibleCovers := IfThen(USongs.CatSongs.GetVisibleSongs() <= 11, 5, 7); //5 visible covers in each side plus 2 in background to improve the scroll effect
+  VisibleCovers := IfThen(USongs.CatSongs.GetVisibleSongs() <= 11, 5, 8); //5 visible covers in each side plus 3 in background to improve the scroll effect
   Scale := 0.95; //scale to reduce size or inclination of side covers
   Steps := Floor(UIni.Ini.MaxFramerate * 15 / 60); //number of steps for animations
   RightX := (Theme.Song.Cover.W + (Theme.Song.Cover.W - Theme.Song.Cover.W * Scale)) / 2; //correction on X for right covers
@@ -1187,15 +1187,15 @@ begin
     if Self.Button[B].Visible then
     begin
       VisibleCover := (VisibleIndex >= Self.SongTarget - VisibleCovers) and (VisibleIndex <= Self.SongTarget + VisibleCovers); //visible songs
-      LastCover := (not VisibleCover) and (VisibleIndex < VisibleCovers); //last cover of list
-      FirstCover := (not VisibleCover) and (not LastCover) and (VisibleIndex >= USongs.CatSongs.GetVisibleSongs() - VisibleCovers); //first covers of list
+      LastCover := (not VisibleCover) and (USongs.CatSongs.GetVisibleSongs() - VisibleIndex <= VisibleCovers - Self.SongTarget); //last cover of list
+      FirstCover := (not VisibleCover) and (not LastCover) and (USongs.CatSongs.GetVisibleSongs() - Self.SongTarget <= VisibleCovers - VisibleIndex); //first covers of list
       if VisibleCover or LastCover or FirstCover then
       begin
         Self.LoadCover(B);
         Self.Button[B].SetSelect(true);
         Self.Button[B].Y := Theme.Song.Cover.Y;
-        Self.Button[B].Z := 0.96;
-        if B = Self.Interaction then //main cover
+        Self.Button[B].Z := Self.Statics[2].Texture.Z - 0.01;
+        if (B = Self.Interaction) and SameValue(Self.SongTarget, Self.SongCurrent, 1.002) then //main cover
         begin
           Self.Button[B].Reflection := false;
           if //animation from left or right to central position using texture scale, height and width
@@ -1242,21 +1242,22 @@ begin
         end
         else //left and right covers
         begin
+          LeftCover := ((VisibleIndex < Self.SongCurrent) or LastCover) and (not FirstCover);
           Self.Button[B].Reflection := true;
           Self.Button[B].X := Theme.Song.Cover.X;
-          LeftCover := ((VisibleIndex < Self.SongTarget) and (not LastCover)) or FirstCover;
-          if LeftCover then //put first covers under following
-            Self.Button[B].Z := Self.Button[B].Z - (Self.SongTarget - VisibleIndex + IfThen(FirstCover, USongs.CatSongs.GetVisibleSongs(), 0)) * 0.01
-          else //put last covers under previous
-            Self.Button[B].Z := Self.Button[B].Z - (VisibleIndex - Self.SongTarget + IfThen(LastCover, USongs.CatSongs.GetVisibleSongs(), 0)) * 0.01;
+          Self.Button[B].Z := Self.Button[B].Z - IfThen(
+            LeftCover,
+            (Self.SongCurrent - VisibleIndex + IfThen(LastCover, USongs.CatSongs.GetVisibleSongs(), 0)) * 0.01, //put first covers under following
+            (VisibleIndex - Self.SongCurrent + IfThen(FirstCover, USongs.CatSongs.GetVisibleSongs(), 0)) * 0.01 //put last covers under previous
+          );
 
           PaddingIncrementX := VisibleIndex - Self.SongCurrent;
           if not VisibleCover then
-            PaddingIncrementX += USongs.CatSongs.GetVisibleSongs() * IfThen(FirstCover, -1, 1);
+            PaddingIncrementX += USongs.CatSongs.GetVisibleSongs() * IfThen(LastCover, -1, 1);
 
           if //animation from central to left or right position using texture scale, height and width
             (not SameValue(Self.Button[B].H, Theme.Song.Cover.H * Scale))
-            and (not SameValue(Self.SongTarget, Self.SongCurrent, 0.002)) //avoid initial state or after quit a filter
+            and (not SameValue(Self.SongTarget, Self.SongCurrent, 0.0021)) //avoid initial state or after quit a filter or searching before move from first cover
             and ( //avoid animation whit a few songs (less than VisibleCovers) and reach the end of the list
               ((USongs.CatSongs.GetVisibleSongs() > VisibleCovers) )
               or (not (
