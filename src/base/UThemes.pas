@@ -35,8 +35,10 @@ uses
   UCommon,
   ULog,
   UIni,
+  USkins,
   UTexture,
   UPath;
+
 type
   TBackgroundType =
     (bgtNone, bgtColor, bgtTexture, bgtVideo, bgtFade, bgtAuto);
@@ -1207,7 +1209,8 @@ type
   TThemeEntry = record
     Name: string;
     Filename: IPath;
-    DefaultSkin: integer;
+    DefaultSkin: UTF8String;
+    Skins: array of UTF8String;
   end;
 
   TInheritance = record
@@ -1348,7 +1351,6 @@ implementation
 
 uses
   ULanguage,
-  USkins,
   UPathUtils,
   UFileSystem,
   TextGL,
@@ -1391,9 +1393,9 @@ var
   Iter: IFileIterator;
   FileInfo: TFileInfo;
   Entry: TThemeEntry;
-  SkinIni: TMemIniFile;
+  Ini: TMemIniFile;
   DefaultSkin: UTF8String;
-  Len: integer;
+  I, Len: integer;
 begin
   Log.LogStatus('Searching for ini file themes in '+ThemePath.ToNative(), 'Theme.LoadList');
   Iter := UFileSystem.FileSystem.FileFind(ThemePath.Append('*.ini'), 0);
@@ -1402,12 +1404,24 @@ begin
     FileInfo := Iter.Next();
     Entry.Name := FileInfo.Name.SetExtension('').ToNative();
     Entry.Filename := ThemePath.Append(FileInfo.Name);
-    SkinIni := TMemIniFile.Create(Entry.Filename.ToNative());
-    DefaultSkin := SkinIni.ReadString('Theme', 'DefaultSkin', Entry.Name);
-    Entry.DefaultSkin := USkins.Skin.GetSkinNumber(DefaultSkin, Entry.Name);
-    if Entry.DefaultSkin = -1 then
+    Ini := TMemIniFile.Create(Entry.Filename.ToNative());
+    DefaultSkin := Ini.ReadString('Theme', 'DefaultSkin', '');
+    Entry.DefaultSkin := '';
+    Len := 0;
+    for I := 0 to High(USkins.Skin.Skin) do
+      if CompareText(Entry.Name, USkins.Skin.Skin[I].Theme) = 0 then
+      begin
+        if DefaultSkin = USkins.Skin.Skin[I].Name then
+          Entry.DefaultSkin := DefaultSkin;
+
+        SetLength(Entry.Skins, Len + 1);
+        Entry.Skins[Len] := USkins.Skin.Skin[I].Name;
+        Inc(Len);
+      end;
+
+    if Entry.DefaultSkin = '' then
       Log.CriticalError('Could not find the default skin '+DefaultSkin+' of theme '+Entry.Name)
-    else if SkinIni.ReadFloat('Theme', 'Version', 0) < ThemeMinVersion then
+    else if Ini.ReadFloat('Theme', 'Version', 0) < ThemeMinVersion then
       Log.CriticalError('The theme '+Entry.Name+' must be updated to be compatible with the '+FormatFloat('00.00', ThemeMinVersion)+' version themes style')
     else
     begin
@@ -1421,7 +1435,7 @@ begin
       Themes[Len] := Entry;
       ITheme[Len] := Entry.Name;
     end;
-    SkinIni.Free();
+    Ini.Free();
   end;
   if not Assigned(Self.ThemeBase) then
     Log.CriticalError('Could not find the default theme '+DefaultTheme);
@@ -1540,8 +1554,7 @@ begin
     Self.ThemeIni := TMemIniFile.Create(Self.Themes[ThemeNum].FileName.ToNative());
     begin //deleted previous if asking for theme name because don't have sense now
       Skin.Color := sColor;
-
-      Skin.LoadSkin(ISkin[Ini.SkinNo], Themes[ThemeNum].Name);
+      Skin.LoadSkin();
 
       LoadColors;
 

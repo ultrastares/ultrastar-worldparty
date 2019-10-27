@@ -61,14 +61,10 @@ type
     procedure LoadList;
     procedure ParseDir(Dir: IPath);
     procedure LoadHeader(FileName: IPath);
-    procedure LoadSkin(Name, Theme: string);
+    procedure LoadSkin();
     function GetTextureFileName(TextureName: string): IPath;
-    function GetSkinNumber(Name, Theme: string): integer;
-    function GetDefaultColor(SkinNo: integer): integer;
-
-    procedure GetSkinsByTheme(Theme: string; out Skins: TUTF8StringDynArray);
-
-    procedure onThemeChange;
+    function GetSkinNumber(Name: string): integer;
+    function GetDefaultColor(): integer;
   end;
 
 var
@@ -141,21 +137,17 @@ begin
   SkinIni.Free;
 end;
 
-procedure TSkin.LoadSkin(Name, Theme: string);
+procedure TSkin.LoadSkin();
 var
   Textures:      TStringList;
   Texture: UTF8String;
   SkinNumber: integer;
   I: integer;
-  SkinsByTheme: TUTF8StringDynArray;
 begin
-  SkinNumber := Self.GetSkinNumber(Name, Theme);
+  SkinNumber := Self.GetSkinNumber(UThemes.Theme.Themes[UIni.Ini.Theme].Skins[UIni.Ini.Skin]);
   Self.SkinPath := Skin[SkinNumber].Path;
   Self.SkinIni := TMemIniFile.Create(Self.SkinPath.Append(Skin[SkinNumber].FileName).ToNative());
-  for I := 0 to High(UThemes.Theme.Themes) do
-    if Theme = UThemes.Theme.Themes[I].Name then
-      Self.SkinBase := TMemIniFile.Create(Self.SkinPath.Append(Skin[UThemes.Theme.Themes[I].DefaultSkin].FileName).ToNative());
-
+  Self.SkinBase := TMemIniFile.Create(Self.SkinPath.Append(Skin[Self.GetSkinNumber(UThemes.Theme.Themes[UIni.Ini.Theme].DefaultSkin)].FileName).ToNative());
   Textures := TStringList.Create();
   Self.SkinBase.ReadSection('Textures', Textures);
   SetLength(SkinTexture, Textures.Count);
@@ -194,43 +186,26 @@ begin
   end;
 end;
 
-function TSkin.GetSkinNumber(Name, Theme: string): integer;
+function TSkin.GetSkinNumber(Name: string): integer;
 var
   S: integer;
 begin
   Result := -1;
   for S := 0 to High(Skin) do
-    if (CompareText(Skin[S].Name, Name) = 0) and (CompareText(Skin[S].Theme, Theme) = 0) then
+    if (CompareText(Skin[S].Name, Name) = 0) and (CompareText(Skin[S].Theme, UThemes.Theme.Themes[UIni.Ini.Theme].Name) = 0) then
       Result := S;
-end;
-
-procedure TSkin.GetSkinsByTheme(Theme: string; out Skins: TUTF8StringDynArray);
-  var
-    I: Integer;
-    Len: integer;
-begin
-  SetLength(Skins, 0);
-  Len := 0;
-
-  for I := 0 to High(Skin) do
-    if CompareText(Theme, Skin[I].Theme) = 0 then
-    begin
-      SetLength(Skins, Len + 1);
-      Skins[Len] := Skin[I].Name;
-      Inc(Len);
-    end;
 end;
 
 { returns number of default color for skin with
   index SkinNo in ISkin (not in the actual skin array) }
-function TSkin.GetDefaultColor(SkinNo: integer): integer;
-  var
-    I: Integer;
+function TSkin.GetDefaultColor(): integer;
+var
+  I, SkinNo: Integer;
 begin
   Result := 0;
-
+  SkinNo := UIni.Ini.Skin;
   for I := 0 to High(Skin) do
-    if CompareText(ITheme[Ini.Theme], Skin[I].Theme) = 0 then
+    if (CompareText(ITheme[Ini.Theme], Skin[I].Theme) = 0) then
     begin
       if SkinNo > 0 then
         Dec(SkinNo)
@@ -240,12 +215,6 @@ begin
         Break;
       end;
     end;
-end;
-
-procedure TSkin.onThemeChange;
-begin
-  Ini.SkinNo:=0;
-  GetSkinsByTheme(ITheme[Ini.Theme], ISkin);
 end;
 
 end.

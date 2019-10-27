@@ -194,7 +194,7 @@ type
 
       // Themes
       Theme:          integer;
-      SkinNo:         integer;
+      Skin:         integer;
       Color:          integer;
       BackgroundMusicOption: integer;
 
@@ -275,7 +275,6 @@ var
   IResolutionCustom: TUTF8StringDynArray;
   ILanguage:   TUTF8StringDynArray;
   ITheme:      TUTF8StringDynArray;
-  ISkin:       TUTF8StringDynArray;
 
 {*
  * Options
@@ -729,22 +728,8 @@ end;
 procedure TIni.LoadThemes(IniFile: TCustomIniFile);
 begin
   Theme := ReadArrayIndex(ITheme, IniFile, 'Themes', 'Theme', IGNORE_INDEX, UThemes.DefaultTheme, true);
-  if (Theme = -1) then
-    Theme := 0;
-
-  // Skin
-  Skin.onThemeChange;
-
-  SkinNo := ReadArrayIndex(ISkin, IniFile, 'Themes', 'Skin', UThemes.Theme.Themes[Theme].DefaultSkin);
-
-  { there may be a not existing skin in the ini file
-    e.g. due to manual edit or corrupted file.
-    in this case we load the first Skin }
-  if SkinNo = -1 then
-    SkinNo := 0;
-
-  // Color
-  Color := ReadArrayIndex(IColor, IniFile, 'Themes', 'Color', Skin.GetDefaultColor(SkinNo));
+  Self.Skin := Self.ReadArrayIndex(UThemes.Theme.Themes[Theme].Skins, IniFile, 'Themes', 'Skin', GetArrayIndex(UThemes.Theme.Themes[Theme].Skins, UThemes.Theme.Themes[Theme].DefaultSkin));
+  Self.Color := Self.ReadArrayIndex(IColor, IniFile, 'Themes', 'Color', USkins.Skin.GetDefaultColor());
 end;
 
 procedure TIni.LoadScreenModes(IniFile: TCustomIniFile);
@@ -1308,7 +1293,7 @@ begin
   IniFile.WriteString('Themes', 'Theme', ITheme[Theme]);
 
   // Skin
-  IniFile.WriteString('Themes', 'Skin', ISkin[SkinNo]);
+  IniFile.WriteString('Themes', 'Skin', UThemes.Theme.Themes[Theme].Skins[Self.Skin]);
 
   // Color
   IniFile.WriteString('Themes', 'Color', IColor[Color]);
