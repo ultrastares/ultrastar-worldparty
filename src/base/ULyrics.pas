@@ -83,7 +83,7 @@ type
       LyricsFont: byte; //font for the lyric text
       LyricBar: TThemeLyricBar; //line position
       Player: integer;
-
+      IsJukebox: boolean;
       // Some helper procedures for lyric drawing
       procedure UpdateLineMetrics(LyricLine: TLyricLine);
       procedure DrawLyricsWords(LyricLine: TLyricLine; X, Y: real; StartWord, EndWord: integer);
@@ -129,8 +129,8 @@ type
       function GetLowerLine(): TLyricLine;
       function GetOffset(): integer; //Get lyric offset in jukebox mode
       function GetUpperLineIndex(): integer;
-      procedure SetProperties(IsJukebox: boolean); //Set lyric properties for classic or jukebox mode
-      constructor Create(ThemeLyricBar: TThemeLyricBar; PlayerNumber: integer = 0; IsJukebox: boolean = false);
+      procedure SetProperties(IsJukeboxLyric: boolean); //Set lyric properties for classic or jukebox mode
+      constructor Create(ThemeLyricBar: TThemeLyricBar; PlayerNumber: integer = 0; IsJukeboxLyric: boolean = false);
       procedure   LoadTextures;
       destructor  Destroy; override;
   end;
@@ -186,7 +186,7 @@ end;
   Player 0 = Single player
   Player > 0 = Multiplayer
 }
-constructor TLyricEngine.Create(ThemeLyricBar: TThemeLyricBar; PlayerNumber: integer = 0; IsJukebox: boolean = false);
+constructor TLyricEngine.Create(ThemeLyricBar: TThemeLyricBar; PlayerNumber: integer = 0; IsJukeboxLyric: boolean = false);
 begin
   inherited Create();
 
@@ -202,7 +202,7 @@ begin
   Self.LyricBar := ThemeLyricBar;
   LoadTextures;
   Self.Player := PlayerNumber;
-  Self.SetProperties(IsJukebox);
+  Self.IsJukebox := IsJukeboxLyric;
 end;
 
 {**
@@ -226,6 +226,7 @@ begin
   QueueFull := False;
 
   LastDrawBeat:=0;
+  Self.SetProperties(Self.IsJukebox);
 end;
 
 
@@ -690,9 +691,9 @@ begin
 end;
 
 { Set lyric properties for classic or jukebox mode }
-procedure TLyricEngine.SetProperties(IsJukebox: boolean);
+procedure TLyricEngine.SetProperties(IsJukeboxLyric: boolean);
 begin
-  if IsJukebox then
+  if IsJukeboxLyric then
   begin
     Self.Alpha := StrToFloat(UIni.ILyricsAlpha[UIni.Ini.JukeboxTransparency]);
     Self.LyricBar.YOffset := IfThen(Self.Player = -1, 0, (100 - UIni.Ini.JukeboxOffset) * -5);
