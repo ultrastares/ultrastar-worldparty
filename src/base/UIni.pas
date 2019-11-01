@@ -213,6 +213,7 @@ type
       TopScores:      integer;
       SingTimebarMode:       integer;
       JukeboxTimebarMode:    integer;
+      FindUnsetMedley: integer;
 
       // Controller
       Joypad:         integer;
@@ -281,12 +282,8 @@ var
  *}
 
 const
-  YesNo: array[0..1] of UTF8String = ('Off', 'On');
   IDifficulty:  array[0..2] of UTF8String = ('Easy', 'Medium', 'Hard');
   Switch: array[0..1] of UTF8String = ('Off', 'On');
-  ITabs:        array[0..1] of UTF8String = ('Off', 'On');
-
-const
   ISorting:      array[0..8] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade');
   ISongMenuMode: array[0..6] of UTF8String = ('Roulette', 'Chessboard', 'Carousel', 'Slot Machine', 'Slide', 'List', 'Mosaic');
 
@@ -945,7 +942,8 @@ begin
 
   // Tabs
   ShowDuets := Self.ReadArrayIndex(Switch, IniFile, 'Game', 'ShowDuets', 1);
-  Tabs := ReadArrayIndex(ITabs, IniFile, 'Game', 'Tabs', 0);
+  Self.Tabs := Self.ReadArrayIndex(Switch, IniFile, 'Game', 'Tabs', 0);
+  Self.FindUnsetMedley := ReadArrayIndex(Switch, IniFile, 'Game', 'FindUnsetMedley', 0);
 
   // Song Sorting
   Sorting := ReadArrayIndex(ISorting, IniFile, 'Game', 'Sorting', Ord(sTitle));
@@ -1033,7 +1031,7 @@ begin
   SoundFont := IniFile.ReadString('Sound', 'SoundFont', '');
 
   //lyrics
-  Self.NoteLines := ReadArrayIndex(YesNo, IniFile, 'Lyrics', 'NoteLines', 0);
+  Self.NoteLines := ReadArrayIndex(Switch, IniFile, 'Lyrics', 'NoteLines', 0);
   Self.LyricsFont := ReadArrayIndex(ILyricsFont, IniFile, 'Lyrics', 'Font', 0);
   Self.LyricsEffect := ReadArrayIndex(ILyricsEffect, IniFile, 'Lyrics', 'Effect', 2);
   Self.LyricsTransparency := ReadArrayIndex(ILyricsAlpha, IniFile, 'Lyrics', 'Transparency', 19);
@@ -1172,7 +1170,7 @@ begin
 
   IniFile.WriteString('Game', 'ShowDuets', Switch[Self.ShowDuets]);
   // Tabs
-  IniFile.WriteString('Game', 'Tabs', ITabs[Tabs]);
+  IniFile.WriteString('Game', 'Tabs', Switch[Tabs]);
 
   // SongMenu
   IniFile.WriteString('Game', 'SongMenu', ISongMenuMode[Ord(SongMenu)]);
@@ -1263,7 +1261,7 @@ begin
   IniFile.WriteString('Sound', 'MusicAutoGain', IMusicAutoGain[MusicAutoGain]);
 
   //lyrics
-  IniFile.WriteString('Lyrics', 'NoteLines', YesNo[Self.NoteLines]);
+  IniFile.WriteString('Lyrics', 'NoteLines', Switch[Self.NoteLines]);
   IniFile.WriteString('Lyrics', 'Font', ILyricsFont[Self.LyricsFont]);
   IniFile.WriteString('Lyrics', 'Effect', ILyricsEffect[Self.LyricsEffect]);
   IniFile.WriteString('Lyrics', 'Transparency', ILyricsAlpha[Self.LyricsTransparency]);
@@ -1323,6 +1321,7 @@ begin
 
   //TopScores
   IniFile.WriteString('Advanced', 'TopScores', ITopScores[TopScores]);
+  IniFile.WriteString('Advanced', 'FindUnsetMedley', Switch[Self.FindUnsetMedley]);
 
   //SyncTo
   IniFile.WriteString('Advanced', 'SyncTo', ISyncTo[SyncTo]);

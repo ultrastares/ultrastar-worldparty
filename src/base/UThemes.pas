@@ -811,6 +811,7 @@ type
     SelectSorting:      TThemeSelectSlide;
     SelectTabs:         TThemeSelectSlide;
     SelectShowScores:   TThemeSelectSlide;
+    SelectFindUnsetMedley: TThemeSelectSlide;
     SelectJoypad:       TThemeSelectSlide;
     ButtonExit:         TThemeButton;
   end;
@@ -2048,6 +2049,7 @@ begin
       ThemeLoadSelectSlide(OptionsGame.SelectSorting,    'OptionsGameSelectSlideSorting');
       ThemeLoadSelectSlide(OptionsGame.SelectTabs,       'OptionsGameSelectTabs');
       ThemeLoadSelectSlide(OptionsGame.SelectShowScores, 'OptionsGameSelectShowScores');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectFindUnsetMedley, 'OptionsGameSelectFindUnsetMedley');
       ThemeLoadSelectSlide(OptionsGame.SelectJoypad,     'OptionsGameSelectJoypad');
       ThemeLoadButton(OptionsGame.ButtonExit,            'OptionsGameButtonExit');
 

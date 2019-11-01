@@ -87,7 +87,7 @@ begin
   inherited Create();
 
   Self.LoadFromTheme(UThemes.Theme.OptionsLyrics);
-  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectModeProperty, Self.SelectModeProperty, UIni.YesNo, 'PARTY_MODE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectModeProperty, Self.SelectModeProperty, UIni.Switch, 'PARTY_MODE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectFont, Self.SelectFont, UIni.ILyricsFont, 'OPTION_VALUE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectEffect, Self.SelectEffect, UIni.ILyricsEffect, 'OPTION_VALUE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectTransparency, Self.SelectTransparency, UIni.ILyricsAlpha);
@@ -325,7 +325,7 @@ begin
   if Self.SelectMode = 0 then
   begin
     Self.SelectModeProperty := UIni.Ini.NoteLines;
-    Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectModeProperty, 0, UIni.YesNo, Self.SelectModeProperty, 'OPTION_VALUE_');
+    Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectModeProperty, 0, UIni.Switch, Self.SelectModeProperty, 'OPTION_VALUE_');
     Self.SelectsS[0].Text.Text := ULanguage.Language.Translate('SING_OPTIONS_LYRICS_NOTELINES');
     Self.SelectsS[1].SelectedOption := UIni.Ini.LyricsFont;
     Self.SelectsS[2].SelectedOption := UIni.Ini.LyricsEffect;

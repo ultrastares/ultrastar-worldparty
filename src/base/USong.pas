@@ -887,6 +887,9 @@ var
   len_lines, len_notes: integer;
   found_end:            boolean;
 begin
+  if UIni.Ini.FindUnsetMedley = 0 then
+    Exit();
+
   num_lines := Length(Lines[0].Line);
   SetLength(sentences, num_lines);
 

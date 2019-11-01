@@ -83,30 +83,31 @@ begin
       SDLK_BACKSPACE :
           Self.ReloadScreens();
       SDLK_RETURN:
-          if SelInteraction = 7 then
+          if Self.SelInteraction = 8 then
             Self.ReloadScreens();
       SDLK_DOWN:
         InteractNext;
       SDLK_UP :
         InteractPrev;
-      SDLK_RIGHT:
+      SDLK_LEFT, SDLK_RIGHT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 6) then
+          if (Self.SelInteraction >= 0) and (Self.SelInteraction <= 7) then
           begin
+            if Self.SelInteraction = 6 then //rebuild songs arrays with new config
+            begin
+              UIni.Ini.Save();
+              FreeAndNil(UGraphic.ScreenSong);
+              USongs.CatSongs := TCatSongs.Create();
+              USongs.Songs := TSongs.Create();
+            end;
+
             AudioPlayback.PlaySound(SoundLib.Option);
-            InteractInc;
+            if PressedKey = SDLK_RIGHT then
+              Self.InteractInc()
+            else
+              Self.InteractDec()
           end;
-          if SelInteraction = 0 then
-            Self.ReloadScreen();
-        end;
-      SDLK_LEFT:
-        begin
-          if (SelInteraction >= 0) and (SelInteraction <= 6) then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Option);
-            InteractDec;
-          end;
-          if SelInteraction = 0 then
+          if Self.SelInteraction = 0 then
             Self.ReloadScreen();
         end;
     end;
@@ -121,9 +122,10 @@ begin
   Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectLanguage, UIni.Ini.Language, UIni.ILanguage);
   Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectSongMenu, UIni.Ini.SongMenu, UIni.ISongMenuMode, 'OPTION_VALUE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectDuets, UIni.Ini.ShowDuets, UIni.Switch, 'OPTION_VALUE_');
-  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectTabs, UIni.Ini.Tabs, UIni.ITabs, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectTabs, UIni.Ini.Tabs, UIni.Switch, 'OPTION_VALUE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectSorting, UIni.Ini.Sorting, UIni.ISorting, 'OPTION_VALUE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectShowScores, UIni.Ini.ShowScores, UIni.IShowScores, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectFindUnsetMedley, UIni.Ini.FindUnsetMedley, UIni.Switch, 'OPTION_VALUE_');
   SelectJoyPad := Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectJoypad, UIni.Ini.Joypad, UIni.IJoypad, 'OPTION_VALUE_');
   Self.AddButton(UThemes.Theme.OptionsGame.ButtonExit);
 end;
@@ -171,6 +173,7 @@ begin
   UThemes.Theme.OptionsGame.SelectTabs.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_TABS');
   UThemes.Theme.OptionsGame.SelectSorting.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SORTING');
   UThemes.Theme.OptionsGame.SelectShowScores.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SHOWSCORES');
+  UThemes.Theme.OptionsGame.SelectFindUnsetMedley.Text := ULanguage.Language.Translate('SING_SONG_SELECTION_LEGEND_MEDLEYC');
   UThemes.Theme.OptionsGame.SelectJoypad.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_JOYPAD_SUPPORT');
   UThemes.Theme.OptionsGame.ButtonExit.Text[0].Text := ULanguage.Language.Translate('SING_OPTIONS_EXIT');
   UGraphic.ScreenOptionsGame.Free();
