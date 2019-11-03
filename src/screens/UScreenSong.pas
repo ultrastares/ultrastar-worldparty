@@ -273,7 +273,6 @@ begin
 
   if (PressedDown) then
   begin // Key Down
-    USongs.Songs.PreloadCovers(false);
     SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
 
     //jump to artist or title letter
@@ -596,16 +595,19 @@ begin
     Self.TransferMouseCords(X, Y);
     if BtnDown then
     begin
-      USongs.Songs.PreloadCovers(false);
       case MouseButton of
         SDL_BUTTON_LEFT:
           begin
-            for B := 0 to High(Self.Button) do
+            VisibleCovers := UThemes.Theme.Song.Cover.Cols * UThemes.Theme.Song.Cover.Rows;
+            for B := Max(0, Self.Interaction - VisibleCovers) to Min(USongs.CatSongs.GetVisibleSongs() - 1, Self.Interaction + VisibleCovers) do
               if Self.Button[B].Visible and (Self.Button[B].Z > 0.9) and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) then //z to roulette mode fix
+              begin
+                Exit();
                 if Self.Interaction = B then
                   Self.ParseInput(SDLK_RETURN, 0, true)
                 else if Self.FreeListMode() then
                   Self.SkipTo(B);
+              end;
 
             if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then
               if Self.InRegion(X, Y, Self.Statics[0].GetMouseOverArea()) then //arrow to page up
@@ -1748,16 +1750,7 @@ begin
 
   AudioPlayback.Close();
 
-  if USongs.CatSongs.GetVisibleSongs() = 0 then
-    Exit;
-
   Song := CatSongs.Song[Interaction];
-  if not assigned(Song) then
-    Exit;
-
-  //fix: if main cat than there is nothing to play
-  if Song.main then
-    Exit;
 
   PlayMidi := false;
   if AudioPlayback.Open(Song.Path.Append(Song.Mp3)) then
@@ -1800,9 +1793,7 @@ end;
 
 procedure TScreenSong.StartVideoPreview();
 var
-  VideoFile:  IPath;
   Song:       TSong;
-
 begin
   if (Ini.VideoPreview=0)  then
     Exit;
@@ -1813,26 +1804,12 @@ begin
   if (PreviewOpened = -1) then
     Exit;
 
-  if USongs.CatSongs.GetVisibleSongs() = 0 then
-    Exit;
-
-  Song := CatSongs.Song[Interaction];
-  if not assigned(Song) then
-    Exit;
-
-  //fix: if main cat than there is nothing to play
-  if Song.main then
-    Exit;
-
-  VideoFile := Song.Path.Append(Song.Video);
-  if (Song.Video.IsSet) and VideoFile.IsFile then
+  Song := USongs.CatSongs.Song[Self.Interaction];
+  fCurrentVideo := VideoPlayback.Open(Song.Path.Append(Song.Video));
+  if (fCurrentVideo <> nil) then
   begin
-    fCurrentVideo := VideoPlayback.Open(VideoFile);
-    if (fCurrentVideo <> nil) then
-    begin
-      fCurrentVideo.Position := Song.VideoGAP + AudioPlayback.Position;
-      fCurrentVideo.Play;
-    end;
+    fCurrentVideo.Position := Song.VideoGAP + AudioPlayback.Position;
+    fCurrentVideo.Play();
   end;
 end;
 
@@ -2000,6 +1977,8 @@ var
 begin
   if not (Force or Self.IsScrolling) then //to avoid unnecessary modifications if nothing changes
     Exit();
+
+  USongs.Songs.PreloadCovers(false);
 
   Visibility := USongs.CatSongs.GetVisibleSongs() <> 0;
   VisibilityNoList := Visibility and (UIni.TSongMenuMode(UIni.Ini.SongMenu) <> smList);
