@@ -627,7 +627,6 @@ begin
     else if Self.FreeListMode() and (UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard) then //hover cover
     begin
       VisibleCovers := UThemes.Theme.Song.Cover.Rows * UThemes.Theme.Song.Cover.Cols;
-      writeln(IntToStr(Max(0, Self.Interaction - VisibleCovers))+' '+IntToStr(Min(USongs.CatSongs.GetVisibleSongs(), Self.Interaction + VisibleCovers)));
       for B := Max(0, Self.Interaction - VisibleCovers) to Min(USongs.CatSongs.GetVisibleSongs() - 1, Self.Interaction + VisibleCovers) do
       begin
         if
