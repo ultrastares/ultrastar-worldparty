@@ -584,7 +584,7 @@ end;
 
 function TScreenSong.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 var
-  B: integer;
+  B, VisibleCovers: integer;
 begin
   Result := true;
   if UGraphic.ScreenSongMenu.Visible then
@@ -625,13 +625,24 @@ begin
       end;
     end
     else if Self.FreeListMode() and (UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard) then //hover cover
-      for B := 0 to High(Self.Button) do
-        if Self.Button[B].Visible and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) and (Self.Interaction <> B) then
+    begin
+      VisibleCovers := UThemes.Theme.Song.Cover.Rows * UThemes.Theme.Song.Cover.Cols;
+      for B := Max(0, Self.Interaction - VisibleCovers) to Min(USongs.CatSongs.GetVisibleSongs(), Self.Interaction + VisibleCovers) do
+      begin
+        if
+          Self.Button[B].Visible
+          and (Self.Button[B].Z < 1)
+          and (Self.Interaction <> B)
+          and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea())
+        then
         begin
           Self.Interaction := B;
           Self.SongTarget := B;
           Self.OnSongDeSelect();
+          Exit();
         end;
+      end;
+    end;
   end;
 end;
 
