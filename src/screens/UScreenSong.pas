@@ -583,7 +583,7 @@ end;
 
 function TScreenSong.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 var
-  B, VisibleCovers: integer;
+  B, CoverX, CoverY: integer;
 begin
   Result := true;
   if UGraphic.ScreenSongMenu.Visible then
@@ -598,15 +598,16 @@ begin
       case MouseButton of
         SDL_BUTTON_LEFT:
           begin
-            VisibleCovers := UThemes.Theme.Song.Cover.Cols * UThemes.Theme.Song.Cover.Rows;
-            for B := Max(0, Self.Interaction - VisibleCovers) to Min(USongs.CatSongs.GetVisibleSongs() - 1, Self.Interaction + VisibleCovers) do
+            for B := 0 to High(Self.Button) do
               if Self.Button[B].Visible and (Self.Button[B].Z > 0.9) and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) then //z to roulette mode fix
               begin
-                Exit();
                 if Self.Interaction = B then
                   Self.ParseInput(SDLK_RETURN, 0, true)
                 else if Self.FreeListMode() then
+                begin
                   Self.SkipTo(B);
+                  Exit();
+                end;
               end;
 
             if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then
@@ -628,21 +629,13 @@ begin
     end
     else if Self.FreeListMode() and (UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard) then //hover cover
     begin
-      VisibleCovers := UThemes.Theme.Song.Cover.Rows * UThemes.Theme.Song.Cover.Cols;
-      for B := Max(0, Self.Interaction - VisibleCovers) to Min(USongs.CatSongs.GetVisibleSongs() - 1, Self.Interaction + VisibleCovers) do
+      CoverX := ((X - UThemes.Theme.Song.Cover.X) * UThemes.Theme.Song.Cover.Cols) div ((UThemes.Theme.Song.Cover.W + UThemes.Theme.Song.Cover.Padding) * UThemes.Theme.Song.Cover.Cols);
+      CoverY := ((Y - UThemes.Theme.Song.Cover.Y) * UThemes.Theme.Song.Cover.Rows) div ((UThemes.Theme.Song.Cover.H + UThemes.Theme.Song.Cover.Padding) * UThemes.Theme.Song.Cover.Rows);
+      if (CoverX >= 0) and (CoverX < UThemes.Theme.Song.Cover.Cols) and (CoverY >= 0) and (CoverY < UThemes.Theme.Song.Cover.Rows) then
       begin
-        if
-          Self.Button[B].Visible
-          and (Self.Button[B].Z < 1)
-          and (Self.Interaction <> B)
-          and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea())
-        then
-        begin
-          Self.Interaction := B;
-          Self.SongTarget := B;
-          Self.OnSongDeSelect();
-          Exit();
-        end;
+        B := (Self.MinLine + CoverY) * UThemes.Theme.Song.Cover.Cols + CoverX;
+        if (B < USongs.CatSongs.GetVisibleSongs()) and (CompareValue(Self.SongTarget, B) <> 0) then
+          Self.SkipTo(B);
       end;
     end;
   end;
@@ -1753,7 +1746,7 @@ begin
   Song := CatSongs.Song[Interaction];
 
   PlayMidi := false;
-  if AudioPlayback.Open(Song.Path.Append(Song.Mp3)) then
+  if Song.Mp3.IsSet() and AudioPlayback.Open(Song.Path.Append(Song.Mp3)) then
   begin
     PreviewOpened := Interaction;
 
@@ -1805,11 +1798,14 @@ begin
     Exit;
 
   Song := USongs.CatSongs.Song[Self.Interaction];
-  fCurrentVideo := VideoPlayback.Open(Song.Path.Append(Song.Video));
-  if (fCurrentVideo <> nil) then
+  if Song.Video.IsSet() then
   begin
-    fCurrentVideo.Position := Song.VideoGAP + AudioPlayback.Position;
-    fCurrentVideo.Play();
+    fCurrentVideo := VideoPlayback.Open(Song.Path.Append(Song.Video));
+    if (fCurrentVideo <> nil) then
+    begin
+      fCurrentVideo.Position := Song.VideoGAP + AudioPlayback.Position;
+      fCurrentVideo.Play();
+    end;
   end;
 end;
 
