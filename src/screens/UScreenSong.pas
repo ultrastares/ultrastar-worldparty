@@ -594,27 +594,39 @@ begin
   begin
     Self.TransferMouseCords(X, Y);
     if BtnDown then
-    begin
       case MouseButton of
-        SDL_BUTTON_LEFT:
+        SDL_BUTTON_LEFT: //sing or move to the selected song/page
           begin
-            for B := 0 to High(Self.Button) do
-              if Self.Button[B].Visible and (Self.Button[B].Z > 0.9) and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) then //z to roulette mode fix
-              begin
-                if Self.Interaction = B then
-                  Self.ParseInput(SDLK_RETURN, 0, true)
-                else if Self.FreeListMode() then
-                begin
-                  Self.SkipTo(B);
-                  Exit();
+            if Self.FreeListMode() then
+              if //current song
+                Self.InRegion(X, Y, Self.Button[Self.Interaction].GetMouseOverArea()) //button
+                or Self.InRegion(X, Y, Self.Statics[0].GetMouseOverArea()) //song info
+                or (Self.Statics[Self.MainCover].Visible and Self.InRegion(X, Y, Self.Statics[Self.MainCover].GetMouseOverArea())) //main cover
+              then
+                Self.ParseInput(SDLK_RETURN, 0, true)
+              else
+                case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
+                  smList: //current song in list mode
+                    if
+                      (X > UThemes.Theme.Song.ListCover.X)
+                      and (X < UThemes.Theme.Song.ListCover.X + UThemes.Theme.Song.ListCover.W)
+                      and (Y > UThemes.Theme.Song.ListCover.Y)
+                      and (Y < UThemes.Theme.Song.ListCover.Y + (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding) * UThemes.Theme.Song.Cover.Rows)
+                    then
+                      Self.ParseInput(SDLK_RETURN, 0, true);
+                  smChessboard: //left arrows to move a entire page
+                    if Self.InRegion(X, Y, Self.Statics[1].GetMouseOverArea()) then //arrow to page up
+                      Self.ParseInput(SDLK_PAGEUP, 0, true)
+                    else if Self.InRegion(X, Y, Self.Statics[2].GetMouseOverArea()) then //arrow to page down
+                      Self.ParseInput(SDLK_PAGEDOWN, 0, true);
+                  else
+                    for B := 0 to High(Self.Button) do
+                      if Self.Button[B].Visible and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) then
+                      begin
+                        Self.SkipTo(B);
+                        Exit();
+                      end;
                 end;
-              end;
-
-            if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then
-              if Self.InRegion(X, Y, Self.Statics[0].GetMouseOverArea()) then //arrow to page up
-                Self.ParseInput(SDLK_PAGEUP, 0, true)
-              else if Self.InRegion(X, Y, Self.Statics[2].GetMouseOverArea()) then //arrow to page down
-                Self.ParseInput(SDLK_PAGEDOWN, 0, true);
           end;
         SDL_BUTTON_RIGHT: //go back
           if Self.RightMbESC then
@@ -625,17 +637,29 @@ begin
           Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_RIGHT, SDLK_DOWN), 0, true);
         SDL_BUTTON_WHEELUP: //previous song
           Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_LEFT, SDLK_UP), 0, true);
-      end;
-    end
-    else if Self.FreeListMode() and (UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard) then //hover cover
+      end
+    else if Self.FreeListMode() then //hover cover
     begin
-      CoverX := ((X - UThemes.Theme.Song.Cover.X) * UThemes.Theme.Song.Cover.Cols) div ((UThemes.Theme.Song.Cover.W + UThemes.Theme.Song.Cover.Padding) * UThemes.Theme.Song.Cover.Cols);
-      CoverY := ((Y - UThemes.Theme.Song.Cover.Y) * UThemes.Theme.Song.Cover.Rows) div ((UThemes.Theme.Song.Cover.H + UThemes.Theme.Song.Cover.Padding) * UThemes.Theme.Song.Cover.Rows);
-      if (CoverX >= 0) and (CoverX < UThemes.Theme.Song.Cover.Cols) and (CoverY >= 0) and (CoverY < UThemes.Theme.Song.Cover.Rows) then
-      begin
-        B := (Self.MinLine + CoverY) * UThemes.Theme.Song.Cover.Cols + CoverX;
-        if (B < USongs.CatSongs.GetVisibleSongs()) and (CompareValue(Self.SongTarget, B) <> 0) then
-          Self.SkipTo(B);
+      case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
+        smList:
+          if
+            (X > UThemes.Theme.Song.ListCover.X)
+            and (X < UThemes.Theme.Song.ListCover.X + UThemes.Theme.Song.ListCover.W)
+            and (Y > UThemes.Theme.Song.ListCover.Y)
+            and (Y < UThemes.Theme.Song.ListCover.Y + (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding) * UThemes.Theme.Song.Cover.Rows)
+          then
+            Self.SkipTo(Self.MinLine + (Y - UThemes.Theme.Song.ListCover.Y) div (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding));
+        smChessboard, smMosaic:
+          begin
+            CoverX := ((X - UThemes.Theme.Song.Cover.X) * UThemes.Theme.Song.Cover.Cols) div ((UThemes.Theme.Song.Cover.W + UThemes.Theme.Song.Cover.Padding) * UThemes.Theme.Song.Cover.Cols);
+            CoverY := ((Y - UThemes.Theme.Song.Cover.Y) * UThemes.Theme.Song.Cover.Rows) div ((UThemes.Theme.Song.Cover.H + UThemes.Theme.Song.Cover.Padding) * UThemes.Theme.Song.Cover.Rows);
+            if (CoverX >= 0) and (CoverX < UThemes.Theme.Song.Cover.Cols) and (CoverY >= 0) and (CoverY < UThemes.Theme.Song.Cover.Rows) then
+            begin
+              B := (Self.MinLine + CoverY) * UThemes.Theme.Song.Cover.Cols + CoverX;
+              if (B < USongs.CatSongs.GetVisibleSongs()) and (CompareValue(Self.SongTarget, B) <> 0) then
+                Self.SkipTo(B);
+            end;
+          end;
       end;
     end;
   end;
@@ -1325,11 +1349,11 @@ var
 begin
   Current := USongs.CatSongs.FindVisibleIndex(Self.Interaction);
   //move up at the start of list or in the rest of it
-  if (Current < Self.MinLine) and ((Current < Theme.Song.Cover.Rows) or (Current <= Self.LastMinLine)) then
+  if (Current < Self.MinLine) and ((Current < UThemes.Theme.Song.Cover.Rows) or (Current <= Self.LastMinLine)) then
     Self.MinLine := Current
   //move down in the tail of list or in the rest of it
-  else if (Current - Theme.Song.Cover.Rows >= Self.MinLine) and ((Current > USongs.CatSongs.GetVisibleSongs() - Theme.Song.Cover.Rows) or (Current > Self.LastMinLine)) then
-    Self.MinLine := Current - Theme.Song.Cover.Rows + 1;
+  else if (Current - UThemes.Theme.Song.Cover.Rows >= Self.MinLine) and ((Current > USongs.CatSongs.GetVisibleSongs() - UThemes.Theme.Song.Cover.Rows) or (Current > Self.LastMinLine)) then
+    Self.MinLine := Current - UThemes.Theme.Song.Cover.Rows + 1;
 
   Self.LastMinLine := Self.MinLine;
 
@@ -1340,7 +1364,7 @@ begin
   Line := 0;
   for B := 0 to High(Self.Button) do
   begin
-    Self.Button[B].Visible := CatSongs.Song[B].Visible;
+    Self.Button[B].Visible := USongs.CatSongs.Song[B].Visible;
     if (Self.Button[B].Visible) then
     begin
       if (Line >= Self.MinLine) and (Line - Self.MinLine < UThemes.Theme.Song.Cover.Rows) then
@@ -1350,15 +1374,16 @@ begin
           Self.ListFirstVisibleSongIndex := B;
 
         Self.LoadCover(B);
-        Self.Button[B].H := Theme.Song.Cover.H;
-        Self.Button[B].W := Theme.Song.Cover.W;
-        Self.Button[B].X := Theme.Song.Cover.X;
-        Self.Button[B].Y := Theme.Song.Cover.Y + I * (Theme.Song.Cover.H + Theme.Song.Cover.Padding);
+        Self.Button[B].H := UThemes.Theme.Song.Cover.H;
+        Self.Button[B].W := UThemes.Theme.Song.Cover.W;
+        Self.Button[B].X := UThemes.Theme.Song.Cover.X;
+        Self.Button[B].Y := UThemes.Theme.Song.Cover.Y + I * (UThemes.Theme.Song.Cover.H + UThemes.Theme.Song.Cover.Padding);
         Self.Button[B].Z := 1;
         if (B = Self.Interaction) then
         begin
           Alpha := 1;
           Self.StaticsList[I].Texture.TexNum := Self.StaticsList[I].TextureSelect.TexNum;
+          Self.OnSongSelect();
         end
         else
         begin
@@ -1981,7 +2006,7 @@ begin
 
   Self.SetRangeVisibilityStatic(VisibilityNoList, [0, 2]); //0 arrow, 1 song info panel and 2 only for smChessboard down arrow
   Self.SetRangeVisibilityStatic(VisibilityNoList, [Self.CalcMedleyIcon, Self.VideoIcon]); //icons
-  Self.Statics[Self.MainCover].Visible := Visibility;
+  Self.Statics[Self.MainCover].Visible := Visibility and (UIni.TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smList, smMosaic]);
   Self.Text[Self.TextArtist].Visible := VisibilityNoList;
   Self.Text[Self.TextNoSongs].Visible := not Visibility;
   Self.Text[Self.TextNumber].Visible := Visibility;
