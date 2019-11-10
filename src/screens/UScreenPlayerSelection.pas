@@ -58,14 +58,11 @@ type
       PlayerColor:   cardinal;
       PlayerSelect:  cardinal;
       PlayerSelectLevel: cardinal;
-
+      SingButton: boolean; //only change the screen with click on sing button
       CountIndex:   integer;
       PlayerIndex:  integer;
       ColorIndex:   integer;
       LevelIndex:   integer;
-
-      PlayerAvatarIID: integer; // interaction ID
-
       AvatarCurrent: real;
       AvatarTarget:  integer;
 
@@ -98,8 +95,7 @@ type
 
       procedure SetAnimationProgress(Progress: real); override;
       procedure SetAvatarScroll;
-      procedure SelectNext;
-      procedure SelectPrev;
+      procedure SkipTo(Target: cardinal);
 
       procedure PlayerColorButton(K: integer);
       function NoRepeatColors(ColorP: integer; Interaction: integer; Pos: integer):integer;
@@ -136,107 +132,61 @@ uses
 function TScreenPlayerSelector.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 var
   I: integer;
-  Btn: integer;
 begin
   Result := true;
-  inherited ParseMouse(MouseButton, BtnDown, X, Y);
-
-  // transfer mousecords to the 800x600 raster we use to draw
-  X := Round((X / (ScreenW / Screens)) * RenderW);
-  if (X > RenderW) then
-    X := X - RenderW;
-  Y := Round((Y / ScreenH) * RenderH);
-
-  if (BtnDown) then
-  begin
-     //if RightMbESC is set, send ESC keypress
-    if RightMbESC and (MouseButton = SDL_BUTTON_RIGHT) then
-      Result:=ParseInput(SDLK_ESCAPE, 0, true);
-
-    //scrolling avatars with mousewheel
-    if (MouseButton = SDL_BUTTON_WHEELDOWN) then
-    begin
-      if (Interaction = PlayerAvatarIID) then
-        ParseInput(SDLK_RIGHT, 0, true);
-    end
-    else if (MouseButton = SDL_BUTTON_WHEELUP) then
-    begin
-      if (Interaction = PlayerAvatarIID) then
-        ParseInput(SDLK_LEFT, 0, true);
-    end
-    else
-    begin
-      // click avatars
-      // 1st left
-      Btn := AvatarTarget - 2;
-      if (Btn < 0) then
-        Btn := High(AvatarsList);
-
-      if InRegion(X, Y, Button[PlayerAvatarButton[Btn]].GetMouseOverArea) then
-      begin
-        Interaction := 5;
-
-        ParseInput(SDLK_LEFT, 0, true);
-        ParseInput(SDLK_LEFT, 0, true);
-      end;
-
-      // 2nd left
-      Btn := AvatarTarget - 1;
-      if (Btn < 0) then
-        Btn := High(AvatarsList);
-
-      if InRegion(X, Y, Button[PlayerAvatarButton[Btn]].GetMouseOverArea) then
-      begin
-        Interaction := 5;
-
-        ParseInput(SDLK_LEFT, 0, true);
-      end;
-
-      // 1st right
-      Btn := AvatarTarget + 1;
-      if (Btn > High(AvatarsList)) then
-        Btn := 0;
-
-      if InRegion(X, Y, Button[PlayerAvatarButton[Btn]].GetMouseOverArea) then
-      begin
-        Interaction := 5;
-
-        ParseInput(SDLK_RIGHT, 0, true);
-      end;
-
-      // 2nd right
-      Btn := AvatarTarget + 2;
-      if (Btn > High(AvatarsList)) then
-        Btn := 0;
-
-      if InRegion(X, Y, Button[PlayerAvatarButton[Btn]].GetMouseOverArea) then
-      begin
-        Interaction := 2;
-
-        ParseInput(SDLK_RIGHT, 0, true);
-        ParseInput(SDLK_RIGHT, 0, true);
-      end;
-
-      // click for change player profile
-      for I := 0 to 5 do
-      begin
-        if Statics[PlayerCurrent[I]].Visible and InRegion(X, Y, Statics[PlayerCurrent[I]].GetMouseOverArea) then
+  Self.SingButton := true;
+  if BtnDown then
+    case MouseButton of
+      SDL_BUTTON_LEFT: //only change the screen if sing button is clicked
+        Self.SingButton := Self.Interaction = 6;
+      SDL_BUTTON_MIDDLE:
         begin
-          PlayerIndex := I;
-
-          RefreshProfile();
-
-          isScrolling := true;
-          AvatarTarget := PlayerAvatars[PlayerIndex];
+          Result := Self.ParseInput(SDLK_RETURN, 0, true);
+          Exit();
         end;
-      end;
+      SDL_BUTTON_WHEELDOWN, SDL_BUTTON_WHEELUP: //rotate profile or avatar
+        if Self.Interaction in [1, 5] then
+        begin
+          Self.ParseInput(IfThen(MouseButton = SDL_BUTTON_WHEELDOWN, SDLK_RIGHT, SDLK_LEFT), 0, true);
+          Exit();
+        end;
     end;
-  end;
+
+  Result := inherited ParseMouse(MouseButton, BtnDown, X, Y);
+  Self.TransferMouseCords(X, Y);
+  for I := 0 to UIni.IMaxPlayerCount - 1 do //on click change to selected player settings or on mouse hover set the focus
+    if
+      Self.Statics[Self.PlayerCurrentAvatar[I]].Visible
+      and (
+        Self.InRegion(X, Y, Self.Statics[Self.PlayerCurrent[I]].GetMouseOverArea())
+        or Self.InRegion(X, Y, Self.Text[Self.PlayerCurrentText[I]].GetMouseOverArea())
+      )
+    then
+    begin
+      Self.Interaction := 1;
+      if BtnDown then
+      begin
+        Self.PlayerIndex := I;
+        Self.SkipTo(Self.PlayerAvatars[I]);
+        Self.RefreshProfile();
+      end;
+      Exit();
+    end;
+
+  for I := Self.PlayerAvatarButton[0] to High(Self.PlayerAvatarButton) - 1 do //on click change avatar or on mouse hover set the focus
+    if Self.Button[I].Visible and InRegion(X, Y, Self.Button[I].GetMouseOverArea()) then
+    begin
+      Self.Interaction := 5;
+      if BtnDown then
+        Self.SkipTo(I - Self.PlayerAvatarButton[0]);
+
+      Exit();
+    end;
 end;
 
 function TScreenPlayerSelector.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
 var
-  I: integer;
+  I, CurrentAvatar, PrevAvatar: integer;
   Col: TRGB;
 begin
   Result := true;
@@ -250,6 +200,15 @@ begin
           begin
             Result := false;
             Exit;
+          end;
+        Ord('R'):
+          begin
+            Randomize();
+            PrevAvatar := Self.Interaction;
+            repeat
+              CurrentAvatar := Random(Length(UAvatars.AvatarsList));
+            until (CurrentAvatar <> PrevAvatar) and (CurrentAvatar <> 0);
+            Self.SkipTo(CurrentAvatar);
           end;
       end;
     end
@@ -288,6 +247,9 @@ begin
 
       SDLK_RETURN:
         begin
+          if not Self.SingButton then
+            Exit();
+
           Ini.Players := CountIndex;
           PlayersPlay:= UIni.IPlayersVals[CountIndex];
 
@@ -365,10 +327,10 @@ begin
       SDLK_RIGHT:
         begin
 
-          if (Interaction in [1, 3, 4]) then
+          if (Interaction in [0, 3, 4]) then
             InteractInc;
 
-          if (Interaction = 0) then // Player selection
+          if (Interaction = 1) then // Player selection
             begin //TODO: adapt this to new playersize
               if (PlayerIndex < UIni.IPlayersVals[CountIndex]-1) then
             begin
@@ -381,7 +343,7 @@ begin
             end;
           end;
 
-          if (Interaction = 1) then //Number of players
+          if (Interaction = 0) then //Number of players
             begin
 				RefreshPlayers();
 				AudioPlayback.PlaySound(SoundLib.Option);
@@ -402,22 +364,16 @@ begin
           end;
 
           if (Interaction = 5) then  //avatar selection
-          begin
-            SelectNext;
-            SetAvatarScroll;
-            PlayerAvatars[PlayerIndex] := AvatarTarget;
-            SetPlayerAvatar(PlayerIndex);
-          end;
-
+            Self.SkipTo(IfThen(Self.AvatarTarget + 1 >= Length(UAvatars.AvatarsList), 0, Round(Self.AvatarTarget) + 1));
 
         end;
       SDLK_LEFT:
         begin
 
-          if (Interaction in [1, 3, 4]) then
+          if (Interaction in [0, 3, 4]) then
             InteractDec;
 
-          if (Interaction = 0) then
+          if (Interaction = 1) then
           begin
             if (PlayerIndex > 0) then
             begin
@@ -431,7 +387,7 @@ begin
           end;
 
 
-          if (Interaction = 1) then
+          if (Interaction = 0) then
             begin
 				RefreshPlayers();
 				AudioPlayback.PlaySound(SoundLib.Option);
@@ -452,13 +408,7 @@ begin
 
 
           if (Interaction = 5) then
-          begin
-            SelectPrev;
-            SetAvatarScroll;
-            PlayerAvatars[PlayerIndex] := AvatarTarget;
-            SetPlayerAvatar(PlayerIndex);
-
-          end;
+            Self.SkipTo(IfThen(Self.AvatarTarget - 1 < 0, Length(UAvatars.AvatarsList) - 1, Round(Self.AvatarTarget) - 1));
 
         end;
 
@@ -525,6 +475,7 @@ end;
 procedure TScreenPlayerSelector.ChangeSelectPlayerPosition(Player: integer);
 begin
   Self.Button[Self.PlayerSelect].X := UThemes.Theme.PlayerSelector.PlayerSelect[Player].X + UThemes.Theme.PlayerSelector.PlayerSelectCurrent.X;
+  Self.Button[Self.PlayerSelect].Y := UThemes.Theme.PlayerSelector.PlayerSelect[Player].Y;
 end;
 
 procedure TScreenPlayerSelector.RefreshPlayers();
@@ -590,7 +541,7 @@ begin
   Count := UIni.IPlayersVals[CountIndex];
 
   ChangeSelectPlayerPosition(PlayerIndex);
-
+  Self.Text[2].Text := ULanguage.Language.Translate('SING_PLAYER_EDIT')+': '+ULanguage.Language.Translate('OPTION_PLAYER_'+IntToStr(Self.PlayerIndex + 1));
   PlayerColorButton(Num[PlayerIndex]);
 
   Max := Length(PlayerColors) - Count + 1;
@@ -735,10 +686,8 @@ begin
   inherited Create;
 
   Self.LoadFromTheme(UThemes.Theme.PlayerSelector);
-  Self.PlayerSelect := Self.AddButton(UThemes.Theme.PlayerSelector.PlayerSelectCurrent);
-  UThemes.Theme.PlayerSelector.SelectPlayersCount.oneItemOnly := true;
-  UThemes.Theme.PlayerSelector.SelectPlayersCount.showArrows := true;
   Self.PlayersCount := Self.AddSelectSlide(UThemes.Theme.PlayerSelector.SelectPlayersCount, Self.CountIndex, UIni.IPlayers);
+  Self.PlayerSelect := Self.AddButton(UThemes.Theme.PlayerSelector.PlayerSelectCurrent);
 
   for I := 0 to UIni.IMaxPlayerCount -1 do
   begin
@@ -750,17 +699,10 @@ begin
 
   Self.PlayerName := Self.AddButton(UThemes.Theme.PlayerSelector.PlayerButtonName);
   Button[PlayerName].Text[0].Writable := true;
-
-  UThemes.Theme.PlayerSelector.SelectPlayerColor.oneItemOnly := true;
-  UThemes.Theme.PlayerSelector.SelectPlayerColor.showArrows := true;
   Self.PlayerColor := AddSelectSlide(UThemes.Theme.PlayerSelector.SelectPlayerColor, Self.ColorIndex, PlayerColors, 'OPTION_VALUE_');
-
-  UThemes.Theme.PlayerSelector.SelectPlayerLevel.oneItemOnly := true;
-  UThemes.Theme.PlayerSelector.SelectPlayerLevel.showArrows := true;
   Self.PlayerSelectLevel := Self.AddSelectSlide(UThemes.Theme.PlayerSelector.SelectPlayerLevel, Self.LevelIndex, UIni.IDifficulty, 'OPTION_VALUE_');
-
   Self.PlayerAvatar := Self.AddButton(UThemes.Theme.PlayerSelector.PlayerButtonAvatar);
-  PlayerAvatarIID := High(Interactions);
+  Self.AddButton(UThemes.Theme.PlayerSelector.SingButton);
 
   isScrolling := false;
   GenerateAvatars();
@@ -775,7 +717,6 @@ procedure TScreenPlayerSelector.SetPlayerAvatar(Player: integer);
 var
   Col: TRGB;
 begin
-
   if (PlayerAvatars[Player] = 0) then
   begin
     Statics[PlayerCurrentAvatar[Player]].Texture := NoAvatarTexture[Player + 1];
@@ -881,107 +822,43 @@ begin
       if (NumVisibleAvatars > 1) then
       begin
         Angle := Pi * (Pos / Min(VS, NumVisibleAvatars)); // Range: (-1/4*Pi .. +1/4*Pi)
-
         Self.Button[B].H := Abs(UThemes.Theme.PlayerSelector.PlayerAvatar.H * cos(Angle*0.8));
         Self.Button[B].W := Abs(UThemes.Theme.PlayerSelector.PlayerAvatar.W * cos(Angle*0.8));
-
-        //Button[B].Reflectionspacing := 15 * Button[B].H/Theme.Song.Cover.H;
-        Self.Button[B].DeSelectReflectionspacing := 15 * Self.Button[B].H/UThemes.Theme.PlayerSelector.PlayerAvatar.H;
-
         Padding := (Self.Button[B].W - UThemes.Theme.PlayerSelector.PlayerAvatar.W)/2;
         X := Sin(Angle*1.3) * 0.9;
-
         Self.Button[B].X := UThemes.Theme.PlayerSelector.PlayerAvatar.X + (UThemes.Theme.PlayerSelector.PlayerAvatar.W * Factor + DistanceVisibleAvatars) * X - Padding;
         Self.Button[B].Y := (UThemes.Theme.PlayerSelector.PlayerAvatar.Y  + (UThemes.Theme.PlayerSelector.PlayerAvatar.H - Abs(UThemes.Theme.PlayerSelector.PlayerAvatar.H * cos(Angle))) * 0.5);
-        Button[B].Z := 0.95 - Abs(Pos) * 0.01;
-
-        Button[B].Reflection := true;
-        Button[B].Reflectionspacing := 2;
-
-        if (B <> PlayerAvatarButton[PlayerAvatars[PlayerIndex]]) then
-        begin
-          Button[B].Texture.Int := 0.7;
-        end
-        else
-        begin
-          Button[B].Texture.Int := 1;
-        end;
+        Self.Button[B].Z := 0.95 - Abs(Pos) * 0.01;
+        Self.Button[B].Texture.Int := IfThen(B <> PlayerAvatarButton[PlayerAvatars[PlayerIndex]], 0.7, 1);
       end
       else
       begin
         Self.Button[B].X := UThemes.Theme.PlayerSelector.PlayerAvatar.X;
         Self.Button[B].Y := UThemes.Theme.PlayerSelector.PlayerAvatar.Y;
-
         AvatarCurrent := AvatarTarget;
-
         isScrolling := false;
       end
-
     end
     else
-    begin
-      Button[B].Visible := false;
-    end;
-
+      Self.Button[B].Visible := false;
   end;
-
 end;
 
 procedure TScreenPlayerSelector.SetAnimationProgress(Progress: real);
 begin
 end;
 
-procedure TScreenPlayerSelector.SelectNext;
-var
-  VS:   integer;
+procedure TScreenPlayerSelector.SkipTo(Target: cardinal);
 begin
+  Self.IsScrolling := true;
+  if (Target = 0) and (Self.AvatarTarget = Length(UAvatars.AvatarsList) - 1) then //go to initial song if reach the end of subselection list
+    Self.AvatarCurrent := -1
+  else if (Target = Length(UAvatars.AvatarsList) - 1) and (Self.AvatarTarget = 0) then //go to final song if reach the start of subselection list
+    Self.AvatarCurrent := Length(UAvatars.AvatarsList);
 
-  VS := Length(AvatarsList);
-
-  if VS > 0 then
-  begin
-
-    if (not isScrolling) and (VS > 0) then
-    begin
-      isScrolling := true;
-    end;
-
-    AvatarTarget := AvatarTarget + 1;
-
-    // try to keep all at the beginning
-    if AvatarTarget > VS-1 then
-    begin
-      AvatarTarget := AvatarTarget - VS;
-      AvatarCurrent := AvatarCurrent - VS;
-    end;
-  end;
-
-end;
-
-procedure TScreenPlayerSelector.SelectPrev;
-var
-  VS:   integer;
-begin
-
-  VS := Length(AvatarsList);
-
-  if VS > 0 then
-  begin
-    if (not isScrolling) and (VS > 0) then
-    begin
-      isScrolling := true;
-    end;
-
-    AvatarTarget := AvatarTarget - 1;
-
-    // try to keep all at the beginning
-    if AvatarTarget < 0 then
-    begin
-      AvatarTarget := AvatarTarget + VS;
-      AvatarCurrent := AvatarCurrent + VS;
-    end;
-  end;
-
+  Self.AvatarTarget := Target;
+  Self.PlayerAvatars[Self.PlayerIndex] := Self.AvatarTarget;
+  Self.SetPlayerAvatar(Self.PlayerIndex);
 end;
 
 function TScreenPlayerSelector.Draw: boolean;

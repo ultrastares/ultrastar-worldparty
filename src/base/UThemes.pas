@@ -275,6 +275,7 @@ type
     SelectPlayersCount:  TThemeSelectSlide;
     SelectPlayerColor:   TThemeSelectSlide;
     SelectPlayerLevel:   TThemeSelectSlide;
+    SingButton: TThemeButton;
   end;
 
   TThemeSong = class(TThemeBasic)
@@ -1609,6 +1610,7 @@ begin
       Self.ReadProperty('NamePlayerScrollAvatar', 'Distance', 40, PlayerSelector.PlayerScrollAvatar.DistanceAvatars);
 
       ThemeLoadButton(PlayerSelector.PlayerAvatar, 'NamePlayerAvatar');
+      Self.ThemeLoadButton(Self.PlayerSelector.SingButton, 'NamePlayerSingButton');
 
       ThemeLoadSelectSlide(PlayerSelector.SelectPlayersCount, 'NameSelectPlayerCount');
       ThemeLoadSelectSlide(PlayerSelector.SelectPlayerColor, 'NameSelectPlayerColor');
