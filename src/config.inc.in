@@ -69,6 +69,10 @@
   {$IFEND}
 {$IFEND}
 
+{$IF (@FFMPEG_VERSION_MAJOR@ < 4)}
+  {$DEFINE UseFFmpegResample}
+{$IFEND}
+
 {$@DEFINE_HAVE_SWSCALE@ HaveSWScale}
 {$IF Defined(HaveSWScale) and Defined(IncludeConstants)}
   sw__scale = 'libswscale';
