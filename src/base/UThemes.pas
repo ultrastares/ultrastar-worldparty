@@ -1473,7 +1473,9 @@ begin
       Self.Inheritance[I].Base := not Self.ThemeIni.SectionExists(CurrentInheritance);
       Inc(I);
     end;
-  until CurrentInheritance = '';
+  until (CurrentInheritance = '') or (I > 50);
+  if I > 50 then
+    Log.CriticalError('Inheritance loop error in section '+Section+' of current theme');
 end;
 
 { Integer type overload of ReadProperty }
