@@ -1558,44 +1558,17 @@ begin
   if (AudioPlayback.Finished) then
     CoverTime := 0;
 
-  //Fading Functions, Only if Covertime is under 5 Seconds
-  if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smList]) then
-  begin
-    if not(Assigned(fCurrentVideo)) then
-      Statics[Self.MainCover].Texture.Alpha := 1
-    else if (CoverTime < 9) then
-    begin
-        //Update Fading Time
-      CoverTime := CoverTime + TimeSkip;
+  if (CoverTime < 9) then
+    CoverTime += TimeSkip * 3;
 
-      //Update Fading Texture
-      Statics[Self.MainCover].Texture.Alpha := 1 - (CoverTime - 1) * 1.5;
-      if Statics[Self.MainCover].Texture.Alpha < 0 then
-        Statics[Self.MainCover].Texture.Alpha := 0;
-    end;
-  end
-  else
-  begin
-    // cover fade
-    if (CoverTime < 9) then
-    begin
-      {if (CoverTime < 1) and (CoverTime + TimeSkip >= 1) then
+  case TSongMenuMode(UIni.Ini.SongMenu) of
+    smChessboard, smMosaic, smList:
       begin
-        // load new texture
-        //Texture.LoadTexture(Button[Interaction].Texture.Name, TEXTURE_TYPE_PLAIN);
-        Button[Interaction].Texture.Alpha := 1;
-        Button[Interaction].Texture2 := Texture.LoadTexture(Button[Interaction].Texture.Name, TEXTURE_TYPE_PLAIN);
-        Button[Interaction].Texture2.Alpha := 1;
-      end;}
-
-      //Update Fading Time
-      CoverTime := CoverTime + TimeSkip;
-
-      {//Update Fading Texture
-      Button[Interaction].Texture2.Alpha := (CoverTime - 1) * 1.5;
-      if Button[Interaction].Texture2.Alpha > 1 then
-        Button[Interaction].Texture2.Alpha := 1;
-    }end;
+        VideoAlpha := 1;
+        Self.Statics[Self.MainCover].Texture.Alpha := IfThen(not Assigned(Self.fCurrentVideo),1, Max(0, 1 - (Self.CoverTime - 1)));
+      end;
+    smRoulette, smCarousel, smSlotMachine, smSlide:
+      VideoAlpha := Self.Button[Self.Interaction].Texture.Alpha * (Self.CoverTime - 1);
   end;
 
   //inherited Draw;
@@ -1674,18 +1647,11 @@ begin
     end;
   end;
 
-  if (TSongMenuMode(Ini.SongMenu) in [smRoulette, smCarousel, smSlotMachine, smSlide])  then
-    VideoAlpha := Button[interaction].Texture.Alpha * (CoverTime-1)
-  else
-    VideoAlpha := 1;
-
   //Instead of Draw FG Procedure:
   //We draw Buttons for our own
   for I := 0 to Length(Button) - 1 do
-  begin
-    if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smList]) or (((I<>Interaction) or not Assigned(fCurrentVideo) or (VideoAlpha<1) or AudioPlayback.Finished)) then
-        Button[I].Draw;
-  end;
+    if Self.Button[I].Visible then
+      Self.Button[I].Draw;
 
   //  StopVideoPreview;
 
