@@ -173,7 +173,7 @@ begin
       Exit();
     end;
 
-  for I := Self.PlayerAvatarButton[0] to High(Self.PlayerAvatarButton) - 1 do //on click change avatar or on mouse hover set the focus
+  for I := Self.PlayerAvatarButton[0] to High(Self.PlayerAvatarButton) + Self.PlayerAvatarButton[0] - 1 do //on click change avatar or on mouse hover set the focus
     if Self.Button[I].Visible and InRegion(X, Y, Self.Button[I].GetMouseOverArea()) then
     begin
       Self.Interaction := 5;
