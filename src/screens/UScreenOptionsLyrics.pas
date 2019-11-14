@@ -104,7 +104,6 @@ begin
   Self.TexColor := Self.AddStatic(UThemes.Theme.OptionsLyrics.TexColor);
   Self.AddButton(UThemes.Theme.OptionsLyrics.ButtonExit);
   Self.SetModeValues();
-  Self.SetValues();
 
   //add lyric lines
   Self.Lyrics := TLyricEngine.Create(UThemes.Theme.OptionsLyrics.LyricBar, -1);
@@ -123,6 +122,7 @@ begin
   Line.Note[0].Text := 'consectetur adipiscing elit';
   Line.Note[0].Start := 60;
   Self.Lyrics.AddLine(@Line);
+  Self.SetValues();
 end;
 
 function TScreenOptionsLyrics.Draw(): boolean;
@@ -274,7 +274,6 @@ begin
       UIni.Ini.JukeboxNextColor := Self.NextColor;
       UIni.Ini.JukeboxNextOutlineColor := Self.NextOutlineColor;
     end;
-    Self.Lyrics.SetProperties(Self.SelectMode = 1);
     Self.SetValues();
   end;
 end;
@@ -361,6 +360,7 @@ var
   HexColor: string;
   RGBColor: TRGB;
 begin
+  Self.Lyrics.SetProperties(Self.SelectMode = 1);
   Self.SelectsS[5].Visible := Self.SelectFont <> 0;
   if Self.SelectProperty = 0 then //fill
     case Self.SelectLines of

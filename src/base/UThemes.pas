@@ -1632,8 +1632,8 @@ begin
 
       //LyricBar
       Self.ThemeLoadLyricBar(LyricBar, 'SingLyricsUpperBar');
-      Self.ThemeLoadLyricBar(LyricBarDuetP1, 'SingLyricDuetP1UpperBar');
-      Self.ThemeLoadLyricBar(LyricBarDuetP2, 'SingLyricDuetP2UpperBar');
+      Self.ThemeLoadLyricBar(LyricBarDuetP1, 'SingLyricsDuetP1UpperBar');
+      Self.ThemeLoadLyricBar(LyricBarDuetP2, 'SingLyricsDuetP2UpperBar');
       Self.ThemeLoadLyricBar(LyricBarJukebox, 'JukeboxLyricsUpperBar');
 
       // Jukebox
@@ -1730,46 +1730,20 @@ begin
       ThemeLoadText(Sing.TextP1Score, 'SingP1TextScore');
       ThemeLoadStatic(Sing.StaticP1Avatar, 'SingP1Avatar');
 
-
-  //Added for ps3 skin
   //This one is shown in 2/4P mode
-  //if it exists, otherwise the one Player equivaltents are used
-      if Self.SectionExists('SingP1TwoPTextScore') then
-      begin
         ThemeLoadStatic(Sing.StaticP1TwoP, 'SingP1TwoPStatic');
         ThemeLoadStatic(Sing.StaticP1TwoPAvatar, 'SingP1TwoPAvatar');
         ThemeLoadText(Sing.TextP1TwoP, 'SingP1TwoPText');
         ThemeLoadStatic(Sing.StaticP1TwoPScoreBG, 'SingP1TwoPStatic2');
         ThemeLoadText(Sing.TextP1TwoPScore, 'SingP1TwoPTextScore');
-      end
-      else
-      begin
-        Sing.StaticP1TwoP := Sing.StaticP1;
-        Sing.StaticP1TwoPAvatar := Sing.StaticP1Avatar;
-        Sing.TextP1TwoP := Sing.TextP1;
-        Sing.StaticP1TwoPScoreBG := Sing.StaticP1ScoreBG;
-        Sing.TextP1TwoPScore := Sing.TextP1Score;
-      end;
 
   //This one is shown in 3/6P mode
-  //if it exists, otherwise the one Player equivaltents are used
-      if Self.SectionExists('SingP1TwoPTextScore') then
-      begin
         ThemeLoadStatic(Sing.StaticP1ThreeP, 'SingP1ThreePStatic');
         ThemeLoadStatic(Sing.StaticP1ThreePAvatar, 'SingP1ThreePAvatar');
         ThemeLoadText(Sing.TextP1ThreeP, 'SingP1ThreePText');
         ThemeLoadStatic(Sing.StaticP1ThreePScoreBG, 'SingP1ThreePStatic2');
         ThemeLoadText(Sing.TextP1ThreePScore, 'SingP1ThreePTextScore');
-      end
-      else
-      begin
-        Sing.StaticP1ThreeP := Sing.StaticP1;
-        Sing.StaticP1ThreePAvatar := Sing.StaticP1Avatar;
-        Sing.TextP1ThreeP := Sing.TextP1;
-        Sing.StaticP1ThreePScoreBG := Sing.StaticP1ScoreBG;
-        Sing.TextP1ThreePScore := Sing.TextP1Score;
-      end;
-  //eoa
+
       ThemeLoadStatic(Sing.StaticP2R, 'SingP2RStatic');
       ThemeLoadText(Sing.TextP2R, 'SingP2RText');
       ThemeLoadStatic(Sing.StaticP2RScoreBG, 'SingP2RStatic2');
