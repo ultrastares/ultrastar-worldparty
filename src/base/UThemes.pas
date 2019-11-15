@@ -1517,24 +1517,36 @@ end;
 { Read a property from a section of a ini file using inheritance. It's mandatory call SetInheritance before read anything }
 procedure TTheme.ReadProperty(const Section: string; const Identifier: string; const Default: UTF8String; var Field: UTF8String; const FieldType: integer = 0);
 var
-  I: integer;
-  MaxDeep: integer;
+  ExitValue: UTF8String;
+  I, MaxDeep, RealFieldType: integer;
 begin
   MaxDeep := High(Self.Inheritance);
   I := 0;
   repeat
-    case IfThen(Self.Inheritance[I].Base, FieldType, FieldType + 4) of
-      0: Field := Self.ThemeBase.ReadString(Self.Inheritance[I].Section, Identifier, Default);
-      1: Field := IntToStr(Self.ThemeBase.ReadInteger(Self.Inheritance[I].Section, Identifier, StrToInt(Default)));
-      2: Field := FloatToStr(Self.ThemeBase.ReadFloat(Self.Inheritance[I].Section, Identifier, StrToFloat(Default)));
-      3: Field := BoolToStr(Self.ThemeBase.ReadBool(Self.Inheritance[I].Section, Identifier, StrtoBool(Default)));
-      4: Field := Self.ThemeIni.ReadString(Self.Inheritance[I].Section, Identifier, Default);
-      5: Field := IntToStr(Self.ThemeIni.ReadInteger(Self.Inheritance[I].Section, Identifier, StrToInt(Default)));
-      6: Field := FloatToStr(Self.ThemeIni.ReadFloat(Self.Inheritance[I].Section, Identifier, StrToFloat(Default)));
-      7: Field := BoolToStr(Self.ThemeIni.ReadBool(Self.Inheritance[I].Section, Identifier, StrtoBool(Default)));
+    RealFieldType := IfThen(Self.Inheritance[I].Base, FieldType, FieldType + 4);
+    ExitValue := '-9999';
+    case RealFieldType of
+      0: Field := Self.ThemeBase.ReadString(Self.Inheritance[I].Section, Identifier, ExitValue);
+      1: Field := IntToStr(Self.ThemeBase.ReadInteger(Self.Inheritance[I].Section, Identifier, StrToInt(ExitValue)));
+      2: Field := FloatToStr(Self.ThemeBase.ReadFloat(Self.Inheritance[I].Section, Identifier, StrToFloat(ExitValue)));
+      3:
+        begin
+          Field := BoolToStr(Self.ThemeBase.ReadBool(Self.Inheritance[I].Section, Identifier, StrtoBool(Default)));
+          ExitValue := IfThen(Self.ThemeBase.ValueExists(Self.Inheritance[I].Section, Identifier), BoolToStr(not StrtoBool(Field)), Field);
+        end;
+      4: Field := Self.ThemeIni.ReadString(Self.Inheritance[I].Section, Identifier, ExitValue);
+      5: Field := IntToStr(Self.ThemeIni.ReadInteger(Self.Inheritance[I].Section, Identifier, StrToInt(ExitValue)));
+      6: Field := FloatToStr(Self.ThemeIni.ReadFloat(Self.Inheritance[I].Section, Identifier, StrToFloat(ExitValue)));
+      7:
+        begin
+          Field := BoolToStr(Self.ThemeIni.ReadBool(Self.Inheritance[I].Section, Identifier, StrtoBool(Default)));
+          ExitValue := IfThen(Self.ThemeIni.ValueExists(Self.Inheritance[I].Section, Identifier), BoolToStr(not StrtoBool(Field)), Field);
+        end;
     end;
     Inc(I);
-  until (Field <> Default) or (I > MaxDeep);
+  until (Field <> ExitValue) or (I > MaxDeep);
+  if Field = ExitValue then //to fix inheritance with value 0 and default 0 in a int or float field type
+    Field := IfThen((Default = '') and (RealFieldType in [1, 2, 5, 6]), '0', Default);
 end;
 
 function TTheme.LoadTheme(ThemeNum: integer; sColor: integer): boolean;
