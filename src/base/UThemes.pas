@@ -1339,7 +1339,6 @@ function GetLyricBarColor(Color: integer): TRGB;
 
 function GetPlayerColor(Color: integer): TRGB;
 function GetPlayerLightColor(Color: integer): TRGB;
-function GetPlayerLightColorV2(Color: integer): TRGB;
 procedure LoadPlayersColors;
 procedure LoadTeamsColors;
 
@@ -3160,78 +3159,6 @@ begin
 end;
 
 function GetPlayerLightColor(Color: integer): TRGB;
-begin
-  case (Color) of
-    1://blue
-    begin
-      Result.R := 145/255;
-      Result.G := 215/255;
-      Result.B := 240/255;
-    end;
-    2: //red
-    begin
-      Result.R := 245/255;
-      Result.G := 162/255;
-      Result.B := 162/255;
-    end;
-    3: //green
-    begin
-      Result.R := 152/255;
-      Result.G := 250/255;
-      Result.B := 153/255;
-    end;
-    4: //yellow
-    begin
-      Result.R := 255/255;
-      Result.G := 246/255;
-      Result.B := 143/255;
-    end;
-    5: //Magenta
-    begin
-      Result.R := 215/255;
-      Result.G := 0/255;
-      Result.B := 111/255;
-    end;
-    6: //orange
-    begin
-      Result.R := 255/255;
-      Result.G := 204/255;
-      Result.B := 156/255;
-    end;
-    7: //pink
-    begin
-      Result.R := 255/255;
-      Result.G := 192/255;
-      Result.B := 205/255;
-    end;
-    8: //purple
-    begin
-      Result.R := 240/255;
-      Result.G := 170/255;
-      Result.B := 255/255;
-    end;
-    9: //gold
-    begin
-      Result.R := 255/255;
-      Result.G := 214/255;
-      Result.B := 118/255;
-    end;
-    10: //gray
-    begin
-      Result.R := 220/255;
-      Result.G := 220/255;
-      Result.B := 220/255;
-    end;
-    else
-    begin
-      Result.R := 145/255;
-      Result.G := 215/255;
-      Result.B := 240/255;
-    end;
-  end;
-end;
-
-function GetPlayerLightColorV2(Color: integer): TRGB;
 begin
   case (Color) of
     1://blue
