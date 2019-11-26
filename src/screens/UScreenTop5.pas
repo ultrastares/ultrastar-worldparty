@@ -142,7 +142,7 @@ function TScreenTop5.ParseMouse(MouseButton: integer;
 				X, Y: integer): boolean;
 begin
   Result := true;
-  if (MouseButton = SDL_BUTTON_LEFT) and BtnDown then
+  if ((MouseButton = SDL_BUTTON_LEFT) or (MouseButton = SDL_BUTTON_RIGHT)) and BtnDown then
     //left-click anywhere sends return
     ParseInput(SDLK_RETURN, 0, true);
 end;
