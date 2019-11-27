@@ -222,7 +222,7 @@ begin
   if not ProgressSong.Finished then //while song loading show progress
   begin
     Self.Text[TextDescriptionLong].Visible := false;
-    Self.Text[TextProgressSongs].Text := ProgressSong.Folder+': '+IntToStr(ProgressSong.Total)+'\n\n'+ProgressSong.FolderProcesed;
+    Self.Text[TextProgressSongs].Text := ProgressSong.Folder+': '+IntToStr(ProgressSong.Total)+'\n\n'+ProgressSong.FolderProcessed;
   end
   else if Self.Text[TextDescriptionLong].Visible = false then //after finish song loading, return to normal mode and close popup
   begin

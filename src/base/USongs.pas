@@ -67,7 +67,7 @@ type
 
   TProgressSong = record
     Folder: UTF8String;
-    FolderProcesed: UTF8String;
+    FolderProcessed: UTF8String;
     Total: integer;
     Finished: boolean;
   end;
@@ -179,10 +179,11 @@ begin
     RtlEventWaitFor(Self.Event);
     for I := Self.TxtParsed to Self.TxtsParsed.Count - 1 do //start to parse from the last position
     begin
-      Inc(Self.TxtParsed);
       Song := TSong(Self.TxtsParsed.Items[I]);
       if Song.Analyse() then
         Self.Txts.Add(Song);
+
+      Inc(Self.TxtParsed);
     end;
   end;
 end;
@@ -212,7 +213,7 @@ begin
   Self.FreeOnTerminate := false;
   Self.SongList := TList.Create();
   Self.Thread := 0;
-  Self.CoresAvailable := Max(1, CpuCount.GetLogicalCpuCount() - 2); //total core - main and songs threads
+  Self.CoresAvailable := Max(0, CpuCount.GetLogicalCpuCount() - 2); //total core - main and songs threads
   Setlength(Self.Threads, Self.CoresAvailable + 1);
   for I := 0 to Self.CoresAvailable do
     Self.Threads[I] := TSongsParse.Create();
@@ -241,7 +242,7 @@ begin
     FileInfo := Iter.Next; //get file info
     if ((FileInfo.Attr and faDirectory) <> 0) and (not (FileInfo.Name.ToUTF8()[1] = '.')) then //if is a directory try to find more
     begin
-      Self.ProgressSong.FolderProcesed := FileInfo.Name.ToNative();
+      Self.ProgressSong.FolderProcessed := FileInfo.Name.ToNative();
       Self.FindTxts(Dir.Append(FileInfo.Name))
     end
     else if FileInfo.Name.GetExtension().ToNative() = '.txt' then //if is a txt file send to a thread to parse it
@@ -259,7 +260,7 @@ end;
 { Create a new thread to load songs and update main screen with progress }
 procedure TSongs.Execute();
 var
-  I, Procesed: integer;
+  I, Processed: integer;
   Song: TSong;
 begin
   Log.BenchmarkStart(2);
@@ -274,11 +275,11 @@ begin
   while not Self.ProgressSong.Finished do
   begin
     //wait a little to finish parsing last songs
-    Procesed := 0;
+    Processed := 0;
     for I := 0 to Self.CoresAvailable do
-      Inc(Procesed, Self.Threads[I].GetTxtParsed());
+      Inc(Processed, Self.Threads[I].GetTxtParsed());
 
-    if Procesed = Self.ProgressSong.Total then
+    if Processed = Self.ProgressSong.Total then
     begin
       for I := 0 to Self.CoresAvailable do
       begin
