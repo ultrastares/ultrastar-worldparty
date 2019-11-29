@@ -338,12 +338,12 @@ end;
 
 function CompareByTitle(Song1, Song2: Pointer): integer;
 begin
-  Result := UTF8CompareText(TSong(Song1).Title, TSong(Song2).Title);
+  Result := UTF8CompareText(TSong(Song1).TitleNoAccent, TSong(Song2).TitleNoAccent);
 end;
 
 function CompareByArtist(Song1, Song2: Pointer): integer;
 begin
-  Result := UTF8CompareText(TSong(Song1).Artist, TSong(Song2).Artist);
+  Result := UTF8CompareText(TSong(Song1).ArtistNoAccent, TSong(Song2).ArtistNoAccent);
 end;
 
 function CompareByFolder(Song1, Song2: Pointer): integer;
@@ -550,25 +550,11 @@ begin
               if (CompareText(CurCategory, NewSong.Language) <> 0) then
                 CategoryName := NewSong.Language;
             sTitle:
-              if (Length(NewSong.Title) >= 1) then
-              begin
-                tmpCategory := UTF8UpperCase(UTF8Copy(NewSong.Title, 1, 1));
-                if not (UTF8ToUCS4String(tmpCategory)[0] in [Ord('A')..Ord('Z')]) then
-                  tmpCategory := '#';
-
-                if (CurCategory <> tmpCategory) then
-                  CategoryName := tmpCategory;
-              end;
+              if (Length(NewSong.TitleNoAccent) > 0) and (UTF8CompareText(CurCategory, NewSong.TitleNoAccent[1]) <> 0) then
+                CategoryName := UTF8UpperCase(NewSong.TitleNoAccent[1]);
             sArtist:
-              if (Length(NewSong.Artist) >= 1) then
-              begin
-                tmpCategory := UTF8UpperCase(UTF8Copy(NewSong.Artist, 1, 1));
-                if not (UTF8ToUCS4String(tmpCategory)[0] in [Ord('A')..Ord('Z')]) then
-                  tmpCategory := '#';
-
-                if (CurCategory <> tmpCategory) then
-                  CategoryName := tmpCategory;
-              end;
+              if (Length(NewSong.ArtistNoAccent) > 0) and (UTF8CompareText(CurCategory, NewSong.ArtistNoAccent[1]) <> 0) then
+                CategoryName := UTF8UpperCase(NewSong.ArtistNoAccent[1]);
             sFolder:
               if (UTF8CompareText(CurCategory, NewSong.Folder) <> 0) then
                 CategoryName := NewSong.Folder;
@@ -632,7 +618,7 @@ var
   WordArray: array of UTF8String;
 begin
   Result := 0;
-  FilterStr := UCommon.GetStringWithNoAccents(Trim(LowerCase(FilterStr)));
+  FilterStr := UCommon.RemoveSpecialChars(FilterStr);
   if FilterStr <> '' then
   begin
     Self.CatNumShow := -2;

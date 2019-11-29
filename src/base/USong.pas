@@ -645,13 +645,13 @@ begin
         'TITLE':
         begin
           Self.Title := DecodeStringUTF8(Value, Encoding);
-          Self.TitleNoAccent := LowerCase(GetStringWithNoAccents(Self.Title));
+          Self.TitleNoAccent := UCommon.RemoveSpecialChars(Self.Title);
           Done := Done or 1;
         end;
         'ARTIST':
         begin
           Self.Artist := DecodeStringUTF8(Value, Encoding);
-          Self.ArtistNoAccent := LowerCase(GetStringWithNoAccents(DecodeStringUTF8(Artist, Encoding)));
+          Self.ArtistNoAccent := UCommon.RemoveSpecialChars(Self.Artist);
           Done := Done or 2;
         end;
         'MP3': //sound source file

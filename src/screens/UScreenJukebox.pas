@@ -451,7 +451,7 @@ begin
 
   if (FilterSong <> '') then
   begin
-    FilterSong := GetStringWithNoAccents(UTF8Decode(UTF8LowerCase(FilterSong)));
+    FilterSong := UCommon.RemoveSpecialChars(FilterSong);
 
     SetLength(JukeboxVisibleSongs, 0);
     for I := 0 to High(JukeboxSongsList) do
