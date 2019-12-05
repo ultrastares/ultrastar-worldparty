@@ -49,7 +49,7 @@ type
       Equalizer: Tms_Equalizer;
       PreviewOpened: Integer; //interaction of the song that is loaded for preview music -1 if nothing is opened
       IsScrolling: boolean; //true if song flow is about to move
-      fCurrentVideo: IVideo;
+      CurrentVideo: IVideo;
       MinLine: integer; //current chessboard line
       LastMinLine: integer; //used on list mode
       ListFirstVisibleSongIndex: integer;
@@ -62,6 +62,7 @@ type
       procedure ColorDuetNameSingers;
       procedure LoadCover(Const I: integer);
       procedure LoadMainCover();
+      procedure OnSongSelect(Preview: boolean = true);
       procedure SetJoker();
       procedure SetScroll(Force: boolean = false);
       procedure SetRouletteScroll();
@@ -70,8 +71,8 @@ type
       procedure SetSlotMachineScroll();
       procedure SetSlideScroll();
       procedure SetListScroll();
-      procedure StartMusicPreview();
-      procedure StartVideoPreview();
+      procedure StartPreview();
+      procedure StopPreview();
       procedure UnloadCover(Const I: integer);
     public
       MakeMedley:   boolean;
@@ -182,7 +183,6 @@ type
       procedure FadeMessage();
       procedure CloseMessage();
       procedure OnShow; override;
-      procedure OnShowFinish; override;
       procedure OnHide; override;
       procedure SetSubselection(Id: integer; Filter: TSongFilter); overload;
       procedure SetSubselection(Id: UTF8String = ''; Filter: TSongFilter = sfAll); overload;
@@ -196,16 +196,9 @@ type
       //procedures for Menu
       procedure StartSong;
       procedure SelectPlayers;
-
-      procedure OnSongSelect;   // called when song flows movement stops at a song
-      procedure OnSongDeSelect; // called before current song is deselected
-
       //Medley
       procedure StartMedley(NumSongs: integer; MinSource: TMedleySource);
       function  getVisibleMedleyArr(MinSource: TMedleySource): TVisArr;
-
-      procedure StopMusicPreview();
-      procedure StopVideoPreview();
   end;
 
 implementation
@@ -313,10 +306,7 @@ begin
       Ord('K'):
         begin
           UAudioPlaybackBase.ToggleVoiceRemoval();
-          StopVideoPreview();
-          StopMusicPreview();
-          StartMusicPreview();
-          StartVideoPreview();
+          Self.StartPreview();
           Exit;
         end;
 
@@ -443,8 +433,7 @@ begin
               Self.SetSubselection(USongs.CatSongs.Song[Self.Interaction].OrderNum, sfCategory)
             else
             begin // clicked on song
-              StopVideoPreview;
-              StopMusicPreview;
+              Self.StopPreview();
 
               if (Mode = smNormal) then //Normal Mode -> Start Song
               begin
@@ -586,14 +575,14 @@ var
   B, CoverX, CoverY: integer;
 begin
   Result := true;
-  if UGraphic.ScreenSongMenu.Visible then
-    Result := UGraphic.ScreenSongMenu.ParseMouse(MouseButton, BtnDown, X, Y)
-  else if UGraphic.ScreenSongJumpTo.Visible then
-    Result := UGraphic.ScreenSongJumpTo.ParseMouse(MouseButton, BtnDown, X, Y)
-  else
-  begin
-    Self.TransferMouseCords(X, Y);
-    if BtnDown then
+  if BtnDown then
+    if UGraphic.ScreenSongMenu.Visible then
+      Result := UGraphic.ScreenSongMenu.ParseMouse(MouseButton, BtnDown, X, Y)
+    else if UGraphic.ScreenSongJumpTo.Visible then
+      Result := UGraphic.ScreenSongJumpTo.ParseMouse(MouseButton, BtnDown, X, Y)
+    else
+    begin
+      Self.TransferMouseCords(X, Y);
       case MouseButton of
         SDL_BUTTON_LEFT: //sing or move to the selected song/page
           begin
@@ -638,29 +627,32 @@ begin
         SDL_BUTTON_WHEELUP: //previous song
           Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_LEFT, SDLK_UP), 0, true);
       end
-    else if Self.FreeListMode() then //hover cover
+    end
+  else if Self.FreeListMode() then //hover cover
+  begin
+    Self.TransferMouseCords(X, Y);
+    B := Round(Self.SongTarget);
+    case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
+      smList:
+        if
+          (X >= UThemes.Theme.Song.ListCover.X)
+          and (X < UThemes.Theme.Song.ListCover.X + UThemes.Theme.Song.ListCover.W)
+          and (Y >= UThemes.Theme.Song.ListCover.Y)
+          and (Y < UThemes.Theme.Song.ListCover.Y + (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding) * UThemes.Theme.Song.Cover.Rows)
+        then
+          B := Self.MinLine + (Y - UThemes.Theme.Song.ListCover.Y) div (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding);
+      smChessboard, smMosaic:
+        if (X >= UThemes.Theme.Song.Cover.X) and (Y >= UThemes.Theme.Song.Cover.Y) then
+        begin
+          CoverX := (X - UThemes.Theme.Song.Cover.X) div (UThemes.Theme.Song.Cover.W + UThemes.Theme.Song.Cover.Padding);
+          CoverY := (Y - UThemes.Theme.Song.Cover.Y) div (UThemes.Theme.Song.Cover.H + UThemes.Theme.Song.Cover.Padding);
+          if (CoverX < UThemes.Theme.Song.Cover.Cols) and (CoverY < UThemes.Theme.Song.Cover.Rows) then
+            B := (Self.MinLine + CoverY) * UThemes.Theme.Song.Cover.Cols + CoverX;
+        end;
+    end;
+    if (B < USongs.CatSongs.GetVisibleSongs()) and (CompareValue(Self.SongTarget, B) <> 0) then
     begin
-      case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
-        smList:
-          if
-            (X > UThemes.Theme.Song.ListCover.X)
-            and (X < UThemes.Theme.Song.ListCover.X + UThemes.Theme.Song.ListCover.W)
-            and (Y > UThemes.Theme.Song.ListCover.Y)
-            and (Y < UThemes.Theme.Song.ListCover.Y + (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding) * UThemes.Theme.Song.Cover.Rows)
-          then
-            Self.SkipTo(Self.MinLine + (Y - UThemes.Theme.Song.ListCover.Y) div (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding));
-        smChessboard, smMosaic:
-          begin
-            CoverX := ((X - UThemes.Theme.Song.Cover.X) * UThemes.Theme.Song.Cover.Cols) div ((UThemes.Theme.Song.Cover.W + UThemes.Theme.Song.Cover.Padding) * UThemes.Theme.Song.Cover.Cols);
-            CoverY := ((Y - UThemes.Theme.Song.Cover.Y) * UThemes.Theme.Song.Cover.Rows) div ((UThemes.Theme.Song.Cover.H + UThemes.Theme.Song.Cover.Padding) * UThemes.Theme.Song.Cover.Rows);
-            if (CoverX >= 0) and (CoverX < UThemes.Theme.Song.Cover.Cols) and (CoverY >= 0) and (CoverY < UThemes.Theme.Song.Cover.Rows) then
-            begin
-              B := (Self.MinLine + CoverY) * UThemes.Theme.Song.Cover.Cols + CoverX;
-              if (B < USongs.CatSongs.GetVisibleSongs()) and (CompareValue(Self.SongTarget, B) <> 0) then
-                Self.SkipTo(B);
-            end;
-          end;
-      end;
+      Self.SkipTo(B);
     end;
   end;
 end;
@@ -734,7 +726,7 @@ begin
   PreviewOpened := -1;
   Self.IsScrolling := false;
 
-  fCurrentVideo := nil;
+  CurrentVideo := nil;
 
   // Info Message
   InfoMessageBG := AddStatic(Theme.Song.InfoMessageBG);
@@ -771,13 +763,7 @@ begin
     StaticMedley[I] := AddStatic(Theme.Song.StaticMedley[I]);
   end;
 
-  Self.MainCover := AddStatic(
-    Theme.Song.Cover.SelectX,
-    Theme.Song.Cover.SelectY,
-    Theme.Song.Cover.SelectW,
-    Theme.Song.Cover.SelectH,
-    PATH_NONE
-  );
+  Self.MainCover := Self.AddStatic(UThemes.Theme.Song.MainCover);
 
   Num := IfThen(UIni.TSongMenuMode(UIni.Ini.SongMenu) = smList, UThemes.Theme.Song.Cover.Rows, 0);
 
@@ -943,32 +929,14 @@ begin
   end;
 end;
 
-{ called when song flows movement stops at a song }
-procedure TScreenSong.OnSongSelect;
+{ Called when song flows movement stops at a song }
+procedure TScreenSong.OnSongSelect(Preview: boolean = true);
 begin
   Self.IsScrolling := false;
-  if (Ini.PreviewVolume <> 0) then
-  begin
-    StartMusicPreview;
-    StartVideoPreview;
-  end;
-
-  // fade in detailed cover
-  CoverTime := 0;
-
-  SongIndex := -1;
-end;
-
-{ called before current song is deselected }
-procedure TScreenSong.OnSongDeSelect;
-begin
-  Self.IsScrolling := true;
-  DuetChange := false;
-
-  CoverTime := 10;
-  StopMusicPreview();
-  StopVideoPreview();
-  PreviewOpened := -1;
+  Self.CoverTime := 0;
+  Self.SongIndex := -1;
+  if Preview and (UIni.Ini.PreviewVolume <> 0) then
+    Self.StartPreview();
 end;
 
 procedure TScreenSong.SetRouletteScroll;
@@ -1011,8 +979,8 @@ begin
         B.X := Theme.Song.Cover.X + Theme.Song.Cover.W * Sin(Angle * 1.3) * 0.9 * 1.6 - (B.W - Theme.Song.Cover.W) / 2;
         B.Y := ((Theme.Song.Cover.Y) + ((Theme.Song.Cover.H) - Abs(Theme.Song.Cover.H * Cos(Angle))) * 0.5) - (B.H - (B.H / AutoWidthCorrection));
         B.Z := 0.95 - Abs(Pos) * 0.01;
-        B.Texture.Alpha := IfThen(VS < 5, 1 - Abs(Pos) / VS * 2, 1);
         B.SetSelect(true);
+        B.Texture.Alpha := 1;
       end
       //only draw 5 visible covers in the background (the 5 that are on the opposite of the front covers
       else if (VS > 9) and (Abs(Pos) > Floor(VS / 2) - 2.5) then
@@ -1035,8 +1003,8 @@ begin
         B.X := Theme.Song.Cover.X + Theme.Song.Cover.W / 2 - B.W / 2 + Theme.Song.Cover.W / 320 * (Theme.Song.Cover.W * Sin(Angle / 2) * 1.52);
         B.Y := Theme.Song.Cover.Y - (B.H - Theme.Song.Cover.H) * 0.75;
         B.Z := (0.4 - Abs(Pos / 4)) - 0.00001; //z < 0.49999 is behind the cover 1 is in front of the covers
-        B.Texture.Alpha := 1;
         B.SetSelect(true);
+        B.Texture.Alpha := 1;
         //B.Reflectionspacing := 15 * B.H / Theme.Song.Cover.H;
         B.DeSelectReflectionspacing := 15 * B.H / Theme.Song.Cover.H;
       end
@@ -1047,80 +1015,69 @@ begin
   end;
 end;
 
-procedure TScreenSong.SetChessboardScroll;
+procedure TScreenSong.SetChessboardScroll();
 var
-  B, CoverH, CoverW, MaxRow, MaxCol, Line, Index, Count: integer;
+  B, Line, Index, Count: integer;
 begin
-  CoverH := Theme.Song.Cover.H;
-  CoverW := Theme.Song.Cover.W;
-  MaxRow := Theme.Song.Cover.Rows;
-  MaxCol := Theme.Song.Cover.Cols;
-  Line := 0;
-  Index := 0;
-  Count := 0;
-
-  for B := 0 to High(Self.Button) do
+  Self.OnSongSelect(false);
+  with UThemes.Theme.Song.Cover do
   begin
-    Self.Button[B].Visible := USongs.CatSongs.Song[B].Visible;
-    Line := Count div MaxCol;
-    if Self.Button[B].Visible and (Line < (MaxRow + Self.MinLine)) then //only change position for visible buttons
+    Line := 0;
+    Index := 0;
+    Count := 0;
+    for B := 0 to High(Self.Button) do
     begin
-      if Line >= Self.MinLine then
+      Self.Button[B].Visible := USongs.CatSongs.Song[B].Visible;
+      Line := Count div Cols;
+      if Self.Button[B].Visible and (Line < (Rows + Self.MinLine)) then //only change position for visible buttons
       begin
-        Self.LoadCover(B);
-        Self.Button[B].X := Theme.Song.Cover.X + (CoverW + Theme.Song.Cover.Padding) * (Count mod MaxCol);
-        Self.Button[B].Y := Theme.Song.Cover.Y + (CoverH + Theme.Song.Cover.Padding) * (Line - Self.MinLine);
-        if Index = Self.Interaction then
+        if Line >= Self.MinLine then
         begin
-          if Self.Button[B].H < Theme.Song.Cover.ZoomThumbH then //zoom effect in 10 steps
+          Self.LoadCover(B);
+          Self.Button[B].H := H;
+          Self.Button[B].W := W;
+          Self.Button[B].X := X + (W + Padding) * (Count mod Cols);
+          Self.Button[B].Y := Y + (H + Padding) * (Line - Self.MinLine);
+          if Index = Self.Interaction then
           begin
-            if Self.Button[B].H = CoverH then
-              Self.LoadMainCover();
-
-            Self.Button[B].H := Self.Button[B].H + ((Theme.Song.Cover.ZoomThumbH - CoverH) / 10);
-            Self.Button[B].W := Self.Button[B].W + ((Theme.Song.Cover.ZoomThumbW - CoverW) / 10);
+            Self.Button[B].Z := 1;
+            Self.LoadMainCover();
           end
-          else //finished zoom effect
-            Self.OnSongSelect();
-
-          Self.Button[B].X := Self.Button[B].X - (Self.Button[B].W - CoverW) / 2;
-          Self.Button[B].Y := Self.Button[B].Y - (Self.Button[B].H - CoverH) / 2;
-          Self.Button[B].Z := 1;
+          else
+          begin
+            Self.Button[B].Z := 0.9;
+            Self.Button[B].SetSelect(false);
+          end;
         end
-        else
+        else //hide not visible songs upper than MinLine + Rows
         begin
-          Self.Button[B].SetSelect(false);
-          Self.Button[B].H := CoverH;
-          Self.Button[B].W := CoverW;
-          Self.Button[B].Z := 0.9;
-        end
+          Self.UnloadCover(B);
+          Self.Button[B].H := H; //set H and W is needed with tabs on
+          Self.Button[B].W := W;
+          Self.Button[B].Z := 0;
+        end;
+        Inc(Count);
       end
-      else //hide not visible songs upper than MinLine + MaxRow
+      else //hide not visible songs lower than MinLine
       begin
         Self.UnloadCover(B);
-        Self.Button[B].H := CoverH; //set H and W is needed with tabs on
-        Self.Button[B].W := CoverW;
+        Self.Button[B].H := H; //set H and W is needed with tabs on
+        Self.Button[B].W := W;
         Self.Button[B].Z := 0;
       end;
-      Inc(Count);
-    end
-    else //hide not visible songs lower than MinLine
-    begin
-      Self.UnloadCover(B);
-      Self.Button[B].H := CoverH; //set H and W is needed with tabs on
-      Self.Button[B].W := CoverW;
-      Self.Button[B].Z := 0;
+      Inc(Index);
     end;
-    Inc(Index);
-  end;
-  if not Self.Button[Self.Interaction].Visible then
-  begin
-    Self.MinLine := Ceil((USongs.CatSongs.FindVisibleIndex(Self.Interaction) + 1 - MaxCol * MaxRow) / MaxCol);
-    if (Line - Self.MinLine) > MaxRow then //to decrease line when push up (or pag up) key
-      Self.MinLine += MaxRow - 1;
+    if not Self.Button[Self.Interaction].Visible then
+    begin
+      Self.MinLine := Ceil((USongs.CatSongs.FindVisibleIndex(Self.Interaction) + 1 - Cols * Rows) / Cols);
+      if (Line - Self.MinLine) > Rows then //to decrease line when push up (or pag up) key
+        Self.MinLine += Rows - 1;
 
-    if Self.MinLine < 0 then //to mantain songs on top when use random song in category
-      Self.MinLine := 0;
+      if Self.MinLine < 0 then //to mantain songs on top when use random song in category
+        Self.MinLine := 0;
+
+      Self.SetChessboardScroll(); //to set new positions because Self.IsScrolling is set to false
+    end;
   end;
 end;
 
@@ -1148,12 +1105,13 @@ begin
       if not ((X < -Theme.Song.Cover.W) or (X > 800)) then //visible zone
       begin
         Self.LoadCover(B);
-        Self.Button[B].SetSelect(true);
         Self.Button[B].H := Theme.Song.Cover.H;
         Self.Button[B].W := Theme.Song.Cover.W;
         Self.Button[B].X := X; //after load cover to avoid cover flash on change
         Self.Button[B].Y := Theme.Song.Cover.Y;
         Self.Button[B].Z := 0.95; //more than 0.9 to be clicked with mouse and less than 1 to hide reflection
+        Self.Button[B].SetSelect(true);
+        Self.Button[B].Texture.Alpha := 1;
       end
       else //hide not visible songs
         Self.UnloadCover(B);
@@ -1184,7 +1142,6 @@ begin
       begin
         Self.LoadCover(B);
         Angle := Pi * (Pos / 5);
-        Self.Button[B].Texture.Alpha := 1 - Abs(Pos / 1.5);
         Self.Button[B].H := Abs(Theme.Song.Cover.H * cos(Angle * 1.2));
         Self.Button[B].W := Self.Button[B].H;
         Self.Button[B].X := (Theme.Song.Cover.X  + (Theme.Song.Cover.H - Abs(Theme.Song.Cover.H * cos(Angle))) * 0.8);
@@ -1192,6 +1149,7 @@ begin
         Self.Button[B].Z := 1;
         Self.Button[B].DeSelectReflectionspacing := 15 * Self.Button[B].H / Theme.Song.Cover.H;
         Self.Button[B].SetSelect(true);
+        Self.Button[B].Texture.Alpha := 1 - Abs(Pos / 1.5);
       end
       else
         Self.UnloadCover(B);
@@ -1223,6 +1181,7 @@ begin
       begin
         Self.LoadCover(B);
         Self.Button[B].SetSelect(true);
+        Self.Button[B].Texture.Alpha := 1;
         Self.Button[B].Y := Theme.Song.Cover.Y;
         Self.Button[B].Z := Self.Statics[2].Texture.Z - 0.01;
         if (B = Self.Interaction) and SameValue(Self.SongTarget, Self.SongCurrent, 1.002) then //main cover
@@ -1347,6 +1306,7 @@ var
   B, Line, I, Current:  integer;
   Alpha: real;
 begin
+  Self.OnSongSelect(false);
   Current := USongs.CatSongs.FindVisibleIndex(Self.Interaction);
   //move up at the start of list or in the rest of it
   if (Current < Self.MinLine) and ((Current < UThemes.Theme.Song.Cover.Rows) or (Current <= Self.LastMinLine)) then
@@ -1383,7 +1343,6 @@ begin
         begin
           Alpha := 1;
           Self.StaticsList[I].Texture.TexNum := Self.StaticsList[I].TextureSelect.TexNum;
-          Self.OnSongSelect();
         end
         else
         begin
@@ -1452,7 +1411,7 @@ begin
   PreviewOpened := -1;
 
   // reset video playback engine
-  fCurrentVideo := nil;
+  CurrentVideo := nil;
 
   // reset Medley-Playlist
   SetLength(PlaylistMedley.Song, 0);
@@ -1502,32 +1461,19 @@ begin
     Text[TextNonParty[I]].Visible := Visible;
 end;
 
-procedure TScreenSong.OnShowFinish;
-begin
-  DuetChange := false;
-  Self.IsScrolling := true;
-  CoverTime := 10;
-  //if (Mode = smPartyTournament) then
-  //  PartyTime := SDL_GetTicks();
-end;
-
 procedure TScreenSong.OnHide;
 begin
   // turn music volume to 100%
   AudioPlayback.SetVolume(1.0);
-
-  // stop preview
-  StopMusicPreview();
-  StopVideoPreview();
+  Self.StopPreview();
 end;
 
 function TScreenSong.Draw: boolean;
 var
   dx:         real;
   dt:         real;
-  VideoAlpha: real;
-  Position:   real;
   I, J:       integer;
+  Increment: real;
 begin
 
   FadeMessage();
@@ -1548,28 +1494,15 @@ begin
       and SameValue(Self.Button[Self.Interaction].X, Theme.Song.Cover.X, 1) //to complete animation always in smSlide
       and (USongs.CatSongs.GetVisibleSongs() > 0)
     then
+    begin
       Self.OnSongSelect();
+      Self.Statics[Self.MainCover].Texture.Alpha := Self.Button[Self.Interaction].Texture.Alpha;
+    end;
   end
   else //start to preload covers
     USongs.Songs.PreloadCovers(true);
 
   Self.SetScroll();
-
-  if (AudioPlayback.Finished) then
-    CoverTime := 0;
-
-  if (CoverTime < 9) then
-    CoverTime += TimeSkip * 3;
-
-  case TSongMenuMode(UIni.Ini.SongMenu) of
-    smChessboard, smMosaic, smList:
-      begin
-        VideoAlpha := 1;
-        Self.Statics[Self.MainCover].Texture.Alpha := IfThen(not Assigned(Self.fCurrentVideo),1, Max(0, 1 - (Self.CoverTime - 1)));
-      end;
-    smRoulette, smCarousel, smSlotMachine, smSlide:
-      VideoAlpha := Self.Button[Self.Interaction].Texture.Alpha * (Self.CoverTime - 1);
-  end;
 
   //inherited Draw;
   //heres a little Hack, that causes the Statics
@@ -1653,46 +1586,52 @@ begin
     if Self.Button[I].Visible then
       Self.Button[I].Draw;
 
-  //  StopVideoPreview;
-
-  Position := AudioPlayback.Position;
-
-  if Assigned(fCurrentVideo) then
+  //cover animation effects distinct of scroll using CoverTime from 0 to 1
+  if Self.CoverTime > 1 then //last step
+    Self.CoverTime := 1
+  else if Self.CoverTime < 1 then
   begin
-    // Just call this once
-    // when Screens = 2
-    if (ScreenAct = 1) then
-      fCurrentVideo.GetFrame(CatSongs.Song[Interaction].VideoGAP + Position);
+    Self.CoverTime += UTime.TimeSkip;
 
-    fCurrentVideo.SetScreen(ScreenAct);
-    fCurrentVideo.Alpha := VideoAlpha;
-
-    //set up window
-    if (TSongMenuMode(Ini.SongMenu) in [smChessboard, smMosaic, smList]) then
+    if Assigned(CurrentVideo) then //video fade in on main cover
     begin
-        fCurrentVideo.SetScreenPosition(Theme.Song.Cover.SelectX, Theme.Song.Cover.SelectY, 1);
-        fCurrentVideo.Width := Theme.Song.Cover.SelectW;
-        fCurrentVideo.Height := Theme.Song.Cover.SelectH;
-
-        fCurrentVideo.ReflectionSpacing := Theme.Song.Cover.SelectReflectionSpacing;
-    end
-    else
-    begin
-      with Button[interaction] do
-      begin
-        fCurrentVideo.SetScreenPosition(X, Y, Z);
-        fCurrentVideo.Width := W;
-        fCurrentVideo.Height := H;
-        fCurrentVideo.ReflectionSpacing := Reflectionspacing;
-      end;
+      Self.Statics[Self.MainCover].Texture.Alpha := IfThen(Self.CoverTime > 0.2, 1 - Self.CoverTime, 1);
+      CurrentVideo.Alpha := 1 - Self.Statics[Self.MainCover].Texture.Alpha;
     end;
 
-    fCurrentVideo.AspectCorrection := acoCrop;
+    case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
+      smChessboard: //cover zoom effect
+        if Self.Button[Self.Interaction].H < UThemes.Theme.Song.Cover.ZoomThumbH then
+        begin
+          Increment := Self.CoverTime * (UThemes.Theme.Song.Cover.ZoomThumbH - UThemes.Theme.Song.Cover.H);
+          if Self.Button[Self.Interaction].H + Increment > UThemes.Theme.Song.Cover.ZoomThumbH then //last position
+          begin
+            Increment := UThemes.Theme.Song.Cover.ZoomThumbH - Self.Button[Self.Interaction].H;
+            Self.StartPreview();
+          end;
+          with Self.Button[Self.Interaction] do
+          begin
+            H := H + Increment;
+            W := W + Increment;
+            Y := Y - Increment / 2;
+            X := X - Increment / 2;
+          end;
+        end;
+      smList, smMosaic: //wait a bit to start song preview like scroll modes
+        if (Self.PreviewOpened = -1) and (Self.CoverTime > 0.2) then
+          Self.StartPreview();
+    end;
+  end;
 
-    fCurrentVideo.Draw;
+  if Assigned(CurrentVideo) then
+  begin
+    if UGraphic.ScreenAct = 1 then
+      CurrentVideo.GetFrame(USongs.CatSongs.Song[Self.Interaction].VideoGAP + UMusic.AudioPlayback.Position);
 
-    if Button[interaction].Reflection or (Theme.Song.Cover.SelectReflection) then
-      fCurrentVideo.DrawReflection;
+    if UThemes.Theme.Song.MainCover.Reflection then
+      CurrentVideo.DrawReflection();
+
+    CurrentVideo.Draw();
   end;
 
   // duet names
@@ -1721,7 +1660,7 @@ begin
   Result := true;
 end;
 
-procedure TScreenSong.StartMusicPreview();
+procedure TScreenSong.StartPreview();
 var
   Song: TSong;
   PreviewPos: real;
@@ -1766,47 +1705,34 @@ begin
       AudioPlayback.SetVolume(0);
       AudioPlayback.FadeIn(Ini.PreviewFading, IPreviewVolumeVals[Ini.PreviewVolume]);
     end;
-  end;
-end;
 
-procedure TScreenSong.StopMusicPreview();
-begin
-  // Stop preview of previous song
-  AudioPlayback.Stop;
-end;
-
-procedure TScreenSong.StartVideoPreview();
-var
-  Song:       TSong;
-begin
-  if (Ini.VideoPreview=0)  then
-    Exit;
-
-  Self.StopVideoPreview();
-
-  //if no audio open => exit
-  if (PreviewOpened = -1) then
-    Exit;
-
-  Song := USongs.CatSongs.Song[Self.Interaction];
-  if Song.Video.IsSet() then
-  begin
-    fCurrentVideo := VideoPlayback.Open(Song.Path.Append(Song.Video));
-    if (fCurrentVideo <> nil) then
+    if (UIni.Ini.VideoPreview = 1) and Song.Video.IsSet() then
     begin
-      fCurrentVideo.Position := Song.VideoGAP + AudioPlayback.Position;
-      fCurrentVideo.Play();
+      CurrentVideo := UMusic.VideoPlayback.Open(Song.Path.Append(Song.Video));
+      if (CurrentVideo <> nil) then
+        with UThemes.Theme.Song.MainCover do
+        begin
+          CurrentVideo.Height := H;
+          CurrentVideo.Width := W;
+          CurrentVideo.ReflectionSpacing := ReflectionSpacing;
+          CurrentVideo.SetScreenPosition(X, Y, Self.Button[Self.Interaction].Texture.Z);
+          CurrentVideo.SetScreen(UGraphic.ScreenAct);
+          CurrentVideo.AspectCorrection := UMusic.acoCrop;
+          CurrentVideo.Position := Song.VideoGAP + UMusic.AudioPlayback.Position;
+          CurrentVideo.Play();
+        end;
     end;
   end;
 end;
 
-procedure TScreenSong.StopVideoPreview();
+procedure TScreenSong.StopPreview();
 begin
-  // Stop video preview of previous song
-  if Assigned(fCurrentVideo) then
+  Self.PreviewOpened := -1;
+  UMusic.AudioPlayback.Stop();
+  if Assigned(CurrentVideo) then
   begin
-    fCurrentVideo.Stop();
-    fCurrentVideo := nil;
+    CurrentVideo.Stop();
+    CurrentVideo := nil;
   end;
 end;
 
@@ -1822,7 +1748,10 @@ begin
 
   Self.Interaction := IfThen(USongs.CatSongs.IsFilterApplied(), USongs.CatSongs.FindGlobalIndex(Target), Target);
   Self.SongTarget := Target;
-  Self.OnSongDeSelect();
+  //deselect song actions
+  Self.IsScrolling := true;
+  Self.DuetChange := false;
+  Self.StopPreview();
 end;
 
 procedure TScreenSong.SelectRandomSong(RandomCategory: boolean = false);
@@ -1854,7 +1783,7 @@ begin
   if (Mode = smPartyFree) then
     Party.SaveSungPartySong(Interaction);
 
-  StopMusicPreview();
+  Self.StopPreview();
 
   FadeTo(@ScreenSing);
 end;
@@ -1862,7 +1791,7 @@ end;
 procedure TScreenSong.SelectPlayers;
 begin
   CatSongs.Selected := Interaction;
-  StopMusicPreview();
+  Self.StopPreview();
   if not Assigned(UGraphic.ScreenPlayerSelector) then
     UGraphic.ScreenPlayerSelector := TScreenPlayerSelector.Create();
 
@@ -1910,13 +1839,14 @@ end;
 { Load main cover in some game modes }
 procedure TScreenSong.LoadMainCover();
 begin
-  Statics[Self.MainCover].Texture := Button[Self.Interaction].Texture;
-  Statics[Self.MainCover].Texture.X := Theme.Song.Cover.SelectX;
-  Statics[Self.MainCover].Texture.Y := Theme.Song.Cover.SelectY;
-  Statics[Self.MainCover].Texture.W := Theme.Song.Cover.SelectW;
-  Statics[Self.MainCover].Texture.H := Theme.Song.Cover.SelectH;
-  Statics[Self.MainCover].Texture.Z := 1;
-  Statics[Self.MainCover].Texture.Alpha := 1;
+  with Self.Statics[Self.MainCover], UThemes.Theme.Song.MainCover do
+  begin
+    Texture := Self.Button[Self.Interaction].Texture;
+    Texture.X := X;
+    Texture.Y := Y;
+    Texture.W := W;
+    Texture.H := H;
+  end;
 end;
 
 procedure TScreenSong.Refresh(Sort: integer; Categories: boolean; Duets: boolean);
@@ -2217,7 +2147,7 @@ begin
   begin
     Mode := smMedley;
 
-    StopMusicPreview();
+    Self.StopPreview();
 
     //TODO: how about case 2? menu for medley mode?
     case Ini.OnSongClick of
@@ -2237,7 +2167,7 @@ begin
     if PlaylistMedley.NumMedleySongs = NumSongs then
     begin
       Mode := smMedley;
-      StopMusicPreview();
+      Self.StopPreview();
 
       //TODO: how about case 2? menu for medley mode?
       case Ini.OnSongClick of

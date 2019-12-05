@@ -703,8 +703,6 @@ begin
             begin
               // show refresh scores menu
               MenuShow(SM_Refresh_Scores);
-              ScreenSong.StopMusicPreview();
-              ScreenSong.StopVideoPreview();
             end;
           6:
             Self.MenuShow(SM_Sorting);

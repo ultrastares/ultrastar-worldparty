@@ -227,13 +227,6 @@ type
     ButtonCollection: AThemeButtonCollection;
   end;
 
-  TThemeBox = record
-    X: integer;
-    Y: integer;
-    W: integer;
-    H: integer;
-  end;
-
   TThemeLoading = class(TThemeBasic)
     StaticAnimation:  TThemeStatic;
     TextLoading:      TThemeText;
@@ -310,6 +303,7 @@ type
 
     SongSelectionUp: TThemeStatic;
     SongSelectionDown: TThemeStatic;
+    Equalizer: TThemeEqualizer;
 
     //Cover Mod
     Cover: record
@@ -323,18 +317,11 @@ type
       Padding: integer;
       Reflections: boolean;
       ReflectionSpacing: integer;
-      SelectX: integer;
-      SelectY: integer;
-      SelectW: integer;
-      SelectH: integer;
-      SelectReflection: boolean;
-      SelectReflectionSpacing: integer;
       ZoomThumbW: integer;
       ZoomThumbH: integer;
     end;
 
-    //Equalizer Mod
-    Equalizer: TThemeEqualizer;
+    MainCover: TThemeStatic;
 
     //List Song Mod
     ListCover: record
@@ -3663,13 +3650,6 @@ begin
   Self.ReadProperty('Song'+prefix+'Cover', 'Reflections', false, Self.Song.Cover.Reflections);
   Self.ReadProperty('Song'+prefix+'Cover', 'ReflectionSpacing', 0, Self.Song.Cover.ReflectionSpacing);
   Self.ReadProperty('Song'+prefix+'Cover', 'Rows', 4, Self.Song.Cover.Rows);
-  //MainCover for smChessboard, smList and smMosaic
-  Self.ReadProperty('Song'+prefix+'Cover', 'SelectX', 300, Self.Song.Cover.SelectX);
-  Self.ReadProperty('Song'+prefix+'Cover', 'SelectY', 120, Self.Song.Cover.SelectY);
-  Self.ReadProperty('Song'+prefix+'Cover', 'SelectW', 325, Self.Song.Cover.SelectW);
-  Self.ReadProperty('Song'+prefix+'Cover', 'SelectH', 200, Self.Song.Cover.SelectH);
-  Self.ReadProperty('Song'+prefix+'Cover', 'SelectReflection', false, Self.Song.Cover.SelectReflection);
-  Self.ReadProperty('Song'+prefix+'Cover', 'SelectReflectionSpacing', 0, Self.Song.Cover.SelectReflectionSpacing);
   //zoom for smChessboard and smMosaic
   Self.ReadProperty('Song'+prefix+'Cover', 'ZoomThumbW', 0, Self.Song.Cover.ZoomThumbW);
   Self.ReadProperty('Song'+prefix+'Cover', 'ZoomThumbH', 0, Self.Song.Cover.ZoomThumbH);
@@ -3706,6 +3686,10 @@ begin
       Song.ListCover.DColB := Color[C].RGB.B;
     end;
   end;
+  Self.ThemeLoadStatic(
+    Self.Song.MainCover,
+    'Song'+prefix+IfThen(Self.SectionExists('Song'+prefix+'MainCover'), 'MainCover', 'Cover')
+  );
 
   ThemeLoadEqualizer(Song.Equalizer, 'Song' + prefix + 'Equalizer');
 
