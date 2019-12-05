@@ -242,6 +242,11 @@ end;
 // Method for input parsing. If false is returned, GetNextWindow
 // should be checked to know the next window to load;
 function TScreenSong.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
+  { Check if scroll needs to be slowed in chessboard mode after pressing repeatedly one key }
+  function SlowChessboardScroll(): boolean;
+  begin
+    Result := (UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard) and (Self.CoverTime < UTime.TimeSkip * 10);
+  end;
 var
   I: integer;
   I2: integer;
@@ -377,7 +382,7 @@ begin
         end;
 
       Ord('R'):
-        if Self.FreeListMode() then
+        if Self.FreeListMode() and (not SlowChessboardScroll()) then
           Self.SelectRandomSong(SDL_ModState = KMOD_LSHIFT);
 
       Ord('W'):
@@ -533,9 +538,11 @@ begin
               end;
               case PressedKey of
                 SDLK_PAGEDOWN: //advance to end
-                  Self.SkipTo(Min(USongs.CatSongs.GetVisibleSongs() - 1, Round(Self.SongTarget) + I));
+                  if (not SlowChessboardScroll()) then
+                    Self.SkipTo(Min(USongs.CatSongs.GetVisibleSongs() - 1, Round(Self.SongTarget) + I));
                 SDLK_PAGEUP: //back to start
-                  Self.SkipTo(Max(0, Round(Self.SongTarget) - I));
+                  if (not SlowChessboardScroll()) then
+                    Self.SkipTo(Max(0, Round(Self.SongTarget) - I));
                 SDLK_DOWN, SDLK_RIGHT: //go to initial song if reach the end of subselection list or the next song
                   Self.SkipTo(IfThen(Self.SongTarget + I >= USongs.CatSongs.GetVisibleSongs(), 0, Round(Self.SongTarget) + I));
                 SDLK_UP, SDLK_LEFT: //go to final song if reach the start of subselection list or the previous song
