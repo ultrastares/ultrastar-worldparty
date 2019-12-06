@@ -1,5 +1,5 @@
 ﻿; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; UltraStar Deluxe WorldParty Installer - Language file: Polish
+; UltraStar WorldParty Installer - Language file: Polish
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
 !insertmacro LANGFILE_EXT Polish

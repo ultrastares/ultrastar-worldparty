@@ -1,5 +1,5 @@
 ﻿; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; UltraStar Deluxe WorldParty Installer - Language file: English
+; UltraStar WorldParty Installer - Language file: English
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
 !insertmacro LANGFILE_EXT English

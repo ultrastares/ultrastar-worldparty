@@ -1,5 +1,5 @@
 ﻿; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; UltraStar Deluxe WorldParty Un/Installer: Variables
+; UltraStar WorldParty Un/Installer: Variables
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
 ; Product Information:
@@ -16,7 +16,7 @@
 !define meta StrLower($version)
 
 
-!define name "UltraStar Deluxe WorldParty"
+!define name "UltraStar WorldParty"
 !define publisher "UltraStar España"
 !define homepage "https://ultrastar-es.org"
 !define forum "https://ultrastar-es.org/foro"

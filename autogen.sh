@@ -5,6 +5,6 @@ set -e
 srcdir=`dirname $0`
 test -n "$srcdir" && cd "$srcdir"
 
-echo "Updating build configuration files for Ultrastar Deluxe WorldParty, please wait..."
+echo "Updating build configuration files for UltraStar WorldParty, please wait..."
 
 autoreconf -isf

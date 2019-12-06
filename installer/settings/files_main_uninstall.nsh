@@ -1,5 +1,5 @@
 ﻿; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; UltraStar Deluxe WorldParty Uninstaller: Main components
+; UltraStar WorldParty Uninstaller: Main components
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
 ; Remove dirs

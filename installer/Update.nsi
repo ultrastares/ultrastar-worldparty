@@ -1,5 +1,5 @@
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; UltraStar Deluxe WorldParty Installer: Update
+; UltraStar WorldParty Installer: Update
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
 !include MUI2.nsh

@@ -1,6 +1,6 @@
 ﻿;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; NSIS installer script for     ;
-; Ultrastar Deluxe WorldParty   ;
+; UltraStar WorldParty   ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 !include MUI2.nsh			;Used for create the interface

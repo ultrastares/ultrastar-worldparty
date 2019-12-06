@@ -9,7 +9,7 @@
 	<key>CFBundleExecutable</key>
 	<string>WorldParty</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Ultrastar Deluxe WorldParty, a karaoke game</string>
+	<string>UltraStar WorldParty, a karaoke game</string>
 	<key>CFBundleIconFile</key>
 	<string>WorldParty.icns</string>
 	<key>CFBundleIdentifier</key>

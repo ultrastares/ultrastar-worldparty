@@ -1,4 +1,4 @@
-UltraStar Deluxe WorldParty with Atom (by Github)
+UltraStar WorldParty with Atom (by Github)
 =================================================
 
 To compile USDX WorldParty using Atom editor developed by Github (https://atom.io) you must install in it at least this two packages:
