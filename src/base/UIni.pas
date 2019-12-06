@@ -812,7 +812,7 @@ begin
       ResString := BuildResolutionString(ModeIter.w, ModeIter.h);
       if GetArrayIndex(IResolutionFullScreen, ResString) < 0 then
       begin
-        Log.LogStatus('Found Video Mode: ' + ResString, 'Video');
+        // Log.LogStatus('Found Video Mode: ' + ResString, 'Video');
         SetLength(IResolutionFullScreen, Length(IResolutionFullScreen) + 1);
         IResolutionFullScreen[High(IResolutionFullScreen)] := ResString;
 

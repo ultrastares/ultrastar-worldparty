@@ -289,7 +289,7 @@ begin
         Self.Threads[I].Terminate();
       end;
 
-      Log.LogStatus('Search complete', 'SongList');
+      Log.LogStatus('Search complete: '+IntToStr(Processed)+' songs found ('+IntToStr(Processed - Self.SongList.Count)+' with errors)', 'SongList');
       Self.ProgressSong.Folder := '';
       Self.ProgressSong.Finished := true;
       Log.LogBenchmark('Song loading', 2);
