@@ -807,11 +807,9 @@ type
   TThemeOptionsGraphics = class(TThemeBasic)
     SelectFullscreen:       TThemeSelectSlide;
     SelectResolution:       TThemeSelectSlide;
-	SelectLoadAnimation:  	TThemeSelectSlide;
     SelectEffectSing:     	TThemeSelectSlide;
     SelectScreenFade:     	TThemeSelectSlide;
     SelectVisualizer:       TThemeSelectSlide;
-    SelectLineBonus:        TThemeSelectSlide;
     SelectMovieSize:        TThemeSelectSlide;
     ButtonExit:             TThemeButton;
   end;
@@ -1635,9 +1633,9 @@ begin
       Self.ThemeLoadLyricBar(LyricBarJukebox, 'JukeboxLyricsUpperBar');
 
       // Jukebox
-      ThemeLoadStatic(Jukebox.StaticTimeProgress, 'JukeboxTimeProgress');
-      ThemeLoadStatic(Jukebox.StaticTimeBackground, 'JukeboxTimeBackground');
-      ThemeLoadStatic(Jukebox.StaticSongBackground, 'JukeboxSongBackground');
+      // ThemeLoadStatic(Jukebox.StaticTimeProgress, 'JukeboxTimeProgress');
+      // ThemeLoadStatic(Jukebox.StaticTimeBackground, 'JukeboxTimeBackground');
+      // ThemeLoadStatic(Jukebox.StaticSongBackground, 'JukeboxSongBackground');
       ThemeLoadStatic(Jukebox.StaticSongListBackground, 'JukeboxSongListBackground');
       //ThemeLoadText(Jukebox.TextTimeText, 'JukeboxTimeText');
       //ThemeLoadText(Jukebox.TextTimeDesc, 'JukeboxTimeDesc');
@@ -2034,11 +2032,9 @@ begin
 
       ThemeLoadSelectSlide(OptionsGraphics.SelectFullscreen,   'OptionsGraphicsSelectFullscreen');
       ThemeLoadSelectSlide(OptionsGraphics.SelectResolution,   'OptionsGraphicsSelectSlideResolution');
-      ThemeLoadSelectSlide(OptionsGraphics.SelectLoadAnimation, 'OptionsGraphicsSelectLoadAnimation');
       ThemeLoadSelectSlide(OptionsGraphics.SelectScreenFade,    'OptionsGraphicsSelectScreenFade');
       ThemeLoadSelectSlide(OptionsGraphics.SelectEffectSing,    'OptionsGraphicsSelectEffectSing');
       ThemeLoadSelectSlide(OptionsGraphics.SelectVisualizer,   'OptionsGraphicsSelectVisualizer');
-      ThemeLoadSelectSlide(OptionsGraphics.SelectLineBonus,    'OptionsGraphicsSelectLineBonus');
       ThemeLoadSelectSlide(OptionsGraphics.SelectMovieSize,    'OptionsGraphicsSelectMovieSize');
       ThemeLoadButton(OptionsGraphics.ButtonExit,              'OptionsGraphicsButtonExit');
 
@@ -3608,6 +3604,7 @@ begin
   ThemeLoadText(Song.TextYear, 'Song' + prefix + 'TextYear');
 
   // medley playlist
+  Self.SetInheritance('Song'+prefix+'TextMedleyMax');
   Self.ReadProperty('Song'+prefix+'TextMedleyMax', 'N', 4, Self.Song.TextMedleyMax);
 
   SetLength(Song.TextArtistMedley, Song.TextMedleyMax);

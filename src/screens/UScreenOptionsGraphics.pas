@@ -149,8 +149,6 @@ begin
 
   SelectWindowMode := AddSelectSlide(Theme.OptionsGraphics.SelectFullscreen, UIni.Ini.Fullscreen, UIni.IFullScreen, 'OPTION_VALUE_');
   SelectResolution := AddSelectSlide(Theme.OptionsGraphics.SelectResolution, UIni.Ini.Resolution, UIni.IResolution);
-  //SelectLoadAnimation Hidden because it is useless atm
-  //AddSelect(Theme.OptionsGraphics.SelectLoadAnimation, UIni.Ini.LoadAnimation, UIni.Ini.ILoadAnimation);
   AddSelectSlide(Theme.OptionsGraphics.SelectScreenFade, UIni.Ini.ScreenFade, UIni.IScreenFade, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsGraphics.SelectEffectSing, UIni.Ini.EffectSing, UIni.IEffectSing, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsGraphics.SelectVisualizer, UIni.Ini.VisualizerOption, UIni.IVisualizer, 'OPTION_VALUE_');

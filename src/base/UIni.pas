@@ -136,7 +136,6 @@ type
       Split:          integer;
       Resolution:     integer;             // Resolution for windowed mode
       ResolutionFullscreen:     integer;   // Resolution for real fullscreen (changing Video mode)
-	  LoadAnimation:  integer;
       EffectSing:     integer;
       ScreenFade:     integer;
       VisualizerOption: integer;
@@ -369,7 +368,6 @@ const
   IColor:         array[0..9] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black');
 
   // Advanced
-  ILoadAnimation: array[0..1] of UTF8String = ('Off', 'On');
   IEffectSing:    array[0..1] of UTF8String = ('Off', 'On');
   IScreenFade:    array[0..1] of UTF8String = ('Off', 'On');
   IAskbeforeDel:  array[0..1] of UTF8String = ('Off', 'On');
@@ -977,9 +975,6 @@ begin
 
   LoadWebcamSettings(IniFile);
 
-    // LoadAnimation
-  LoadAnimation := ReadArrayIndex(ILoadAnimation, IniFile, 'Graphics', 'LoadAnimation', IGNORE_INDEX, 'On');
-
   // ScreenFade
   ScreenFade := ReadArrayIndex(IScreenFade, IniFile, 'Graphics', 'ScreenFade', IGNORE_INDEX, 'On');
 
@@ -1202,9 +1197,6 @@ begin
   // Resolution
   IniFile.WriteString('Graphics', 'Resolution', GetResolution);
   IniFile.WriteString('Graphics', 'ResolutionFullscreen', GetResolutionFullscreen);
-
-    //LoadAnimation
-  IniFile.WriteString('Graphics', 'LoadAnimation', ILoadAnimation[LoadAnimation]);
 
   //EffectSing
   IniFile.WriteString('Graphics', 'EffectSing', IEffectSing[EffectSing]);
