@@ -70,6 +70,7 @@ type
     FolderProcessed: UTF8String;
     Total: integer;
     Finished: boolean;
+    CoversPreload: boolean;
   end;
 
   TSongsParse = class(TThread)
@@ -267,6 +268,7 @@ begin
   Log.LogStatus('Searching for songs', 'SongList');
   Self.ProgressSong.Total := 0;
   Self.ProgressSong.Finished := false;
+  Self.ProgressSong.CoversPreload := true;
   for I := 0 to UPathUtils.SongPaths.Count - 1 do //find txt files on directories and add songs
   begin
     Self.ProgressSong.Folder := Format(ULanguage.Language.Translate('SING_LOADING_SONGS'), [IPath(UPathUtils.SongPaths[I]).ToNative()]);
@@ -303,6 +305,7 @@ begin
 
         SDL_FreeSurface(UImage.LoadImage(Song.Path.Append(Song.Cover)));
       end;
+      Self.ProgressSong.CoversPreload := false;
       Log.LogBenchmark('Cover loading', 3);
     end;
   end;

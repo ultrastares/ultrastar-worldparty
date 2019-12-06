@@ -244,8 +244,19 @@ end;
 function TScreenSong.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
   { Check if scroll needs to be slowed in chessboard mode after pressing repeatedly one key }
   function SlowChessboardScroll(): boolean;
+  var
+    SlowAction: boolean;
   begin
-    Result := (UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard) and (Self.CoverTime < UTime.TimeSkip * 10);
+    Result := false;
+    if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smChessboard then
+    begin
+      SlowAction := (CharCode = Ord('r')) or (PressedKey = SDLK_PAGEDOWN) or (PressedKey = SDLK_PAGEUP);
+      Result := Self.CoverTime < IfThen(
+        USongs.Songs.GetLoadProgress().CoversPreload,
+        IfThen(SlowAction, 1, UTime.TimeSkip * 10), //during cover preload it will be really slow
+        IfThen(SlowAction, UTime.TimeSkip * 10, 0)
+      );
+    end;
   end;
 var
   I: integer;
@@ -526,7 +537,7 @@ begin
                   sfCategory
                 );
             end
-            else
+            else if not SlowChessboardScroll() then
             begin
               case PressedKey of //calculate steps to advance or back
                 SDLK_PAGEDOWN, SDLK_PAGEUP: //entire page
@@ -538,11 +549,9 @@ begin
               end;
               case PressedKey of
                 SDLK_PAGEDOWN: //advance to end
-                  if (not SlowChessboardScroll()) then
-                    Self.SkipTo(Min(USongs.CatSongs.GetVisibleSongs() - 1, Round(Self.SongTarget) + I));
+                  Self.SkipTo(Min(USongs.CatSongs.GetVisibleSongs() - 1, Round(Self.SongTarget) + I));
                 SDLK_PAGEUP: //back to start
-                  if (not SlowChessboardScroll()) then
-                    Self.SkipTo(Max(0, Round(Self.SongTarget) - I));
+                  Self.SkipTo(Max(0, Round(Self.SongTarget) - I));
                 SDLK_DOWN, SDLK_RIGHT: //go to initial song if reach the end of subselection list or the next song
                   Self.SkipTo(IfThen(Self.SongTarget + I >= USongs.CatSongs.GetVisibleSongs(), 0, Round(Self.SongTarget) + I));
                 SDLK_UP, SDLK_LEFT: //go to final song if reach the start of subselection list or the previous song
