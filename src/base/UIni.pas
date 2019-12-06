@@ -1175,6 +1175,7 @@ begin
 
   // Show Scores
   IniFile.WriteString('Game', 'ShowScores', IShowScores[ShowScores]);
+  IniFile.WriteString('Game', 'FindUnsetMedley', Switch[Self.FindUnsetMedley]);
 
   // Joypad
   IniFile.WriteString('Controller', 'Joypad', IJoypad[Joypad]);
@@ -1313,7 +1314,6 @@ begin
 
   //TopScores
   IniFile.WriteString('Advanced', 'TopScores', ITopScores[TopScores]);
-  IniFile.WriteString('Advanced', 'FindUnsetMedley', Switch[Self.FindUnsetMedley]);
 
   //SyncTo
   IniFile.WriteString('Advanced', 'SyncTo', ISyncTo[SyncTo]);
