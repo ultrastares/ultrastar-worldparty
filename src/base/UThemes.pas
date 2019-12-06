@@ -44,7 +44,7 @@ type
     (bgtNone, bgtColor, bgtTexture, bgtVideo, bgtFade, bgtAuto);
 
 const
-  ThemeMinVersion = 19.10;
+  ThemeMinVersion = 19.12;
   DefaultTheme = 'Fantasy';
   BGT_Names: array [TBackgroundType] of string =
     ('none', 'color', 'texture', 'video', 'fade', 'auto');
