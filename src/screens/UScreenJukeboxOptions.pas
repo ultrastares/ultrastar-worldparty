@@ -80,40 +80,23 @@ begin
   Self.AddText(UThemes.Theme.Jukebox.SongOptionsLyricText);
   Self.OptionClose := AddButton(UThemes.Theme.Jukebox.SongOptionsClose);
   Self.Button[Self.OptionClose].Selectable:= false;
+  Self.Lyrics := UGraphic.ScreenJukebox.Lyrics;
   Self.SetModeValues();
   Self.SetValues();
-  Self.Lyrics := UGraphic.ScreenJukebox.Lyrics;
 end;
 
 function TScreenJukeboxOptions.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 begin
   Result := true;
-
   inherited ParseMouse(MouseButton, BtnDown, X, Y);
-
-  // transfer mousecords to the 800x600 raster we use to draw
-  X := Round((X / (ScreenW / Screens)) * RenderW);
-  if (X > RenderW) then
-    X := X - RenderW;
-  Y := Round((Y / ScreenH) * RenderH);
-
-  if (BtnDown) then
+  Self.TransferMouseCords(X, Y);
+  if not BtnDown then
+    Self.Button[Self.OptionClose].SetSelect(Self.InRegion(X, Y, Self.Button[Self.OptionClose].GetMouseOverArea())) //hover
+  else if Self.InRegion(X, Y, Self.Button[Self.OptionClose].GetMouseOverArea()) then
   begin
-    if InRegion(X, Y, Button[OptionClose].GetMouseOverArea) then
-    begin
-      Visible := false;
-      ScreenJukebox.CloseClickTime := SDL_GetTicks;
-    end;
-  end
-  else
-  begin
-    //hover
-    if InRegion(X, Y, Button[OptionClose].GetMouseOverArea) then
-      Button[OptionClose].SetSelect(true)
-    else
-      Button[OptionClose].SetSelect(false);
+    Self.Interaction := 11;
+    Self.ParseInput(SDLK_RETURN, 0, true);
   end;
-
 end;
 
 function TScreenJukeboxOptions.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;

@@ -135,6 +135,7 @@ procedure TScreenOptionsLyrics.OnShow();
 begin
   inherited;
   Self.Interaction := 0;
+  Self.SetModeValues();
 end;
 
 function TScreenOptionsLyrics.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
