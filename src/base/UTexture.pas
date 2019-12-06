@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -48,6 +48,8 @@ type
     Z:        real;
     W:        real;
     H:        real;
+    PaddingX: integer;
+    PaddingY: integer;
     ScaleW:   real; // for dynamic scalling while leaving width constant
     ScaleH:   real; // for dynamic scalling while leaving height constant
     Rot:      real; // 0 - 2*pi

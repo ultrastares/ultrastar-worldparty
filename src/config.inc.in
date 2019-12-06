@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	UltraStar WorldParty is the legal property of its developers, 
 	whose names	are too numerous to list here. Please refer to the 
 	COPYRIGHT file distributed with this source distribution.
 
@@ -67,6 +67,10 @@
   LIBAVUTIL_VERSION_MINOR   = @libavutil_VERSION_MINOR@;
   LIBAVUTIL_VERSION_RELEASE = @libavutil_VERSION_RELEASE@;
   {$IFEND}
+{$IFEND}
+
+{$IF (@FFMPEG_VERSION_MAJOR@ < 4)}
+  {$DEFINE UseFFmpegResample}
 {$IFEND}
 
 {$@DEFINE_HAVE_SWSCALE@ HaveSWScale}

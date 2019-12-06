@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -25,9 +25,7 @@ unit UScreenJukebox;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
@@ -135,8 +133,6 @@ type
 
     SongFinish: boolean;
 
-    tmpLyricsUpperY: real;
-    tmpLyricsLowerY: real;
     //tmp_mouse: integer;
 
     JukeboxFindSong:       integer;
@@ -233,8 +229,7 @@ type
     procedure OnSentenceChange(SentenceIndex: cardinal);  // for golden notes
 
     procedure DeleteSong(Id: integer);
-    procedure FilterSongList(Filter: UTF8String);
-    procedure GoToSongList(UpperLetter: UCS4Char);
+    procedure FilterSongList(FilterSong: UTF8String);
     procedure SongListSort(Order: integer);
     procedure Sort(Order: integer);
     procedure Reset;
@@ -256,12 +251,6 @@ type
 
     procedure PageDown(N: integer);
     procedure PageUp(N: integer);
-
-    procedure ChangeLyricPosition(N: integer);
-    procedure ChangeVideoWidth(N: integer);
-    procedure ChangeVideoHeight(N: integer);
-
-    procedure LoadJukeboxSongOptions();
   end;
 
 implementation
@@ -421,8 +410,7 @@ end;
 
 procedure TScreenJukebox.Sort(Order: integer);
 var
-  I, J, X, Tmp, Comp: integer;
-  Text: UTF8String;
+  I, J, X, Comp: integer;
   NotEnd: boolean;
 begin
 
@@ -455,88 +443,22 @@ begin
   end;
 end;
 
-procedure TScreenJukebox.GoToSongList(UpperLetter: UCS4Char);
-var
-  SongDesc: UTF8String;
-  I, S, CurrentInteractionSong: integer;
-  isCurrentPage, existNextSong: boolean;
-  ListCurrentPage: array of integer;
-begin
- {
-
-  isCurrentPage := false;
-  existNextSong := false;
-  CurrentInteractionSong := ActualInteraction;
-
-  for I := ActualInteraction + 1 to High(JukeboxVisibleSongs) do
-  begin
-    if (OrderType = 2) then
-      SongDesc := CatSongs.Song[JukeboxSongsList[I]].TitleNoAccent
-    else
-      SongDesc := CatSongs.Song[JukeboxSongsList[I]].ArtistNoAccent;
-
-    if (UTF8StartsText(UCS4ToUTF8String(UpperLetter), SongDesc)) then
-    begin
-      ActualInteraction := I;
-      CurrentSongList := I;
-      existNextSong := true;
-      break;
-    end
-
-  end;
-
-  // page songsid
-  {
-        SetLength(JukeboxSongsListCurrentPage, 0);
-
-
-
-  JukeboxSongsList[I]
-        SetLength(JukeboxSongsListCurrentPage, Length(JukeboxSongsListCurrentPage) + 1);
-
-        JukeboxSongsListCurrentPage[High(JukeboxSongsListCurrentPage)] := JukeboxVisibleSongs[I + ListMin];
-
-  if (existNextSong) then
-  begin
-    while not (isCurrentPage) do
-    begin
-
-      for S := 0 to High(JukeboxSongsListCurrentPage) do
-      begin
-        if (JukeboxSongsListCurrentPage[S] = JukeboxSongsList[CurrentSongList]) then
-        begin
-          isCurrentPage := true;
-          break;
-        end;
-      end;
-
-      if not (isCurrentPage) then
-      begin
-        PageDown(10);
-        ListMin := ListMin + 1;
-      end;
-    end;
-  end;
-  }
-
-end;
-
-procedure TScreenJukebox.FilterSongList(Filter: UTF8String);
+procedure TScreenJukebox.FilterSongList(FilterSong: UTF8String);
 var
   I: integer;
   SongD: UTF8String;
 begin
 
-  if (Filter <> '') then
+  if (FilterSong <> '') then
   begin
-    Filter := GetStringWithNoAccents(UTF8Decode(UTF8LowerCase(Filter)));
+    FilterSong := UCommon.RemoveSpecialChars(FilterSong);
 
     SetLength(JukeboxVisibleSongs, 0);
     for I := 0 to High(JukeboxSongsList) do
     begin
       SongD := CatSongs.Song[JukeboxSongsList[I]].ArtistNoAccent + ' - ' + CatSongs.Song[JukeboxSongsList[I]].TitleNoAccent;
 
-      if (UTF8ContainsStr(SongD, Filter)) then
+      if (UTF8ContainsStr(SongD, FilterSong)) then
       begin
         SetLength(JukeboxVisibleSongs, Length(JukeboxVisibleSongs) + 1);
         JukeboxVisibleSongs[High(JukeboxVisibleSongs)] := JukeboxSongsList[I];
@@ -603,31 +525,6 @@ begin
 
 end;
 
-
-procedure TScreenJukebox.ChangeLyricPosition(N: integer);
-begin
-  Lyrics.UpperLineY := Lyrics.UpperLineY + N;
-  Lyrics.LowerLineY := Lyrics.LowerLineY + N;
-end;
-
-procedure TScreenJukebox.ChangeVideoWidth(N: integer);
-var
-  X, Y, Z: double;
-begin
-  fCurrentVideo.GetScreenPosition(X, Y, Z);
-  fCurrentVideo.SetScreenPosition(X - (N/2), Y, Z);
-  fCurrentVideo.SetWidth(fCurrentVideo.GetWidth + N);
-end;
-
-procedure TScreenJukebox.ChangeVideoHeight(N: integer);
-var
-  X, Y, Z: double;
-begin
-  fCurrentVideo.GetScreenPosition(X, Y, Z);
-  fCurrentVideo.SetScreenPosition(X, Y - (N/2), Z);
-  fCurrentVideo.SetHeight(fCurrentVideo.GetHeight + N);
-end;
-
 procedure TScreenJukebox.Reset;
 begin
   CurrentSongList := 0;
@@ -689,8 +586,6 @@ begin
 end;
 
 procedure OnDeleteSong(Value: boolean; Data: Pointer);
-var
-  tmp: integer;
 begin
   Display.CheckOK := Value;
 
@@ -703,8 +598,6 @@ begin
 end;
 
 procedure OnEscapeJukebox(Value: boolean; Data: Pointer);
-var
-  tmp: integer;
 begin
   Display.CheckOK := Value;
   if (Value) then
@@ -1194,7 +1087,7 @@ begin
     end;
 	if (MouseButton = SDL_BUTTON_RIGHT) then
     begin
-		ScreenPopupCheck.ShowPopup('MSG_END_JUKEBOX', OnEscapeJukebox, nil, false)
+		ScreenPopupCheck.ShowPopup('MSG_END_JUKEBOX', @OnEscapeJukebox, nil, false)
 	end;
   end;
 
@@ -1317,10 +1210,7 @@ function TScreenJukebox.ParseInput(PressedKey: Cardinal; CharCode: UCS4Char;
   PressedDown: boolean): boolean;
 var
   SDL_ModState: word;
-  I, RValueI, RValueE: integer;
   tmp: integer;
-  X, Y, Z: double;
-  UpperLetter: UCS4Char;
 begin
   Result := true;
 
@@ -1642,7 +1532,7 @@ begin
           if (SongListVisible) then
             SongListVisible := false
           else
-            ScreenPopupCheck.ShowPopup('MSG_END_JUKEBOX', OnEscapeJukebox, nil, false)
+            ScreenPopupCheck.ShowPopup('MSG_END_JUKEBOX', @OnEscapeJukebox, nil, false)
         end;
 
         SDLK_BACKSPACE:
@@ -1663,7 +1553,7 @@ begin
           end
           else
           begin
-            ScreenPopupCheck.ShowPopup('MSG_END_JUKEBOX', OnEscapeJukebox, nil, false)
+            ScreenPopupCheck.ShowPopup('MSG_END_JUKEBOX',  @OnEscapeJukebox, nil, false)
           end;
         end;
 
@@ -1733,7 +1623,7 @@ begin
         begin
           if (SongListVisible) then
           begin
-            ScreenPopupCheck.ShowPopup('JUKEBOX_DELETE_SONG', OnDeleteSong, nil, false)
+            ScreenPopupCheck.ShowPopup('JUKEBOX_DELETE_SONG', @OnDeleteSong, nil, false)
           end;
         end;
 
@@ -1943,9 +1833,7 @@ begin
 
   LoadFromTheme(Theme.Jukebox);
 
-  Lyrics := TLyricEngine.Create(
-      Theme.LyricBar.UpperX, Theme.LyricBar.UpperY, Theme.LyricBar.UpperW, Theme.LyricBar.UpperH,
-      Theme.LyricBar.LowerX, Theme.LyricBar.LowerY, Theme.LyricBar.LowerW, Theme.LyricBar.LowerH);
+  Lyrics := TLyricEngine.Create(UThemes.Theme.LyricBarJukebox, 0, true);
 
   fLyricsSync := TLyricsSyncSource.Create();
   fMusicSync := TMusicSyncSource.Create();
@@ -2058,21 +1946,6 @@ begin
 
   FadeOut := false;
 
-  Lyrics.UpperLineX := Theme.LyricBarJukebox.UpperX;
-  Lyrics.UpperLineY := Theme.LyricBarJukebox.UpperY;
-  Lyrics.UpperLineW := Theme.LyricBarJukebox.UpperW;
-  Lyrics.UpperLineH := Theme.LyricBarJukebox.UpperH;
-
-  Lyrics.LowerLineX := Theme.LyricBarJukebox.LowerX;
-  Lyrics.LowerLineY := Theme.LyricBarJukebox.LowerY;
-  Lyrics.LowerLineW := Theme.LyricBarJukebox.LowerW;
-  Lyrics.LowerLineH := Theme.LyricBarJukebox.LowerH;
-
-  tmpLyricsUpperY := Lyrics.UpperLineY;
-  tmpLyricsLowerY := Lyrics.LowerLineY;
-
-  Lyrics.FontStyle := Ini.JukeboxFont;
-
   SongMenuVisible := false;
   SongListVisible := true;
 
@@ -2087,8 +1960,6 @@ begin
 end;
 
 procedure TScreenJukebox.Play();
-var
-  I: integer;
 begin
     AudioPlayback.Open(CurrentSong.Path.Append(CurrentSong.Mp3));
     AudioPlayback.SetVolume(1.0);
@@ -2162,10 +2033,6 @@ var
   DisplaySec:   integer;
   CurLyricsTime: real;
   VideoFrameTime: Extended;
-  Line: TLyricLine;
-  LastWord: TLyricWord;
-  CurrentTick: cardinal;
-  Diff: real;
 begin
   Background.Draw;
 
@@ -2326,9 +2193,6 @@ begin
   AudioPlayback.Stop;
   AudioPlayback.SetSyncSource(nil);
 
-  Lyrics.UpperLineY := tmpLyricsUpperY;
-  Lyrics.LowerLineY := tmpLyricsLowerY;
-
   LyricsState.Stop();
   LyricsState.SetSyncSource(nil);
 
@@ -2394,16 +2258,23 @@ var
   I: integer;
   SongExist: boolean;
 begin
-  if (not CatSongs.Song[ID].Main) then
+  SongExist := false;
+  if not CatSongs.Song[ID].Main then
   begin
-    SongExist := false;
     for I := 0 to High(JukeboxSongsList) do
-    begin
-      if (JukeboxSongsList[I] = ID) then
+      if JukeboxSongsList[I] = ID then
         SongExist := true;
-    end;
 
-    if (not SongExist) then
+    if
+      (not SongExist)
+      and (not ( //avoid to load songs with same sound source like duets or duplicated songs
+        (ID > 0)
+        and (0 = UUnicodeUtils.UTF8CompareStr(
+          USongs.CatSongs.Song[ID].Path.Append(USongs.CatSongs.Song[ID].Mp3).ToUTF8(),
+          USongs.CatSongs.Song[ID - 1].Path.Append(USongs.CatSongs.Song[ID - 1].Mp3).ToUTF8()
+        ))
+      ))
+    then
     begin
       SetLength(JukeboxSongsList, Length(JukeboxSongsList) + 1);
       JukeboxSongsList[High(JukeboxSongsList)] := ID;
@@ -2576,9 +2447,6 @@ begin
     if (fCurrentVideo <> nil) then
       fCurrentVideo.Play;
   end;
-
-  // load options
-  LoadJukeboxSongOptions();
 
   // prepare lyrics timer
   LyricsState.Reset();
@@ -2820,30 +2688,6 @@ begin
   end
   else
     SongMenuVisible := false;
-end;
-
-procedure TScreenJukebox.LoadJukeboxSongOptions();
-var
-  Opts: TSongOptions;
-begin
-
-  Opts := DataBase.GetSongOptions(CurrentSong);
-
-  if (Opts = nil) then
-  begin
-    ScreenJukeboxOptions.LoadDefaultOptions;
-  end
-  else
-  begin
-
-    if (Opts.LyricSingFillColor = '') then
-    begin
-      ScreenJukeboxOptions.LoadDefaultOptions;
-      Exit;
-    end;
-
-    ScreenJukeboxOptions.LoadSongOptions(Opts);
-  end;
 end;
 
 end.

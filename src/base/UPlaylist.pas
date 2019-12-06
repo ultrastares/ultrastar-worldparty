@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -61,7 +61,6 @@ type
     private
 
     public
-      Mode:         TSongMode;     //Current Playlist Mode for SongScreen
       CurPlayList:  Cardinal;
       CurItem:      Cardinal;
 
@@ -72,7 +71,7 @@ type
       function    LoadPlayList(Index: Cardinal; const Filename: IPath): Boolean;
       procedure   SavePlayList(Index: Cardinal);
 
-      procedure   SetPlayList(Index: Cardinal);
+      function SetPlayList(Index: Cardinal): TPlayList;
 
       function    AddPlaylist(const Name: UTF8String): Cardinal;
       procedure   DelPlaylist(const Index: Cardinal);
@@ -83,11 +82,6 @@ type
       procedure   GetNames(var PLNames: array of UTF8String);
       function    GetIndexbySongID(const SongID: Cardinal; const iPlaylist: Integer = -1): Integer;
     end;
-
-    {Modes:
-      0: Standard Mode
-      1: Category Mode
-      2: PlayList Mode}
 
   var
     PlayListMan:  TPlaylistManager;
@@ -112,7 +106,7 @@ uses
 constructor TPlayListManager.Create;
 begin
   inherited;
-  LoadPlayLists;
+  Self.CurPlayList := -1;
 end;
 
 //----------
@@ -267,41 +261,10 @@ end;
 {**
  * Display a Playlist in CatSongs
  *}
-procedure TPlayListManager.SetPlayList(Index: Cardinal);
-var
-  I: Integer;
+function TPlayListManager.SetPlayList(Index: Cardinal): TPlaylist;
 begin
-  if (Int(Index) > High(PlayLists)) then
-    exit;
-
-  //Hide all Songs
-  for I := 0 to high(CatSongs.Song) do
-     CatSongs.Song[I].Visible := False;
-
-  //Show Songs in PL
-  for I := 0 to high(PlayLists[Index].Items) do
-  begin
-    CatSongs.Song[PlayLists[Index].Items[I].SongID].Visible := True;
-  end;
-
-  //Set CatSongsMode + Playlist Mode
-  CatSongs.CatNumShow := -3;
-  Mode := smPlayList;
-
-  //Set CurPlaylist
-  CurPlaylist := Index;
-
-  //Show Cat in Topleft:
-  ScreenSong.ShowCatTLCustom(Format(Theme.Playlist.CatText,[Playlists[Index].Name]));
-
-  //Fix SongSelection
-  ScreenSong.Interaction := 0;
-  ScreenSong.SelectNext;
-  ScreenSong.FixSelected;
-
-  //Play correct Music
-  //ScreenSong.ChangeMusic;
-
+  Self.CurPlaylist := Index;
+  Result := Self.Playlists[Index];
 end;
 
 //----------
@@ -372,13 +335,7 @@ begin
   //If Playlist is Displayed atm
   //-> Display Songs
   if (CatSongs.CatNumShow = -3) and (Index = CurPlaylist) then
-  begin
-    ScreenSong.HideCatTL;
-    CatSongs.SetFilter('', fltAll);
-    ScreenSong.Interaction := 0;
-    ScreenSong.FixSelected;
-    ScreenSong.ChangeMusic;
-  end;
+    UGraphic.ScreenSong.SetSubselection();
 end;
 
 //----------
@@ -407,10 +364,6 @@ begin
 
     //Save Changes
     SavePlayList(P);
-
-    //Correct Display when Editing current Playlist
-    if (CatSongs.CatNumShow = -3) and (P = CurPlaylist) then
-      SetPlaylist(P);
   end;
 end;
 
@@ -449,7 +402,7 @@ begin
   end
   //Correct Display when Editing current Playlist
   else if (CatSongs.CatNumShow = -3) and (P = CurPlaylist) then
-    SetPlaylist(P);
+    UGraphic.ScreenSong.SetSubselection(Self.CurPlaylist, sfPlaylist);
 end;
 
 //----------
@@ -457,16 +410,14 @@ end;
 //----------
 procedure TPlayListManager.GetNames(var PLNames: array of UTF8String);
 var
-  I: Integer;
-  Len: Integer;
+  I, Len: Integer;
 begin
-  Len := High(Playlists);
-
+  Len := High(Self.Playlists);
   if (Length(PLNames) <> Len + 1) then
     exit;
 
-  For I := 0 to Len do
-    PLNames[I] := Playlists[I].Name;
+  for I := 0 to Len do
+    PLNames[I] := Self.Playlists[I].Name+' ('+IntToStr(Length(Self.Playlists[I].Items))+')';
 end;
 
 //----------

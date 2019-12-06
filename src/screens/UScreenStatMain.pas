@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -155,8 +155,6 @@ begin
     AddButtonText(14, 20, Theme.StatDetail.Description[3]);
 
   AddButton(Theme.StatMain.ButtonExit);
-  if (Length(Button[4].Text)=0) then
-    AddButtonText(14, 20, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
 
   Interaction := 0;
 end;

@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -43,18 +43,13 @@ type
   TScreenOptionsThemes = class(TMenu)
     private
       procedure ReloadTheme;
-      procedure ReloadScreens;
-
     public
       ActualTheme:  Integer;
       ActualSkin:   Integer;
       ActualColor:  Integer;
-
       SkinSelect: integer;
-
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
-      procedure OnShow; override;
       procedure InteractInc; override;
       procedure InteractDec; override;
   end;
@@ -63,6 +58,7 @@ implementation
 
 uses
   SysUtils,
+  UCommon,
   UGraphic,
   UMain,
   UPathUtils,
@@ -79,6 +75,7 @@ begin
     case UCS4UpperCase(CharCode) of
       Ord('Q'):
         begin
+          UIni.Ini.Save;
           Result := false;
           Exit;
         end;
@@ -90,9 +87,6 @@ begin
       SDLK_BACKSPACE :
         begin
           Ini.Save;
-
-          ReloadScreens;
-
           AudioPlayback.PlaySound(SoundLib.Back);
 
           // select theme button in new created options screen
@@ -105,9 +99,6 @@ begin
           if SelInteraction = 3 then
           begin
             Ini.Save;
-
-            ReloadScreens;
-
             AudioPlayback.PlaySound(SoundLib.Back);
 
             // select theme button in new created options screen
@@ -143,46 +134,12 @@ end;
 procedure TScreenOptionsThemes.InteractInc;
 begin
   inherited InteractInc;
-
-  //Update Skins
-  if (SelInteraction = 0) then
-  begin
-    Skin.OnThemeChange;
-    UpdateSelectSlideOptions(Theme.OptionsThemes.SelectSkin, SkinSelect, ISkin, Ini.SkinNo);
-
-    // set skin to themes default skin
-    Ini.SkinNo := Theme.Themes[Ini.Theme].DefaultSkin;
-  end;
-
-  { set skins default color }
-  if (SelInteraction = 0) or (SelInteraction = 1) then
-  begin
-    Ini.Color := Skin.GetDefaultColor(Ini.SkinNo);
-  end;
-
   ReloadTheme();
 end;
 
 procedure TScreenOptionsThemes.InteractDec;
 begin
   inherited InteractDec;
-
-  //Update Skins
-  if (SelInteraction = 0 ) then
-  begin
-    Skin.OnThemeChange;
-    UpdateSelectSlideOptions (Theme.OptionsThemes.SelectSkin, SkinSelect, ISkin, Ini.SkinNo);
-
-    // set skin to themes default skin
-    Ini.SkinNo := Theme.Themes[Ini.Theme].DefaultSkin;
-  end;
-
-  { set skins default color }
-  if (SelInteraction = 0) or (SelInteraction = 1) then
-  begin
-    Ini.Color := Skin.GetDefaultColor(Ini.SkinNo);
-  end;
-
   ReloadTheme();
 end;
 
@@ -191,70 +148,31 @@ begin
   inherited Create;
 
   LoadFromTheme(Theme.OptionsThemes);
-
-  Theme.OptionsThemes.SelectTheme.showArrows := true;
-  Theme.OptionsThemes.SelectTheme.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsThemes.SelectTheme, Ini.Theme, ITheme);
-
-  Theme.OptionsThemes.SelectSkin.showArrows := true;
-  Theme.OptionsThemes.SelectSkin.oneItemOnly := true;
-  SkinSelect := AddSelectSlide(Theme.OptionsThemes.SelectSkin, Ini.SkinNo, ISkin);
-
-  Theme.OptionsThemes.SelectColor.showArrows := true;
-  Theme.OptionsThemes.SelectColor.oneItemOnly := true;
+  Self.SkinSelect := AddSelectSlide(UThemes.Theme.OptionsThemes.SelectSkin, UIni.Ini.Skin, UThemes.Theme.Themes[UIni.Ini.Theme].Skins);
   AddSelectSlide(Theme.OptionsThemes.SelectColor, UIni.Ini.Color, UIni.IColor, 'OPTION_VALUE_');
 
   AddButton(Theme.OptionsThemes.ButtonExit);
-  if (Length(Button[0].Text)=0) then
-    AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
 
-end;
-
-procedure TScreenOptionsThemes.OnShow;
-begin
-  inherited;
-
-  ActualTheme := Ini.Theme;
-  ActualSkin := Ini.SkinNo;
-  ActualColor := Ini.Color;
-
-  Interaction := 0;
 end;
 
 procedure TScreenOptionsThemes.ReloadTheme;
 begin
-  Theme.LoadTheme(Ini.Theme, Ini.Color);
-
-  ScreenOptionsThemes := TScreenOptionsThemes.create();
-  ScreenOptionsThemes.onshow;
-  Display.CurrentScreen := @ScreenOptionsThemes;
-
-  ScreenOptionsThemes.Interaction    := self.Interaction;
-  ScreenOptionsThemes.Draw;
-
-  Display.Draw;
-  SwapBuffers;
-
-  ScreenOptionsThemes.ActualTheme := self.ActualTheme;
-  ScreenOptionsThemes.ActualSkin := self.ActualSkin;
-  ScreenOptionsThemes.ActualColor := self.ActualColor;
-
-  Self.Destroy;
-end;
-
-procedure TScreenOptionsThemes.ReloadScreens;
-begin
-  // Reload all screens, after Theme changed
-  if(ActualTheme <> Ini.Theme) or
-    (ActualSkin <> Ini.SkinNo) or
-    (ActualColor <> Ini.Color) then
+  if Self.SelInteraction = 0 then
   begin
-    UGraphic.UnLoadScreens();
-    UGraphic.LoadScreens();
-    UGraphic.ScreenOptions := TScreenOptions.Create();
-    UGraphic.ScreenOptionsThemes := TScreenOptionsThemes.Create();
-    Ini.Load;
+    UpdateSelectSlideOptions(UThemes.Theme.OptionsThemes.SelectSkin, Self.SkinSelect, UThemes.Theme.Themes[UIni.Ini.Theme].Skins, UIni.Ini.Skin);
+    UIni.Ini.Skin := GetArrayIndex(UThemes.Theme.Themes[UIni.Ini.Theme].Skins, UThemes.Theme.Themes[UIni.Ini.Theme].DefaultSkin);
   end;
+
+  if Self.SelInteraction < 2 then
+    UIni.Ini.Color := Skin.GetDefaultColor();
+
+  UGraphic.UnLoadScreens();
+  UThemes.Theme.LoadTheme(UIni.Ini.Theme, UIni.Ini.Color);
+  UGraphic.LoadScreens();
+  UGraphic.ScreenOptions := TScreenOptions.Create();
+  UGraphic.ScreenOptionsThemes := TScreenOptionsThemes.Create();
+  UGraphic.ScreenOptionsThemes.OnShow(); //to show video background
 end;
 
 end.

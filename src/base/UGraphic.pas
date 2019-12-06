@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -55,7 +55,6 @@ uses
   UScreenOptionsAdvanced,
   UScreenOptionsNetwork,
   UScreenOptionsWebcam,
-  UScreenOptionsJukebox,
   UScreenSong,
   UScreenSingController,
   UScreenJukebox,
@@ -127,7 +126,7 @@ var
 
   ScreenLoading:      TScreenLoading;
   ScreenMain:         TScreenMain;
-  ScreenName:         TScreenName;
+  ScreenPlayerSelector: TScreenPlayerSelector;
   ScreenSong:         TScreenSong;
   ScreenSing:         TScreenSingController;
 
@@ -147,7 +146,6 @@ var
   ScreenOptionsAdvanced:  TScreenOptionsAdvanced;
   ScreenOptionsNetwork:   TScreenOptionsNetwork;
   ScreenOptionsWebcam:    TScreenOptionsWebcam;
-  ScreenOptionsJukebox:   TScreenOptionsJukebox;
   ScreenOpen:         TScreenOpen;
   ScreenAbout:        TScreenAbout;
   ScreenDevelopers:   TScreenDevelopers;
@@ -706,7 +704,7 @@ end;
 procedure UnloadScreens;
 begin
   FreeAndNil(ScreenMain);
-  FreeAndNil(ScreenName);
+  FreeAndNil(ScreenPlayerSelector);
   FreeAndNil(ScreenSong);
   FreeAndNil(ScreenScore);
   FreeAndNil(ScreenOptions);
@@ -719,7 +717,6 @@ begin
   FreeAndNil(ScreenOptionsAdvanced);
   FreeAndNil(ScreenOptionsNetwork);
   FreeAndNil(ScreenOptionsWebcam);
-  FreeAndNil(ScreenOptionsJukebox);
   FreeAndNil(ScreenJukebox);
   FreeAndNil(ScreenJukeboxOptions);
   FreeAndNil(ScreenJukeboxPlaylist);

@@ -14,7 +14,7 @@ LIBPATH=./lib
 LD_LIBRARY_PATH="$LIBPATH:$LD_LIBRARY_PATH" $DEBUGGER $BIN $@
 
 #Generate a launcher in desktop
-cat prueba > "/usr/share/applications/Ultrastar Deluxe WorldParty.Desktop"
+cat prueba > "/usr/share/applications/UltraStar WorldParty.Desktop"
 
 # Get the game's exit code, and return it.
 e=$?

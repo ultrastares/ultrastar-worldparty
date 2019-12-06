@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -118,11 +118,11 @@ begin
                   FadeTo(@ScreenSong)
                 else
                 begin
-                  if not Assigned(UGraphic.ScreenName) then
-                    UGraphic.ScreenName := TScreenName.Create();
+                  if not Assigned(UGraphic.ScreenPlayerSelector) then
+                    UGraphic.ScreenPlayerSelector := TScreenPlayerSelector.Create();
 
-                  ScreenName.Goto_SingScreen := false;
-                  FadeTo(@ScreenName, SoundLib.Start);
+                  UGraphic.ScreenPlayerSelector.Goto_SingScreen := false;
+                  FadeTo(@UGraphic.ScreenPlayerSelector, SoundLib.Start);
                 end;
               end;
             end;
@@ -222,7 +222,7 @@ begin
   if not ProgressSong.Finished then //while song loading show progress
   begin
     Self.Text[TextDescriptionLong].Visible := false;
-    Self.Text[TextProgressSongs].Text := ProgressSong.Folder+': '+IntToStr(ProgressSong.Total);
+    Self.Text[TextProgressSongs].Text := ProgressSong.Folder+': '+IntToStr(ProgressSong.Total)+'\n\n'+ProgressSong.FolderProcessed;
   end
   else if Self.Text[TextDescriptionLong].Visible = false then //after finish song loading, return to normal mode and close popup
   begin

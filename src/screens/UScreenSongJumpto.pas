@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -45,12 +45,9 @@ type
   TScreenSongJumpto = class(TMenu)
     private
       //For ChangeMusic
-      fLastPlayed: integer;
       fVisible: boolean;
       fSelectType: TSongFilter;
-      fVisSongs: integer;
-
-      procedure SetTextFound(Count: Cardinal);
+      procedure SetTextFound();
 
       //Visible //Whether the Menu should be Drawn
       //Whether the Menu should be Drawn
@@ -93,7 +90,7 @@ begin
         Button[0].Text[0].ColG := Theme.SongJumpto.ButtonSearchText.ColG;
         Button[0].Text[0].ColB := Theme.SongJumpto.ButtonSearchText.ColB;
         Button[0].Text[0].Text := Button[0].Text[0].Text + UCS4ToUTF8String(CharCode);
-        SetTextFound(CatSongs.SetFilter(Button[0].Text[0].Text, fSelectType));
+        Self.SetTextFound();
       end;
     end;
 
@@ -104,7 +101,7 @@ begin
           if (Interaction = 0) and (Length(Button[0].Text[0].Text) > 0) then
           begin
             Button[0].Text[0].DeleteLastLetter();
-            SetTextFound(CatSongs.SetFilter(Button[0].Text[0].Text, fSelectType));
+            Self.SetTextFound();
           end;
         end;
 
@@ -113,11 +110,10 @@ begin
         begin
           Visible := false;
           AudioPlayback.PlaySound(SoundLib.Back);
-          if (fVisSongs = 0) and (Length(Button[0].Text[0].Text) > 0) then
+          if (USongs.CatSongs.GetVisibleSongs() = 0) and (Length(Self.Button[0].Text[0].Text) > 0) then
           begin
-            //ScreenSong.UnLoadDetailedCover;
-            Button[0].Text[0].Text := '';
-            SetTextFound(CatSongs.SetFilter('', fltAll));
+            Self.Button[0].Text[0].Text := '';
+            Self.SetTextFound();
           end;
         end;
 
@@ -138,7 +134,7 @@ begin
           Interaction := 1;
           InteractInc;
           if (Length(Button[0].Text[0].Text) > 0) then
-            SetTextFound(CatSongs.SetFilter(Button[0].Text[0].Text, fSelectType));
+            Self.SetTextFound();
           Interaction := 0;
         end;
       SDLK_LEFT:
@@ -146,7 +142,7 @@ begin
           Interaction := 1;
           InteractDec;
           if (Length(Button[0].Text[0].Text) > 0) then
-            SetTextFound(CatSongs.SetFilter(Button[0].Text[0].Text, fSelectType));
+            Self.SetTextFound();
           Interaction := 0;
         end;
     end;
@@ -159,8 +155,6 @@ var
 begin
   inherited Create;
 
-  AddText(Theme.SongJumpto.TextFound);
-
   LoadFromTheme(Theme.SongJumpto);
 
   ButtonID := AddButton(Theme.SongJumpto.ButtonSearchText);
@@ -170,11 +164,10 @@ begin
 
   Button[ButtonID].Text[0].Writable := true;
 
-  fSelectType := fltAll;
-  AddSelectSlide(Theme.SongJumpto.SelectSlideType, PInteger(@fSelectType)^, Theme.SongJumpto.IType);
+  fSelectType := sfAll;
+  AddSelectSlide(Theme.SongJumpto.SelectSlideType, PInteger(@fSelectType)^, []);
 
   Interaction := 0;
-  fLastPlayed  := 0;
 end;
 
 procedure TScreenSongJumpto.SetVisible(Value: boolean);
@@ -196,14 +189,11 @@ begin
     SelectsS[0].SetSelectOpt(0);
 
     Button[0].Text[0].Text := '';
-    Text[0].Text := Theme.SongJumpto.NoSongsFound;
   end;
 
   //Select Input
   Interaction := 0;
   Button[0].Text[0].Selected := true;
-
-  fLastPlayed := ScreenSong.Interaction;
 end;
 
 function TScreenSongJumpto.Draw: boolean;
@@ -211,42 +201,9 @@ begin
   Result := inherited Draw;
 end;
 
-procedure TScreenSongJumpto.SetTextFound(Count: cardinal);
+procedure TScreenSongJumpto.SetTextFound();
 begin
-  if (Count = 0) then
-  begin
-    Text[0].Text := Theme.SongJumpto.NoSongsFound;
-    if (Length(Button[0].Text[0].Text) = 0) then
-      ScreenSong.HideCatTL
-    else
-      ScreenSong.ShowCatTLCustom(Format(Theme.SongJumpto.CatText, [Button[0].Text[0].Text]));
-  end
-  else
-  begin
-    Text[0].Text := Format(Theme.SongJumpto.SongsFound, [Count]);
-
-    //Set CatTopLeftText
-    ScreenSong.ShowCatTLCustom(Format(Theme.SongJumpto.CatText, [Button[0].Text[0].Text]));
-  end;
-
-  //Set visSongs
-  fVisSongs := Count;
-
-  ScreenSong.Interaction := 0;
-  ScreenSong.SelectNext;
-  ScreenSong.FixSelected;
-  ScreenSong.SetScroll(true);
-
-  //Play Correct Music
-  if (ScreenSong.Interaction <> fLastPlayed) or (USongs.CatSongs.GetVisibleSongs() = 0) then
-  begin
-    if (USongs.CatSongs.GetVisibleSongs() > 0) then
-      fLastPlayed := ScreenSong.Interaction
-    else
-      fLastPlayed := -1;
-
-    ScreenSong.ChangeMusic;
-  end;
+  UGraphic.ScreenSong.SetSubselection(Self.Button[0].Text[0].Text, fSelectType);
 end;
 
 end.

@@ -1,4 +1,4 @@
-Ultrastar Deluxe WorldParty comes under license GPL 3.0
+UltraStar WorldParty comes under license GPL 3.0
 
 
 
@@ -35,6 +35,6 @@ https://ultrastar-es.org
 
 
 
-Have fun, 
+Have fun,
 
-Ultrastar España Team.
+UltraStar EspaÃ±a Team.

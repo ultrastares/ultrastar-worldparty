@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -253,8 +253,6 @@ begin
       InputDeviceNames[DeviceIndex] := AudioInputProcessor.DeviceList[DeviceIndex].Name;
     end;
     // add device-selection slider (InteractionID: 0)
-    Theme.OptionsMicrophones.SelectSlideCard.showArrows := true;
-    Theme.OptionsMicrophones.SelectSlideCard.oneItemOnly := true;
     AddSelectSlide(Theme.OptionsMicrophones.SelectSlideCard, CurrentDeviceIndex, InputDeviceNames);
 
     // init source-selection slider
@@ -264,8 +262,6 @@ begin
       InputSourceNames[SourceIndex] := InputDevice.Source[SourceIndex].Name;
     end;
 
-    Theme.OptionsMicrophones.SelectSlideInput.showArrows := true;
-    Theme.OptionsMicrophones.SelectSlideInput.oneItemOnly := true;
     // add source-selection slider (InteractionID: 1)
     SelectInputSourceID := AddSelectSlide(Theme.OptionsMicrophones.SelectSlideInput, InputDeviceCfg.Input, InputSourceNames);
 
@@ -321,12 +317,7 @@ begin
       end;
     end;
 
-    Theme.OptionsMicrophones.SelectThreshold.showArrows := true; 
-    Theme.OptionsMicrophones.SelectThreshold.oneItemOnly := true;
     SelectThresholdID := AddSelectSlide(Theme.OptionsMicrophones.SelectThreshold, Ini.ThresholdIndex, IThreshold);
-
-    Theme.OptionsMicrophones.SelectMicBoost.showArrows := true;
-    Theme.OptionsMicrophones.SelectMicBoost.oneItemOnly := true;
     MicBoost[0] := ULanguage.Language.Translate('OPTION_VALUE_OFF');
     AddSelectSlide(Theme.OptionsMicrophones.SelectMicBoost, Ini.MicBoost, MicBoost);
 
@@ -334,8 +325,6 @@ begin
 
   // add Exit-button
   AddButton(Theme.OptionsMicrophones.ButtonExit);
-  if (Length(Button[0].Text) = 0) then
-    AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
   // store InteractionID
   if (Length(AudioInputProcessor.DeviceList) > 0) then
     ExitButtonIID := MaxChannelCount + 4

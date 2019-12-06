@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -172,9 +172,9 @@ begin
     UIni.Ini.Save(); // it is possible that this is the first run, create a .ini file if neccessary
 
     //load and check songs and get covers and category covers
-    UCatCovers.CatCovers := TCatCovers.Create;
-    USongs.CatSongs := TCatSongs.Create;
-    USongs.Songs := TSongs.Create; //in a new thread
+    UCatCovers.CatCovers := TCatCovers.Create();
+    USongs.CatSongs := TCatSongs.Create();
+    USongs.Songs := TSongs.Create(); //in a new thread
 
     // Theme
     UThemes.Theme.LoadTheme(Ini.Theme, Ini.Color);

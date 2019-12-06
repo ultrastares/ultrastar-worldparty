@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -345,7 +345,6 @@ uses
 
   //BassMIDI                in 'lib\bassmidi\bassmidi.pas',
 
-  UMenuStaticList in 'menu\UMenuStaticList.pas',
   UWebcam                 in 'base\UWebcam.pas',
 
   UDLLManager             in 'base\UDLLManager.pas',
@@ -360,7 +359,6 @@ uses
 
   UScreenOptionsNetwork in 'screens\UScreenOptionsNetwork.pas',
   UScreenOptionsWebcam  in 'screens\UScreenOptionsWebcam.pas',
-  UScreenOptionsJukebox in 'screens\UScreenOptionsJukebox.pas',
 
   UAvatars                in 'base\UAvatars.pas',
   UScreenAbout            in 'screens\UScreenAbout.pas',

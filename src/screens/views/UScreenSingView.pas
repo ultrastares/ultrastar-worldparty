@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -846,17 +846,9 @@ begin
   // <note> pausepopup is not visible at the beginning </note>
   ScreenSing.Statics[StaticPausePopup].Visible := false;
 
-  ScreenSing.Lyrics := TLyricEngine.Create(
-      Theme.LyricBar.UpperX, Theme.LyricBar.UpperY, Theme.LyricBar.UpperW, Theme.LyricBar.UpperH,
-      Theme.LyricBar.LowerX, Theme.LyricBar.LowerY, Theme.LyricBar.LowerW, Theme.LyricBar.LowerH);
-
-  ScreenSing.LyricsDuetP1 := TLyricEngine.Create(
-      Theme.LyricBarDuetP1.UpperX, Theme.LyricBarDuetP1.UpperY, Theme.LyricBarDuetP1.UpperW, Theme.LyricBarDuetP1.UpperH,
-      Theme.LyricBarDuetP1.LowerX, Theme.LyricBarDuetP1.LowerY, Theme.LyricBarDuetP1.LowerW, Theme.LyricBarDuetP1.LowerH);
-
-  ScreenSing.LyricsDuetP2 := TLyricEngine.Create(
-      Theme.LyricBarDuetP2.UpperX, Theme.LyricBarDuetP2.UpperY, Theme.LyricBarDuetP2.UpperW, Theme.LyricBarDuetP2.UpperH,
-      Theme.LyricBarDuetP2.LowerX, Theme.LyricBarDuetP2.LowerY, Theme.LyricBarDuetP2.LowerW, Theme.LyricBarDuetP2.LowerH);
+  ScreenSing.Lyrics := TLyricEngine.Create(UThemes.Theme.LyricBar);
+  ScreenSing.LyricsDuetP1 := TLyricEngine.Create(UThemes.Theme.LyricBarDuetP1, 1);
+  ScreenSing.LyricsDuetP2 := TLyricEngine.Create(UThemes.Theme.LyricBarDuetP2, 2);
 
   ScreenSing.fLyricsSync := TLyricsSyncSource.Create();
   ScreenSing.fMusicSync := TMusicSyncSource.Create();

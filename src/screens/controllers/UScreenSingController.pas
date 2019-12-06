@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -507,7 +507,6 @@ var
   V5DuetSixP: boolean;
   V6DuetSixP: boolean;
   BadPlayer: integer;
-  ColP1, ColP2: TRGB;
   Col_Sty_Up, Col_Sty_Sing, Col_Sty_dn: TRGB; //stylized typo color
   Col_Out_Up, Col_Out_Sing, Col_Out_dn: TRGB; //Outline typo color
   I: integer;
@@ -725,185 +724,6 @@ begin
       screenSingViewRef.ColPlayer[2] := GetPlayerColor(Ini.PlayerColor[2]);
       screenSingViewRef.ColPlayer[3] := GetPlayerColor(Ini.PlayerColor[3]);
     end;
-  end;
-
-
-	//Upper line - Sing
-	if (Ini.JukeboxSingLineColor = High(UIni.ISingLineColor)) then
-		begin
-			Col_Sty_Sing := GetJukeboxLyricOtherColor(0);
-			Col_Out_Sing := GetJukeboxLyricOtherColor(0);
-		end
-	else
-		begin
-			Col_Sty_Sing := GetLyricColor(Ini.JukeboxSingLineColor);
-			Col_Out_Sing := GetLyricColor(Ini.JukeboxSingLineColor);
-		end;
-
-	//Upper line - normal
-	if (Ini.JukeboxActualLineColor = High(UIni.IActualLineColor)) then
-		begin
-			Col_Sty_Up := GetJukeboxLyricOtherColor(1);
-			Col_Out_Up := GetJukeboxLyricOtherColor(1);
-		end
-	else
-		begin
-			Col_Sty_Up := GetLyricGrayColor(Ini.JukeboxActualLineColor);
-			Col_Out_Up := GetLyricGrayColor(Ini.JukeboxActualLineColor);
-		end;
-
-	// Bottom Line
-	if (Ini.JukeboxNextLineColor = High(UIni.INextLineColor)) then
-		begin
-			Col_Sty_dn := GetJukeboxLyricOtherColor(2);
-			Col_Out_Dn := GetJukeboxLyricOtherColor(2);
-		end
-	else
-		begin
-			Col_Sty_dn := GetLyricGrayColor(Ini.JukeboxNextLineColor);
-			Col_Out_Dn := GetLyricGrayColor(Ini.JukeboxNextLineColor);
-		end;
-
-  // set custom options
-  if (CurrentSong.isDuet) and (PlayersPlay <> 1) then
-  begin
-    ColP1 := GetPlayerColor(Ini.PlayerColor[0]);
-    ColP2 := GetPlayerColor(Ini.PlayerColor[1]);
-
-    // set custom options
-    case Ini.LyricsFont of
-      0: // normal fonts
-      begin
-        LyricsDuetP1.FontStyle := ftNormal;
-        LyricsDuetP2.FontStyle := ftNormal;
-
-
-        LyricsDuetP1.LineColor_en.R := Col_Sty_Up.R;
-        LyricsDuetP1.LineColor_en.G := Col_Sty_Up.G;
-        LyricsDuetP1.LineColor_en.B := Col_Sty_Up.B;
-        LyricsDuetP1.LineColor_en.A := 1;
-
-        LyricsDuetP2.LineColor_en.R := Col_Sty_Up.R;
-        LyricsDuetP2.LineColor_en.G := Col_Sty_Up.G;
-        LyricsDuetP2.LineColor_en.B := Col_Sty_Up.B;
-        LyricsDuetP2.LineColor_en.A := 1;
-
-        LyricsDuetP1.LineColor_dis.R := Col_Sty_dn.R;
-        LyricsDuetP1.LineColor_dis.G := Col_Sty_dn.G;
-        LyricsDuetP1.LineColor_dis.B := Col_Sty_dn.B;
-        LyricsDuetP1.LineColor_dis.A := 1;
-
-        LyricsDuetP2.LineColor_dis.R := Col_Sty_dn.R;
-        LyricsDuetP2.LineColor_dis.G := Col_Sty_dn.G;
-        LyricsDuetP2.LineColor_dis.B := Col_Sty_dn.B;
-        LyricsDuetP2.LineColor_dis.A := 1;
-
-
-        LyricsDuetP1.LineColor_act.R := ColP1.R;
-        LyricsDuetP1.LineColor_act.G := ColP1.G;
-        LyricsDuetP1.LineColor_act.B := ColP1.B;
-        LyricsDuetP1.LineColor_act.A := 1;
-
-        LyricsDuetP2.LineColor_act.R := ColP2.R;
-        LyricsDuetP2.LineColor_act.G := ColP2.G;
-        LyricsDuetP2.LineColor_act.B := ColP2.B;
-        LyricsDuetP2.LineColor_act.A := 1;
-
-      end;
-      1, 2: // outline fonts
-      begin
-        if (Ini.LyricsFont = 1) then
-        begin
-          LyricsDuetP1.FontStyle := ftOutline1;
-          LyricsDuetP2.FontStyle := ftOutline1;
-        end
-        else
-        begin
-          LyricsDuetP1.FontStyle := ftOutline2;
-          LyricsDuetP2.FontStyle := ftOutline2;
-        end;
-
-        LyricsDuetP1.LineColor_en.R := Col_Out_Up.R;
-        LyricsDuetP1.LineColor_en.G := Col_Out_Up.G;
-        LyricsDuetP1.LineColor_en.B := Col_Out_Up.B;
-        LyricsDuetP1.LineColor_en.A := 1;
-
-        LyricsDuetP2.LineColor_en.R := Col_Out_Up.R;
-        LyricsDuetP2.LineColor_en.G := Col_Out_Up.G;
-        LyricsDuetP2.LineColor_en.B := Col_Out_Up.B;
-        LyricsDuetP2.LineColor_en.A := 1;
-
-        LyricsDuetP1.LineColor_dis.R := Col_Out_Dn.R;
-        LyricsDuetP1.LineColor_dis.G := Col_Out_Dn.G;
-        LyricsDuetP1.LineColor_dis.B := Col_Out_Dn.B;
-        LyricsDuetP1.LineColor_dis.A := 1;
-
-        LyricsDuetP2.LineColor_dis.R := Col_Out_Dn.R;
-        LyricsDuetP2.LineColor_dis.G := Col_Out_Dn.G;
-        LyricsDuetP2.LineColor_dis.B := Col_Out_Dn.B;
-        LyricsDuetP2.LineColor_dis.A := 1;
-
-        LyricsDuetP1.LineColor_act.R := ColP1.R;
-        LyricsDuetP1.LineColor_act.G := ColP1.G;
-        LyricsDuetP1.LineColor_act.B := ColP1.B;
-        LyricsDuetP1.LineColor_act.A := 1;
-
-        LyricsDuetP2.LineColor_act.R := ColP2.R;
-        LyricsDuetP2.LineColor_act.G := ColP2.G;
-        LyricsDuetP2.LineColor_act.B := ColP2.B;
-        LyricsDuetP2.LineColor_act.A := 1;
-      end;
-    end; // case
-
-  end
-  else
-  begin
-
-    case Ini.LyricsFont of
-      0: // normal fonts
-      begin
-        Lyrics.FontStyle := ftNormal;
-
-		Lyrics.LineColor_act.R := Col_Sty_Sing.R;
-        Lyrics.LineColor_act.G := Col_Sty_Sing.G;
-        Lyrics.LineColor_act.B := Col_Sty_Sing.B;
-        Lyrics.LineColor_act.A := 1;
-
-		Lyrics.LineColor_en.R := Col_Sty_Up.R;
-        Lyrics.LineColor_en.G := Col_Sty_Up.G;
-        Lyrics.LineColor_en.B := Col_Sty_Up.B;
-        Lyrics.LineColor_en.A := 1;
-
-		Lyrics.LineColor_dis.R := Col_Sty_dn.R;
-        Lyrics.LineColor_dis.G := Col_Sty_dn.G;
-        Lyrics.LineColor_dis.B := Col_Sty_dn.B;
-        Lyrics.LineColor_dis.A := 1;
-
-      end;
-      1, 2: // outline fonts
-      begin
-        if (Ini.LyricsFont = 1) then
-          Lyrics.FontStyle := ftOutline1
-        else
-          Lyrics.FontStyle := ftOutline2;
-
-
-        Lyrics.LineColor_act.R := Col_Out_Sing.R;
-        Lyrics.LineColor_act.G := Col_Out_Sing.G;
-        Lyrics.LineColor_act.B := Col_Out_Sing.B;
-        Lyrics.LineColor_act.A := 1;
-
-        Lyrics.LineColor_en.R := Col_Out_Up.R;
-        Lyrics.LineColor_en.G := Col_Out_Up.G;
-        Lyrics.LineColor_en.B := Col_Out_Up.B;
-        Lyrics.LineColor_en.A := 1;
-
-        Lyrics.LineColor_dis.R := Col_Out_Dn.R;
-        Lyrics.LineColor_dis.G := Col_Out_Dn.G;
-        Lyrics.LineColor_dis.B := Col_Out_Dn.B;
-        Lyrics.LineColor_dis.A := 1;
-      end;
-    end; // case
   end;
 
   // deactivate pause

@@ -1,4 +1,4 @@
-﻿Ultrastar Deluxe WorldParty
+﻿UltraStar WorldParty
 Copyright (C) 2010-2019 by the following:
 
 "Zup3r_vock"
@@ -11,7 +11,6 @@ Translations:
 ------------
 Hungarian: Warez^XTS
 Italian:   skream
-Slovenian: donkeyslo
 French:    ctariel
 
 If you have contributed to this project then you deserve to be on this
@@ -22,7 +21,7 @@ list.  Contact us and we'll add you.
  --> Support and contact: https://ultrastar-es.org
 
 ---------------------------------------------------------------------------------
-*Consider that Ultrastar Deluxe Worldparty is a fork of Ultrastar Deluxe.
+*Consider that UltraStar WorldParty is a fork of Ultrastar Deluxe.
 Some modifications could be related to their team which is impossible to merge
 with our project. So, please visit their repo to follow all modifications and
 the people who are involved. https://github.com/UltraStar-Deluxe/USDX/commits/master

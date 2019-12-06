@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -166,7 +166,7 @@ begin
     FreeLibrary (hLibg);
   end
   else
-    Log.LogError('Could not load website "'+Filename.ToNative()+'": Libary not loaded ('+IntToStr(GetLastError())+')');
+    Log.LogError('Could not load website "'+Filename.ToNative()+'": Libary not loaded');
 end;
 
 function TDLLMan.LoadWebsite(No: cardinal): boolean;
@@ -196,7 +196,7 @@ begin
     end;
   end
   else
-    Log.LogError('Could not load website "'+WebsitePaths[No].ToNative()+'": Libary not loaded ('+IntToStr(GetLastError())+')');
+    Log.LogError('Could not load website "'+WebsitePaths[No].ToNative()+'": Libary not loaded');
 end;
 
 procedure TDLLMan.UnLoadWebsite;

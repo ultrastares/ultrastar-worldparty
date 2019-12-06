@@ -1,8 +1,8 @@
 ﻿{*
-    UltraStar Deluxe WorldParty - Karaoke Game
-	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+    UltraStar WorldParty - Karaoke Game
+
+	UltraStar WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -32,9 +32,11 @@ interface
 {$I switches.inc}
 
 uses
+  StrUtils,
   SysUtils,
   Classes,
   {$IFDEF MSWINDOWS}
+  LazUTF8,
   Windows,
   UPlatformWindows,
   {$ENDIF}
@@ -71,7 +73,7 @@ function StringDeleteFromArray(var InArray: TIntegerDynArray; const InIndex: int
 function StringDeleteFromArray(var InStrings: TStringDynArray; const InIndex: integer): Boolean; overload;
 function StringDeleteFromArray(var InStrings: TUTF8StringDynArray; const InIndex: integer): Boolean; overload;
 
-function GetStringWithNoAccents(str: String):String;
+function RemoveSpecialChars(const Src: UTF8String): UTF8String;
 
 type
   TRGB = record
@@ -85,7 +87,7 @@ type
   end;
 
 function RGBToHex(R, G, B: integer):string;
-function HexToRGB(Hex: string): TRGB;
+function HexToRGB(Hex: string; ToShow: boolean = true): TRGB;
 
 type
   TMessageType = (mtInfo, mtError);
@@ -128,6 +130,7 @@ uses
   {$IFDEF Delphi}
   Dialogs,
   {$ENDIF}
+  RegExpr,
   sdl2,
   UFilesystem,
   UMain,
@@ -221,23 +224,10 @@ begin
     AddSplit(Start+1, Length(Str)+1);
 end;
 
-const
-  Accents: array [0..42] of String = ('ç', 'á', 'é', 'í', 'ó', 'ú', 'ý', 'à', 'è', 'ì', 'ò', 'ù', 'ã', 'õ', 'ñ', 'ä', 'ë', 'ï', 'ö', 'ü', 'ÿ', 'â', 'ê', 'î', 'ô', 'û', 'ą', 'ć', 'ł', 'ś', 'ź', '!', '¡', '"', '&', '(', ')', '?', '¿', ',', '.', ':', ';');
-  NoAccents: array [0..42] of String = ('c', 'a', 'e', 'i', 'o', 'u', 'y', 'a', 'e', 'i', 'o', 'u', 'a', 'o', 'n', 'a', 'e', 'i', 'o', 'u', 'y', 'a', 'e', 'i', 'o', 'u', 'a', 'c', 'l', 's', 'z', '', '', '', '', '', '', '', '', '', '', '', '');
-
-function GetStringWithNoAccents(str: String):String;
-var
-  i: integer;
-  tmp: string;
+{* First remove accents and convert special letters to ASCII, later remove all special characters *}
+function RemoveSpecialChars(const Src: UTF8String): UTF8String;
 begin
-  tmp := str;//Utf8ToAnsi(str);
-
-  for i := 0 to High(Accents) do
-  begin
-    str := StringReplace(str, Accents[i], NoAccents[i], [rfReplaceAll, rfIgnoreCase]);
-  end;
-
-  Result := str;
+  Result := UTF8LowerCase(UTF8Trim(ReplaceRegExpr('[^a-zA-Z0-9]+', TEncoding.ASCII.GetString(TEncoding.ASCII.GetBytes(Src)), ' ', false)));
 end;
 
 function RGBToHex(R, G, B: integer): string;
@@ -245,15 +235,14 @@ begin
   Result := IntToHex(R, 2) + IntToHex(G, 2) + IntToHex(B, 2);
 end;
 
-function HexToRGB(Hex: string): TRGB;
+function HexToRGB(Hex: string; ToShow: boolean = true): TRGB;
 var
-  Col: TRGB;
+  Color: Byte;
 begin
-  Col.R := StrToInt('$'+Copy(Hex, 1, 2));
-  Col.G := StrToInt('$'+Copy(Hex, 3, 2));
-  Col.B := StrToInt('$'+Copy(Hex, 5, 2));
-
-  Result := Col;
+  Color := IfThen(ToShow, 255, 1);
+  Result.R := StrToInt('$'+Copy(Hex, 1, 2)) / Color;
+  Result.G := StrToInt('$'+Copy(Hex, 3, 2)) / Color;
+  Result.B := StrToInt('$'+Copy(Hex, 5, 2)) / Color;
 end;
 
 // data used by the ...Locale() functions

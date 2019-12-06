@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 	
-	UltraStar Deluxe WorldParty is the legal property of its developers, 
+	UltraStar WorldParty is the legal property of its developers, 
 	whose names	are too numerous to list here. Please refer to the 
 	COPYRIGHT file distributed with this source distribution.
 
@@ -117,8 +117,6 @@
 // ffmpeg config
 {$IFDEF HaveFFmpeg}
   {$DEFINE UseFFmpegDecoder}
-  {$DEFINE UseFFmpegResample}
-  {$DEFINE FF_API_AVCODEC_RESAMPLE}
   {$DEFINE UseFFmpegVideo}
   {$IFDEF HaveSWResample}
     {$DEFINE UseSWResample}

@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -62,6 +62,10 @@ type
 
       SelectsS:         array of TSelectSlide;
       ButtonCollection: array of TButtonCollection;
+      procedure SetRangeVisibility(const Visibility: boolean; const StaticRange: array of integer; const TextRange: array of integer);
+      procedure SetRangeVisibilityStatic(const Visibility: boolean; const StaticRange: array of integer);
+      procedure SetRangeVisibilityText(const Visibility: boolean; const TextRange: array of integer);
+      procedure TransferMouseCords(var X, Y: integer);
     public
       Background:       TMenuBackground;
       Text:        array of TText;
@@ -101,7 +105,8 @@ type
       function AddStatic(X, Y, W, H, Z: real; ColR, ColG, ColB: real; const TexName: IPath; Typ: TTextureType): integer; overload;
       function AddStatic(X, Y, W, H: real; ColR, ColG, ColB: real; const TexName: IPath; Typ: TTextureType; Color: integer): integer; overload;
       function AddStatic(X, Y, W, H, Z: real; ColR, ColG, ColB: real; const TexName: IPath; Typ: TTextureType; Color: integer): integer; overload;
-      function AddStatic(X, Y, W, H, Z: real; ColR, ColG, ColB: real; TexX1, TexY1, TexX2, TexY2: real; Alpha: real; const TexName: IPath; Typ: TTextureType; Color: integer; Reflection: boolean; ReflectionSpacing: real): integer; overload;
+      function AddStatic(X, Y, W, H, Z: real; PaddingX, PaddingY: integer; ColR, ColG, ColB: real; TexX1, TexY1, TexX2, TexY2: real; Alpha: real;
+        const TexName: IPath; Typ: TTextureType; Color: integer; Reflection: boolean; ReflectionSpacing: real): integer; overload;
 
       // list
       function AddListItem(X, Y, W, H, Z: real; ColR, ColG, ColB: real; DColR, DColG, DColB: real; const TexName: IPath; const DTexName: IPath; Typ: TTextureType; Reflection: boolean; ReflectionSpacing: real): integer;
@@ -115,7 +120,6 @@ type
       // button
       function AddButton(ThemeButton: TThemeButton): integer; overload;
       function AddButton(X, Y, W, H: real; const TexName: IPath): integer; overload;
-      function AddButton(X, Y, W, H: real; const TexName: IPath; Typ: TTextureType; Reflection: boolean): integer; overload;
       function AddButton(X, Y, W, H, ColR, ColG, ColB, Int, DColR, DColG, DColB, DInt: real; const TexName: IPath; Typ: TTextureType; Reflection: boolean; ReflectionSpacing, DeSelectReflectionSpacing: real): integer; overload;
       procedure ClearButtons;
       procedure AddButtonText(AddX, AddY: real; const AddText: UTF8String); overload;
@@ -612,6 +616,7 @@ end;
 function TMenu.AddStatic(ThemeStatic: TThemeStatic): integer;
 begin
   Result := AddStatic(ThemeStatic.X, ThemeStatic.Y, ThemeStatic.W, ThemeStatic.H, ThemeStatic.Z,
+    ThemeStatic.PaddingX, ThemeStatic.PaddingY,
     ThemeStatic.ColR, ThemeStatic.ColG, ThemeStatic.ColB,
     ThemeStatic.TexX1, ThemeStatic.TexY1, ThemeStatic.TexX2, ThemeStatic.TexY2, ThemeStatic.Alpha,
     Skin.GetTextureFileName(ThemeStatic.Tex),
@@ -674,10 +679,10 @@ function TMenu.AddStatic(X, Y, W, H, Z: real;
 			 Typ: TTextureType;
 			 Color: integer): integer;
 begin
-  Result := AddStatic(X, Y, W, H, Z, ColR, ColG, ColB, 0, 0, 1, 1, 1, TexName, Typ, Color, false, 0);
+  Result := AddStatic(X, Y, W, H, Z, 0, 0, ColR, ColG, ColB, 0, 0, 1, 1, 1, TexName, Typ, Color, false, 0);
 end;
 
-function TMenu.AddStatic(X, Y, W, H, Z: real;
+function TMenu.AddStatic(X, Y, W, H, Z: real; PaddingX, PaddingY: integer;
                          ColR, ColG, ColB: real;
 			 TexX1, TexY1, TexX2, TexY2: real; Alpha: real;
 			 const TexName: IPath;
@@ -706,6 +711,8 @@ begin
   // configures static
   Statics[StatNum].Texture.X := X;
   Statics[StatNum].Texture.Y := Y;
+  Self.Statics[StatNum].Texture.PaddingX := PaddingX;
+  Self.Statics[StatNum].Texture.PaddingY := PaddingY;
 
   //Set height and width via sprite size if omitted
   if(H = 0) then
@@ -731,11 +738,8 @@ begin
   Statics[StatNum].Texture.TexY2 := TexY2;
   Statics[StatNum].Texture.Alpha := Alpha;
   Statics[StatNum].Visible := true;
-
-  //ReflectionMod
   Statics[StatNum].Reflection := Reflection;
   Statics[StatNum].ReflectionSpacing := ReflectionSpacing;
-
   Result := StatNum;
 end;
 
@@ -902,12 +906,7 @@ end;
 
 function TMenu.AddButton(X, Y, W, H: real; const TexName: IPath): integer;
 begin
-  Result := AddButton(X, Y, W, H, TexName, TEXTURE_TYPE_PLAIN, false);
-end;
-
-function TMenu.AddButton(X, Y, W, H: real; const TexName: IPath; Typ: TTextureType; Reflection: boolean): integer;
-begin
-  Result := AddButton(X, Y, W, H, 1, 1, 1, 1, 1, 1, 1, 0.5, TexName, TEXTURE_TYPE_PLAIN, Reflection, 15, 15);
+  Result := AddButton(X, Y, W, H, 1, 1, 1, 1, 1, 1, 1, 0.5, TexName, TEXTURE_TYPE_PLAIN, false, 15, 15);
 end;
 
 function TMenu.AddButton(X, Y, W, H, ColR, ColG, ColB, Int, DColR, DColG, DColB, DInt: real;
@@ -969,6 +968,7 @@ end;
 procedure TMenu.ClearButtons;
 begin
   Setlength(Button, 0);
+  SetLength(Interactions, 0);
 end;
 
 // method to draw our tmenu and all his child buttons
@@ -1748,11 +1748,7 @@ begin
     Result:=ParseInput(SDLK_ESCAPE, 0, true);
   end;
 
-  // transfer mousecords to the 800x600 raster we use to draw
-  X := Round((X / (ScreenW / Screens)) * RenderW);
-  if (X > RenderW) then
-    X := X - RenderW;
-  Y := Round((Y / ScreenH) * RenderH);
+  Self.TransferMouseCords(X, Y);
 
   // allways go to next screen if we don't have any interactions
   if Length(Interactions) = 0 then
@@ -1886,6 +1882,40 @@ end;
 procedure TMenu.SetAnimationProgress(Progress: real);
 begin
   // nothing
+end;
+
+{ Set visibility of related statics and his respective texts }
+procedure TMenu.SetRangeVisibility(const Visibility: boolean; const StaticRange: array of integer; const TextRange: array of integer);
+begin
+  Self.SetRangeVisibilityStatic(Visibility, StaticRange);
+  Self.SetRangeVisibilityText(Visibility, TextRange);
+end;
+
+{ Set visibility of related statics }
+procedure TMenu.SetRangeVisibilityStatic(const Visibility: boolean; const StaticRange: array of integer);
+var
+  I: integer;
+begin
+  for I := StaticRange[0] to StaticRange[1] do
+    Self.Statics[I].Visible := Visibility;
+end;
+
+{ Set visibility of related texts }
+procedure TMenu.SetRangeVisibilityText(const Visibility: boolean; const TextRange: array of integer);
+var
+  I: integer;
+begin
+  for I := TextRange[0] to TextRange[1] do
+    Self.Text[I].Visible := Visibility;
+end;
+
+{ Transfer mousecords to the 800x600 raster we use to draw }
+procedure TMenu.TransferMouseCords(var X, Y: integer);
+begin
+  Y := Round((Y / UGraphic.ScreenH) * UGraphic.RenderH);
+  X := Round((X / (UGraphic.ScreenW / UGraphic.Screens)) * UGraphic.RenderW);
+  if (X > UGraphic.RenderW) then
+    X := X - UGraphic.RenderW;
 end;
 
 end.

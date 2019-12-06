@@ -1,11 +1,11 @@
 ﻿; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
-; UltraStar Deluxe WorldParty Un/Installer: Variables
+; UltraStar WorldParty Un/Installer: Variables
 ; ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~ ~+~
 
 ; Product Information:
 
-!define VersionStr "19.2"
-!define FullVersion "19.2" 
+!define VersionStr "19.12"
+!define FullVersion "19.12"
 
 !define installername " Installer"
 !define installerexe "WorldParty ${VersionStr} installer"
@@ -16,7 +16,7 @@
 !define meta StrLower($version)
 
 
-!define name "UltraStar Deluxe WorldParty"
+!define name "UltraStar WorldParty"
 !define publisher "UltraStar España"
 !define homepage "https://ultrastar-es.org"
 !define forum "https://ultrastar-es.org/foro"

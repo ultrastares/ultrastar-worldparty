@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -122,13 +122,13 @@ const
   VERSION_RELEASE = 1;
 
   (*
-   * Current version of UltraStar Deluxe WorldParty
+   * Current version of UltraStar WorldParty
    *)
    USDX_VERSION_MAJOR   = 19;
-   USDX_VERSION_MINOR   = 2;
+   USDX_VERSION_MINOR   = 12;
    USDX_VERSION_RELEASE = '';
    USDX_VERSION_STATE   = '';
-   USDX_STRING = 'UltraStar Deluxe WorldParty';
+   USDX_STRING = 'UltraStar WorldParty';
 
   (*
    * FPC version numbers are already defined as built-in macros:

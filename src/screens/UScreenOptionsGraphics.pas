@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -147,37 +147,14 @@ begin
   SetLength(IResolutionEmpty, 1);
   IResolutionEmpty[0] := '---';
 
-  Theme.OptionsGraphics.SelectFullscreen.showArrows := true;
-  Theme.OptionsGraphics.SelectFullscreen.oneItemOnly := true;
   SelectWindowMode := AddSelectSlide(Theme.OptionsGraphics.SelectFullscreen, UIni.Ini.Fullscreen, UIni.IFullScreen, 'OPTION_VALUE_');
-
-  Theme.OptionsGraphics.SelectResolution.showArrows := true;
-  Theme.OptionsGraphics.SelectResolution.oneItemOnly := true;
   SelectResolution := AddSelectSlide(Theme.OptionsGraphics.SelectResolution, UIni.Ini.Resolution, UIni.IResolution);
-
-  //SelectLoadAnimation Hidden because it is useless atm
-  //AddSelect(Theme.OptionsGraphics.SelectLoadAnimation, UIni.Ini.LoadAnimation, UIni.Ini.ILoadAnimation);
-  Theme.OptionsGraphics.SelectScreenFade.showArrows := true;
-  Theme.OptionsGraphics.SelectScreenFade.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsGraphics.SelectScreenFade, UIni.Ini.ScreenFade, UIni.IScreenFade, 'OPTION_VALUE_');
-
-  Theme.OptionsGraphics.SelectEffectSing.showArrows := true;
-  Theme.OptionsGraphics.SelectEffectSing.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsGraphics.SelectEffectSing, UIni.Ini.EffectSing, UIni.IEffectSing, 'OPTION_VALUE_');
-
-  Theme.OptionsGraphics.SelectVisualizer.showArrows := true;
-  Theme.OptionsGraphics.SelectVisualizer.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsGraphics.SelectVisualizer, UIni.Ini.VisualizerOption, UIni.IVisualizer, 'OPTION_VALUE_');
-
-  Theme.OptionsGraphics.SelectMovieSize.showArrows := true;
-  Theme.OptionsGraphics.SelectMovieSize.oneItemOnly := true;
   AddSelectSlide(Theme.OptionsGraphics.SelectMovieSize, UIni.Ini.MovieSize, ['HALF', 'FULL_VID', 'FULL_VID_BG'], 'OPTION_VALUE_');
 
-  // TODO: Add apply button
   AddButton(Theme.OptionsGraphics.ButtonExit);
-  if (Length(Button[0].Text)=0) then
-    AddButtonText(20, 6, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
-
 end;
 
 procedure TScreenOptionsGraphics.OnShow;

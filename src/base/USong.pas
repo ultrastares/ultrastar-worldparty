@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -59,7 +59,6 @@ uses
 type
 
   TSingMode = ( smNormal, smPartyClassic, smPartyFree, smPartyChallenge, smPartyTournament, smJukebox, smPlaylistRandom , smMedley );
-  TSongMode = ( smAll, smCategory, smPlaylist);
 
   TMedleySource = ( msNone, msCalculated, msTag );
 
@@ -146,7 +145,6 @@ type
     Visible:    boolean; // false if hidden, true if visible
     Main:       boolean; // false for songs, true for category buttons
     OrderNum:   integer; // has a number of category for category buttons and songs
-    OrderTyp:   integer; // type of sorting for this button (0=name)
     CatNumber:  integer; // Count of Songs in Category for Cats and Number of Song in Category for Songs
 
     LastError: AnsiString;
@@ -647,13 +645,13 @@ begin
         'TITLE':
         begin
           Self.Title := DecodeStringUTF8(Value, Encoding);
-          Self.TitleNoAccent := LowerCase(GetStringWithNoAccents(Self.Title));
+          Self.TitleNoAccent := UCommon.RemoveSpecialChars(Self.Title);
           Done := Done or 1;
         end;
         'ARTIST':
         begin
           Self.Artist := DecodeStringUTF8(Value, Encoding);
-          Self.ArtistNoAccent := LowerCase(GetStringWithNoAccents(DecodeStringUTF8(Artist, Encoding)));
+          Self.ArtistNoAccent := UCommon.RemoveSpecialChars(Self.Artist);
           Done := Done or 2;
         end;
         'MP3': //sound source file
@@ -889,6 +887,9 @@ var
   len_lines, len_notes: integer;
   found_end:            boolean;
 begin
+  if UIni.Ini.FindUnsetMedley = 0 then
+    Exit();
+
   num_lines := Length(Lines[0].Line);
   SetLength(sentences, num_lines);
 

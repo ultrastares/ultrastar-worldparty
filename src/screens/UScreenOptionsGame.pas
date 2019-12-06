@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -37,7 +37,7 @@ uses
 type
   TScreenOptionsGame = class(TMenu)
     private
-      Language, SongMenu, Sorting, Tabs: integer;
+      Language, SongMenu: integer;
       procedure ReloadScreen();
       procedure ReloadScreens();
     protected
@@ -83,30 +83,31 @@ begin
       SDLK_BACKSPACE :
           Self.ReloadScreens();
       SDLK_RETURN:
-          if SelInteraction = 6 then
+          if Self.SelInteraction = 8 then
             Self.ReloadScreens();
       SDLK_DOWN:
         InteractNext;
       SDLK_UP :
         InteractPrev;
-      SDLK_RIGHT:
+      SDLK_LEFT, SDLK_RIGHT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 5) then
+          if (Self.SelInteraction >= 0) and (Self.SelInteraction <= 7) then
           begin
+            if Self.SelInteraction = 6 then //rebuild songs arrays with new config
+            begin
+              UIni.Ini.Save();
+              FreeAndNil(UGraphic.ScreenSong);
+              USongs.CatSongs := TCatSongs.Create();
+              USongs.Songs := TSongs.Create();
+            end;
+
             AudioPlayback.PlaySound(SoundLib.Option);
-            InteractInc;
+            if PressedKey = SDLK_RIGHT then
+              Self.InteractInc()
+            else
+              Self.InteractDec()
           end;
-          if SelInteraction = 0 then
-            Self.ReloadScreen();
-        end;
-      SDLK_LEFT:
-        begin
-          if (SelInteraction >= 0) and (SelInteraction <= 5) then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Option);
-            InteractDec;
-          end;
-          if SelInteraction = 0 then
+          if Self.SelInteraction = 0 then
             Self.ReloadScreen();
         end;
     end;
@@ -117,35 +118,16 @@ constructor TScreenOptionsGame.Create;
 begin
   inherited Create;
 
-  LoadFromTheme(Theme.OptionsGame);
-
-  Theme.OptionsGame.SelectLanguage.showArrows  := true;
-  Theme.OptionsGame.SelectLanguage.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGame.SelectLanguage, UIni.Ini.Language, UIni.ILanguage);
-
-  Theme.OptionsGame.SelectSongMenu.showArrows  := true;
-  Theme.OptionsGame.SelectSongMenu.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGame.SelectSongMenu, UIni.Ini.SongMenu, UIni.ISongMenuMode, 'OPTION_VALUE_');
-
-  Theme.OptionsGame.SelectTabs.showArrows  := true;
-  Theme.OptionsGame.SelectTabs.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGame.SelectTabs, UIni.Ini.Tabs, UIni.ITabs, 'OPTION_VALUE_');
-
-  Theme.OptionsGame.SelectSorting.showArrows  := true;
-  Theme.OptionsGame.SelectSorting.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGame.SelectSorting, UIni.Ini.Sorting, UIni.ISorting, 'OPTION_VALUE_');
-
-  Theme.OptionsGame.SelectShowScores.showArrows  := true;
-  Theme.OptionsGame.SelectShowScores.oneItemOnly := true;
-  AddSelectSlide(Theme.OptionsGame.SelectShowScores, UIni.Ini.ShowScores, UIni.IShowScores, 'OPTION_VALUE_');
-
-  Theme.OptionsGame.SelectJoypad.showArrows := true;
-  Theme.OptionsGame.SelectJoypad.oneItemOnly := true;
-  SelectJoyPad := AddSelectSlide(Theme.OptionsGame.SelectJoypad, UIni.Ini.Joypad, UIni.IJoypad, 'OPTION_VALUE_');
-
-  AddButton(Theme.OptionsGame.ButtonExit);
-  if (Length(Button[0].Text) = 0) then
-    AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
+  Self.LoadFromTheme(UThemes.Theme.OptionsGame);
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectLanguage, UIni.Ini.Language, UIni.ILanguage);
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectSongMenu, UIni.Ini.SongMenu, UIni.ISongMenuMode, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectDuets, UIni.Ini.ShowDuets, UIni.Switch, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectTabs, UIni.Ini.Tabs, UIni.Switch, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectSorting, UIni.Ini.Sorting, UIni.ISorting, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectShowScores, UIni.Ini.ShowScores, UIni.IShowScores, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectFindUnsetMedley, UIni.Ini.FindUnsetMedley, UIni.Switch, 'OPTION_VALUE_');
+  SelectJoyPad := Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectJoypad, UIni.Ini.Joypad, UIni.IJoypad, 'OPTION_VALUE_');
+  Self.AddButton(UThemes.Theme.OptionsGame.ButtonExit);
 end;
 
 procedure TScreenOptionsGame.OnShow;
@@ -153,23 +135,16 @@ begin
   inherited;
   Self.Language := UIni.Ini.Language;
   Self.SongMenu := UIni.Ini.SongMenu;
-  Self.Sorting := UIni.Ini.Sorting;
-  Self.Tabs := UIni.Ini.Tabs;
-  Interaction := 0;
+  Self.Interaction := 0;
 end;
 
 // Reload all screens, after Language changed or screen song after songmenu, sorting or tabs changed
 procedure TScreenOptionsGame.ReloadScreens();
 begin
   UIni.Ini.Save;
-  if (Self.SongMenu <> UIni.Ini.SongMenu) or (Self.Sorting <> UIni.Ini.Sorting) or (Self.Tabs <> UIni.Ini.Tabs) then
+  if (Self.SongMenu <> UIni.Ini.SongMenu) then
   begin
-    if ((Self.Sorting <> UIni.Ini.Sorting) or (Self.Tabs <> UIni.Ini.Tabs)) and USongs.Songs.GetLoadProgress().Finished then
-      USongs.CatSongs.Refresh();
-
-    if (Self.SongMenu <> UIni.Ini.SongMenu) then
-      UThemes.Theme.ThemeSongLoad();
-
+    UThemes.Theme.ThemeSongLoad();
     if USongs.Songs.GetLoadProgress().Finished then
     begin
       FreeAndNil(UGraphic.ScreenSong);
@@ -194,13 +169,15 @@ begin
   ULanguage.Language.ChangeLanguage(ILanguage[Ini.Language]);
   UThemes.Theme.OptionsGame.SelectLanguage.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_LANGUAGE');
   UThemes.Theme.OptionsGame.SelectSongMenu.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SONGMENU');
+  UThemes.Theme.OptionsGame.SelectDuets.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_DUETS');
   UThemes.Theme.OptionsGame.SelectTabs.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_TABS');
   UThemes.Theme.OptionsGame.SelectSorting.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SORTING');
   UThemes.Theme.OptionsGame.SelectShowScores.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SHOWSCORES');
+  UThemes.Theme.OptionsGame.SelectFindUnsetMedley.Text := ULanguage.Language.Translate('SING_SONG_SELECTION_LEGEND_MEDLEYC');
   UThemes.Theme.OptionsGame.SelectJoypad.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_JOYPAD_SUPPORT');
-  // UThemes.Theme.OptionsGame.ButtonExit.Text[0].Text := ULanguage.Language.Translate('SING_OPTIONS_EXIT'); //FIXME idk why silently fails
+  UThemes.Theme.OptionsGame.ButtonExit.Text[0].Text := ULanguage.Language.Translate('SING_OPTIONS_EXIT');
   UGraphic.ScreenOptionsGame.Free();
-  UGraphic.ScreenOptionsGame := TScreenOptionsGame.Create;
+  UGraphic.ScreenOptionsGame := TScreenOptionsGame.Create();
 end;
 
 end.

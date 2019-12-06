@@ -1,7 +1,7 @@
 {*
-    UltraStar Deluxe WorldParty - Karaoke Game
+    UltraStar WorldParty - Karaoke Game
 
-	UltraStar Deluxe WorldParty is the legal property of its developers,
+	UltraStar WorldParty is the legal property of its developers,
 	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
@@ -187,44 +187,18 @@ begin
   WebcamsIDs[0] := Language.Translate('OPTION_VALUE_OFF');
   WebcamsIDs[1] := '0';
   WebcamsIDs[2] := '1';
-
-  Theme.OptionsWebcam.SelectWebcam.showArrows := true;
-  Theme.OptionsWebcam.SelectWebcam.oneItemOnly := true;
   ID := AddSelectSlide(Theme.OptionsWebcam.SelectWebcam, UIni.Ini.WebCamID, WebcamsIDs);
-
-  Theme.OptionsWebcam.SelectResolution.showArrows := true;
-  Theme.OptionsWebcam.SelectResolution.oneItemOnly := true;
   Resolution := AddSelectSlide(Theme.OptionsWebcam.SelectResolution, UIni.Ini.WebcamResolution, IWebcamResolution);
-
-  Theme.OptionsWebcam.SelectFPS.showArrows := true;
-  Theme.OptionsWebcam.SelectFPS.oneItemOnly := true;
   FPS := AddSelectSlide(Theme.OptionsWebcam.SelectFPS, UIni.Ini.WebCamFPS, IWebcamFPS);
-
-  Theme.OptionsWebcam.SelectFlip.showArrows := true;
-  Theme.OptionsWebcam.SelectFlip.oneItemOnly := true;
   Flip := AddSelectSlide(Theme.OptionsWebcam.SelectFlip, UIni.Ini.WebCamFlip, IWebcamFlip, 'OPTION_VALUE_');
-
-  Theme.OptionsWebcam.SelectBrightness.showArrows := true;
-  Theme.OptionsWebcam.SelectBrightness.oneItemOnly := true;
   Brightness := AddSelectSlide(Theme.OptionsWebcam.SelectBrightness, UIni.Ini.WebCamBrightness, IWebcamBrightness);
-
-  Theme.OptionsWebcam.SelectSaturation.showArrows := true;
-  Theme.OptionsWebcam.SelectSaturation.oneItemOnly := true;
   Saturation := AddSelectSlide(Theme.OptionsWebcam.SelectSaturation, UIni.Ini.WebCamSaturation, IWebcamSaturation);
-
-  Theme.OptionsWebcam.SelectHue.showArrows := true;
-  Theme.OptionsWebcam.SelectHue.oneItemOnly := true;
   Hue := AddSelectSlide(Theme.OptionsWebcam.SelectHue, UIni.Ini.WebCamHue, IWebcamHue);
-
-  Theme.OptionsWebcam.SelectEffect.showArrows := true;
-  Theme.OptionsWebcam.SelectEffect.oneItemOnly := true;
   Effect := AddSelectSlide(Theme.OptionsWebcam.SelectEffect, UIni.Ini.WebCamEffect, IWebcamEffectTranslated, 'SING_OPTIONS_WEBCAM_EFFECT_');
 
   AddButton(Theme.OptionsWebcam.ButtonPreVisualization);
 
   AddButton(Theme.OptionsWebcam.ButtonExit);
-  if (Length(Button[1].Text)=0) then
-    AddButtonText(20, 5, Theme.Options.Description[OPTIONS_DESC_INDEX_BACK]);
 
   Interaction := 0;
 
