@@ -45,7 +45,7 @@ type
 
 const
   ThemeMinVersion = 19.12;
-  DefaultTheme = 'Fantasy';
+  DefaultTheme = 'Argon';
   BGT_Names: array [TBackgroundType] of string =
     ('none', 'color', 'texture', 'video', 'fade', 'auto');
 
