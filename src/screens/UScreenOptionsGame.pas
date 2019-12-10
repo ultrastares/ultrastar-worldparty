@@ -96,9 +96,7 @@ begin
             if Self.SelInteraction = 6 then //rebuild songs arrays with new config
             begin
               UIni.Ini.Save();
-              FreeAndNil(UGraphic.ScreenSong);
-              USongs.CatSongs := TCatSongs.Create();
-              USongs.Songs := TSongs.Create();
+              UGraphic.ScreenMain.ReloadSongs(false);
             end;
 
             AudioPlayback.PlaySound(SoundLib.Option);

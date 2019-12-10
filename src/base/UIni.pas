@@ -703,21 +703,16 @@ end;
 procedure TIni.LoadPaths(IniFile: TCustomIniFile);
 var
   PathStrings: TStringList;
-  I:           integer;
+  I: integer;
 begin
-  PathStrings := TStringList.Create;
+  UPathUtils.InitializeSongPaths();
+  PathStrings := TStringList.Create();
   IniFile.ReadSection('Directories', PathStrings);
-
-  // Load song-paths
-  for I := 0 to PathStrings.Count-1 do
-  begin
+  for I := 0 to PathStrings.Count - 1 do
     if (Pos('SONGDIR', UpperCase(PathStrings[I])) = 1) then
-    begin
-      AddSongPath(Path(IniFile.ReadString('Directories', PathStrings[I], '')));
-    end;
-  end;
+      UPathUtils.AddSongPath(UPath.Path(IniFile.ReadString('Directories', PathStrings[I], '')));
 
-  PathStrings.Free;
+  PathStrings.Free();
 end;
 
 procedure TIni.LoadThemes(IniFile: TCustomIniFile);

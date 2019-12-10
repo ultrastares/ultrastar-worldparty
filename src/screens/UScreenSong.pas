@@ -582,6 +582,11 @@ begin
             Self.SetJoker();
           end;
         end;
+      SDLK_F5:
+        begin
+          Self.FadeTo(@UGraphic.ScreenMain);
+          UGraphic.ScreenMain.ReloadSongs();
+        end;
     end;
   end;
 end;
@@ -1491,6 +1496,8 @@ var
   I, J:       integer;
   Increment: real;
 begin
+  if USongs.CatSongs.GetVisibleSongs() = 0 then
+    Exit();
 
   FadeMessage();
 

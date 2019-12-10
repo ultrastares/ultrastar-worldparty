@@ -1,8 +1,8 @@
 {*
     UltraStar WorldParty - Karaoke Game
-	
-	UltraStar WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -57,7 +57,8 @@ var
   AvatarsPath:      IPath;
 
 function FindPath(out PathResult: IPath; const RequestedPath: IPath; NeedsWritePermission: boolean): boolean;
-procedure InitializePaths;
+procedure InitializePaths();
+procedure InitializeSongPaths();
 procedure AddSongPath(const Path: IPath);
 
 implementation
@@ -187,19 +188,21 @@ begin
     Log.LogWarn('Screenshot directory "'+ UserPath.ToNative +'" not available', 'InitializePaths');
   end;
 
-  // Add song paths
-  AddSongPath(Params.SongPath);
-{$IF Defined(DARWIN)}
-  AddSongPath(Platform.GetMusicPath);
-  AddSongPath(UserPath.Append('songs'));
-{$ELSE}
-  AddSongPath(SharedPath.Append('songs'));
-  AddSongPath(UserPath.Append('songs'));
-{$IFEND}
-
   // Add category cover paths
   AddCoverPath(SharedPath.Append('covers'));
   AddCoverPath(UserPath.Append('covers'));
+end;
+
+procedure InitializeSongPaths();
+begin
+  SongPaths := TInterfaceList.Create();
+  AddSongPath(UCommandLine.Params.SongPath);
+  AddSongPath(UPlatform.Platform().GetGameUserPath().Append('songs'));
+  {$IF Defined(DARWIN)}
+    AddSongPath(UPlatform.Platform().GetMusicPath());
+  {$ELSE}
+    AddSongPath(UPlatform.Platform().GetGameSharedPath().Append('songs'));
+  {$IFEND}
 end;
 
 end.

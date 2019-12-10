@@ -49,9 +49,11 @@ type
       function ParseInput(PressedKey: Cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       function Draw: boolean; override;
       procedure OnShow; override;
+      procedure ReloadSongs(ScreenReturn: boolean = true);
       procedure SetInteraction(Num: integer); override;
       procedure SetAnimationProgress(Progress: real); override;
     private
+      ReturnToSongScreenAfterLoadSongs: boolean;
       TextDescription, TextDescriptionLong, TextProgressSongs: integer;
       function CheckSongs(): boolean;
   end;
@@ -106,7 +108,7 @@ begin
           case Interaction of
             0: //solo
             begin
-              if Self.CheckSongs then
+              if Self.CheckSongs() then
               begin
                 UGraphic.ScreenSong.Mode := smNormal;
                 if (Ini.Players >= 0) and (Ini.Players <= 3) then
@@ -128,7 +130,7 @@ begin
             end;
             1: //party
             begin
-              if Self.CheckSongs then
+              if Self.CheckSongs() then
               begin
                 if not Assigned(UGraphic.ScreenPartyOptions) then //load the screens only the first time
                   UGraphic.ScreenPartyOptions := TScreenPartyOptions.Create();
@@ -142,7 +144,7 @@ begin
               if not Assigned(UGraphic.ScreenJukeboxPlaylist) then //load the screens only the first time
                 UGraphic.ScreenJukeboxPlaylist := TScreenJukeboxPlaylist.Create();
 
-              if Self.CheckSongs then
+              if Self.CheckSongs() then
                 FadeTo(@ScreenJukeboxPlaylist, SoundLib.Start);
             end;
             3: //stats
@@ -150,7 +152,7 @@ begin
               if not Assigned(UGraphic.ScreenStatMain) then //load the screens only the first time
                 UGraphic.ScreenStatMain := TScreenStatMain.Create();
 
-              if Self.CheckSongs then
+              if Self.CheckSongs() then
                 FadeTo(@ScreenStatMain, SoundLib.Start);
             end;
             4: //options
@@ -179,6 +181,8 @@ begin
         InteractNext;
       SDLK_LEFT:
         InteractPrev;
+      SDLK_F5:
+        Self.ReloadSongs();
     end;
   end
 end;
@@ -210,6 +214,7 @@ begin
 
   AddButton(Theme.Main.ButtonAbout);
   Interaction := 0;
+  Self.ReturnToSongScreenAfterLoadSongs := false;
 end;
 
 function TScreenMain.Draw: boolean;
@@ -220,15 +225,22 @@ begin
   Result := true;
   ProgressSong := USongs.Songs.GetLoadProgress();
   if not ProgressSong.Finished then //while song loading show progress
+    Self.Text[Self.TextProgressSongs].Text := ProgressSong.Folder+': '+IntToStr(ProgressSong.Total)+'\n\n'+ProgressSong.FolderProcessed
+  else if not Self.Text[Self.TextDescriptionLong].Visible then //after finish song loading, return to normal mode and close popup
   begin
-    Self.Text[TextDescriptionLong].Visible := false;
-    Self.Text[TextProgressSongs].Text := ProgressSong.Folder+': '+IntToStr(ProgressSong.Total)+'\n\n'+ProgressSong.FolderProcessed;
-  end
-  else if Self.Text[TextDescriptionLong].Visible = false then //after finish song loading, return to normal mode and close popup
-  begin
+    FreeAndNil(UGraphic.ScreenSong);
     UGraphic.ScreenSong := TScreenSong.Create();
-    Self.Text[TextDescriptionLong].Visible := true;
-    Self.Text[TextProgressSongs].Visible := false;
+    if Self.ReturnToSongScreenAfterLoadSongs then
+    begin
+      Self.ReturnToSongScreenAfterLoadSongs := false;
+      if Self.CheckSongs() then
+      begin
+        UDisplay.Display.AbortScreenChange();
+        Self.FadeTo(@UGraphic.ScreenSong);
+      end;
+    end;
+    Self.Text[Self.TextDescriptionLong].Visible := true;
+    Self.Text[Self.TextProgressSongs].Visible := false;
     if ProgressSong.Total > 0 then
       UGraphic.ScreenPopupError.Visible := false;
   end;
@@ -237,7 +249,8 @@ end;
 procedure TScreenMain.OnShow;
 begin
   inherited;
-
+  Self.Text[Self.TextProgressSongs].Visible := true;
+  Self.Text[Self.TextDescriptionLong].Visible := false;
   SoundLib.StartBgMusic;
 
  {**
@@ -270,6 +283,16 @@ begin
     UGraphic.ScreenPopupError.ShowPopup(Language.Translate('ERROR_NO_SONGS'))
   else
     Result := true;
+end;
+
+procedure TScreenMain.ReloadSongs(ScreenReturn: boolean = true);
+begin
+  UIni.Ini.Load();
+  FreeAndNil(USongs.CatSongs);
+  FreeAndNil(USongs.Songs);
+  USongs.CatSongs := TCatSongs.Create();
+  USongs.Songs := TSongs.Create();
+  Self.ReturnToSongScreenAfterLoadSongs := ScreenReturn;
 end;
 
 end.
