@@ -319,6 +319,10 @@ uses
   UScreenOptionsThemes    in 'screens\UScreenOptionsThemes.pas',
   UScreenOptionsMicrophones    in 'screens\UScreenOptionsMicrophones.pas',
   UScreenOptionsAdvanced  in 'screens\UScreenOptionsAdvanced.pas',
+  UScreenOptionsNetwork in 'screens\UScreenOptionsNetwork.pas',
+  UScreenOptionsWebcam  in 'screens\UScreenOptionsWebcam.pas',
+  UScreenOptionsProfiles  in 'screens\UScreenOptionsProfiles.pas',
+	
   UScreenOpen             in 'screens\UScreenOpen.pas',
   UScreenTop5             in 'screens\UScreenTop5.pas',
   UScreenSongMenu         in 'screens\UScreenSongMenu.pas',
@@ -357,8 +361,6 @@ uses
   UScreenJukeboxOptions         in 'screens\UScreenJukeboxOptions.pas',
   UScreenJukeboxPlaylist        in 'screens\UScreenJukeboxPlaylist.pas',
 
-  UScreenOptionsNetwork in 'screens\UScreenOptionsNetwork.pas',
-  UScreenOptionsWebcam  in 'screens\UScreenOptionsWebcam.pas',
 
   UAvatars                in 'base\UAvatars.pas',
   UScreenAbout            in 'screens\UScreenAbout.pas',

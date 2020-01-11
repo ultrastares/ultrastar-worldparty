@@ -785,7 +785,7 @@ type
     ButtonAdvanced:    TThemeButton;
     ButtonNetwork:     TThemeButton;
     ButtonWebcam:      TThemeButton;
-    ButtonJukebox:     TThemeButton;
+    ButtonProfiles:    TThemeButton;
     ButtonExit:        TThemeButton;
 
     TextDescription:      TThemeText;
@@ -897,6 +897,10 @@ type
     SelectEffect:         TThemeSelectSlide;
 
     ButtonPreVisualization: TThemeButton;
+    ButtonExit:           TThemeButton;
+  end;
+  
+  TThemeOptionsProfiles = class(TThemeBasic)
     ButtonExit:           TThemeButton;
   end;
 
@@ -1244,6 +1248,7 @@ type
     OptionsAdvanced:  TThemeOptionsAdvanced;
     OptionsNetwork:   TThemeOptionsNetwork;
     OptionsWebcam:    TThemeOptionsWebcam;
+	OptionsProfiles:  TThemeOptionsProfiles;
     //error and check popup
     ErrorPopup:         TThemeError;
     CheckPopup:         TThemeCheck;
@@ -2010,7 +2015,7 @@ begin
       ThemeLoadButton(Options.ButtonAdvanced,    'OptionsButtonAdvanced');
       ThemeLoadButton(Options.ButtonNetwork,     'OptionsButtonNetwork');
       ThemeLoadButton(Options.ButtonWebcam,      'OptionsButtonWebcam');
-      ThemeLoadButton(Options.ButtonJukebox,     'OptionsButtonJukebox');
+      ThemeLoadButton(Options.ButtonProfiles,    'OptionsButtonProfiles');
       ThemeLoadButton(Options.ButtonExit,        'OptionsButtonExit');
 
       ThemeLoadText(Options.TextDescription, 'OptionsTextDescription');
@@ -2133,6 +2138,9 @@ begin
 
       ThemeLoadButton(OptionsWebcam.ButtonPreVisualization,          'OptionsWebcamButtonPreVisualization');
       ThemeLoadButton(OptionsWebcam.ButtonExit,          'OptionsWebcamButtonExit');
+
+      //Options Profiles
+	  ThemeLoadButton(OptionsProfiles.ButtonExit,          'OptionsProfilesButtonExit');
 
       //error popup
       ThemeLoadBasic (ErrorPopup, 'ErrorPopup');
@@ -3761,6 +3769,7 @@ begin
   Self.OptionsAdvanced := TThemeOptionsAdvanced.Create();
   Self.OptionsNetwork := TThemeOptionsNetwork.Create();
   Self.OptionsWebcam := TThemeOptionsWebcam.Create();
+  Self.OptionsProfiles := TThemeOptionsProfiles.Create();
   Self.ErrorPopup := TThemeError.Create();
   Self.CheckPopup := TThemeCheck.Create();
   Self.InsertUserPopup := TThemeInsertUser.Create();

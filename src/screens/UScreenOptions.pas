@@ -55,6 +55,7 @@ type
       ButtonAdvancedIID,
       ButtonNetworkIID,
       ButtonWebcamIID,
+      ButtonProfilesIID,
       ButtonExitIID: cardinal;
 
       MapIIDtoDescID: array of integer;
@@ -85,6 +86,7 @@ uses
   UScreenOptionsAdvanced,
   UScreenOptionsNetwork,
   UScreenOptionsWebcam,
+  UScreenOptionsProfiles,
   UWebcam,
   UUnicodeUtils;
 
@@ -188,6 +190,14 @@ begin
           AudioPlayback.PlaySound(SoundLib.Back);
           FadeTo(@ScreenOptionsWebcam);
         end
+        else if Interaction = ButtonProfilesIID then
+        begin
+          if not Assigned(UGraphic.ScreenOptionsProfiles) then
+            UGraphic.ScreenOptionsProfiles := TScreenOptionsProfiles.Create();
+
+          AudioPlayback.PlaySound(SoundLib.Back);
+          FadeTo(@ScreenOptionsProfiles);
+        end
         else if Interaction = ButtonExitIID then
         begin
           Ini.Save;
@@ -221,6 +231,7 @@ begin
   Self.ButtonAdvancedIID := Self.AddButton(Theme.Options.ButtonAdvanced);
   Self.ButtonNetworkIID := Self.AddButton(Theme.Options.ButtonNetwork);
   Self.ButtonWebcamIID := Self.AddButton(Theme.Options.ButtonWebcam);
+  Self.ButtonProfilesIID := Self.AddButton(Theme.Options.ButtonProfiles);
   Self.ButtonExitIID := Self.AddButton(Theme.Options.ButtonExit);
   Self.Interaction := 0;
 end;
