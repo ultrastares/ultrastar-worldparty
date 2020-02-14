@@ -237,7 +237,7 @@ begin
   try
     // Write version (not nessecary but helpful)
     TextStream.WriteLine('######################################');
-    TextStream.WriteLine('#Ultrastar Deluxe Playlist Format v1.0');
+    TextStream.WriteLine('#Ultrastar WorldParty');
     TextStream.WriteLine(Format('#Playlist %s with %d Songs.',
                          [ Playlists[Index].Name, Length(Playlists[Index].Items) ]));
     TextStream.WriteLine('######################################');
