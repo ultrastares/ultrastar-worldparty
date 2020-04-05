@@ -2140,6 +2140,8 @@ begin
       ThemeLoadButton(OptionsWebcam.ButtonExit,          'OptionsWebcamButtonExit');
 
       //Options Profiles
+	  ThemeLoadBasic(OptionsProfiles, 'OptionsProfiles');
+	  
 	  ThemeLoadButton(OptionsProfiles.ButtonExit,          'OptionsProfilesButtonExit');
 
       //error popup
