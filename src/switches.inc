@@ -72,6 +72,9 @@
   {$IFDEF HavePortmixer}
     {$DEFINE UsePortmixer}
   {$ENDIF}
+{$ELSE}
+  {$DEFINE UseSDLPlayback}
+  {$DEFINE UseSDLInput}
 {$IFEND}
 
 // projectM config

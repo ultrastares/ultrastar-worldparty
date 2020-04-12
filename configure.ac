@@ -75,6 +75,11 @@ AC_ARG_WITH([cfg-dummy1], [
 External Libraries:])
 
 # add portmixer option
+AC_ARG_WITH([portaudio],
+    [AS_HELP_STRING([--with-portaudio],
+      [enable audio capture with PortAudio @<:@default=check@:>@])],
+    [with_portmixer=$withval], [with_portaudio="check"])
+
 AC_ARG_WITH([portmixer],
     [AS_HELP_STRING([--with-portmixer],
       [enable portmixer audio-mixer support @<:@default=check@:>@])],
@@ -365,7 +370,7 @@ fi
 AC_SUBST(USE_PROJECTM_CWRAPPER, $libprojectM_USE_CWRAPPER)
 
 # find portaudio
-PKG_HAVE([portaudio], [portaudio-2.0], yes)
+PKG_HAVE([portaudio], [portaudio-2.0], no)
 PKG_VERSION([portaudio], [portaudio-2.0])
 AC_SUBST_DEFINE(HAVE_PORTAUDIO, $portaudio_HAVE)
 
