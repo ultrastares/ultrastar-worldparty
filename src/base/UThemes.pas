@@ -277,6 +277,8 @@ type
     TextNumber: TThemeText;
     TextTitle: TThemeText;
     TextYear: TThemeText;
+    TextCreator: TThemeText;
+    TextFixer: TThemeText;
 
     TextMedleyMax:    integer;
 
@@ -285,18 +287,14 @@ type
     StaticMedley:     array of TThemeStatic;
     TextNumberMedley: array of TThemeText;
 
-    //Video Icon Mod
-    VideoIcon:        TThemeStatic;
-
-    //Medley Icons
+    //Song icons
+    VideoIcon:              TThemeStatic;
     MedleyIcon:             TThemeStatic;
     CalculatedMedleyIcon:   TThemeStatic;
-
-    //Duet Icon
-    DuetIcon:         TThemeStatic;
-
-    //Rap Icon
-    RapIcon:          TThemeStatic;
+    DuetIcon:               TThemeStatic;
+    RapIcon:                TThemeStatic;
+    CreatorIcon:            TThemeStatic;
+    FixerIcon:              TThemeStatic;
 
     //Show Cat in TopLeft Mod
     TextCat:          TThemeText;
@@ -3612,6 +3610,8 @@ begin
   ThemeLoadText(Song.TextTitle, 'Song' + prefix + 'TextTitle');
   ThemeLoadText(Song.TextNumber, 'Song' + prefix + 'TextNumber');
   ThemeLoadText(Song.TextYear, 'Song' + prefix + 'TextYear');
+  ThemeLoadText(Song.TextCreator, 'Song' + prefix + 'TextCreator');
+  ThemeLoadText(Song.TextFixer, 'Song' + prefix + 'TextFixer');
 
   // medley playlist
   Self.SetInheritance('Song'+prefix+'TextMedleyMax');
@@ -3630,18 +3630,14 @@ begin
     ThemeLoadStatic(Song.StaticMedley[I], 'Song' + prefix + 'StaticMedley' + IntToStr(I + 1));
   end;
 
-  //Video Icon Mod
+  //Song icons
   ThemeLoadStatic(Song.VideoIcon, 'Song' + prefix + 'VideoIcon');
-
-  //Medley Icons
   ThemeLoadStatic(Song.MedleyIcon, 'Song' + prefix + 'MedleyIcon');
   ThemeLoadStatic(Song.CalculatedMedleyIcon, 'Song' + prefix + 'CalculatedMedleyIcon');
-
-  //Duet Icon
   ThemeLoadStatic(Song.DuetIcon, 'Song' + prefix + 'DuetIcon');
-
-  //Rap Icon
   ThemeLoadStatic(Song.RapIcon, 'Song' + prefix + 'RapIcon');
+  ThemeLoadStatic(Song.CreatorIcon, 'Song' + prefix + 'CreatorIcon');
+  ThemeLoadStatic(Song.FixerIcon, 'Song' + prefix + 'FixerIcon');
 
   //Show Cat in TopLeft Mod
   ThemeLoadText(Song.TextCat, 'Song' + prefix + 'TextCat');

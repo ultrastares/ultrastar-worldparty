@@ -59,6 +59,8 @@ type
       TextNumber: integer;
       TextTitle: integer;
       TextYear: integer;
+      TextCreator: integer;
+      TextFixer: integer;
       procedure ColorDuetNameSingers;
       procedure LoadCover(Const I: integer);
       procedure LoadMainCover();
@@ -94,6 +96,9 @@ type
 
       //Rap Icon
       RapIcon:     cardinal;
+	  
+      CreatorIcon: cardinal;
+      FixerIcon:   cardinal;
 
       TextCat:   integer;
 
@@ -133,11 +138,15 @@ type
       ListTextArtist:     array of integer;
       ListTextTitle:      array of integer;
       ListTextYear:       array of integer;
+      ListTextCreator:    array of integer;
+      ListTextFixer:      array of integer;
       ListVideoIcon:      array of integer;
       ListMedleyIcon:     array of integer;
       ListCalcMedleyIcon: array of integer;
       ListDuetIcon:       array of integer;
       ListRapIcon:        array of integer;
+      ListCreatorIcon:    array of integer;
+      ListFixerIcon:      array of integer;
 
       PlayMidi: boolean;
       MidiFadeIn: boolean;
@@ -681,8 +690,8 @@ end;
 constructor TScreenSong.Create;
 var
   I, J, Num, Padding: integer;
-  TextArtistY, TextTitleY, TextYearY, StaticMedCY,
-  StaticMedMY, StaticVideoY, StaticDuetY, StaticRapY: integer;
+  TextArtistY, TextTitleY, TextYearY, TextCreatorY, TextFixerY, StaticMedCY,
+  StaticMedMY, StaticVideoY, StaticDuetY, StaticRapY, StaticCreatorY, StaticFixerY: integer;
   StaticY: real;
 begin
   inherited Create;
@@ -697,11 +706,15 @@ begin
   Self.TextNumber := Self.AddText(UThemes.Theme.Song.TextNumber);
   Self.TextTitle := Self.AddText(UThemes.Theme.Song.TextTitle);
   Self.TextYear := Self.AddText(UThemes.Theme.Song.TextYear);
+  Self.TextCreator := Self.AddText(UThemes.Theme.Song.TextCreator);
+  Self.TextFixer := Self.AddText(UThemes.Theme.Song.TextFixer);
   Self.CalcMedleyIcon := Self.AddStatic(UThemes.Theme.Song.CalculatedMedleyIcon);
   Self.DuetIcon := Self.AddStatic(UThemes.Theme.Song.DuetIcon);
   Self.MedleyIcon := Self.AddStatic(UThemes.Theme.Song.MedleyIcon);
   Self.RapIcon := Self.AddStatic(UThemes.Theme.Song.RapIcon);
   Self.VideoIcon := Self.AddStatic(UThemes.Theme.Song.VideoIcon);
+  Self.CreatorIcon := Self.AddStatic(UThemes.Theme.Song.CreatorIcon);
+  Self.FixerIcon := Self.AddStatic(UThemes.Theme.Song.FixerIcon);
 
   //Show Scores
   TextScore       := AddText(Theme.Song.TextScore);
@@ -814,21 +827,29 @@ begin
   SetLength(ListTextArtist, Num);
   SetLength(ListTextTitle, Num);
   SetLength(ListTextYear, Num);
+  SetLength(ListTextCreator, Num);
+  SetLength(ListTextFixer, Num);
   SetLength(ListVideoIcon, Num);
   SetLength(ListMedleyIcon, Num);
   SetLength(ListCalcMedleyIcon, Num);
   SetLength(ListDuetIcon, Num);
   SetLength(ListRapIcon, Num);
+  SetLength(ListCreatorIcon, Num);
+  SetLength(ListFixerIcon, Num);
 
   TextArtistY := Theme.Song.TextArtist.Y;
   TextTitleY := Theme.Song.TextTitle.Y;
   TextYearY := Theme.Song.TextYear.Y;
+  TextCreatorY := Theme.Song.TextCreator.Y;
+  TextFixerY := Theme.Song.TextFixer.Y;
 
   StaticVideoY := Theme.Song.VideoIcon.Y;
   StaticMedMY := Theme.Song.MedleyIcon.Y;
   StaticMedCY := Theme.Song.CalculatedMedleyIcon.Y;
   StaticDuetY := Theme.Song.DuetIcon.Y;
   StaticRapY := Theme.Song.RapIcon.Y;
+  StaticCreatorY := Theme.Song.CreatorIcon.Y;
+  StaticFixerY := Theme.Song.FixerIcon.Y;
 
   for I := 0 to Num - 1 do
   begin
@@ -844,6 +865,12 @@ begin
     Theme.Song.TextYear.Y  := TextYearY + Padding;
     ListTextYear[I]   := AddText(Theme.Song.TextYear);
 
+    Theme.Song.TextCreator.Y  := TextCreatorY + Padding;
+    ListTextCreator[I]   := AddText(Theme.Song.TextCreator);
+
+    Theme.Song.TextFixer.Y  := TextFixerY + Padding;
+    ListTextFixer[I]   := AddText(Theme.Song.TextFixer);
+
     Theme.Song.VideoIcon.Y  := StaticVideoY + Padding;
     ListVideoIcon[I]  := AddStatic(Theme.Song.VideoIcon);
 
@@ -858,6 +885,13 @@ begin
 
     Theme.Song.RapIcon.Y  := StaticRapY + Padding;
     ListRapIcon[I] := AddStatic(Theme.Song.RapIcon);
+	
+    Theme.Song.CreatorIcon.Y  := StaticCreatorY + Padding;
+    ListCreatorIcon[I]  := AddStatic(Theme.Song.CreatorIcon);
+	
+    Theme.Song.FixerIcon.Y  := StaticFixerY + Padding;
+    ListFixerIcon[I]  := AddStatic(Theme.Song.FixerIcon);
+	
   end;
 
   Self.MinLine := 0;
@@ -1382,12 +1416,20 @@ begin
         Self.Statics[ListDuetIcon[I]].Visible := USongs.CatSongs.Song[B].isDuet;
         Self.Statics[ListRapIcon[I]].Texture.Alpha := Alpha;
         Self.Statics[ListRapIcon[I]].Visible := USongs.CatSongs.Song[B].hasRap;
+        Self.Statics[ListCreatorIcon[I]].Texture.Alpha := Alpha;
+        Self.Statics[ListCreatorIcon[I]].Visible := USongs.CatSongs.Song[B].Creator <> '';
+        Self.Statics[ListFixerIcon[I]].Texture.Alpha := Alpha;
+        Self.Statics[ListFixerIcon[I]].Visible := USongs.CatSongs.Song[B].Fixer <> '';
         Self.Text[ListTextArtist[I]].Alpha := Alpha;
         Self.Text[ListTextArtist[I]].Text := USongs.CatSongs.Song[B].Artist;
         Self.Text[ListTextTitle[I]].Alpha := Alpha;
         Self.Text[ListTextTitle[I]].Text := USongs.CatSongs.Song[B].Title;
         Self.Text[ListTextYear[I]].Alpha := Alpha;
         Self.Text[ListTextYear[I]].Text := IfThen(USongs.CatSongs.Song[B].Year <> 0, IntToStr(USongs.CatSongs.Song[B].Year), '');
+        Self.Text[ListTextCreator[I]].Alpha := Alpha;
+        Self.Text[ListTextCreator[I]].Text := USongs.CatSongs.Song[B].Creator;
+        Self.Text[ListTextFixer[I]].Alpha := Alpha;
+        Self.Text[ListTextFixer[I]].Text := USongs.CatSongs.Song[B].Fixer;
       end
       else
         Self.UnloadCover(B);
@@ -1924,13 +1966,15 @@ begin
   VisibilityNoList := Visibility and (UIni.TSongMenuMode(UIni.Ini.SongMenu) <> smList);
 
   Self.SetRangeVisibilityStatic(VisibilityNoList, [0, 2]); //0 arrow, 1 song info panel and 2 only for smChessboard down arrow
-  Self.SetRangeVisibilityStatic(VisibilityNoList, [Self.CalcMedleyIcon, Self.VideoIcon]); //icons
+  Self.SetRangeVisibilityStatic(VisibilityNoList, [Self.CalcMedleyIcon, Self.VideoIcon, Self.CreatorIcon, Self.FixerIcon]); //icons
   Self.Statics[Self.MainCover].Visible := Visibility and (UIni.TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smList, smMosaic]);
   Self.Text[Self.TextArtist].Visible := VisibilityNoList;
   Self.Text[Self.TextNoSongs].Visible := not Visibility;
   Self.Text[Self.TextNumber].Visible := Visibility;
   Self.Text[Self.TextTitle].Visible := VisibilityNoList;
   Self.Text[Self.TextYear].Visible := VisibilityNoList;
+  Self.Text[Self.TextCreator].Visible := VisibilityNoList;
+  Self.Text[Self.TextFixer].Visible := VisibilityNoList;
   Self.SetRangeVisibility(Visibility and Self.FreeListMode(), [Self.StaticNonParty[0], Self.StaticNonParty[4]], [Self.TextNonParty[0], Self.TextNonParty[4]]); //set legend visibility
   Self.SetRangeVisibility(false, [Self.Static6PlayersDuetSingerP6, Self.Static2PlayersDuetSingerP1], [Self.Text2PlayersDuetSingerP1, Self.Text3PlayersDuetSingerP3]); //hide duets
   for I := 0 to High(Self.StaticsList) do //hide items in smList, too after change from other mode
@@ -1939,11 +1983,15 @@ begin
     Self.Text[Self.ListTextArtist[I]].Text := '';
     Self.Text[Self.ListTextTitle[I]].Text := '';
     Self.Text[Self.ListTextYear[I]].Text := '';
+    Self.Text[Self.ListTextCreator[I]].Text := '';
+    Self.Text[Self.ListTextFixer[I]].Text := '';
     Self.Statics[Self.ListCalcMedleyIcon[I]].Visible := false;
     Self.Statics[Self.ListDuetIcon[I]].Visible := false;
     Self.Statics[Self.ListMedleyIcon[I]].Visible := false;
     Self.Statics[Self.ListRapIcon[I]].Visible := false;
     Self.Statics[Self.ListVideoIcon[I]].Visible := false;
+    Self.Statics[Self.ListCreatorIcon[I]].Visible := false;
+    Self.Statics[Self.ListFixerIcon[I]].Visible := false;
   end;
   if Visibility then
   begin
@@ -1955,8 +2003,12 @@ begin
       Self.Statics[Self.MedleyIcon].Visible := (Song.Medley.Source = msTag) and not Song.isDuet;
       Self.Statics[Self.RapIcon].Visible := Song.hasRap;
       Self.Statics[Self.VideoIcon].Visible := Song.Video.IsSet;
+      Self.Statics[Self.CreatorIcon].Visible := Song.Creator <> '';
+      Self.Statics[Self.FixerIcon].Visible := Song.Fixer <> '';
       Self.Text[Self.TextArtist].Text := Song.Artist; //not visible on smList
       Self.Text[Self.TextYear].Text := IfThen(Song.Year <> 0, IntToStr(Song.Year), '');
+      Self.Text[Self.TextCreator].Text := Song.Creator;
+      Self.Text[Self.TextFixer].Text := Song.Fixer;
     end;
     if (USongs.CatSongs.CatNumShow = -1) and (UIni.Ini.Tabs = 1) and Self.FreeListMode() then //list of categories
     begin

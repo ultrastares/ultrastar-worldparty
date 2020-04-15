@@ -297,6 +297,7 @@ begin
   Self.Video := PATH_NONE;
   Self.VideoGAP := 0;
   Self.Creator := '';
+  Self.Fixer   := '';
   Self.PreviewStart := 0;
   Self.Medley.Source := msNone;
   Self.isDuet := false;
