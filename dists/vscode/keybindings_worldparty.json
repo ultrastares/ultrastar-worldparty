@@ -1,0 +1,27 @@
+[
+    {
+        "key": "F9",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Compile"
+    },
+    {
+        "key": "ctrl+F9",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Compile debug"
+    },
+    {
+        "key": "F10",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Compile execute"
+    },
+    {
+        "key": "ctrl+F10",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Compile debug execute"
+    },
+    {
+        "key": "ctrl+F11",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Execute without compile"
+    }
+]
