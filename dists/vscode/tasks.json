@@ -1,0 +1,145 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile",
+            "type": "shell",
+            "windows": {
+                "command": "dists/atom/windows/compile.sh . compile"
+            },
+            "linux": {
+                "command": "dists/atom/linux/compile.sh . compile"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": {
+                "owner": "external",
+                "pattern": {
+                    "regexp": "^([\\w]+\\.(p|pp|pas))\\((\\d+)\\,(\\d+)\\)\\s(Fatal|Error|Warning|Note):(.*)",
+                    "file": 1,
+                    "line": 3,
+                    "column": 4,
+                    "message": 6
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Compile debug",
+            "type": "shell",
+            "windows": {
+                "command": "dists/atom/windows/compile.sh . compile-debug"
+            },
+            "linux": {
+                "command": "dists/atom/linux/compile.sh . compile-debug"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": {
+                "owner": "external",
+                "pattern": {
+                    "regexp": "^([\\w]+\\.(p|pp|pas))\\((\\d+)\\,(\\d+)\\)\\s(Fatal|Error|Warning|Note):(.*)",
+                    "file": 1,
+                    "line": 3,
+                    "column": 4,
+                    "message": 6
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Compile execute",
+            "type": "shell",
+            "windows": {
+                "command": "dists/atom/windows/compile.sh . compile-execute"
+            },
+            "linux": {
+                "command": "dists/atom/linux/compile.sh . compile-execute"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": {
+                "owner": "external",
+                "pattern": {
+                    "regexp": "^([\\w]+\\.(p|pp|pas))\\((\\d+)\\,(\\d+)\\)\\s(Fatal|Error|Warning|Note):(.*)",
+                    "file": 1,
+                    "line": 3,
+                    "column": 4,
+                    "message": 6
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Compile debug execute",
+            "type": "shell",
+            "windows": {
+                "command": "dists/atom/windows/compile.sh . compile-debug-execute"
+            },
+            "linux": {
+                "command": "dists/atom/linux/compile.sh . compile-debug-execute"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": {
+                "owner": "external",
+                "pattern": {
+                    "regexp": "^([\\w]+\\.(p|pp|pas))\\((\\d+)\\,(\\d+)\\)\\s(Fatal|Error|Warning|Note):(.*)",
+                    "file": 1,
+                    "line": 3,
+                    "column": 4,
+                    "message": 6
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Execute without compile",
+            "type": "shell",
+            "windows": {
+                "command": "dists/atom/windows/compile.sh . execute"
+            },
+            "linux": {
+                "command": "dists/atom/linux/compile.sh . execute"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": {
+                "owner": "external",
+                "pattern": {
+                    "regexp": "^([\\w]+\\.(p|pp|pas))\\((\\d+)\\,(\\d+)\\)\\s(Fatal|Error|Warning|Note):(.*)",
+                    "file": 1,
+                    "line": 3,
+                    "column": 4,
+                    "message": 6
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+ }

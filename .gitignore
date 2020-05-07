@@ -26,6 +26,7 @@ aclocal.m4
 link.res
 ppaslink.sh
 /.atom-build.json
+/.vscode
 
 # source intermediates
 #/src/**/*.cfg
