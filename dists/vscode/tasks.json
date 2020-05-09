@@ -5,7 +5,32 @@
             "label": "Compile",
             "type": "shell",
             "windows": {
-                "command": "dists/atom/windows/compile.sh . compile"
+                "command": "dists/atom/windows/compile.bat . compile-dll"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": {
+                "owner": "external",
+                "pattern": {
+                    "regexp": "^([\\w]+\\.(p|pp|pas))\\((\\d+)\\,(\\d+)\\)\\s(Fatal|Error|Warning|Note):(.*)",
+                    "file": 1,
+                    "line": 3,
+                    "column": 4,
+                    "message": 6
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Compile",
+            "type": "shell",
+            "windows": {
+                "command": "dists/atom/windows/compile.bat . compile"
             },
             "linux": {
                 "command": "dists/atom/linux/compile.sh . compile"
@@ -33,7 +58,7 @@
             "label": "Compile debug",
             "type": "shell",
             "windows": {
-                "command": "dists/atom/windows/compile.sh . compile-debug"
+                "command": "dists/atom/windows/compile.bat . compile-debug"
             },
             "linux": {
                 "command": "dists/atom/linux/compile.sh . compile-debug"
@@ -61,7 +86,7 @@
             "label": "Compile execute",
             "type": "shell",
             "windows": {
-                "command": "dists/atom/windows/compile.sh . compile-execute"
+                "command": "dists/atom/windows/compile.bat . compile-execute"
             },
             "linux": {
                 "command": "dists/atom/linux/compile.sh . compile-execute"
@@ -89,7 +114,7 @@
             "label": "Compile debug execute",
             "type": "shell",
             "windows": {
-                "command": "dists/atom/windows/compile.sh . compile-debug-execute"
+                "command": "dists/atom/windows/compile.bat . compile-debug-execute"
             },
             "linux": {
                 "command": "dists/atom/linux/compile.sh . compile-debug-execute"
@@ -117,7 +142,7 @@
             "label": "Execute without compile",
             "type": "shell",
             "windows": {
-                "command": "dists/atom/windows/compile.sh . execute"
+                "command": "dists/atom/windows/compile.bat . execute"
             },
             "linux": {
                 "command": "dists/atom/linux/compile.sh . execute"
@@ -142,4 +167,4 @@
             }
         }
     ]
- }
+}
