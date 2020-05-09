@@ -1,4 +1,10 @@
+
 [
+    {
+        "key": "alt+F9",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Compile DLL"
+    },
     {
         "key": "F9",
         "command": "workbench.action.tasks.runTask",
