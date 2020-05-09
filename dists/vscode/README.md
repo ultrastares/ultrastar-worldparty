@@ -13,3 +13,13 @@ After install all things you must copy tasks.json file to the .vscode folder in 
 - Ctrl+F11 to only execute without compile
 
 If all works fine the executable will appear in game folder and link.res file will be copied to res folder.
+
+## Configure code formatter engine and global path
+
+If you don't configure anything a notification will appear when your edit your first .pas file asking you about define "pascal.formatter.engine". 
+To fix it you must enter in VSCode settings, type "pascal" in the top search box.
+Then select ptop in Pascal > Formatter: Engine and add the path to Pascal > Formater: Engine Path. You can find it in the same route that your fpc executable, for example in Windows was in the default folder `C:\FPC\[number_of_your_version]\bin\i386-win32\ptop.exe`
+
+**But don't use it to format any file** because this project use a different format. Maybe in the future we could add our formatter config.
+
+And the other notifications it's about code navigation. You can follow the instructions to install all things to activate it or press the "Dont' show again" button, it's your choice :).
