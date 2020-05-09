@@ -1539,7 +1539,10 @@ var
   Increment: real;
 begin
   if USongs.CatSongs.GetVisibleSongs() = 0 then
+  begin
+    Result := false;
     Exit();
+  end;
 
   FadeMessage();
 

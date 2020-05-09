@@ -258,6 +258,7 @@ begin
     else                  Result := 'AVERROR_#'+inttostr(ErrorNum);
   end;
 {$ELSE}
+  Result := '';
 {$IFEND}
 end;
 
@@ -676,6 +677,7 @@ begin
 {$IF FFMPEG_VERSION_INT < 2000000}
   Result := Packet.priv;
 {$ENDIF}
+  Result := nil;
 end;
 
 function TPacketQueue.Get(var Packet: TAVPacket; Blocking: boolean): integer;

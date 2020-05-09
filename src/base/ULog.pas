@@ -242,6 +242,7 @@ begin
       Miliseconds := Trunc(Frac(Time) * 1000);
       Seconds := Trunc(Time) mod 60;
       Minutes := Trunc((Time - Seconds) / 60);
+      ValueText := '';
       //ValueText := FloatToStr(BenchmarkTimeLength[Number]);
 
       {

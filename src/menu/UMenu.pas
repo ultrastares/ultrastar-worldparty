@@ -304,13 +304,23 @@ begin
   // set inactive
   if(Interaction > -1) then
   begin
-  OldNum := Interactions[Interaction].Num;
-  OldTyp := Interactions[Interaction].Typ;
+    OldNum := Interactions[Interaction].Num;
+    OldTyp := Interactions[Interaction].Typ;
+  end
+  else
+  begin
+    OldNum := 0;
+    OldTyp := 0;
   end;
   if(Num > -1) then
   begin
     NewNum := Interactions[Num].Num;
     NewTyp := Interactions[Num].Typ;
+  end
+  else
+  begin
+    NewNum := 0;
+    NewTyp := 0;
   end;
   if(Interaction > -1) then
   begin
@@ -1388,7 +1398,7 @@ function TMenu.AddSelectSlide(X, Y, W, H, SkipX, SBGW, ColR, ColG, ColB, Int, DC
   const Caption: UTF8String; var Data: integer): integer;
 var
   S: integer;
-  I: integer;
+  // I: integer;
 begin
   S := Length(SelectsS);
   SetLength(SelectsS, S + 1);
@@ -1833,7 +1843,7 @@ end;
 //of the control at this position
 function TMenu.InteractAt(X, Y: real): integer;
 var
-  i, nBut: integer;
+  i: integer;
 begin
   Result := -1;
   for i := Low(Interactions) to High(Interactions) do
@@ -1865,7 +1875,7 @@ end;
 //takes x,y coordinates and returns the button collection id
 function TMenu.CollectionAt(X, Y: real): integer;
 var
-  i, nBut: integer;
+  i: integer;
 begin
   Result := -1;
   for i:= Low(ButtonCollection) to High(ButtonCollection) do

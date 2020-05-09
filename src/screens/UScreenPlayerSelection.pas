@@ -791,16 +791,10 @@ begin
 
   VS := Length(AvatarsList);
 
-  case NumVisibleAvatars of
-    1: begin
-        Factor := 0;
-       end;
-    3: begin
-        Factor := 1;
-       end;
-    5: begin
-        Factor := 1.5;
-       end;
+  case NumVisibleAvatars of    
+    3: Factor := 1;
+    5: Factor := 1.5;
+    else Factor := 0;
    end;
 
   // Update positions of all avatars

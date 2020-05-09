@@ -126,6 +126,13 @@ begin
     Result.Y := Texture.Y;
     Result.W := Texture.W;
     Result.H := Texture.H;
+  end
+  else
+  begin
+    Result.X := 0;
+    Result.Y := 0;
+    Result.W := 0;
+    Result.H := 0;
   end;
 end;
 

@@ -296,6 +296,7 @@ var
   SourceIndex: integer;
   lVolume: Single;
 begin
+  lVolume := 0;
   Result := 0;
 
   SourceIndex := Ini.InputDeviceConfig[CfgIndex].Input-1;
@@ -359,7 +360,6 @@ var
   DeviceInfo: BASS_DEVICEINFO;
   SourceIndex:  integer;
   RecordInfo: BASS_RECORDINFO;
-  SelectedSourceIndex: integer;
 begin
   result := false;
 

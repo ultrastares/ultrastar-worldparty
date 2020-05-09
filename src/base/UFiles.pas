@@ -81,7 +81,6 @@ var
   C:      integer;
   N:      integer;
   S:      AnsiString;
-  B:      integer;
   NoteState: AnsiString;
   SongFile: TTextFileStream;
 

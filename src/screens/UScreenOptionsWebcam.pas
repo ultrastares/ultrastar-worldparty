@@ -178,7 +178,6 @@ constructor TScreenOptionsWebcam.Create;
 var
   WebcamsIDs: array[0..2] of UTF8String;
   IWebcamEffectTranslated: array [0..10] of UTF8String = ('NORMAL', 'GRAYSCALE', 'BLACK_WHITE', 'NEGATIVE', 'BINARY_IMAGE', 'DILATE', 'THRESHOLD', 'EDGES', 'GAUSSIAN_BLUR', 'EQUALIZED', 'ERODE');
-  SelectWebcam: integer;
 begin
   inherited Create;
 

@@ -842,6 +842,13 @@ var
   ScoretoAdd:        word;
   PosDiff:           real;
 begin
+  X := 0;
+  Y := 0;
+  H := 0;
+  W := 0;
+  FontSize:= 0;
+  FontOffset := 0;
+
 { if screens = 2 and playerplay <= 3 the 2nd screen shows the
    textures of screen 1 }
   if (Screens = 2) and (PlayersPlay <= 3) then

@@ -368,7 +368,6 @@ var
   SimEvent:  TSDL_event;
   KeyCharUnicode: UCS4Char;
   SimKey: LongWord;
-  s1: UTF8String;
   mouseDown: boolean;
   mouseBtn:  integer;
   mouseX, mouseY: PInt;

@@ -533,7 +533,6 @@ end;
 procedure TMidifile.PlayToTime(time: integer);
 var
   i: integer;
-  track: TMidiTrack;
   pos: integer;
   deltaTime: integer;
 begin
@@ -555,7 +554,6 @@ end;
 procedure TMidifile.GoToTime(time: integer);
 var
   i: integer;
-  track: TMidiTrack;
   pos: integer;
 begin
   // this function should be changed because FusPerTick might not be constant
@@ -648,9 +646,8 @@ var
   dTime: integer;
   event: integer;
   len: integer;
-  str: string;
+  // str: string;
   midiEvent: PMidiEvent;
-  i: integer;
   us_per_quarter: integer;
 begin
   chunkIndex := chunkData;
@@ -870,6 +867,8 @@ begin
      9: str := 'A';
     10: str := 'A#';
     11: str := 'B';
+    else
+      str := ''
   end;
   Result := str + IntToStr(key div 12);
 end;

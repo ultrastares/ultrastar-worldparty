@@ -48,7 +48,6 @@ type
       ButtonGameIID,
       ButtonGraphicsIID,
       ButtonSoundIID,
-      ButtonInputIID,
       ButtonLyricsIID,
       ButtonThemesIID,
       ButtonMicrophonesIID,
@@ -259,8 +258,6 @@ begin
 end;
 
 procedure TScreenOptions.UpdateTextDescriptionFor(IID: integer);
-var
-  index: integer;
 begin
   // Sanity check
   if (IID < 0) or (IID >= Length(MapIIDtoDescID)) then

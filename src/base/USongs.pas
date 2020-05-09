@@ -653,6 +653,8 @@ begin
             TmpString := Song[I].TitleNoAccent;
           sfArtist:
             TmpString := Song[I].ArtistNoAccent;
+          else
+            TmpString := '';
         end;
         Song[i].Visible := true;
         // Look for every searched word
@@ -686,6 +688,7 @@ function TCatSongs.ShowCategory(Index: integer): integer;
 var
   I: integer;
 begin
+  Result := 0;
   Self.CatNumShow := Index;
   Self.VisibleSongs := 0;
   for I := 0 to High(Self.Song) do

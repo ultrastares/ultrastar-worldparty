@@ -523,6 +523,7 @@ var
   s: string;
 begin
   Result := true;
+  Controller := nil;
   if SDL_IsGameController(DeviceId) = SDL_TRUE then
   begin
     s := SDL_GameControllerNameForIndex(DeviceId);

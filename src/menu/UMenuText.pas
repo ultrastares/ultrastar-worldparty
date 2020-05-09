@@ -401,9 +401,11 @@ begin
 end;
 
 function TText.GetMouseOverArea: TMouseOverRect;
-var
-  W1: real;
 begin
+  Result.X := 0;
+  Result.Y := 0;
+  Result.W := 0;
+  Result.H := 0;
   if not(Display.Cursor_HiddenByScreen) then
   begin
     if (Align = 0) then

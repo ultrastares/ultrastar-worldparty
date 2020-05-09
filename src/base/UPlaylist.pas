@@ -61,7 +61,7 @@ type
     private
 
     public
-      CurPlayList:  Cardinal;
+      CurPlayList:  integer;
       CurItem:      Cardinal;
 
       Playlists:    APlaylist;

@@ -100,8 +100,6 @@ begin
 end;
 
 function TScreenJukeboxOptions.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
-var
-  LeftPressedKey: boolean;
 begin
   Result := true;
 

@@ -1136,8 +1136,6 @@ end;
 procedure TIni.Save;
 var
   IniFile: TIniFile;
-  HexColor: string;
-  C: TRGB;
 begin
   try
   begin

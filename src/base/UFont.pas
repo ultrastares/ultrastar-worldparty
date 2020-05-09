@@ -2254,7 +2254,7 @@ var
   OuterNumPoints, InnerNumPoints, GlyphNumPoints: FT_UInt;
   OuterNumContours, InnerNumContours, GlyphNumContours: FT_UInt;
   OuterBorder, InnerBorder: FT_StrokerBorder;
-  OutlineFlags: FT_Int;
+  // OutlineFlags: FT_Int;
   UseStencil: boolean;
 begin
   // It is possible to extrude the borders of a glyph with FT_Glyph_Stroke
@@ -2339,7 +2339,7 @@ begin
   GlyphNumContours := InnerNumContours + OuterNumContours;
 
   // save flags before deletion (TODO: set them on the resulting outline)
-  OutlineFlags := Outline.flags;
+  // OutlineFlags := Outline.flags;
 
   // resize glyph outline to hold inner and outer border
   FT_Outline_Done(Glyph.Library_, Outline);

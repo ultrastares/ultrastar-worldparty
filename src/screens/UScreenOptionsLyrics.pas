@@ -363,6 +363,7 @@ var
 begin
   Self.Lyrics.SetProperties(Self.SelectMode = 1);
   Self.SelectsS[5].Visible := Self.SelectFont <> 0;
+  HexColor := '';
   if Self.SelectProperty = 0 then //fill
     case Self.SelectLines of
       0: HexColor := Self.SingColor;

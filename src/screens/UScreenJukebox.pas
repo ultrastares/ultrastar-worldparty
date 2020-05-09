@@ -131,8 +131,6 @@ type
     JukeboxTextTimeText: integer;
     //JukeboxTextSongText: integer;
 
-    SongFinish: boolean;
-
     //tmp_mouse: integer;
 
     JukeboxFindSong:       integer;
@@ -428,6 +426,7 @@ begin
         3 : Comp := UTF8CompareText(CatSongs.Song[X].Edition, CatSongs.Song[JukeboxVisibleSongs[J - 1]].Edition);
         4 : Comp := UTF8CompareText(CatSongs.Song[X].Genre, CatSongs.Song[JukeboxVisibleSongs[J - 1]].Genre);
         5 : Comp := UTF8CompareText(CatSongs.Song[X].Language, CatSongs.Song[JukeboxVisibleSongs[J - 1]].Language);
+        else Comp := 0;
       end;
 
       if (Comp < 0) then
@@ -490,6 +489,7 @@ var
   TailElements: Cardinal;
   IndexVisibleSongs, IndexSongList, I: integer;
 begin
+  IndexSongList := 0;
   IndexVisibleSongs := Id;
 
   for I := 0 to High(JukeboxSongsList) do
@@ -2327,7 +2327,6 @@ var
   Index:  integer;
   VideoFile, BgFile: IPath;
   Max: integer;
-  CoverPath: IPath;
 begin
 
   // background texture (garbage disposal)
@@ -2539,7 +2538,7 @@ var
   I, Max: integer;
   SongDesc, Artist, Title, TimeString: UTF8String;
   CurrentTick: integer;
-  Time: real;
+  // Time: real;
 begin
   CurrentTick := SDL_GetTicks() - LastTick;
 
@@ -2609,6 +2608,7 @@ begin
 
         TimeString := IntToStr(Round(Time) div 60) + ':' + Format('%.*d', [2, Round(Time) mod 60]);
         }
+        TimeString := '';
       end
       else
       begin
@@ -2666,20 +2666,13 @@ begin
 end;
 
 procedure TScreenJukebox.DrawSongMenu;
-var
-  I, Max: integer;
-  CurrentTick: integer;
 begin
-  CurrentTick := SDL_GetTicks() - LastSongMenuTick;
-
-  if (CurrentTick < MAX_TIME_SONGMENU) then
+  if (SDL_GetTicks() - LastSongMenuTick < MAX_TIME_SONGMENU) then
   begin
     Statics[JukeboxStaticSongMenuTimeBackground].Draw;
     Statics[JukeboxStaticSongMenuTimeProgress].Draw;
     Statics[JukeboxStaticSongMenuBackground].Draw;
-
     Text[JukeboxTextSongMenuTimeText].Draw;
-
     Button[JukeboxSongMenuPlaylist].Draw;
     Button[JukeboxSongMenuOptions].Draw;
     Button[JukeboxSongMenuNext].Draw;

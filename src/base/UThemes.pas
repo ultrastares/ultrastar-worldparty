@@ -3546,9 +3546,8 @@ begin
   ThemeLoadText(Score.TextTitle, 'ScoreTextTitle');
   ThemeLoadText(Score.TextArtistTitle, 'ScoreTextArtistTitle');
 
-  if (Ini.Players < 3) or (Ini.Screens = 1) then
-    prefix := ''
-  else
+  prefix := '';
+  if not((Ini.Players < 3) or (Ini.Screens = 1)) then
   begin
     // 4 players 1 screen
     if (Ini.Players = 3) then
@@ -3593,6 +3592,7 @@ var
   I, C: integer;
   prefix, TempString: string;
 begin
+  prefix := '';
   case (TSongMenuMode(Ini.SongMenu)) of
     smRoulette: prefix := 'Roulette';
     smChessboard: prefix := 'Chessboard';
