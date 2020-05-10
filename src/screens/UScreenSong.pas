@@ -1538,11 +1538,9 @@ var
   I, J:       integer;
   Increment: real;
 begin
-  if USongs.CatSongs.GetVisibleSongs() = 0 then
-  begin
-    Result := false;
+  Result := true;
+  if (USongs.CatSongs.GetVisibleSongs() = 0) and (not UGraphic.ScreenSongJumpTo.Visible) then
     Exit();
-  end;
 
   FadeMessage();
 
@@ -1724,8 +1722,6 @@ begin
 
   //if (Mode = smPartyTournament) then
   //  PartyTimeLimit();
-
-  Result := true;
 end;
 
 procedure TScreenSong.StartPreview();
