@@ -1965,16 +1965,13 @@ begin
   VisibilityNoList := Visibility and (UIni.TSongMenuMode(UIni.Ini.SongMenu) <> smList);
 
   Self.SetRangeVisibilityStatic(VisibilityNoList, [0, 2]); //0 arrow, 1 song info panel and 2 only for smChessboard down arrow
-  Self.SetRangeVisibilityStatic(VisibilityNoList, [Self.CalcMedleyIcon, Self.VideoIcon, Self.CreatorIcon, Self.FixerIcon]); //icons
+  Self.SetRangeVisibilityStatic(VisibilityNoList, [Self.CalcMedleyIcon, Self.FixerIcon]); //icons
   Self.Statics[Self.MainCover].Visible := Visibility and (UIni.TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smList, smMosaic]);
   Self.Text[Self.TextArtist].Visible := VisibilityNoList;
   Self.Text[Self.TextNoSongs].Visible := not Visibility;
   Self.Text[Self.TextNumber].Visible := Visibility;
-  Self.Text[Self.TextTitle].Visible := VisibilityNoList;
-  Self.Text[Self.TextYear].Visible := VisibilityNoList;
-  Self.Text[Self.TextCreator].Visible := VisibilityNoList;
-  Self.Text[Self.TextFixer].Visible := VisibilityNoList;
-  Self.SetRangeVisibility(Visibility and Self.FreeListMode(), [Self.StaticNonParty[0], Self.StaticNonParty[4]], [Self.TextNonParty[0], Self.TextNonParty[4]]); //set legend visibility
+  Self.SetRangeVisibilityText(VisibilityNoList, [Self.TextTitle, Self.TextFixer]);
+  Self.SetRangeVisibility(Visibility and Self.FreeListMode(), [Self.StaticNonParty[0], Self.StaticNonParty[7]], [Self.TextNonParty[0], Self.TextNonParty[7]]); //set legend visibility
   Self.SetRangeVisibility(false, [Self.Static6PlayersDuetSingerP6, Self.Static2PlayersDuetSingerP1], [Self.Text2PlayersDuetSingerP1, Self.Text3PlayersDuetSingerP3]); //hide duets
   for I := 0 to High(Self.StaticsList) do //hide items in smList, too after change from other mode
   begin
@@ -2084,7 +2081,7 @@ begin
       end;
       //show local score, web score and captions
       Self.SetRangeVisibilityText((UIni.Ini.ShowScores = 2) or (Self.Text[Self.TextMaxScoreLocal].Text <> '0'), [Self.TextMaxScoreLocal, Self.TextScoreUserLocal]);
-      Self.SetRangeVisibilityText((UIni.Ini.ShowScores = 2) or (Self.Text[Self.TextMaxScore2].Text <> '0'), [Self.TextMaxScore2, Self.TextScoreUser]);
+      Self.SetRangeVisibilityText((UIni.Ini.ShowScores = 2) or ((Self.Text[Self.TextMaxScore2].Text <> '') and (Self.Text[Self.TextMaxScore2].Text <> '0')), [Self.TextMaxScore2, Self.TextScoreUser]);
       Self.SetRangeVisibilityText(Self.Text[Self.TextMaxScoreLocal].Visible or Self.Text[Self.TextMaxScore2].Visible, [Self.TextScore, Self.TextMediaScore]);
     end
     else
