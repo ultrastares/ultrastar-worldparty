@@ -1122,7 +1122,9 @@ begin
       end;
       Inc(Index);
     end;
-    if not Self.Button[Self.Interaction].Visible then
+    if USongs.CatSongs.GetVisibleSongs() = 0 then
+      Self.SkipTo(0)
+    else if not Self.Button[Self.Interaction].Visible then
     begin
       Self.MinLine := Ceil((USongs.CatSongs.FindVisibleIndex(Self.Interaction) + 1 - Cols * Rows) / Cols);
       if (Line - Self.MinLine) > Rows then //to decrease line when push up (or pag up) key
