@@ -63,7 +63,7 @@ procedure KillFonts;                          // deletes all font
 function  glTextWidth(const text: UTF8String): real; // returns text width
 procedure glPrint(const text: UTF8String);    // custom GL "Print" routine
 procedure ResetFont();                        // reset font settings of active font
-procedure SetFontPos(X, Y: real);             // sets X and Y
+procedure SetFontPos(X, Y: real; NewLine: integer = 0); // sets X and Y
 procedure SetFontZ(Z: real);                  // sets Z
 procedure SetFontSize(Size: real);
 procedure SetFontStyle(Style: integer);       // sets active font style (normal, bold, etc)
@@ -183,6 +183,7 @@ begin
       end;
 
       Fonts[I].Font.GlyphSpacing := FontIni.ReadFloat(SectionName, 'GlyphSpacing', 0.0);
+      Fonts[I].Font.LineSpacing := FontIni.ReadFloat(SectionName, 'LineSpacing', 1.0);
       Fonts[I].Font.Stretch := FontIni.ReadFloat(SectionName, 'Stretch', 1.0);
 
       AddFontFallbacks(FontIni, Fonts[I].Font);
@@ -242,10 +243,12 @@ begin
   SetOutlineColor(0,0,0,1);
 end;
 
-procedure SetFontPos(X, Y: real);
+procedure SetFontPos(X, Y: real; NewLine: integer = 0);
 begin
   Fonts[ActFont].X := X;
   Fonts[ActFont].Y := Y;
+  if NewLine > 0 then
+    Fonts[ActFont].Y += NewLine * (Fonts[ActFont].Font.Height * 3) * Fonts[ActFont].Font.LineSpacing;
 end;
 
 procedure SetFontZ(Z: real);

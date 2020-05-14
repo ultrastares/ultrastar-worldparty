@@ -266,15 +266,15 @@ end;
 procedure TText.Draw;
 var
   X2, Y2: real;
-  tmpText2, Text2:  UTF8String;
   I:      integer;
   Ticks:  cardinal;
 begin
   if Visible then
   begin
-    SetFontStyle(Style);
-    SetFontSize(Size);
-    SetFontItalic(false);
+    TextGL.SetFontStyle(Style);
+    TextGL.SetFontSize(Size);
+    TextGL.SetFontItalic(false);
+    TextGL.SetFontZ(Self.Z);
 
     glColor4f(ColR*Int, ColG*Int, ColB*Int, Alpha);
 
@@ -295,67 +295,13 @@ begin
       end;
     end;
 
-    {if (false) then // no width set draw as one long string
+    Y2 := Self.Y + Self.MoveY;
+    X2 := Self.X + Self.MoveX;
+    for I := 0 to High(Self.TextTiles) do
     begin
-      if not (SelectBool AND SelectBlink) then
-        Text2 := Text
-      else
-        Text2 := Text + '|';
-
-      case Align of
-        0: X2 := X;
-        1: X2 := X - glTextWidth(Text2)/2;
-        2: X2 := X - glTextWidth(Text2);
-      end;
-
-      SetFontPos(X2, Y);
-      glPrint(Text2);
-      SetFontStyle(ftNormal); // reset to default
-    end
-    else
-    begin}
-    // now use always:
-    // draw text as many strings
-      Y2 := Y + MoveY;
-      for I := 0 to High(TextTiles) do
-      begin
-        tmpText2 := TextTiles[I];
-
-        if (not (SelectBool and SelectBlink)) or (I <> High(TextTiles)) then
-        begin
-          Text2 := TextTiles[I];
-        end
-        else
-        begin
-          if (Writable) then
-            Text2 := TextTiles[I] + '|'
-          else
-            Text2 := TextTiles[I];
-        end;
-
-        case Align of
-          1: X2 := X + MoveX - glTextWidth(tmpText2)/2; { centered }
-          2: X2 := X + MoveX - glTextWidth(tmpText2); { right aligned }
-          else X2 := X + MoveX; { left aligned (default) }
-        end;
-
-        SetFontPos(X2, Y2);
-
-        SetFontZ(Z);
-
-        glPrint(Text2);
-
-        {if Size >= 10 then
-          Y2 := Y2 + Size * 0.93
-        else}
-        if (Style = ftBold) then
-          Y2 := Y2 + Size * 0.93
-        else
-          Y2 := Y2 + Size * 0.72;
-      end;
-      SetFontStyle(ftNormal); // reset to default
-
-    //end;
+      TextGL.SetFontPos(IFThen(Self.Align = 0, X2, X2 - glTextWidth(Self.TextTiles[I]) / (2 / Self.Align)), Y2, I); //Self.Align 0 left, 1 centered, 2 right
+      TextGL.glPrint(Self.TextTiles[I]+IfThen(Self.SelectBool and Self.Writable and Self.SelectBlink, '|', ''));
+    end;
   end;
 end;
 
