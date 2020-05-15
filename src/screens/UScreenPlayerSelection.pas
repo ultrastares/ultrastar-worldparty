@@ -134,7 +134,6 @@ var
   I: integer;
 begin
   Result := true;
-  Self.SingButton := true;
   if BtnDown then
     case MouseButton of
       SDL_BUTTON_LEFT: //only change the screen if sing button is clicked
@@ -745,6 +744,7 @@ var
   I: integer;
 begin
   inherited;
+  Self.SingButton := true;
 
   CountIndex := Ini.Players;
 

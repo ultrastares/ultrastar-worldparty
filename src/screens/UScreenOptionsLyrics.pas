@@ -128,7 +128,7 @@ end;
 function TScreenOptionsLyrics.Draw(): boolean;
 begin
   Result := inherited Draw();
-  Self.Lyrics.Draw(13); //to see effects in the second note in slide mode too
+  Self.Lyrics.Draw(11); //to see effects in the second note in slide mode too
 end;
 
 procedure TScreenOptionsLyrics.OnShow();

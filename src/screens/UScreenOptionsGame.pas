@@ -37,7 +37,7 @@ uses
 type
   TScreenOptionsGame = class(TMenu)
     private
-      Language, SongMenu: integer;
+      Language, SongMenu: integer; static;
       procedure ReloadScreen();
       procedure ReloadScreens();
     protected
@@ -139,7 +139,7 @@ end;
 // Reload all screens, after Language changed or screen song after songmenu, sorting or tabs changed
 procedure TScreenOptionsGame.ReloadScreens();
 begin
-  UIni.Ini.Save;
+  UIni.Ini.Save();
   if (Self.SongMenu <> UIni.Ini.SongMenu) then
   begin
     UThemes.Theme.ThemeSongLoad();
@@ -164,7 +164,7 @@ end;
 
 procedure TScreenOptionsGame.ReloadScreen();
 begin
-  ULanguage.Language.ChangeLanguage(ILanguage[Ini.Language]);
+  ULanguage.Language.ChangeLanguage(ILanguage[UIni.Ini.Language]);
   UThemes.Theme.OptionsGame.SelectLanguage.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_LANGUAGE');
   UThemes.Theme.OptionsGame.SelectSongMenu.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SONGMENU');
   UThemes.Theme.OptionsGame.SelectDuets.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_DUETS');

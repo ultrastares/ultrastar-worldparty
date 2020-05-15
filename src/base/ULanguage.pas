@@ -55,7 +55,6 @@ type
 
       Implode_Glue1, Implode_Glue2: UTF8String;
 
-      procedure LoadList;
       function FindID(const ID: AnsiString; const EntryList: TLanguageEntryArray): integer;
 
     public
@@ -89,25 +88,35 @@ uses
 constructor TLanguage.Create;
 var
   I, J: Integer;
+  Iter: IFileIterator;
 begin
   inherited;
-
-  LoadList;
-
   //Set Implode Glues for Backward Compatibility
   Implode_Glue1 := ', ';
   Implode_Glue2 := ' and ';
 
+  SetLength(List, 0);
+  Iter := FileSystem.FileFind(LanguagesPath.Append('*.ini'), 0);
+  while(Iter.HasNext) do
+  begin
+    SetLength(List, Length(List)+1);
+    List[High(List)].Name := Iter.Next.Name.SetExtension('').ToUTF8;    
+  end;
   if (Length(List) = 0) then //No Language Files Loaded -> Abort Loading
     Log.CriticalError('Could not load any Language File');
 
   //Standard Language (If a Language File is Incomplete)
   //Then use English Language
+  SetLength(UIni.ILanguage, 0);
+  SetLength(UIni.LanguageIso, 0);
   for I := 0 to high(List) do //Search for English Language
   begin
     // Load each language to store the native language name
     ChangeLanguage(List[I].Name);
-    ILanguage[I] := Translate('LANGUAGE');
+    SetLength(UIni.ILanguage, Length(UIni.ILanguage)+1);
+    SetLength(UIni.LanguageIso, Length(UIni.LanguageIso)+1);
+    UIni.ILanguage[I] := Self.Translate('LANGUAGE');
+    UIni.LanguageIso[I] := Self.Translate('LANGUAGE_ISO_CODE');
 
   //English Language Found -> Load
     if Uppercase(List[I].Name) = 'ENGLISH' then
@@ -124,33 +133,6 @@ begin
   end;
   //Standard Language END
   
-end;
-
-{**
- * Parse the Language Dir searching Translations
- *}
-procedure TLanguage.LoadList;
-var
-  Iter: IFileIterator;
-  IniInfo: TFileInfo;
-  LangName: string;
-begin
-  SetLength(List, 0);
-  SetLength(ILanguage, 0);
-
-  Iter := FileSystem.FileFind(LanguagesPath.Append('*.ini'), 0);
-  while(Iter.HasNext) do
-  begin
-    IniInfo := Iter.Next;
-
-    LangName := IniInfo.Name.SetExtension('').ToUTF8;
-
-    SetLength(List, Length(List)+1);
-    List[High(List)].Name := LangName;
-
-    SetLength(ILanguage, Length(ILanguage)+1);
-    ILanguage[High(ILanguage)] := LangName;
-  end;
 end;
 
 {**

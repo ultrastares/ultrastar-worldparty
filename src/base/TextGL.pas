@@ -34,10 +34,11 @@ uses
   dglOpenGL,
   sdl2,
   Classes,
-  UTexture,
+  UCommon,
   UFont,
+  ULog,
   UPath,
-  ULog;
+  UTexture;
 
 type
   PGLFont = ^TGLFont;
@@ -57,19 +58,21 @@ const
 var
   Fonts:   array of TGLFont;
   ActFont: integer;
+  OutlineColor: TRGB;
 
 procedure BuildFonts;                         // builds all fonts
 procedure KillFonts;                          // deletes all font
 function  glTextWidth(const text: UTF8String): real; // returns text width
 procedure glPrint(const text: UTF8String);    // custom GL "Print" routine
 procedure ResetFont();                        // reset font settings of active font
-procedure SetFontPos(X, Y: real);             // sets X and Y
+procedure SetFontPos(X, Y: real; NewLine: integer = 0); // sets X and Y
 procedure SetFontZ(Z: real);                  // sets Z
 procedure SetFontSize(Size: real);
 procedure SetFontStyle(Style: integer);       // sets active font style (normal, bold, etc)
 procedure SetFontItalic(Enable: boolean);     // sets italic type letter (works for all fonts)
 procedure SetFontReflection(Enable:boolean;Spacing: real); // enables/disables text reflection
 procedure SetOutlineColor(R, G, B, A: GLFloat); // set outline color
+procedure SetOutlineAlpha(A: GLFloat); //only update outline alpha
 
 implementation
 
@@ -77,7 +80,6 @@ uses
   UTextEncoding,
   SysUtils,
   IniFiles,
-  UCommon,
   UMain,
   UPathUtils;
 
@@ -159,10 +161,13 @@ begin
           True,
           (FontPreCache<>0)
         );
+        OutlineColor.R := FontIni.ReadFloat(SectionName, 'OutlineColorR',  0.0);
+        OutlineColor.G := FontIni.ReadFloat(SectionName, 'OutlineColorG',  0.0);
+        OutlineColor.B := FontIni.ReadFloat(SectionName, 'OutlineColorB',  0.0);
         OutlineFont.SetOutlineColor(
-          FontIni.ReadFloat(SectionName, 'OutlineColorR',  0.0),
-          FontIni.ReadFloat(SectionName, 'OutlineColorG',  0.0),
-          FontIni.ReadFloat(SectionName, 'OutlineColorB',  0.0),
+          OutlineColor.R,
+          OutlineColor.G,
+          OutlineColor.B,
           FontIni.ReadFloat(SectionName, 'OutlineColorA', -1.0)
         );
         Fonts[I].Font := OutlineFont;
@@ -183,6 +188,7 @@ begin
       end;
 
       Fonts[I].Font.GlyphSpacing := FontIni.ReadFloat(SectionName, 'GlyphSpacing', 0.0);
+      Fonts[I].Font.LineSpacing := FontIni.ReadFloat(SectionName, 'LineSpacing', 1.0);
       Fonts[I].Font.Stretch := FontIni.ReadFloat(SectionName, 'Stretch', 1.0);
 
       AddFontFallbacks(FontIni, Fonts[I].Font);
@@ -242,10 +248,12 @@ begin
   SetOutlineColor(0,0,0,1);
 end;
 
-procedure SetFontPos(X, Y: real);
+procedure SetFontPos(X, Y: real; NewLine: integer = 0);
 begin
   Fonts[ActFont].X := X;
   Fonts[ActFont].Y := Y;
+  if NewLine > 0 then
+    Fonts[ActFont].Y += NewLine * (Fonts[ActFont].Font.Height * 3) * Fonts[ActFont].Font.LineSpacing;
 end;
 
 procedure SetFontZ(Z: real);
@@ -284,6 +292,11 @@ procedure SetOutlineColor(R, G, B, A: GLFloat);
 begin
   if (ActFont > 1) then
     TFTScalableOutlineFont(Fonts[ActFont].Font).SetOutlineColor(R, G, B, A);
+end;
+
+procedure SetOutlineAlpha(A: GLFloat);
+begin
+  TFTScalableOutlineFont(Fonts[ActFont].Font).SetOutlineColor(OutlineColor.R, OutlineColor.G, OutlineColor.B, A);
 end;
 
 end.

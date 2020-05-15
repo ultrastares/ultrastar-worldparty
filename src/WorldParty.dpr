@@ -27,22 +27,9 @@ program WorldParty;
   {$R '..\res\link.res' '..\res\link.rc'}
 {$ENDIF}
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
-
-{$IFDEF MSWINDOWS}
-  // Set global application-type (GUI/CONSOLE) switch for Windows.
-  // CONSOLE is the default for FPC, GUI for Delphi, so we have
-  // to specify one of the two in any case.
-  {$IFDEF CONSOLE}
-    {$APPTYPE CONSOLE}
-  {$ELSE}
-    {$APPTYPE GUI}
-  {$ENDIF}
-{$ENDIF}
 
 uses
   //heaptrc,
@@ -376,12 +363,10 @@ var
 
 begin
   try
-  {$IFDEF MSWINDOWS}
-  {$IFDEF CONSOLE}
-  FreeConsole(); //hacky workaround to get a working GUI-only experience on windows 10 when using fpc 3.0.0 on windows
-  {$ENDIF}
-  {$ENDIF}
-  Main;
+    {$IF DEFINED(MSWINDOWS) AND NOT DEFINED(DEBUG)}
+    FreeConsole(); //hacky workaround to get a working GUI-only experience on windows 10 when using fpc 3.0.0 on windows
+    {$IFEND}
+    UMain.Main();
   except
     on E : Exception do
     begin
