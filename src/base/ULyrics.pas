@@ -592,6 +592,9 @@ begin
       // clip non-active right part of the current word
       ClipPlaneEq[0] := -1;
       ClipPlaneEq[3] := CurWord^.Width * Progress;
+      if CurWord^.Freestyle then //add a extra width to fill in full freestyle italic notes
+        ClipPlaneEq[3] += 5;
+
       glClipPlane(GL_CLIP_PLANE0, @ClipPlaneEq);
       // and draw active left part
       glColor4f(LineColor_act.R, LineColor_act.G ,LineColor_act.B, Alpha);
