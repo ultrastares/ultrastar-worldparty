@@ -853,45 +853,31 @@ begin
 
   for I := 0 to Num - 1 do
   begin
-    Padding := I * (Theme.Song.ListCover.H + Theme.Song.ListCover.Padding);
-
-    Theme.Song.TextArtist.Y  := TextArtistY + Padding;
-
-    ListTextArtist[I] := AddText(Theme.Song.TextArtist);
-
-    Theme.Song.TextTitle.Y  := TextTitleY + Padding;
-    ListTextTitle[I]  := AddText(Theme.Song.TextTitle);
-
-    Theme.Song.TextYear.Y  := TextYearY + Padding;
-    ListTextYear[I]   := AddText(Theme.Song.TextYear);
-
-    Theme.Song.TextCreator.Y  := TextCreatorY + Padding;
-    ListTextCreator[I]   := AddText(Theme.Song.TextCreator);
-
-    Theme.Song.TextFixer.Y  := TextFixerY + Padding;
-    ListTextFixer[I]   := AddText(Theme.Song.TextFixer);
-
-    Theme.Song.VideoIcon.Y  := StaticVideoY + Padding;
-    ListVideoIcon[I]  := AddStatic(Theme.Song.VideoIcon);
-
-    Theme.Song.MedleyIcon.Y  := StaticMedMY + Padding;
-    ListMedleyIcon[I] := AddStatic(Theme.Song.MedleyIcon);
-
-    Theme.Song.CalculatedMedleyIcon.Y  := StaticMedCY + Padding;
-    ListCalcMedleyIcon[I] := AddStatic(Theme.Song.CalculatedMedleyIcon);
-
-    Theme.Song.DuetIcon.Y  := StaticDuetY + Padding;
-    ListDuetIcon[I] := AddStatic(Theme.Song.DuetIcon);
-
-    Theme.Song.RapIcon.Y  := StaticRapY + Padding;
-    ListRapIcon[I] := AddStatic(Theme.Song.RapIcon);
-	
-    Theme.Song.CreatorIcon.Y  := StaticCreatorY + Padding;
-    ListCreatorIcon[I]  := AddStatic(Theme.Song.CreatorIcon);
-	
-    Theme.Song.FixerIcon.Y  := StaticFixerY + Padding;
-    ListFixerIcon[I]  := AddStatic(Theme.Song.FixerIcon);
-	
+    Self.ListTextArtist[I] := Self.AddText(UThemes.Theme.Song.TextArtist);
+    Self.ListTextTitle[I] := Self.AddText(UThemes.Theme.Song.TextTitle);
+    Self.ListTextYear[I] := Self.AddText(UThemes.Theme.Song.TextYear);
+    Self.ListTextCreator[I] := Self.AddText(UThemes.Theme.Song.TextCreator);
+    Self.ListTextFixer[I] := Self.AddText(UThemes.Theme.Song.TextFixer);
+    Self.ListVideoIcon[I] := Self.AddStatic(UThemes.Theme.Song.VideoIcon);
+    Self.ListMedleyIcon[I] := Self.AddStatic(UThemes.Theme.Song.MedleyIcon);
+    Self.ListCalcMedleyIcon[I] := Self.AddStatic(UThemes.Theme.Song.CalculatedMedleyIcon);
+    Self.ListDuetIcon[I] := Self.AddStatic(UThemes.Theme.Song.DuetIcon);
+    Self.ListRapIcon[I] := Self.AddStatic(UThemes.Theme.Song.RapIcon);
+    Self.ListCreatorIcon[I] := Self.AddStatic(UThemes.Theme.Song.CreatorIcon);
+    Self.ListFixerIcon[I] := Self.AddStatic(UThemes.Theme.Song.FixerIcon);
+    Padding := I * (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding);
+    Self.Text[Self.ListTextArtist[I]].Y := Self.Text[Self.ListTextArtist[I]].Y + Padding;
+    Self.Text[Self.ListTextTitle[I]].Y := Self.Text[Self.ListTextTitle.[I]].Y + Padding;
+    Self.Text[Self.ListTextYear[I]].Y := Self.Text[Self.ListTextYear.[I]].Y + Padding;
+    Self.Text[Self.ListTextCreator[I]].Y := Self.Text[Self.ListTextCreator.[I]].Y + Padding;
+    Self.Text[Self.ListTextFixer[I]].Y := Self.Text[Self.ListTextFixer.[I]].Y + Padding;
+    Self.Statics[Self.ListVideoIcon[I]].Texture.Y := Self.Statics[Self.ListVideoIcon.[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListMedleyIcon[I]].Texture.Y := Self.Statics[Self.ListMedleyIcon.[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListCalcMedleyIcon[I]].Texture.Y := Self.Statics[Self.ListCalcMedleyIcon.[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListDuetIcon[I]].Texture.Y := Self.Statics[Self.ListDuetIcon.[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListRapIcon[I]].Texture.Y := Self.Statics[Self.ListRapIcon.[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListCreatorIcon[I]].Texture.Y := Self.Statics[Self.ListCreatorIcon.[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListFixerIcon[I]].Texture.Y := Self.Statics[Self.ListFixerIcon.[I]].Texture.Y + Padding;
   end;
 
   Self.MinLine := 0;
