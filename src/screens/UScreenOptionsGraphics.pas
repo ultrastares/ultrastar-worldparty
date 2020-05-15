@@ -84,25 +84,11 @@ begin
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
-      SDLK_BACKSPACE :
-        begin
-          UIni.Ini.Save;
-          AudioPlayback.PlaySound(SoundLib.Back);
-          FadeTo(@ScreenOptions);
-        end;
+      SDLK_BACKSPACE:
+        Self.FadeTo(@UGraphic.ScreenOptions, UMusic.SoundLib.Back);
       SDLK_RETURN:
-        begin
-          if SelInteraction = 6 then
-          begin
-            UIni.Ini.Save;
-            AudioPlayback.PlaySound(SoundLib.Back);
-
-            if OldWindowMode <> UIni.Ini.FullScreen then UGraphic.UpdateVideoMode()
-            else UGraphic.UpdateResolution();
-
-            FadeTo(@ScreenOptions);
-          end;
-        end;
+        if Self.SelInteraction = 6 then
+          Self.FadeTo(@UGraphic.ScreenOptions, UMusic.SoundLib.Back);
       SDLK_DOWN:
         InteractNext;
       SDLK_UP :
@@ -173,6 +159,11 @@ procedure TScreenOptionsGraphics.OnHide;
 begin
   inherited;
   UIni.Ini.ClearCustomResolutions();
+  UIni.Ini.Save();
+  if Self.OldWindowMode <> UIni.Ini.FullScreen then 
+    UGraphic.UpdateVideoMode()
+  else 
+    UGraphic.UpdateResolution();
 end;
 
 procedure TScreenOptionsGraphics.OnWindowResized;
