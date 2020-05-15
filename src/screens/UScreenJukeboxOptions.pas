@@ -133,6 +133,7 @@ begin
           // close
           if Self.Interaction = 11 then
           begin
+            UIni.Ini.Save();
             Visible := false;
             ScreenJukebox.CloseClickTime := SDL_GetTicks;
             Exit;
