@@ -275,6 +275,7 @@ begin
     TextGL.SetFontSize(Size);
     TextGL.SetFontItalic(false);
     TextGL.SetFontZ(Self.Z);
+    TextGL.SetOutlineAlpha(Alpha);
 
     glColor4f(ColR*Int, ColG*Int, ColB*Int, Alpha);
 

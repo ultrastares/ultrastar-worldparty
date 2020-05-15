@@ -34,10 +34,11 @@ uses
   dglOpenGL,
   sdl2,
   Classes,
-  UTexture,
+  UCommon,
   UFont,
+  ULog,
   UPath,
-  ULog;
+  UTexture;
 
 type
   PGLFont = ^TGLFont;
@@ -57,6 +58,7 @@ const
 var
   Fonts:   array of TGLFont;
   ActFont: integer;
+  OutlineColor: TRGB;
 
 procedure BuildFonts;                         // builds all fonts
 procedure KillFonts;                          // deletes all font
@@ -70,6 +72,7 @@ procedure SetFontStyle(Style: integer);       // sets active font style (normal,
 procedure SetFontItalic(Enable: boolean);     // sets italic type letter (works for all fonts)
 procedure SetFontReflection(Enable:boolean;Spacing: real); // enables/disables text reflection
 procedure SetOutlineColor(R, G, B, A: GLFloat); // set outline color
+procedure SetOutlineAlpha(A: GLFloat); //only update outline alpha
 
 implementation
 
@@ -77,7 +80,6 @@ uses
   UTextEncoding,
   SysUtils,
   IniFiles,
-  UCommon,
   UMain,
   UPathUtils;
 
@@ -159,10 +161,13 @@ begin
           True,
           (FontPreCache<>0)
         );
+        OutlineColor.R := FontIni.ReadFloat(SectionName, 'OutlineColorR',  0.0);
+        OutlineColor.G := FontIni.ReadFloat(SectionName, 'OutlineColorG',  0.0);
+        OutlineColor.B := FontIni.ReadFloat(SectionName, 'OutlineColorB',  0.0);
         OutlineFont.SetOutlineColor(
-          FontIni.ReadFloat(SectionName, 'OutlineColorR',  0.0),
-          FontIni.ReadFloat(SectionName, 'OutlineColorG',  0.0),
-          FontIni.ReadFloat(SectionName, 'OutlineColorB',  0.0),
+          OutlineColor.R,
+          OutlineColor.G,
+          OutlineColor.B,
           FontIni.ReadFloat(SectionName, 'OutlineColorA', -1.0)
         );
         Fonts[I].Font := OutlineFont;
@@ -287,6 +292,11 @@ procedure SetOutlineColor(R, G, B, A: GLFloat);
 begin
   if (ActFont > 1) then
     TFTScalableOutlineFont(Fonts[ActFont].Font).SetOutlineColor(R, G, B, A);
+end;
+
+procedure SetOutlineAlpha(A: GLFloat);
+begin
+  TFTScalableOutlineFont(Fonts[ActFont].Font).SetOutlineColor(OutlineColor.R, OutlineColor.G, OutlineColor.B, A);
 end;
 
 end.
