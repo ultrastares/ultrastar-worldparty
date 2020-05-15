@@ -267,13 +267,14 @@ type
       procedure ClearCustomResolutions();
 
   end;
-
+  function GetOSLanguage(): string;
 var
   Ini:         TIni;
   IResolution: TUTF8StringDynArray;
   IResolutionFullScreen: TUTF8StringDynArray;
   IResolutionCustom: TUTF8StringDynArray;
   ILanguage:   TUTF8StringDynArray;
+  LanguageIso: array of UTF8String;
   ITheme:      TUTF8StringDynArray;
 
 {*
@@ -423,6 +424,12 @@ var
 implementation
 
 uses
+  gettext,
+  {$IFDEF MSWINDOWS}
+  Windows,
+  {$ELSE}
+  Unix,
+  {$ENDIF}
   StrUtils,
   sdl2,
   UCommandLine,
@@ -926,9 +933,7 @@ begin
   Difficulty := ReadArrayIndex(IDifficulty, IniFile, 'Game', 'Difficulty', IGNORE_INDEX, 'Easy');
 
   // Language
-  Language := ReadArrayIndex(ILanguage, IniFile, 'Game', 'Language', IGNORE_INDEX, 'English');
-  if Language < 0 then Language := GetArrayIndex(ILanguage, 'English'); // Default to english
-  if Language < 0 then Language := 0; // Default to first available
+  Language := ReadArrayIndex(ILanguage, IniFile, 'Game', 'Language', IGNORE_INDEX, ILanguage[GetArrayIndex(LanguageIso, GetOSLanguage())]);
 
   // SongMenu
   SongMenu := ReadArrayIndex(ISongMenuMode, IniFile, 'Game', 'SongMenu', Ord(smChessboard));
@@ -1692,6 +1697,18 @@ begin
 
   // update index
   Resolution := GetArrayIndex(IResolution, ResString);
+end;
+
+function GetOSLanguage(): string;
+var
+  l, fbl: string;
+begin
+  {$IFDEF LINUX}
+    fbl := GetEnvironmentVariable('LC_CTYPE');
+  {$ELSE}
+    GetLanguageIDs(l, fbl);
+  {$ENDIF}
+  Result := Copy(fbl, 1, 2);
 end;
 
 end.
