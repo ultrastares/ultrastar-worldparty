@@ -21,7 +21,7 @@
  *}
 
 
-unit UScreenPlayerSelection;
+unit UScreenPlayerSelector;
 
 interface
 
@@ -84,7 +84,7 @@ type
       PlayerAvatarButton: array of integer;
       PlayerAvatarButtonMD5: array of UTF8String;
     public
-      Goto_SingScreen: boolean; //If true then next Screen in SingScreen
+      OpenedInOptions: boolean;
 
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -236,12 +236,11 @@ begin
 
       SDLK_ESCAPE :
         begin
-          Ini.SaveNames;
-          AudioPlayback.PlaySound(SoundLib.Back);
-          if GoTo_SingScreen then
-            FadeTo(@ScreenSong)
+          UIni.Ini.SaveNames();
+          if Self.OpenedInOptions then
+            Self.FadeTo(@UGraphic.ScreenOptions, UMusic.SoundLib.Back)
           else
-            FadeTo(@ScreenMain);
+            Self.FadeTo(@UGraphic.ScreenSong);
         end;
 
       SDLK_RETURN:
@@ -288,26 +287,13 @@ begin
           LoadPlayersColors;
           Theme.ThemeScoreLoad;
 
-          // Reload ScreenSing and ScreenScore because of player colors
-          // TODO: do this better  REALLY NECESSARY?
-          //ScreenScore.Free;
-          //ScreenSing.Free;
+        ScreenScore := TScreenScore.Create;
+        ScreenSing  := TScreenSingController.Create;
 
-          ScreenScore := TScreenScore.Create;
-          ScreenSing  := TScreenSingController.Create;
-          //
-
-          AudioPlayback.PlaySound(SoundLib.Start);
-          if GoTo_SingScreen then
-          begin
-            FadeTo(@ScreenSing);
-            GoTo_SingScreen := false;
-          end
+         if Self.OpenedInOptions then
+            Self.FadeTo(@UGraphic.ScreenOptions, UMusic.SoundLib.Start)
           else
-          begin
-            FadeTo(@ScreenSong);
-            GoTo_SingScreen := false;
-          end;
+            Self.FadeTo(@UGraphic.ScreenSing, UMusic.SoundLib.Start);
         end;
 
       // Up and Down could be done at the same time,

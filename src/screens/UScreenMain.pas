@@ -68,7 +68,7 @@ uses
   USongs,
   ULanguage,
   UParty,
-  UScreenPlayerSelection,
+  UScreenPlayerSelector,
   UScreenSong,
   UScreenPartyOptions,
   UScreenJukeboxPlaylist,
@@ -81,6 +81,8 @@ const
   ITEMS_PER_ROW = 3;   // Number of buttons for row of buttons in Main menu.
 
 function TScreenMain.ParseInput(PressedKey: Cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
+var
+  Screen: PMenu;
 begin
   Result := true;
   if (PressedDown) then
@@ -105,27 +107,14 @@ begin
 
           //reset
           Party.bPartyGame := false;
+          Screen := nil;
           case Interaction of
             0: //solo
             begin
               if Self.CheckSongs() then
               begin
-                UGraphic.ScreenSong.Mode := smNormal;
-                if (Ini.Players >= 0) and (Ini.Players <= 3) then
-                  UNote.PlayersPlay := Ini.Players + 1;
-                if (Ini.Players = 4) then
-                  UNote.PlayersPlay := 6;
-
-                if Ini.OnSongClick = sSelectPlayer then
-                  FadeTo(@ScreenSong)
-                else
-                begin
-                  if not Assigned(UGraphic.ScreenPlayerSelector) then
-                    UGraphic.ScreenPlayerSelector := TScreenPlayerSelector.Create();
-
-                  UGraphic.ScreenPlayerSelector.Goto_SingScreen := false;
-                  FadeTo(@UGraphic.ScreenPlayerSelector, SoundLib.Start);
-                end;
+                UGraphic.ScreenSong.Mode := smNormal;               
+                Screen := @UGraphic.ScreenSong;
               end;
             end;
             1: //party
@@ -136,7 +125,7 @@ begin
                   UGraphic.ScreenPartyOptions := TScreenPartyOptions.Create();
 
                 Party.bPartyGame := true;
-                FadeTo(@ScreenPartyOptions, SoundLib.Start);
+                Screen := @UGraphic.ScreenPartyOptions;
               end
             end;
             2: //jukebox
@@ -145,7 +134,7 @@ begin
                 UGraphic.ScreenJukeboxPlaylist := TScreenJukeboxPlaylist.Create();
 
               if Self.CheckSongs() then
-                FadeTo(@ScreenJukeboxPlaylist, SoundLib.Start);
+                Screen := @UGraphic.ScreenJukeboxPlaylist;
             end;
             3: //stats
             begin
@@ -153,14 +142,14 @@ begin
                 UGraphic.ScreenStatMain := TScreenStatMain.Create();
 
               if Self.CheckSongs() then
-                FadeTo(@ScreenStatMain, SoundLib.Start);
+                Screen := @UGraphic.ScreenStatMain;
             end;
             4: //options
             begin
               if not Assigned(UGraphic.ScreenOptions) then //load the screens only the first time
                 UGraphic.ScreenOptions := TScreenOptions.Create();
 
-              FadeTo(@UGraphic.ScreenOptions, SoundLib.Start);
+              Screen := @UGraphic.ScreenOptions;
             end;
             5: //exit
               Result := false;
@@ -169,9 +158,11 @@ begin
               if not Assigned(UGraphic.ScreenAbout) then //load the screens only the first time
                 UGraphic.ScreenAbout := TScreenAbout.Create();
 
-              FadeTo(@ScreenAbout, SoundLib.Start);
+              Screen := @UGraphic.ScreenAbout;
             end;
           end;
+          if Result and Assigned(Screen) then
+            Self.FadeTo(Screen, UMusic.SoundLib.Start);
         end;
       SDLK_DOWN:
         InteractMainNextRow(ITEMS_PER_ROW);

@@ -291,7 +291,7 @@ uses
   //------------------------------
   UScreenLoading          in 'screens\UScreenLoading.pas',
   UScreenMain             in 'screens\UScreenMain.pas',
-  UScreenPlayerSelection  in 'screens\UScreenPlayerSelection.pas',
+  UScreenPlayerSelector in 'screens\UScreenPlayerSelector.pas',
   UScreenSong             in 'screens\UScreenSong.pas',
   UScreenSingController   in 'screens\controllers\UScreenSingController.pas',
   UScreenSingView         in 'screens\views\UScreenSingView.pas',

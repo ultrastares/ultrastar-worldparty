@@ -228,8 +228,10 @@ uses
   UNote,
   UPath,
   UPlaylist,
-  UScreenPlayerSelection,
+  UScreenPlayerSelector,
   UScreenPopup,
+  UScreenScore,
+  UScreenSingController,
   UScreenSongMenu,
   UScreenSongJumpto,
   USkins,
@@ -1436,6 +1438,8 @@ begin
   inherited;
   if not Assigned(UGraphic.ScreenSongMenu) then //load the screens only the first time
   begin
+    UGraphic.ScreenScore := TScreenScore.Create();
+    UGraphic.ScreenSing := TScreenSingController.Create();
     UGraphic.ScreenSongMenu := TScreenSongMenu.Create();
     UGraphic.ScreenSongJumpto := TScreenSongJumpto.Create();
     UGraphic.ScreenPopupScoreDownload := TScreenPopupScoreDownload.Create();
@@ -1471,8 +1475,7 @@ begin
   if Mode = smMedley then
     Mode := smNormal;
 
-  if Ini.Players <= 3 then PlayersPlay := Ini.Players + 1;
-  if Ini.Players  = 4 then PlayersPlay := 6;
+  UNote.PlayersPlay := IfThen(UIni.Ini.Players = 4, 6, UIni.Ini.Players + 1);
 
   if Self.Mode = smPartyClassic then
   begin
@@ -1842,13 +1845,13 @@ end;
 
 procedure TScreenSong.SelectPlayers;
 begin
-  CatSongs.Selected := Interaction;
+  USongs.CatSongs.Selected := Self.Interaction;
   Self.StopPreview();
   if not Assigned(UGraphic.ScreenPlayerSelector) then
     UGraphic.ScreenPlayerSelector := TScreenPlayerSelector.Create();
 
-  UGraphic.ScreenPlayerSelector.Goto_SingScreen := true;
-  FadeTo(@UGraphic.ScreenPlayerSelector);
+  UGraphic.ScreenPlayerSelector.OpenedInOptions := false;
+  Self.FadeTo(@UGraphic.ScreenPlayerSelector);
 end;
 
 { Set teams jokers colors }
