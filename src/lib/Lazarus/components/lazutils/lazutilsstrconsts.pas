@@ -39,6 +39,8 @@ resourceString
   lrsCanNotExecute = 'can not execute %s';
   lrsListMustBeEmpty = 'List must be empty';
   lrsListIndexExceedsBounds = 'List index exceeds bounds (%d)';
+  lrsERRORInCode = 'ERROR in code: ';
+  lrsCreatingGdbCatchableError = 'Creating gdb catchable error:';
 
   // XPath
   lrsNodeSet = 'node set';
@@ -65,3 +67,4 @@ resourceString
 implementation
 
 end.
+

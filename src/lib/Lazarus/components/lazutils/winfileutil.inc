@@ -21,3 +21,6 @@ begin
     Result:=LazUTF8.SysToUTF8(SysUtils.ExtractShortPathName(LazUTF8.UTF8ToSys(FileName)));
   {$endif}
 end;
+
+
+

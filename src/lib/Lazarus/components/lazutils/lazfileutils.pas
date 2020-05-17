@@ -29,9 +29,7 @@ uses
 function CompareFilenames(const Filename1, Filename2: string): integer; overload;
 function CompareFilenamesIgnoreCase(const Filename1, Filename2: string): integer;
 function CompareFileExt(const Filename, Ext: string;
-                        CaseSensitive: boolean): integer; overload;
-function CompareFileExt(const Filename, Ext: string): integer; overload;
-
+                        CaseSensitive: boolean = False): integer;
 function CompareFilenameStarts(const Filename1, Filename2: string): integer;
 function CompareFilenames(Filename1: PChar; Len1: integer;
   Filename2: PChar; Len2: integer): integer; overload;
@@ -42,6 +40,7 @@ function CompareFilenamesP(Filename1, Filename2: PChar;
 function DirPathExists(DirectoryName: string): boolean;
 function DirectoryIsWritable(const DirectoryName: string): boolean;
 function ExtractFileNameOnly(const AFilename: string): string;
+function ExtractFileNameWithoutExt(const AFilename: string): string;
 function FilenameIsAbsolute(const TheFilename: string):boolean;
 function FilenameIsWinAbsolute(const TheFilename: string):boolean;
 function FilenameIsUnixAbsolute(const TheFilename: string):boolean;
@@ -59,19 +58,44 @@ function FilenameIsTrimmed(const TheFilename: string): boolean;
 function FilenameIsTrimmed(StartPos: PChar; NameLen: integer): boolean;
 function TrimFilename(const AFilename: string): string;
 function ResolveDots(const AFilename: string): string;
-Procedure ForcePathDelims(Var FileName: string);
-Function GetForcedPathDelims(Const FileName: string): String;
 function CleanAndExpandFilename(const Filename: string): string; // empty string returns current directory
 function CleanAndExpandDirectory(const Filename: string): string; // empty string returns current directory
 function TrimAndExpandFilename(const Filename: string; const BaseDir: string = ''): string; // empty string returns empty string
 function TrimAndExpandDirectory(const Filename: string; const BaseDir: string = ''): string; // empty string returns empty string
+function CreateAbsolutePath(const Filename, BaseDirectory: string): string;
 function TryCreateRelativePath(const Dest, Source: String; UsePointDirectory: boolean;
-                               AlwaysRequireSharedBaseFolder: Boolean; out RelPath: String): Boolean;
+  AlwaysRequireSharedBaseFolder: Boolean; out RelPath: String): Boolean;
 function CreateRelativePath(const Filename, BaseDirectory: string;
-                            UsePointDirectory: boolean = false; AlwaysRequireSharedBaseFolder: Boolean = True): string;
+  UsePointDirectory: boolean = false; AlwaysRequireSharedBaseFolder: Boolean = True): string;
 function FileIsInPath(const Filename, Path: string): boolean;
+function PathIsInPath(const Path, Directory: string): boolean;
+// Storten a file name for display.
+function ShortDisplayFilename(const aFileName: string; aLimit: Integer = 80): string;
+
+type
+  TPathDelimSwitch = (
+    pdsNone,    // no change
+    pdsSystem,  // switch to current PathDelim
+    pdsUnix,    // switch to slash /
+    pdsWindows  // switch to backslash \
+    );
+const
+  PathDelimSwitchToDelim: array[TPathDelimSwitch] of char = (
+    PathDelim, // pdsNone
+    PathDelim, // pdsSystem
+    '/',       // pdsUnix
+    '\'        // pdsWindows
+    );
+
+// Path delimiters
+procedure ForcePathDelims(Var FileName: string);
+function GetForcedPathDelims(const FileName: string): string;
 function AppendPathDelim(const Path: string): string;
 function ChompPathDelim(const Path: string): string;
+function SwitchPathDelims(const Filename: string; Switch: TPathDelimSwitch): string;
+function SwitchPathDelims(const Filename: string; Switch: boolean): string;
+function CheckPathDelim(const OldPathDelim: string; out Changed: boolean): TPathDelimSwitch;
+function IsCurrentPathDelim(Switch: TPathDelimSwitch): boolean;
 
 // search paths
 function CreateAbsoluteSearchPath(const SearchPath, BaseDirectory: string): string;
@@ -148,10 +172,16 @@ function GetDarwinNormalizedFilename(Filename: string; nForm:Integer=2): string;
 function SHGetFolderPathUTF8(ID :  Integer) : String;
 {$ENDIF}
 
+// Command line
 procedure SplitCmdLineParams(const Params: string; ParamList: TStrings;
                              ReadBackslash: boolean = false);
 function StrToCmdLineParam(const Param: string): string;
 function MergeCmdLineParams(ParamList: TStrings): string;
+// ToDo: Study if they are needed or if the above functions could be used instead.
+procedure SplitCmdLine(const CmdLine: string;
+                       out ProgramFilename, Params: string);
+function PrepareCmdLineOption(const Option: string): string;
+
 
 type
   TInvalidateFileStateCacheEvent = procedure(const Filename: string);
@@ -265,11 +295,6 @@ begin
     if Result > 0 then Result := 1;
 end;
 
-function CompareFileExt(const Filename, Ext: string): integer;
-begin
-  Result := CompareFileExt(Filename, Ext, False);
-end;
-
 function ExtractFileNameOnly(const AFilename: string): string;
 var
   StartPos: Integer;
@@ -286,6 +311,24 @@ begin
     dec(ExtPos);
   if (ExtPos<StartPos) then ExtPos:=length(AFilename)+1;
   Result:=copy(AFilename,StartPos,ExtPos-StartPos);
+end;
+
+function ExtractFileNameWithoutExt(const AFilename: string): string;
+var
+  p: Integer;
+begin
+  Result:=AFilename;
+  p:=length(Result);
+  while (p>0) do begin
+    case Result[p] of
+      PathDelim: exit;
+      {$ifdef windows}
+      '/': if ('/' in AllowDirectorySeparators) then exit;
+      {$endif}
+      '.': exit(copy(Result,1, p-1));
+    end;
+    dec(p);
+  end;
 end;
 
 {$IFDEF darwin}
@@ -529,10 +572,11 @@ function FileIsText(const AFilename: string; out FileReadable: boolean): boolean
 var
   Buf: string;
   Len: integer;
-  NewLine: boolean;
   p: PChar;
   ZeroAllowed: Boolean;
   fHandle: THandle;
+const
+  BufSize = 2048;
 begin
   Result:=false;
   FileReadable:=true;
@@ -540,7 +584,7 @@ begin
   if (THandle(fHandle) <> feInvalidHandle)  then
   begin
     try
-      Len:=1024;
+      Len:=BufSize;
       SetLength(Buf,Len+1);
       Len := FileRead(fHandle,Buf[1],Len);
 
@@ -560,7 +604,6 @@ begin
           inc(p,2);
           ZeroAllowed:=true;
         end;
-        NewLine:=false;
         while true do begin
           case p^ of
           #0:
@@ -572,12 +615,10 @@ begin
           // #12: form feed
           // #26: end of file
           #1..#8,#11,#14..#25,#27..#31: exit;
-          #10,#13: NewLine:=true;
           end;
           inc(p);
         end;
-        if NewLine or (Len<1024) then
-          Result:=true;
+        Result:=true;
       end else
         Result:=true;
     finally
@@ -659,26 +700,6 @@ begin
   Result := ResolveDots(Result);
 end;
 
-procedure ForcePathDelims(var FileName: string);
-var
-  i: Integer;
-begin
-  for i:=1 to length(FileName) do
-    {$IFDEF Windows}
-    if Filename[i]='/' then
-      Filename[i]:='\';
-    {$ELSE}
-    if Filename[i]='\' then
-      Filename[i]:='/';
-    {$ENDIF}
-end;
-
-function GetForcedPathDelims(const FileName: string): String;
-begin
-  Result:=FileName;
-  ForcePathDelims(Result);
-end;
-
 {------------------------------------------------------------------------------
   function CleanAndExpandFilename(const Filename: string): string;
  ------------------------------------------------------------------------------}
@@ -709,26 +730,83 @@ begin
   Result:=TrimFilename(AppendPathDelim(ExpandFileNameUTF8(Result,BaseDir)));
 end;
 
-
-
-{------------------------------------------------------------------------------
-  function FileIsInPath(const Filename, Path: string): boolean;
- ------------------------------------------------------------------------------}
 function FileIsInPath(const Filename, Path: string): boolean;
 var
   ExpFile: String;
   ExpPath: String;
   l: integer;
 begin
-  if Path='' then begin
-    Result:=false;
-    exit;
-  end;
+  if Path='' then exit(false);
   ExpFile:=ResolveDots(Filename);
   ExpPath:=AppendPathDelim(ResolveDots(Path));
   l:=length(ExpPath);
   Result:=(l>0) and (length(ExpFile)>l) and (ExpFile[l]=PathDelim)
           and (CompareFilenames(ExpPath,LeftStr(ExpFile,l))=0);
+end;
+
+function PathIsInPath(const Path, Directory: string): boolean;
+// Note: Under Windows this treats C: as C:\
+var
+  ExpPath: String;
+  ExpDir: String;
+  l: integer;
+begin
+  if Path='' then exit(false);
+  ExpPath:=AppendPathDelim(ResolveDots(Path));
+  ExpDir:=AppendPathDelim(ResolveDots(Directory));
+  l:=length(ExpDir);
+  Result:=(l>0) and (length(ExpPath)>=l) and (ExpPath[l]=PathDelim)
+          and (CompareFilenames(ExpDir,LeftStr(ExpPath,l))=0);
+end;
+
+function ShortDisplayFilename(const aFileName: string; aLimit: Integer): string;
+// Shorten a long filename for display.
+// Add '...' after the 2. path delimiter, then the end part of filename.
+var
+  StartLen, EndLen, SepCnt: Integer;
+begin
+  if Length(aFileName) > aLimit then
+  begin
+    StartLen := 1;
+    SepCnt := 0;
+    while StartLen < Length(aFileName) - (aLimit div 2) do
+    begin
+      if aFileName[StartLen] in AllowDirectorySeparators then
+      begin
+        Inc(SepCnt);
+        if SepCnt = 2 then Break;
+      end;
+      Inc(StartLen);
+    end;
+    EndLen := aLimit - StartLen - 3;
+    Result := Copy(aFileName, 1, StartLen) + '...'
+            + Copy(aFileName, Length(aFileName)-EndLen+1, EndLen);
+  end
+  else
+    Result := aFileName;
+end;
+
+
+// Path delimiters
+
+procedure ForcePathDelims(var FileName: string);
+var
+  i: Integer;
+begin
+  for i:=1 to length(FileName) do
+    {$IFDEF Windows}
+    if Filename[i]='/' then
+      Filename[i]:='\';
+    {$ELSE}
+    if Filename[i]='\' then
+      Filename[i]:='/';
+    {$ENDIF}
+end;
+
+function GetForcedPathDelims(const FileName: string): string;
+begin
+  Result:=FileName;
+  ForcePathDelims(Result);
 end;
 
 function AppendPathDelim(const Path: string): string;
@@ -769,8 +847,55 @@ begin
     SetLength(Result,Len);
 end;
 
-function CreateAbsoluteSearchPath(const SearchPath, BaseDirectory: string
-  ): string;
+function SwitchPathDelims(const Filename: string; Switch: TPathDelimSwitch): string;
+var
+  i: Integer;
+  p: Char;
+begin
+  Result:=Filename;
+  case Switch of
+  pdsSystem:  p:=PathDelim;
+  pdsUnix:    p:='/';
+  pdsWindows: p:='\';
+  else exit;
+  end;
+  for i:=1 to length(Result) do
+    if Result[i] in ['/','\'] then
+      Result[i]:=p;
+end;
+
+function SwitchPathDelims(const Filename: string; Switch: boolean): string;
+begin
+  if Switch then
+    Result:=SwitchPathDelims(Filename,pdsSystem)
+  else
+    Result:=Filename;
+end;
+
+function CheckPathDelim(const OldPathDelim: string; out Changed: boolean): TPathDelimSwitch;
+begin
+  Changed:=OldPathDelim<>PathDelim;
+  if Changed then begin
+    if OldPathDelim='/' then
+      Result:=pdsUnix
+    else if OldPathDelim='\' then
+      Result:=pdsWindows
+    else
+      Result:=pdsSystem;
+  end else begin
+    Result:=pdsNone;
+  end;
+end;
+
+function IsCurrentPathDelim(Switch: TPathDelimSwitch): boolean;
+begin
+  Result:=(Switch in [pdsNone,pdsSystem])
+     or ((Switch=pdsUnix) and (PathDelim='/'))
+     or ((Switch=pdsWindows) and (PathDelim='\'));
+end;
+
+
+function CreateAbsoluteSearchPath(const SearchPath, BaseDirectory: string): string;
 var
   PathLen: Integer;
   EndPos: Integer;
@@ -1198,6 +1323,7 @@ function StrToCmdLineParam(const Param: string): string;
 const
   NoQuot = ' ';
   AnyQuot = '*';
+  SysQuot = {$IFDEF Windows}'"'{$ELSE}''''{$ENDIF};
 var
   Quot: Char;
   p: PChar;
@@ -1217,7 +1343,7 @@ begin
           if i<length(Result) then
             Delete(Result,i+1,length(Result));
           case Quot of
-          AnyQuot: Result:=''''+Result+'''';
+          AnyQuot: Result:=SysQuot+Result+SysQuot;
           '''': Result+='''';
           '"':  Result+='"';
           end;
@@ -1297,6 +1423,82 @@ begin
   end;
 end;
 
+procedure SplitCmdLine(const CmdLine: string;
+                       out ProgramFilename, Params: string);
+var
+  p: integer;
+
+  procedure SkipChar; inline;
+  begin
+    {$IFDEF Unix}
+    if (CmdLine[p]='\') and (p<length(CmdLine)) then
+      // skip escaped char
+      inc(p,2)
+    else
+    {$ENDIF}
+      inc(p);
+  end;
+
+var s, l: integer;
+  quote: char;
+begin
+  ProgramFilename:='';
+  Params:='';
+  if CmdLine='' then exit;
+  p:=1;
+  s:=1;
+  if (CmdLine[p] in ['"','''']) then
+  begin
+    // skip quoted string
+    quote:=CmdLine[p];
+    inc(s);
+    inc(p);
+    while (p<=length(CmdLine)) and (CmdLine[p]<>quote) do
+      SkipChar;
+    // go past last character or quoted string
+    l:=p-s;
+    inc(p);
+  end else begin
+    while (p<=length(CmdLine)) and (CmdLine[p]>' ') do
+      SkipChar;
+    l:=p-s;
+  end;
+  ProgramFilename:=Copy(CmdLine,s,l);
+  while (p<=length(CmdLine)) and (CmdLine[p]<=' ') do inc(p);
+  Params:=copy(CmdLine,p,length(CmdLine));
+end;
+
+function PrepareCmdLineOption(const Option: string): string;
+// If there is a space in the option add " " around the whole option
+var
+  i: integer;
+begin
+  Result:=Option;
+  if (Result='') or (Result[1] in ['"','''']) then exit;
+  for i:=1 to length(Result) do begin
+    case Result[i] of
+    ' ','''':
+      begin
+        Result:=AnsiQuotedStr(Result,'"');
+        exit;
+      end;
+    '"':
+      begin
+        Result:=AnsiQuotedStr(Result,'''');
+        exit;
+      end;
+    end;
+  end;
+end;
+{
+function AddCmdLineParameter(const CmdLine, AddParameter: string): string;
+begin
+  Result:=CmdLine;
+  if (Result<>'') and (Result[length(Result)]<>' ') then
+    Result:=Result+' ';
+  Result:=Result+AddParameter;
+end;
+}
 {
   Returns
   - DriveLetter + : + PathDelim on Windows (if present) or
@@ -1347,3 +1549,4 @@ finalization
 end.
 
 end.
+

@@ -47,3 +47,4 @@ procedure FinalizeLazUTF8;
 begin
   //dummy procedure
 end;
+

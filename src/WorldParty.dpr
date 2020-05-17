@@ -104,13 +104,13 @@ uses
   {$ENDIF}
 
   {$IFDEF FPC}
-  FileUtil in 'lib\Lazarus\fileutil.pas',
-  FPCAdds in 'lib\Lazarus\fpcadds.pas',
-  LazUtilsStrConsts in 'lib\Lazarus\lazutilsstrconsts.pas',
-  LazFileUtils in 'lib\Lazarus\lazfileutils.pas',
-  LazUTF8 in 'lib\Lazarus\lazutf8.pas',
-  LazUTF8Classes in 'lib\Lazarus\lazutf8classes.pas',
-  Masks in 'lib\Lazarus\masks.pas',
+  FileUtil in 'lib\Lazarus\components\lazutils\fileutil.pas',
+  FPCAdds in 'lib\Lazarus\components\lazutils\fpcadds.pas',
+  LazUtilsStrConsts in 'lib\Lazarus\components\lazutils\lazutilsstrconsts.pas',
+  LazFileUtils in 'lib\Lazarus\components\lazutils\lazfileutils.pas',
+  LazUTF8 in 'lib\Lazarus\components\lazutils\lazutf8.pas',
+  LazUTF8Classes in 'lib\Lazarus\components\lazutils\lazutf8classes.pas',
+  Masks in 'lib\Lazarus\components\lazutils\masks.pas',
   MTProcs in 'lib\Lazarus\components\multithreadprocs\mtprocs.pas',
   MTPCPU in 'lib\Lazarus\components\multithreadprocs\mtpcpu.pas',
   {$ENDIF}
