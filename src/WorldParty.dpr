@@ -32,7 +32,6 @@ program WorldParty;
 {$I switches.inc}
 
 uses
-  //heaptrc,
   {$IFDEF Unix}
   cthreads,            // THIS MUST be the first used unit in FPC if Threads are used!!
                        // (see http://wiki.lazarus.freepascal.org/Multithreaded_Application_Tutorial)
