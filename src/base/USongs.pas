@@ -165,8 +165,8 @@ end;
 destructor TSongsParse.Destroy();
 begin
   RTLeventDestroy(Self.Event);
-  Self.Txts.Destroy();
-  Self.TxtsParsed.Destroy();
+  Self.Txts.Free();
+  Self.TxtsParsed.Free();
   inherited;
 end;
 
@@ -225,9 +225,6 @@ var
   I: integer;
 begin
   RTLeventDestroy(Self.Event);
-  for I := 0 to Self.CoresAvailable do
-    Self.Threads[I].Terminate();
-
   inherited;
 end;
 
