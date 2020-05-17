@@ -1067,13 +1067,13 @@ begin
   inherited Create(Font.Filename);
 
   fBaseFont := Font;
-  fMipmapFonts[0] := Font;
   fUseMipmaps := UseMipmaps;
   ResetIntern();
 
   // create mipmap fonts if requested
   if (UseMipmaps) then
   begin
+    fMipmapFonts[0] := Font;
     for MipmapLevel := 1 to cMaxMipmapLevel do
     begin
       fMipmapFonts[MipmapLevel] := CreateMipmap(MipmapLevel, 1/(1 shl MipmapLevel));

@@ -158,7 +158,7 @@ begin
           FontFile,
           FontMaxResolution,
           Outline,
-          True,
+          false,
           (FontPreCache<>0)
         );
         OutlineColor.R := FontIni.ReadFloat(SectionName, 'OutlineColorR',  0.0);
@@ -181,7 +181,7 @@ begin
           FontFile,
           FontMaxResolution,
           Embolden,
-          True,
+          false,
           (FontPreCache<>0)
         );
         Fonts[I].Outlined := false;
