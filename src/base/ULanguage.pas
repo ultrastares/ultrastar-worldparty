@@ -1,8 +1,8 @@
 {*
     UltraStar WorldParty - Karaoke Game
-	
-	UltraStar WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -100,7 +100,7 @@ begin
   while(Iter.HasNext) do
   begin
     SetLength(List, Length(List)+1);
-    List[High(List)].Name := Iter.Next.Name.SetExtension('').ToUTF8;    
+    List[High(List)].Name := Iter.Next.Name.SetExtension('').ToUTF8;
   end;
   if (Length(List) = 0) then //No Language Files Loaded -> Abort Loading
     Log.CriticalError('Could not load any Language File');
@@ -127,12 +127,9 @@ begin
 
       SetLength(Entry, 0);
     end;
-
-    if (I = high(List)) then
-      Log.LogError('language file missing! No standard translation loaded');
   end;
-  //Standard Language END
-  
+  if Length(EntryDefault) = 0 then
+    Log.CriticalError('Cannot find Languages\English.ini');
 end;
 
 {**
@@ -187,8 +184,8 @@ end;
 {**
  * Translate the Text.
  * If Text is an ID, text will be translated according to the current language
- * setting. If Text is not a known ID, it will be returned as is. 
- * @param Text either an ID or an UTF-8 encoded string 
+ * setting. If Text is not a known ID, it will be returned as is.
+ * @param Text either an ID or an UTF-8 encoded string
  *}
 function TLanguage.Translate(const Text: RawByteString): UTF8String;
 var

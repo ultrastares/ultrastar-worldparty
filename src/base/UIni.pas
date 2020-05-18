@@ -267,7 +267,6 @@ type
       procedure ClearCustomResolutions();
 
   end;
-  function GetOSLanguage(): string;
 var
   Ini:         TIni;
   IResolution: TUTF8StringDynArray;
@@ -430,6 +429,7 @@ uses
   {$ELSE}
   Unix,
   {$ENDIF}
+  math,
   StrUtils,
   sdl2,
   UCommandLine,
@@ -889,8 +889,10 @@ end;
 procedure TIni.Load();
 var
   IniFile: TMemIniFile;
-  I:       integer;
+  I: integer;
   IShowWebScore: array of UTF8String;
+  LanguageIsoCode: integer;
+  Lang, FallbackLang: string;
 begin
   GamePath := Platform.GetGameUserPath;
 
@@ -932,8 +934,10 @@ begin
   // Difficulty
   Difficulty := ReadArrayIndex(IDifficulty, IniFile, 'Game', 'Difficulty', IGNORE_INDEX, 'Easy');
 
-  // Language
-  Language := ReadArrayIndex(ILanguage, IniFile, 'Game', 'Language', IGNORE_INDEX, ILanguage[GetArrayIndex(LanguageIso, GetOSLanguage())]);
+  //if language is unset try to find system language or load english at default
+  GetLanguageIDs(Lang, FallbackLang);
+  LanguageIsoCode := GetArrayIndex(LanguageIso, IfThen(Length(Lang) = 2, Lang, Copy(FallbackLang, 1, 2)));
+  Language := ReadArrayIndex(ILanguage, IniFile, 'Game', 'Language', IGNORE_INDEX, ILanguage[IfThen(LanguageIsoCode > -1, LanguageIsoCode, GetArrayIndex(LanguageIso, 'en'))]);
 
   // SongMenu
   SongMenu := ReadArrayIndex(ISongMenuMode, IniFile, 'Game', 'SongMenu', Ord(smChessboard));
@@ -1697,18 +1701,6 @@ begin
 
   // update index
   Resolution := GetArrayIndex(IResolution, ResString);
-end;
-
-function GetOSLanguage(): string;
-var
-  l, fbl: string;
-begin
-  {$IFDEF LINUX}
-    fbl := GetEnvironmentVariable('LC_CTYPE');
-  {$ELSE}
-    GetLanguageIDs(l, fbl);
-  {$ENDIF}
-  Result := Copy(fbl, 1, 2);
 end;
 
 end.
