@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Compile",
+            "label": "Compile DLL",
             "type": "shell",
             "windows": {
                 "command": "dists/atom/windows/compile.bat . compile-dll"
