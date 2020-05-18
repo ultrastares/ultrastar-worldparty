@@ -7,6 +7,9 @@
             "windows": {
                 "command": "dists/atom/windows/compile.bat . compile-dll"
             },
+            "linux": {
+                "command": "dists/atom/linux/compile.sh . compile-so"
+            },
             "presentation": {
                 "reveal": "always",
                 "panel": "shared"
