@@ -103,9 +103,9 @@ type
 
       fState: TProjectMState;
 
-      fScreen:  integer;
+      // fScreen:  integer;
 
-      fVisualTex: GLuint;
+      // fVisualTex: GLuint;
       fPCMData: TPCMData;
       fRndPCMcount: integer;
 

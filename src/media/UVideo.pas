@@ -283,8 +283,6 @@ begin
   fInitialized := true;
 
   FFmpegCore := TMediaCore_FFmpeg.GetInstance();
-
-  av_register_all();
 end;
 
 function TVideoPlayback_FFmpeg.Finalize(): boolean;
@@ -772,7 +770,7 @@ begin
     end;
 
     // free the packet from av_read_frame
-    av_free_packet( @AVPacket );
+    av_packet_unref( @AVPacket );
   end;
 
   // reset opaque data and update pts

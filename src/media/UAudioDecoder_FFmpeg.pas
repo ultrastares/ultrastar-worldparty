@@ -971,7 +971,7 @@ begin
       if (Packet.stream_index = fAudioStreamIndex) then
         fPacketQueue.Put(@Packet)
       else
-        av_free_packet(@Packet);
+        av_packet_unref(@Packet);
 
     finally
       SDL_LockMutex(fStateLock);
@@ -1150,7 +1150,7 @@ begin
 
     // free old packet data
     if (fAudioPaket.data <> nil) then
-      av_free_packet(@fAudioPaket);
+      av_packet_unref(@fAudioPaket);
 
     // do not block queue on seeking (to avoid deadlocks on the DecoderLock)
     if (IsSeeking()) then
@@ -1354,7 +1354,6 @@ function TAudioDecoder_FFmpeg.InitializeDecoder: boolean;
 begin
   //Log.LogStatus('InitializeDecoder', 'UAudioDecoder_FFmpeg');
   FFmpegCore := TMediaCore_FFmpeg.GetInstance();
-  av_register_all();
 
   // Do not show uninformative error messages by default.
   // FFmpeg prints all error-infos on the console by default what

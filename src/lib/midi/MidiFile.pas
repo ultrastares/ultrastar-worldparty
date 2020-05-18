@@ -235,7 +235,7 @@ function MyTimeToStr(val: integer): string;
 procedure Register;
 
 implementation
-
+{$WARNINGS OFF}
 uses
   mmsystem;
 
@@ -479,7 +479,7 @@ begin
 //  end;
 end;
 
-{$WARNINGS OFF}
+
 procedure TMidifile.MidiTimer(Sender: TObject);
 begin
   if playing then
@@ -488,7 +488,7 @@ begin
     if assigned(FOnUpdateEvent) then FOnUpdateEvent(self);
   end;
 end;
-{$WARNINGS ON}
+
 
 procedure TMidifile.StartPlaying;
 var
@@ -506,7 +506,6 @@ begin
   currentTime := 0;
 end;
 
-{$WARNINGS OFF}
 procedure TMidifile.ContinuePlaying;
 begin
   PlayStartTime := GetTickCount - currentTime;
@@ -516,7 +515,6 @@ begin
 
   SetMidiTimer;
 end;
-{$WARNINGS ON}
 
 procedure TMidifile.StopPlaying;
 begin
@@ -961,5 +959,5 @@ procedure Register;
 begin
   RegisterComponents('Synth', [TMidiFile]);
 end;
-
+{$WARNINGS ON}
 end.

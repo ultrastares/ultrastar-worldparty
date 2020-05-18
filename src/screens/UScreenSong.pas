@@ -689,11 +689,9 @@ begin
   end;
 end;
 
-constructor TScreenSong.Create;
+constructor TScreenSong.Create();
 var
   I, J, Num, Padding: integer;
-  TextArtistY, TextTitleY, TextYearY, TextCreatorY, TextFixerY, StaticMedCY,
-  StaticMedMY, StaticVideoY, StaticDuetY, StaticRapY, StaticCreatorY, StaticFixerY: integer;
   StaticY: real;
 begin
   inherited Create;
@@ -838,20 +836,6 @@ begin
   SetLength(ListRapIcon, Num);
   SetLength(ListCreatorIcon, Num);
   SetLength(ListFixerIcon, Num);
-
-  TextArtistY := Theme.Song.TextArtist.Y;
-  TextTitleY := Theme.Song.TextTitle.Y;
-  TextYearY := Theme.Song.TextYear.Y;
-  TextCreatorY := Theme.Song.TextCreator.Y;
-  TextFixerY := Theme.Song.TextFixer.Y;
-
-  StaticVideoY := Theme.Song.VideoIcon.Y;
-  StaticMedMY := Theme.Song.MedleyIcon.Y;
-  StaticMedCY := Theme.Song.CalculatedMedleyIcon.Y;
-  StaticDuetY := Theme.Song.DuetIcon.Y;
-  StaticRapY := Theme.Song.RapIcon.Y;
-  StaticCreatorY := Theme.Song.CreatorIcon.Y;
-  StaticFixerY := Theme.Song.FixerIcon.Y;
 
   for I := 0 to Num - 1 do
   begin

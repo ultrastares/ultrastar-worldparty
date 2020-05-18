@@ -1380,6 +1380,7 @@ var
   Drawing: boolean;
 begin
   Drawing := false;
+  Position.BGX := 0; //to fix compilation notice only
 
   { if screens = 2 and playerplay <= 3 the 2nd screen shows the
    textures of screen 1 }
@@ -1745,7 +1746,9 @@ begin
   if (Screens = 2) and (PlayersPlay <= 3) then
     ScreenAct := 1;
 
-  Drawing := false;
+  Drawing := false;    
+  Position.RBX := 0; //to fix compilation notice only
+
 
   // DIRTY HACK
   // correct position for duet with 3/6 players and 4/6 players in one screen

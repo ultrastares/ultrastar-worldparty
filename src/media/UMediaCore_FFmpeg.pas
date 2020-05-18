@@ -752,7 +752,7 @@ begin
     if (PChar(CurrentListEntry^.pkt.data) = STATUS_PACKET) then
       FreeStatusInfo(CurrentListEntry^.pkt);
     // free packet data
-    av_free_packet(@CurrentListEntry^.pkt);
+    av_packet_unref(@CurrentListEntry^.pkt);
     // Note: param must be a pointer to a pointer!
     av_freep(@CurrentListEntry);
     CurrentListEntry := TempListEntry;

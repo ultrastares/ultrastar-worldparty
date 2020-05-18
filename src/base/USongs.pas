@@ -221,8 +221,6 @@ begin
 end;
 
 destructor TSongs.Destroy();
-var
-  I: integer;
 begin
   RTLeventDestroy(Self.Event);
   inherited;
@@ -530,6 +528,7 @@ begin
     Self.SortSongs();
     CurCategory := '';
     SetLength(Self.Song, 0);
+    NewCategory := nil;
     for I := 0 to Songs.SongList.Count - 1 do
     begin
       NewSong := TSong(Songs.SongList[I]);
