@@ -351,16 +351,21 @@ type
     InfoMessageText: TThemeText;
     InfoMessageBG:   TThemeStatic;
 
-    //Screen Song Scores
-    TextScore:       TThemeText;
-    TextMaxScore:    TThemeText;
-    TextMediaScore:  TThemeText;
-    TextMaxScore2:   TThemeText;
-    TextMediaScore2: TThemeText;
-    TextScoreUser:   TThemeText;
-    TextMaxScoreLocal:   TThemeText;
-    TextMediaScoreLocal: TThemeText;
-    TextScoreUserLocal:  TThemeText;
+    //Ranking Song Screen
+    TextMyScores:         TThemeText;
+    TextWebsite:          TThemeText;
+    TextUserLocalScore1:  TThemeText;
+    TextUserLocalScore2:  TThemeText;
+    TextUserLocalScore3:  TThemeText;
+    TextLocalScore1:      TThemeText;
+    TextLocalScore2:      TThemeText;
+    TextLocalScore3:      TThemeText;
+    TextUserOnlineScore1: TThemeText;
+    TextUserOnlineScore2: TThemeText;
+    TextUserOnlineScore3: TThemeText;
+    TextOnlineScore1:     TThemeText;
+    TextOnlineScore2:     TThemeText;
+    TextOnlineScore3:     TThemeText;
 
     //Party Mode
     StaticTeamJoker: TThemeStatic;
@@ -3696,16 +3701,21 @@ begin
 
   ThemeLoadEqualizer(Song.Equalizer, 'Song' + prefix + 'Equalizer');
 
-  //Screen Song Scores
-  ThemeLoadText(Song.TextScore, 'Song' + prefix + 'TextScore');
-  ThemeLoadText(Song.TextMaxScore, 'Song' + prefix + 'TextMaxScore');
-  ThemeLoadText(Song.TextMediaScore, 'Song' + prefix + 'TextMediaScore');
-  ThemeLoadText(Song.TextMaxScore2, 'Song' + prefix + 'TextMaxScore2');
-  ThemeLoadText(Song.TextMediaScore2, 'Song' + prefix + 'TextMediaScore2');
-  ThemeLoadText(Song.TextScoreUser, 'Song' + prefix + 'TextScoreUser');
-  ThemeLoadText(Song.TextMaxScoreLocal, 'Song' + prefix + 'TextMaxScoreLocal');
-  ThemeLoadText(Song.TextMediaScoreLocal, 'Song' + prefix + 'TextMediaScoreLocal');
-  ThemeLoadText(Song.TextScoreUserLocal, 'Song' + prefix + 'TextScoreUserLocal');
+  //Ranking Song Screen  
+  ThemeLoadText(Song.TextMyScores, 'Song' + prefix + 'TextMyScores');
+  ThemeLoadText(Song.TextWebsite, 'Song' + prefix + 'TextWebsite');
+  ThemeLoadText(Song.TextUserLocalScore1, 'Song' + prefix + 'TextUserLocalScore1');
+  ThemeLoadText(Song.TextUserLocalScore2, 'Song' + prefix + 'TextUserLocalScore2');
+  ThemeLoadText(Song.TextUserLocalScore3, 'Song' + prefix + 'TextUserLocalScore3');
+  ThemeLoadText(Song.TextLocalScore1, 'Song' + prefix + 'TextLocalScore1');
+  ThemeLoadText(Song.TextLocalScore2, 'Song' + prefix + 'TextLocalScore2');
+  ThemeLoadText(Song.TextLocalScore3, 'Song' + prefix + 'TextLocalScore3');
+  ThemeLoadText(Song.TextUserOnlineScore1, 'Song' + prefix + 'TextUserOnlineScore1');
+  ThemeLoadText(Song.TextUserOnlineScore2, 'Song' + prefix + 'TextUserOnlineScore2');
+  ThemeLoadText(Song.TextUserOnlineScore3, 'Song' + prefix + 'TextUserOnlineScore3');
+  ThemeLoadText(Song.TextOnlineScore1, 'Song' + prefix + 'TextOnlineScore1');
+  ThemeLoadText(Song.TextOnlineScore2, 'Song' + prefix + 'TextOnlineScore2');
+  ThemeLoadText(Song.TextOnlineScore3, 'Song' + prefix + 'TextOnlineScore3');
 
   //Party and Non Party specific Statics and Texts
   ThemeLoadStatics (Song.StaticParty, 'Song' + prefix + 'StaticParty');
