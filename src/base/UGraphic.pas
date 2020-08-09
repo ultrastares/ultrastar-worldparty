@@ -431,7 +431,7 @@ NoDoubledResolution:
   begin
     Log.LogStatus('Set Video Mode...   Borderless fullscreen', 'SDL_SetVideoMode');
     CurrentWindowMode := Mode_Borderless;
-    screen := SDL_CreateWindow('UltraStar Deluxe loading...',
+    screen := SDL_CreateWindow('Loading...',
               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, W, H, SDL_WINDOW_OPENGL or SDL_WINDOW_FULLSCREEN_DESKTOP or SDL_WINDOW_RESIZABLE);
   end
   else if Fullscreen then

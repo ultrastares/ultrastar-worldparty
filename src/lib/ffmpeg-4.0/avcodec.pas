@@ -19,7 +19,6 @@
  * - Originally by Victor Zinetz for Delphi and Free Pascal on Windows.
  * - For Mac OS X, some modifications were made by The Creative CAT, denoted as CAT
  *   in the source codes.
- * - Changes and updates by the UltraStar Deluxe Team
  *
  * Conversion of libavcodec/avcodec.h
  * version: 56.1.100
