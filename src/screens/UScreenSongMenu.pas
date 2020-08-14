@@ -261,9 +261,9 @@ begin
         Text[0].Text := Language.Translate('SONG_MENU_NAME_MAIN');
 
         Button[0].Visible := true;
-        Button[1].Visible := ((Length(PlaylistMedley.Song) > 0) or (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone));
+        Button[1].Visible := true;
         Button[2].Visible := true;
-        Button[3].Visible := true;
+        Button[3].Visible := ((Length(PlaylistMedley.Song) > 0) or (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone));
         Button[4].Visible := false;
 
         SelectsS[0].Visible := false;
@@ -271,9 +271,9 @@ begin
         SelectsS[2].Visible := false;
 
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_SONG');
-        Button[1].Text[0].Text := Language.Translate('SONG_MENU_MEDLEY');
+        Button[1].Text[0].Text := Language.Translate('SONG_MENU_NAME_SORTING');
         Button[2].Text[0].Text := Language.Translate('SONG_MENU_REFRESH_SCORES');
-        Button[3].Text[0].Text := Language.Translate('SONG_MENU_NAME_SORTING');
+        Button[3].Text[0].Text := Language.Translate('SONG_MENU_MEDLEY');
 
       end;
     SM_Song:
@@ -294,7 +294,7 @@ begin
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_PLAY');
         Button[1].Text[0].Text := Language.Translate('SONG_MENU_CHANGEPLAYERS');
         Button[2].Text[0].Text := Language.Translate('SONG_MENU_PLAYLIST_ADD');
-        Button[4].Text[0].Text := Language.Translate('SONG_MENU_CANCEL');
+        Button[4].Text[0].Text := Language.Translate('C_BACK');
       end;
 
     SM_Medley:
@@ -319,7 +319,7 @@ begin
         Button[1].Text[0].Text := Language.Translate('SONG_MENU_DELETE_SONG');
         Button[2].Text[0].Text := Language.Translate('SONG_MENU_START_MEDLEY');
         Button[3].Text[0].Text := Format(Language.Translate('SONG_MENU_START_5_MEDLEY'), [MSongs]);
-        Button[4].Text[0].Text := Language.Translate('SONG_MENU_CANCEL');
+        Button[4].Text[0].Text := Language.Translate('C_BACK');
       end;
 
     SM_Sorting:
@@ -356,7 +356,7 @@ begin
         Self.UpdateSelectSlideOptions(UThemes.Theme.SongMenu.SelectSlide3, 2, ISelections3, SelectValue3);
 
         Self.Button[3].Text[0].Text := ULanguage.Language.Translate('SONG_MENU_SORTING_APPLY');
-        Self.Button[4].Text[0].Text := ULanguage.Language.Translate('SONG_MENU_CANCEL');
+        Self.Button[4].Text[0].Text := ULanguage.Language.Translate('C_BACK');
 
         Self.Interaction := 3;
       end;
@@ -398,7 +398,7 @@ begin
 
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_PLAYLIST_ADD_NEW');
         Button[3].Text[0].Text := Language.Translate('SONG_MENU_PLAYLIST_ADD_EXISTING');
-        Button[4].Text[0].Text := Language.Translate('SONG_MENU_CANCEL');
+        Button[4].Text[0].Text := Language.Translate('C_BACK');
 
         SetLength(ISelections3, Length(PlaylistMan.Playlists));
         PlaylistMan.GetNames(ISelections3);
@@ -435,7 +435,7 @@ begin
 
         Button[1].Text[0].Text := Language.Translate('SONG_MENU_PLAYLIST_NEW_UNNAMED');
         Button[3].Text[0].Text := Language.Translate('SONG_MENU_PLAYLIST_NEW_CREATE');
-        Button[4].Text[0].Text := Language.Translate('SONG_MENU_CANCEL');
+        Button[4].Text[0].Text := Language.Translate('C_BACK');
 
         Interaction := 1;
       end;
@@ -456,7 +456,7 @@ begin
         SelectsS[2].Visible := false;
 
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_YES');
-        Button[3].Text[0].Text := Language.Translate('SONG_MENU_CANCEL');
+        Button[3].Text[0].Text := Language.Translate('C_BACK');
       end;
 
     SM_Playlist_Load:
@@ -515,7 +515,7 @@ begin
         SelectsS[2].Visible := false;
 
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_YES');
-        Button[3].Text[0].Text := Language.Translate('SONG_MENU_CANCEL');
+        Button[3].Text[0].Text := Language.Translate('C_BACK');
       end;
 
     SM_Party_Main:
@@ -560,7 +560,7 @@ begin
           Button[1].Text[0].Text := UTF8String(Party.Teams[1].Name);
         if (Button[2].Visible) then
           Button[2].Text[0].Text := UTF8String(Party.Teams[2].Name);
-        Button[3].Text[0].Text := Language.Translate('SONG_MENU_CANCEL');
+        Button[3].Text[0].Text := Language.Translate('C_BACK');
 
         // set right interaction
         if (not Button[0].Visible) then
@@ -696,7 +696,7 @@ begin
 
           1: // button 2
             begin
-              MenuShow(SM_Medley);
+              Self.MenuShow(SM_Sorting);
             end;
 
           2: // button 3
@@ -705,7 +705,7 @@ begin
               MenuShow(SM_Refresh_Scores);
             end;
           6:
-            Self.MenuShow(SM_Sorting);
+            MenuShow(SM_Medley);
         end;
       end;
 
