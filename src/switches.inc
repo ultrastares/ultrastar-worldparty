@@ -74,33 +74,12 @@
   {$ENDIF}
 {$IFEND}
 
-// ffmpeg config
-{$IFDEF HaveFFmpeg}
-  {$DEFINE UseFFmpegDecoder}
-  {$DEFINE UseFFmpegVideo}
-  {$IFDEF HaveSWResample}
-    {$DEFINE UseSWResample}
-  {$ENDIF}
-  {$IFDEF HaveSWScale}
-    {$DEFINE UseSWScale}
-  {$ENDIF}
-{$ENDIF}
-
-{$IFDEF HaveLibsamplerate}
-  {$DEFINE UseSRCResample}
-{$ENDIF}
-
 // projectM config
 {$IF Defined(HaveProjectM)}
   {$DEFINE UseProjectM}
 {$IFEND}
 
 // specify some useful defines
-
-{$IF Defined(UseFFmpegVideo) or Defined(UseFFmpegDecoder)}
-  {$DEFINE UseFFmpeg}
-{$IFEND}
-
 {$IF Defined(UseBASSInput) or Defined(UseBASSPlayback) or Defined(UseBASSDecoder)}
   {$DEFINE UseBASS}
 {$IFEND}

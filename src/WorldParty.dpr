@@ -69,24 +69,14 @@ uses
   portmixer              in 'lib\portmixer\portmixer.pas',
   {$ENDIF}
 
-  {$IFDEF UseFFmpeg}
-    avcodec in 'lib\'+FFMPEG_DIR +'\avcodec.pas',
-    avformat in 'lib\'+FFMPEG_DIR+'\avformat.pas',
-    avutil in 'lib\'+FFMPEG_DIR+'\avutil.pas',
-    rational in 'lib\'+FFMPEG_DIR+'\rational.pas',
-    avio in 'lib\'+FFMPEG_DIR+'\avio.pas',
-    {$IFDEF UseSWResample}
-    swresample in 'lib\'+FFMPEG_DIR+'\swresample.pas',
-    {$ENDIF}
-    {$IFDEF UseSWScale}
-      swscale in 'lib\'+FFMPEG_DIR+'\swscale.pas',
-    {$ENDIF}
-    UMediaCore_FFmpeg    in 'media\UMediaCore_FFmpeg.pas',
-  {$ENDIF}  // UseFFmpeg
-
-  {$IFDEF UseSRCResample}
-  samplerate             in 'lib\samplerate\samplerate.pas',
-  {$ENDIF}
+  avcodec in 'lib\'+FFMPEG_DIR+'\avcodec.pas',
+  avformat in 'lib\'+FFMPEG_DIR+'\avformat.pas',
+  avutil in 'lib\'+FFMPEG_DIR+'\avutil.pas',
+  rational in 'lib\'+FFMPEG_DIR+'\rational.pas',
+  avio in 'lib\'+FFMPEG_DIR+'\avio.pas',
+  swresample in 'lib\'+FFMPEG_DIR+'\swresample.pas',
+  swscale in 'lib\'+FFMPEG_DIR+'\swscale.pas',
+  UMediaCore_FFmpeg in 'media\UMediaCore_FFmpeg.pas',
 
   {$IFDEF UseProjectM}
   projectM      in 'lib\projectM\projectM.pas',
@@ -235,9 +225,7 @@ uses
   // This means the first entry has highest priority, the last lowest.
   //******************************
 
-{$IFDEF UseFFmpegVideo}
-  UVideo                    in 'media\UVideo.pas',
-{$ENDIF}
+UVideo                    in 'media\UVideo.pas',
 {$IFDEF UseProjectM}
   // must be after UVideo, so it will not be the default video module
   UVisualizer               in 'media\UVisualizer.pas',
@@ -261,11 +249,7 @@ uses
 {$IFDEF UsePortaudioPlayback}
   UAudioPlayback_Portaudio  in 'media\UAudioPlayback_Portaudio.pas',
 {$ENDIF}
-{$IFDEF UseFFmpegDecoder}
-  UAudioDecoder_FFmpeg      in 'media\UAudioDecoder_FFmpeg.pas',
-{$ENDIF}
-  // fallback dummy, must be last
-  UMedia_dummy              in 'media\UMedia_dummy.pas',
+UAudioDecoder_FFmpeg      in 'media\UAudioDecoder_FFmpeg.pas',
 
 
   //------------------------------

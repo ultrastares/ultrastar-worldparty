@@ -98,7 +98,6 @@ uses
   USongs,
   UTime,
   UWebcam;
-  //UVideoAcinerella;
 
 procedure Main;
 var

@@ -39,11 +39,6 @@ interface
 
 {$I switches.inc}
 
-// use BGR-format for accelerated colorspace conversion with swscale
-{$IFDEF UseSWScale}
-  {$DEFINE PIXEL_FMT_BGR}
-{$ENDIF}
-
 implementation
 
 uses
@@ -56,9 +51,7 @@ uses
   avutil,
   avio,
   rational,
-  {$IFDEF UseSWScale}
   swscale,
-  {$ENDIF}
   dglOpenGL,
   StrUtils,
   UMediaCore_FFmpeg,
@@ -70,32 +63,15 @@ uses
   UGraphic,
   UPath;
 
-{$DEFINE PIXEL_FMT_BGR}
-
 const
-{$IFDEF PIXEL_FMT_BGR}
   PIXEL_FMT_OPENGL = GL_BGR;
-  {$IF FFMPEG_VERSION_INT < 1001000}
-  PIXEL_FMT_FFMPEG = PIX_FMT_BGR24;
-  {$ELSE}
   PIXEL_FMT_FFMPEG = AV_PIX_FMT_BGR24;
-  {$ENDIF}
-  PIXEL_FMT_SIZE   = 3;
+  PIXEL_FMT_SIZE = 3;
 
   // looks strange on linux:
   //PIXEL_FMT_OPENGL = GL_RGBA;
   //PIXEL_FMT_FFMPEG = PIX_FMT_BGR32;
   //PIXEL_FMT_SIZE   = 4;
-{$ELSE}
-  // looks strange on linux:
-  PIXEL_FMT_OPENGL = GL_RGB;
-  {$IF FFMPEG_VERSION_INT < 1001000}
-  PIXEL_FMT_FFMPEG = PIX_FMT_BGR24;
-  {$ELSE}
-  PIXEL_FMT_FFMPEG = AV_PIX_FMT_BGR24;
-  {$ENDIF}
-  PIXEL_FMT_SIZE   = 3;
-{$ENDIF}
 
   BUFFER_ALIGN = 32;
   ReflectionH = 0.5; //reflection height (50%)
@@ -128,9 +104,7 @@ type
     fFrameTexValid: boolean; //**< if true, fFrameTex contains the current frame
     fTexWidth, fTexHeight: cardinal;
 
-    {$IFDEF UseSWScale}
     fSwScaleContext: PSwsContext;
-    {$ENDIF}
 
     fScreen:          integer; //actual screen to draw on
 
@@ -471,11 +445,7 @@ begin
     fAspect := fAspect * fCodecContext^.width /
                          fCodecContext^.height;
 
-  {$IF LIBAVFORMAT_VERSION_MAJOR >= 55}
   r_frame_rate := av_q2d(av_stream_get_r_frame_rate(fStream));
-  {$ELSE}
-  r_frame_rate := av_q2d(fStream^.r_frame_rate);
-  {$ENDIF}
 
   fFrameDuration := 1/r_frame_rate;
 
@@ -490,7 +460,6 @@ begin
 
   Log.LogInfo('Framerate: '+inttostr(floor(1/fFrameDuration))+'fps', 'TVideoPlayback_ffmpeg.Open');
 
-  {$IFDEF UseSWScale}
   // if available get a SWScale-context -> faster than the deprecated img_convert().
   // SWScale has accelerated support for PIX_FMT_RGB32/PIX_FMT_BGR24/PIX_FMT_BGR565/PIX_FMT_BGR555.
   // Note: PIX_FMT_RGB32 is a BGR- and not an RGB-format (maybe a bug)!!!
@@ -509,7 +478,6 @@ begin
     Close();
     Exit;
   end;
-  {$ENDIF}
 
   if (SupportsNPOT = false) then
   begin
@@ -666,11 +634,7 @@ var
   {$IF LIBAVCODEC_VERSION < 51068000}
   VideoPktPts: int64;
   {$ENDIF}
-  {$IF FFMPEG_VERSION_INT < 1001000}
-  pbIOCtx: PByteIOContext;
-  {$ELSE}
   pbIOCtx: PAVIOContext;
-  {$ENDIF}
   errnum: integer;
   AVPacket: TAVPacket;
   pts: int64;
@@ -926,26 +890,11 @@ begin
   //end;
 
   // otherwise we convert the pixeldata from YUV to RGB
-  {$IFDEF UseSWScale}
   try
-
-  errnum := sws_scale(fSwScaleContext, @fAVFrame.data, @fAVFrame.linesize,
-          0, fCodecContext^.Height,
-          @fAVFrameRGB.data, @fAVFrameRGB.linesize);
+    errnum := sws_scale(fSwScaleContext, @fAVFrame.data, @fAVFrame.linesize, 0, fCodecContext^.Height, @fAVFrameRGB.data, @fAVFrameRGB.linesize);
   except
     ;
   end;
-  {$ELSE}
-  // img_convert from lib/ffmpeg/avcodec.pas is actually deprecated.
-  // If ./configure does not find SWScale then this gives the error
-  // that the identifier img_convert is not known or similar.
-  // I think this should be removed, but am not sure whether there should
-  // be some other replacement or a warning, Therefore, I leave it for now.
-  // April 2009, mischi
-  errnum := img_convert(PAVPicture(fAVFrameRGB), PIXEL_FMT_FFMPEG,
-            PAVPicture(fAVFrame), fCodecContext^.pix_fmt,
-            fCodecContext^.width, fCodecContext^.height);
-  {$ENDIF}
 
   if (errnum < 0) then
   begin
