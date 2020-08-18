@@ -110,15 +110,20 @@ type
       CoverTime:    real;
 
       //Scores
-      TextScore:       integer;
-      TextMaxScore:    integer;
-      TextMediaScore:  integer;
-      TextMaxScore2:   integer;
-      TextMediaScore2: integer;
-      TextScoreUser:   integer;
-      TextMaxScoreLocal:    integer;
-      TextMediaScoreLocal:  integer;
-      TextScoreUserLocal:   integer;
+      TextMyScores:           integer;
+      TextWebsite:            integer;
+      TextUserLocalScore1:    integer;
+      TextUserLocalScore2:    integer;
+      TextUserLocalScore3:    integer;
+      TextLocalScore1:        integer;
+      TextLocalScore2:        integer;
+      TextLocalScore3:        integer;
+      TextUserOnlineScore1:   integer;
+      TextUserOnlineScore2:   integer;
+      TextUserOnlineScore3:   integer;
+      TextOnlineScore1:       integer;
+      TextOnlineScore2:       integer;
+      TextOnlineScore3:       integer;
 
       //Party Mod
       Mode: TSingMode;
@@ -717,15 +722,20 @@ begin
   Self.FixerIcon := Self.AddStatic(UThemes.Theme.Song.FixerIcon);
 
   //Show Scores
-  TextScore       := AddText(Theme.Song.TextScore);
-  TextMaxScore    := AddText(Theme.Song.TextMaxScore);
-  TextMediaScore  := AddText(Theme.Song.TextMediaScore);
-  TextMaxScore2   := AddText(Theme.Song.TextMaxScore2);
-  TextMediaScore2 := AddText(Theme.Song.TextMediaScore2);
-  TextScoreUser   := AddText(Theme.Song.TextScoreUser);
-  TextMaxScoreLocal   := AddText(Theme.Song.TextMaxScoreLocal);
-  TextMediaScoreLocal := AddText(Theme.Song.TextMediaScoreLocal);
-  TextScoreUserLocal  := AddText(Theme.Song.TextScoreUserLocal);
+  TextMyScores           := AddText(Theme.Song.TextMyScores);
+  TextWebsite            := AddText(Theme.Song.TextWebsite);
+  TextUserLocalScore1    := AddText(Theme.Song.TextUserLocalScore1);
+  TextUserLocalScore2    := AddText(Theme.Song.TextUserLocalScore2);
+  TextUserLocalScore3    := AddText(Theme.Song.TextUserLocalScore3);
+  TextLocalScore1        := AddText(Theme.Song.TextLocalScore1);
+  TextLocalScore2        := AddText(Theme.Song.TextLocalScore2);
+  TextLocalScore3        := AddText(Theme.Song.TextLocalScore3);
+  TextUserOnlineScore1   := AddText(Theme.Song.TextUserOnlineScore1);
+  TextUserOnlineScore2   := AddText(Theme.Song.TextUserOnlineScore2);
+  TextUserOnlineScore3   := AddText(Theme.Song.TextUserOnlineScore3);
+  TextOnlineScore1       := AddText(Theme.Song.TextOnlineScore1);
+  TextOnlineScore2       := AddText(Theme.Song.TextOnlineScore2);
+  TextOnlineScore3       := AddText(Theme.Song.TextOnlineScore3);
 
   //Party Mode
   for I := 0 to UParty.PartyTeamsMax - 1 do
@@ -2042,25 +2052,34 @@ begin
       end;
     end;
 
+// >>>>>>> FIX ME <<<<<<<<
+    Self.Text[Self.TextWebsite].text := UTF8Encode('UltraStar España');
+
     if (UIni.Ini.ShowScores > 0) and (Self.Mode = smNormal) and (not Song.isDuet) then //show scores
     begin
-      Self.Text[Self.TextMaxScoreLocal].Text := IntToStr(UDataBase.DataBase.ReadMaxScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]));
-      Self.Text[Self.TextMediaScoreLocal].Text := IntToStr(UDataBase.DataBase.ReadAverageScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]));
-      Self.Text[Self.TextScoreUserLocal].Text := UDataBase.DataBase.ReadUserScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]);
+      Self.Text[Self.TextLocalScore1].Text := IntToStr(UDataBase.DataBase.ReadMaxScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]));
+      Self.Text[Self.TextLocalScore2].Text := IntToStr(UDataBase.DataBase.ReadAverageScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]));
+      Self.Text[Self.TextLocalScore3].Text := IntToStr(UDataBase.DataBase.ReadAverageScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]));
+      Self.Text[Self.TextUserLocalScore1].Text := UDataBase.DataBase.ReadUserScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]);
+      Self.Text[Self.TextUserLocalScore2].Text := UDataBase.DataBase.ReadUserScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]);
+      Self.Text[Self.TextUserLocalScore3].Text := UDataBase.DataBase.ReadUserScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]);
+	  
       if (High(UDllManager.DLLMan.Websites) >= 0) then
       begin
-        Self.Text[Self.TextMaxScore2].Text := IntToStr(UDataBase.DataBase.ReadMaxScore(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]));
-        Self.Text[Self.TextMediaScore2].Text := IntToStr(UDataBase.DataBase.ReadAverageScore(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]));
-        Self.Text[Self.TextScore].Text := UTF8Encode(UDllManager.DLLMan.Websites[UIni.Ini.ShowWebScore].Name);
-        Self.Text[Self.TextScoreUser].Text := UDataBase.DataBase.ReadUser_Score(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]);
+        Self.Text[Self.TextOnlineScore1].Text := IntToStr(UDataBase.DataBase.ReadMaxScore(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]));
+        Self.Text[Self.TextOnlineScore2].Text := IntToStr(UDataBase.DataBase.ReadAverageScore(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]));
+        Self.Text[Self.TextOnlineScore3].Text := IntToStr(UDataBase.DataBase.ReadMaxScore(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]));
+        Self.Text[Self.TextUserOnlineScore1].Text := UDataBase.DataBase.ReadUser_Score(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]);
+        Self.Text[Self.TextUserOnlineScore2].Text := UDataBase.DataBase.ReadUser_Score(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]);
+        Self.Text[Self.TextUserOnlineScore3].Text := UDataBase.DataBase.ReadUser_Score(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]);
       end;
       //show local score, web score and captions
-      Self.SetRangeVisibilityText((UIni.Ini.ShowScores = 2) or (Self.Text[Self.TextMaxScoreLocal].Text <> '0'), [Self.TextMaxScoreLocal, Self.TextScoreUserLocal]);
-      Self.SetRangeVisibilityText((UIni.Ini.ShowScores = 2) or ((Self.Text[Self.TextMaxScore2].Text <> '') and (Self.Text[Self.TextMaxScore2].Text <> '0')), [Self.TextMaxScore2, Self.TextScoreUser]);
-      Self.SetRangeVisibilityText(Self.Text[Self.TextMaxScoreLocal].Visible or Self.Text[Self.TextMaxScore2].Visible, [Self.TextScore, Self.TextMediaScore]);
+      Self.SetRangeVisibilityText((UIni.Ini.ShowScores = 2) or (Self.Text[Self.TextLocalScore1].Text <> '0'), [Self.TextUserLocalScore1, Self.TextUserLocalScore2, Self.TextUserLocalScore3, Self.TextLocalScore1, Self.TextLocalScore2, Self.TextLocalScore3]);
+      Self.SetRangeVisibilityText((UIni.Ini.ShowScores = 2) or ((Self.Text[Self.TextOnlineScore1].Text <> '') and (Self.Text[Self.TextUserOnlineScore1].Text <> '0')), [Self.TextUserOnlineScore1, Self.TextUserOnlineScore1, Self.TextUserOnlineScore2, Self.TextUserOnlineScore3, Self.TextOnlineScore1, Self.TextOnlineScore2, Self.TextOnlineScore3]);
+      Self.SetRangeVisibilityText(Self.Text[Self.TextOnlineScore1].Visible or Self.Text[Self.TextUserOnlineScore1].Visible, [Self.TextOnlineScore1, Self.TextOnlineScore2, Self.TextOnlineScore3, Self.TextUserOnlineScore1, Self.TextUserOnlineScore2, Self.TextUserOnlineScore3]);
     end
     else
-      Self.SetRangeVisibilityText(false, [Self.TextMaxScore, Self.TextScoreUserLocal]);
+      Self.SetRangeVisibilityText(false, [Self.TextOnlineScore1, Self.TextOnlineScore2, Self.TextOnlineScore3, Self.TextUserOnlineScore1, Self.TextUserOnlineScore2, Self.TextUserOnlineScore3]);
   end;
   case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
     smRoulette: Self.SetRouletteScroll();
