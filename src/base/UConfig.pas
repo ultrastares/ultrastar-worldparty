@@ -124,10 +124,10 @@ const
   (*
    * Current version of UltraStar WorldParty
    *)
-   USDX_VERSION_MAJOR   = 19;
-   USDX_VERSION_MINOR   = 12;
+   USDX_VERSION_MAJOR   = 20;
+   USDX_VERSION_MINOR   = 6;
    USDX_VERSION_RELEASE = '';
-   USDX_VERSION_STATE   = '';
+   USDX_VERSION_STATE   = 'Alfa 1';
    USDX_STRING = 'UltraStar WorldParty';
 
   (*
