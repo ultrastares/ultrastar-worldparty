@@ -77,6 +77,8 @@ const
   SM_Medley           = 64 or 16;
   SM_Sorting = 64 or 32;
   SM_Jukebox          = 64 or 128;
+  
+  SM_Search_new_songs = 64 or 7;
 
 var
   ISelections1: array of UTF8String;
@@ -263,8 +265,8 @@ begin
         Button[0].Visible := true;
         Button[1].Visible := true;
         Button[2].Visible := true;
-        Button[3].Visible := ((Length(PlaylistMedley.Song) > 0) or (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone));
-        Button[4].Visible := false;
+        Button[3].Visible := true;
+        Button[4].Visible := ((Length(PlaylistMedley.Song) > 0) or (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone));
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -273,7 +275,8 @@ begin
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_SONG');
         Button[1].Text[0].Text := Language.Translate('SONG_MENU_NAME_SORTING');
         Button[2].Text[0].Text := Language.Translate('SONG_MENU_REFRESH_SCORES');
-        Button[3].Text[0].Text := Language.Translate('SONG_MENU_MEDLEY');
+        Button[3].Text[0].Text := Language.Translate('SEARCH_NEW_SONGS');
+        Button[4].Text[0].Text := Language.Translate('SONG_MENU_MEDLEY');
 
       end;
     SM_Song:
@@ -678,6 +681,12 @@ begin
           Interaction := 1;
 
       end;
+	  
+	SM_Search_new_songs:
+	  begin
+        Self.FadeTo(@UGraphic.ScreenMain);
+        UGraphic.ScreenMain.ReloadSongs();
+      end;
   end;
 end;
 
@@ -704,8 +713,12 @@ begin
               // show refresh scores menu
               MenuShow(SM_Refresh_Scores);
             end;
-          6:
-            MenuShow(SM_Medley);
+          6: // button5
+            begin
+              MenuShow(SM_Search_new_songs);
+            end;
+          7:
+              MenuShow(SM_Medley);
         end;
       end;
 
