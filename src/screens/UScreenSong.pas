@@ -654,10 +654,7 @@ begin
                       end;
                 end;
           end;
-        SDL_BUTTON_RIGHT: //go back
-          if Self.RightMbESC then
-            Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
-        SDL_BUTTON_MIDDLE: //open song menu
+        SDL_BUTTON_RIGHT, SDL_BUTTON_MIDDLE: //open song menu
           Self.ParseInput(0, Ord('M'), true);
         SDL_BUTTON_WHEELDOWN: //next song
           Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_RIGHT, SDLK_DOWN), 0, true);
