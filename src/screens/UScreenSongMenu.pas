@@ -275,8 +275,8 @@ begin
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_SONG');
         Button[1].Text[0].Text := Language.Translate('SONG_MENU_NAME_SORTING');
         Button[2].Text[0].Text := Language.Translate('SONG_MENU_REFRESH_SCORES');
-        Button[3].Text[0].Text := Language.Translate('SEARCH_NEW_SONGS');
-        Button[4].Text[0].Text := Language.Translate('SONG_MENU_MEDLEY');
+        Button[3].Text[0].Text := Language.Translate('C_SEARCH_NEW_SONGS');
+        Button[4].Text[0].Text := Language.Translate('C_MEDLEY');
 
       end;
     SM_Song:
@@ -305,7 +305,7 @@ begin
         CurMenu := sMenu;
         MSongs := CountMedleySongs;
 
-        Text[0].Text := Language.Translate('SONG_MENU_NAME_MEDLEY');
+        Text[0].Text := Language.Translate('C_MEDLEY');
 
         Button[0].Visible := (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone);
         Button[1].Visible := (Length(PlaylistMedley.Song)>0);
