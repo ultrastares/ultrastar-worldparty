@@ -945,13 +945,14 @@ type
     DownloadProgressWeb: TThemeStatic;
   end;
 
-  //ScreenSong Menue
+  //ScreenSong Menu
   TThemeSongMenu = class(TThemeBasic)
     Button1: TThemeButton;
     Button2: TThemeButton;
     Button3: TThemeButton;
     Button4: TThemeButton;
     Button5: TThemeButton;
+    Button6: TThemeButton;
 
     SelectSlide1: TThemeSelectSlide;
     SelectSlide2: TThemeSelectSlide;
@@ -2191,6 +2192,7 @@ begin
       ThemeLoadButton(SongMenu.Button3, 'SongMenuButton3');
       ThemeLoadButton(SongMenu.Button4, 'SongMenuButton4');
       ThemeLoadButton(SongMenu.Button5, 'SongMenuButton5');
+      ThemeLoadButton(SongMenu.Button6, 'SongMenuButton6');
       ThemeLoadSelectSlide(SongMenu.SelectSlide1, 'SongMenuSelectSlide1');
       ThemeLoadSelectSlide(SongMenu.SelectSlide2, 'SongMenuSelectSlide2');
       ThemeLoadSelectSlide(SongMenu.SelectSlide3, 'SongMenuSelectSlide3');
