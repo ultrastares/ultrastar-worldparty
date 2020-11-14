@@ -551,7 +551,7 @@ begin
 
     if not (Used) then
     begin
-      ITmp[Index] := ULanguage.Language.Translate('OPTION_VALUE_'+PlayerColors[I]);
+      ITmp[Index] := ULanguage.Language.Translate('C_COLOR_'+PlayerColors[I]);
       APlayerColor[Index] := I + 1;
       Index := Index + 1;
     end;

@@ -150,7 +150,7 @@ begin
   LoadFromTheme(Theme.OptionsThemes);
   AddSelectSlide(Theme.OptionsThemes.SelectTheme, Ini.Theme, ITheme);
   Self.SkinSelect := AddSelectSlide(UThemes.Theme.OptionsThemes.SelectSkin, UIni.Ini.Skin, UThemes.Theme.Themes[UIni.Ini.Theme].Skins);
-  AddSelectSlide(Theme.OptionsThemes.SelectColor, UIni.Ini.Color, UIni.IColor, 'OPTION_VALUE_');
+  AddSelectSlide(Theme.OptionsThemes.SelectColor, UIni.Ini.Color, UIni.IColor, 'C_COLOR_');
 
   AddButton(Theme.OptionsThemes.ButtonExit);
 
