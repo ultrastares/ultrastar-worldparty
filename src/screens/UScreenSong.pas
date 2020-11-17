@@ -863,17 +863,17 @@ begin
     Self.ListFixerIcon[I] := Self.AddStatic(UThemes.Theme.Song.FixerIcon);
     Padding := I * (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding);
     Self.Text[Self.ListTextArtist[I]].Y := Self.Text[Self.ListTextArtist[I]].Y + Padding;
-    Self.Text[Self.ListTextTitle[I]].Y := Self.Text[Self.ListTextTitle.[I]].Y + Padding;
-    Self.Text[Self.ListTextYear[I]].Y := Self.Text[Self.ListTextYear.[I]].Y + Padding;
-    Self.Text[Self.ListTextCreator[I]].Y := Self.Text[Self.ListTextCreator.[I]].Y + Padding;
-    Self.Text[Self.ListTextFixer[I]].Y := Self.Text[Self.ListTextFixer.[I]].Y + Padding;
-    Self.Statics[Self.ListVideoIcon[I]].Texture.Y := Self.Statics[Self.ListVideoIcon.[I]].Texture.Y + Padding;
-    Self.Statics[Self.ListMedleyIcon[I]].Texture.Y := Self.Statics[Self.ListMedleyIcon.[I]].Texture.Y + Padding;
-    Self.Statics[Self.ListCalcMedleyIcon[I]].Texture.Y := Self.Statics[Self.ListCalcMedleyIcon.[I]].Texture.Y + Padding;
-    Self.Statics[Self.ListDuetIcon[I]].Texture.Y := Self.Statics[Self.ListDuetIcon.[I]].Texture.Y + Padding;
-    Self.Statics[Self.ListRapIcon[I]].Texture.Y := Self.Statics[Self.ListRapIcon.[I]].Texture.Y + Padding;
-    Self.Statics[Self.ListCreatorIcon[I]].Texture.Y := Self.Statics[Self.ListCreatorIcon.[I]].Texture.Y + Padding;
-    Self.Statics[Self.ListFixerIcon[I]].Texture.Y := Self.Statics[Self.ListFixerIcon.[I]].Texture.Y + Padding;
+    Self.Text[Self.ListTextTitle[I]].Y := Self.Text[Self.ListTextTitle[I]].Y + Padding;
+    Self.Text[Self.ListTextYear[I]].Y := Self.Text[Self.ListTextYear[I]].Y + Padding;
+    Self.Text[Self.ListTextCreator[I]].Y := Self.Text[Self.ListTextCreator[I]].Y + Padding;
+    Self.Text[Self.ListTextFixer[I]].Y := Self.Text[Self.ListTextFixer[I]].Y + Padding;
+    Self.Statics[Self.ListVideoIcon[I]].Texture.Y := Self.Statics[Self.ListVideoIcon[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListMedleyIcon[I]].Texture.Y := Self.Statics[Self.ListMedleyIcon[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListCalcMedleyIcon[I]].Texture.Y := Self.Statics[Self.ListCalcMedleyIcon[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListDuetIcon[I]].Texture.Y := Self.Statics[Self.ListDuetIcon[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListRapIcon[I]].Texture.Y := Self.Statics[Self.ListRapIcon[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListCreatorIcon[I]].Texture.Y := Self.Statics[Self.ListCreatorIcon[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListFixerIcon[I]].Texture.Y := Self.Statics[Self.ListFixerIcon[I]].Texture.Y + Padding;
   end;
 
   Self.MinLine := 0;
