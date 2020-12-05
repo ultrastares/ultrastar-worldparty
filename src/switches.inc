@@ -38,14 +38,12 @@
 {$IF Defined(MSWINDOWS)}
   // include defines but no constants
   {$I config-win.inc}
-  {$DEFINE HaveBASS}
 {$ELSEIF Defined(DARWIN)}
   // include defines but no constants
   {$I config-darwin.inc}
 
   // enable debug-mode. For development only!
   {.$DEFINE DEBUG}
-  {.$DEFINE HaveBASS}
   {$DEFINE UTF8_FILENAMES}
 {$ELSEIF Defined(UNIX)}
   // include defines but no constants
@@ -60,35 +58,8 @@
   {.$DEFINE DEBUG}
 {$IFEND}
 
-// audio config
-{$IF Defined(HaveBASS)}
-  {$DEFINE UseBASSPlayback}
-  {$DEFINE UseBASSDecoder}
-  {$DEFINE UseBASSInput}
-{$ELSEIF Defined(HavePortaudio)}
-  {$DEFINE UseSDLPlayback}
-  {.$DEFINE UsePortaudioPlayback}
-  {$DEFINE UsePortaudioInput}
-  {$IFDEF HavePortmixer}
-    {$DEFINE UsePortmixer}
-  {$ENDIF}
-{$ELSE}
-  {$DEFINE UseSDLPlayback}
-  {$DEFINE UseSDLInput}
-{$IFEND}
-
 // projectM config
 {$IF Defined(HaveProjectM)}
   {$DEFINE UseProjectM}
 {$IFEND}
-
-// specify some useful defines
-{$IF Defined(UseBASSInput) or Defined(UseBASSPlayback) or Defined(UseBASSDecoder)}
-  {$DEFINE UseBASS}
-{$IFEND}
-
-{$IF Defined(UsePortaudioInput) or Defined(UsePortaudioPlayback)}
-  {$DEFINE UsePortaudio}
-{$IFEND}
-
 {$ENDIF PASDOC}

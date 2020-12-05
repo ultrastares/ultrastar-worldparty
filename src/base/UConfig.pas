@@ -186,13 +186,6 @@ const
                      (PROJECTM_VERSION_RELEASE * VERSION_RELEASE);
   {$ENDIF}
 
-  {$IFDEF HavePortaudio}
-  PORTAUDIO_VERSION = (PORTAUDIO_VERSION_MAJOR * VERSION_MAJOR) +
-                      (PORTAUDIO_VERSION_MINOR * VERSION_MINOR) +
-                      (PORTAUDIO_VERSION_RELEASE * VERSION_RELEASE);
-  {$ENDIF}
-
-  
 function USDXVersionStr(): string;
 function USDXShortVersionStr(): string;
 

@@ -8,7 +8,6 @@ deps+=('SDL2_image,https://www.libsdl.org/projects/SDL_image/release/SDL2_image-
 deps+=('sqlite,https://sqlite.org/2017/sqlite-autoconf-3170000.tar.gz')
 deps+=('yasm,http://www.tortall.net/projects/yasm/releases/yasm-1.3.0.tar.gz')
 deps+=('ffmpeg,https://ffmpeg.org/releases/ffmpeg-3.2.2.tar.gz')
-deps+=('portaudio,http://www.portaudio.com/archives/pa_stable_v190600_20161030.tgz')
 deps+=('freetype,http://download.savannah.gnu.org/releases/freetype/freetype-2.7.1.tar.gz')
 deps+=('libpng,https://sourceforge.net/projects/libpng/files/libpng16/older-releases/1.6.28/libpng-1.6.28.tar.gz/download')
 

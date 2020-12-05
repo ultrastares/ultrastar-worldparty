@@ -56,19 +56,6 @@ uses
   zlib                   in 'lib\zlib\zlib.pas',
   freetype               in 'lib\freetype\freetype.pas',
 
-  {$IFDEF UseBass}
-  BASS                   in 'lib\bass\delphi\bass.pas',
-  BASS_FX                in 'lib\bass_fx\bass_fx.pas',
-  UAudioCore_Bass        in 'media\UAudioCore_Bass.pas',
-  {$ENDIF}
-  {$IFDEF UsePortaudio}
-  portaudio              in 'lib\portaudio\portaudio.pas',
-  UAudioCore_Portaudio   in 'media\UAudioCore_Portaudio.pas',
-  {$ENDIF}
-  {$IFDEF UsePortmixer}
-  portmixer              in 'lib\portmixer\portmixer.pas',
-  {$ENDIF}
-
   avcodec in 'lib\'+FFMPEG_DIR+'\avcodec.pas',
   avformat in 'lib\'+FFMPEG_DIR+'\avformat.pas',
   avutil in 'lib\'+FFMPEG_DIR+'\avutil.pas',
@@ -211,13 +198,11 @@ uses
   //Includes - Media
   //------------------------------
 
-  UMusic                    in 'base\UMusic.pas',
-  UAudioPlaybackBase        in 'media\UAudioPlaybackBase.pas',
-{$IF Defined(UsePortaudioPlayback) or Defined(UseSDLPlayback)}
-  UFFT                      in 'lib\fft\UFFT.pas',
-  UAudioPlayback_SoftMixer  in 'media\UAudioPlayback_SoftMixer.pas',
-{$IFEND}
-  UAudioConverter           in 'media\UAudioConverter.pas',
+  UMusic in 'base\UMusic.pas',
+  UAudioPlaybackBase in 'media\UAudioPlaybackBase.pas',
+  UFFT in 'lib\fft\UFFT.pas',
+  UAudioPlayback_SoftMixer in 'media\UAudioPlayback_SoftMixer.pas',
+  UAudioConverter in 'media\UAudioConverter.pas',
 
   //******************************
   //Pluggable media modules
@@ -230,30 +215,9 @@ UVideo                    in 'media\UVideo.pas',
   // must be after UVideo, so it will not be the default video module
   UVisualizer               in 'media\UVisualizer.pas',
 {$ENDIF}
-{$IFDEF UseBASSInput}
-  UAudioInput_Bass          in 'media\UAudioInput_Bass.pas',
-{$ENDIF}
-{$IFDEF UseBASSDecoder}
-  // prefer Bass to FFmpeg if possible
-  UAudioDecoder_Bass        in 'media\UAudioDecoder_Bass.pas',
-{$ENDIF}
-{$IFDEF UseBASSPlayback}
-  UAudioPlayback_Bass       in 'media\UAudioPlayback_Bass.pas',
-{$ENDIF}
-{$IFDEF UseSDLInput}
-  UAudioInput_SDL           in 'media\UAudioInput_SDL.pas',
-{$ENDIF}
-{$IFDEF UseSDLPlayback}
-  UAudioPlayback_SDL        in 'media\UAudioPlayback_SDL.pas',
-{$ENDIF}
-{$IFDEF UsePortaudioInput}
-  UAudioInput_Portaudio     in 'media\UAudioInput_Portaudio.pas',
-{$ENDIF}
-{$IFDEF UsePortaudioPlayback}
-  UAudioPlayback_Portaudio  in 'media\UAudioPlayback_Portaudio.pas',
-{$ENDIF}
-UAudioDecoder_FFmpeg      in 'media\UAudioDecoder_FFmpeg.pas',
-
+  UAudioInput_SDL in 'media\UAudioInput_SDL.pas',
+  UAudioPlayback_SDL in 'media\UAudioPlayback_SDL.pas',
+  UAudioDecoder_FFmpeg in 'media\UAudioDecoder_FFmpeg.pas',
 
   //------------------------------
   //Includes - Screens
@@ -301,8 +265,6 @@ UAudioDecoder_FFmpeg      in 'media\UAudioDecoder_FFmpeg.pas',
   opencv_core             in 'lib\openCV\opencv_core.pas',
   opencv_imgproc          in 'lib\openCV\opencv_imgproc.pas',
   opencv_types            in 'lib\openCV\opencv_types.pas',
-
-  //BassMIDI                in 'lib\bassmidi\bassmidi.pas',
 
   UWebcam                 in 'base\UWebcam.pas',
 

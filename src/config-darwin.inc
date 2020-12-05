@@ -49,17 +49,8 @@ LIBAVUTIL_VERSION_RELEASE = 100;
   PROJECTM_VERSION_RELEASE = 0;
 {$IFEND}
 
-{$DEFINE HavePortaudio}
-{$IF Defined(HavePortaudio) and Defined(IncludeConstants)}
-  PORTAUDIO_VERSION_MAJOR   = 19;
-  PORTAUDIO_VERSION_MINOR   = 0;
-  PORTAUDIO_VERSION_RELEASE = 0;
-{$IFEND}
-
 {$DEFINE HaveLibPcre}
 {$IF Defined(HaveLibPcre) and Defined(IncludeConstants)}
   LIBPCRE_LIBNAME  = '';
   LIBPCRE_LIBDIR   = '/usr/local/Cellar/pcre/8.38/lib';
 {$IFEND}
-
-{$UNDEF HavePortmixer}

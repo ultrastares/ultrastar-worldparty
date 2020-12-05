@@ -443,7 +443,7 @@ begin
   DstFormatInfo := GetAudioFormatInfo();
 
   // TODO: selection should not be done here, use a factory (TAudioConverterFactory) instead 
-  Converter := TAudioConverter_FFmpeg.Create();
+  Converter := TAudioConverter_SDL.Create();
 
   Result := Converter.Init(SrcFormatInfo, DstFormatInfo);
 end;

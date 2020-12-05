@@ -74,17 +74,6 @@ AC_DEFUN([AC_SUBST_DEFINE],
 AC_ARG_WITH([cfg-dummy1], [
 External Libraries:])
 
-# add portmixer option
-AC_ARG_WITH([portaudio],
-    [AS_HELP_STRING([--with-portaudio],
-      [enable audio capture with PortAudio @<:@default=check@:>@])],
-    [with_portmixer=$withval], [with_portaudio="check"])
-
-AC_ARG_WITH([portmixer],
-    [AS_HELP_STRING([--with-portmixer],
-      [enable portmixer audio-mixer support @<:@default=check@:>@])],
-    [with_portmixer=$withval], [with_portmixer="check"])
-
 # add projectM option
 AC_ARG_WITH([libprojectM], 
     [AS_HELP_STRING([--with-libprojectM],
@@ -369,15 +358,6 @@ else
 fi
 AC_SUBST(USE_PROJECTM_CWRAPPER, $libprojectM_USE_CWRAPPER)
 
-# find portaudio
-PKG_HAVE([portaudio], [portaudio-2.0], no)
-PKG_VERSION([portaudio], [portaudio-2.0])
-AC_SUBST_DEFINE(HAVE_PORTAUDIO, $portaudio_HAVE)
-
-# find portmixer
-PKG_HAVE([portmixer], [portmixer], no)
-AC_SUBST_DEFINE(HAVE_PORTMIXER, $portmixer_HAVE)
-
 # determine linker-flags
 if test x$FPC_PLATFORM = xdarwin; then
   LDFLAGS="-macosx_version_min 10.4 -undefined dynamic_lookup -headerpad_max_install_names -L/usr/X11/lib"
@@ -426,5 +406,3 @@ if test x$FPC_PLATFORM = xdarwin; then
 !!! Selected packaging: $USE_OSX_PACKAGING with libdir $USE_OSX_PACKAGING_LIBDIR
                    ])
 fi
-
-
