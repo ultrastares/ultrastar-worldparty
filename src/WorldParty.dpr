@@ -88,8 +88,6 @@ uses
   LazUTF8 in 'lib\Lazarus\components\lazutils\lazutf8.pas',
   LazUTF8Classes in 'lib\Lazarus\components\lazutils\lazutf8classes.pas',
   Masks in 'lib\Lazarus\components\lazutils\masks.pas',
-  MTProcs in 'lib\Lazarus\components\multithreadprocs\mtprocs.pas',
-  MTPCPU in 'lib\Lazarus\components\multithreadprocs\mtpcpu.pas',
   {$ENDIF}
   CpuCount in 'lib\other\cpucount.pas',
   {$IFDEF MSWINDOWS}
