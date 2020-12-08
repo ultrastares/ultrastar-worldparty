@@ -113,13 +113,9 @@ function UTF8Pos(const SearchForText, SearchInText: string; StartPos: SizeInt = 
 function UTF8PosP(SearchForText: PChar; SearchForTextLen: SizeInt;
   SearchInText: PChar; SearchInTextLen: SizeInt): PChar;
 function UTF8Copy(const s: string; StartCharIndex, CharCount: PtrInt): string;
-{$IFnDEF NO_CP_RTL}
 procedure UTF8Delete(var s: Utf8String; StartCharIndex, CharCount: PtrInt);
-{$ENDIF}
 procedure UTF8Delete(var s: String; StartCharIndex, CharCount: PtrInt);
-{$IFnDEF NO_CP_RTL}
 procedure UTF8Insert(const source: Utf8String; var s: Utf8String; StartCharIndex: PtrInt);
-{$ENDIF}
 procedure UTF8Insert(const source: String; var s: String; StartCharIndex: PtrInt);
 function UTF8StringReplace(const S, OldPattern, NewPattern: String;
   Flags: TReplaceFlags; ALanguage: string=''): String; inline;
@@ -209,7 +205,7 @@ var
   FPUpChars: array[char] of char;
 
 procedure ReplaceSubstring(var s: string; StartPos, Count: SizeInt;
-                           const Insertion: string);
+  const Insertion: string); deprecated 'Use it from unit LazStringUtils'; // Deprecated in 2.1 / 29.10.2020 / Remove in 2.3
 
 implementation
 
@@ -1098,7 +1094,6 @@ begin
   end;
 end;
 
-{$IFnDEF NO_CP_RTL}
 procedure UTF8Delete(var s: Utf8String; StartCharIndex, CharCount: PtrInt);
 var
   tmp: String;
@@ -1116,7 +1111,6 @@ begin
   tmp := '';
   SetCodePage(RawByteString(s), CP_UTF8, False);
 end;
-{$ENDIF NO_ACP_RTL}
 
 procedure UTF8Delete(var s: String; StartCharIndex, CharCount: PtrInt);
 var
@@ -1136,7 +1130,6 @@ begin
   end;
 end;
 
-{$IFnDEF NO_CP_RTL}
 {It's simper to copy the code from the variant with String parameters than writing a wrapper}
 procedure UTF8Insert(const source: UTF8String; var s: UTF8string;
   StartCharIndex: PtrInt);
@@ -1147,7 +1140,6 @@ begin
   if StartBytePos <> nil then
     Insert(source, s, StartBytePos-PChar(s)+1);
 end;
-{$ENDIF NO_CP_RTL}
 
 procedure UTF8Insert(const source: String; var s: String; StartCharIndex: PtrInt);
 var
@@ -2898,10 +2890,10 @@ const
     '#16', '#17', '#18', '#19', '#20', '#21', '#22', '#23',
     '#24', '#25', '#26', '#27', '#28', '#29', '#30', '#31');
   CEscapeStrings: Array[#0..#31] of string = (
-    '\0'   , '\0x01', '\0x02', '\0x03', '\0x04', '\0x05', '\0x06', '\0x07',
-    '\0x08', '\t'   , '\r'   , '\0x0B', '\0x0C', '\n'   , '\0x0E', '\0x0F',
+    '\0'   , '\0x01', '\0x02', '\0x03', '\0x04', '\0x05', '\0x06', '\a'   ,
+    '\b'   , '\t'   , '\r'   , '\v'   , '\f'   , '\n'   , '\0x0E', '\0x0F',
     '\0x10', '\0x11', '\0x12', '\0x13', '\0x14', '\0x15', '\0x16', '\0x17',
-    '\0x18', '\0x19', '\0x1A', '\0x1B', '\0x1C', '\0x1D', '\0x1E', '\0x1F');
+    '\0x18', '\0x19', '\0x1A', '\e'   , '\0x1C', '\0x1D', '\0x1E', '\0x1F');
   HexEscapeCStrings: Array[#0..#31] of string = (
     '\0x00', '\0x01', '\0x02', '\0x03', '\0x04', '\0x05', '\0x06', '\0x07',
     '\0x08', '\0x09', '\0x0A', '\0x0B', '\0x0C', '\0x0D', '\0x0E', '\0x0F',
@@ -3910,6 +3902,7 @@ end;
 
 procedure ReplaceSubstring(var s: string; StartPos, Count: SizeInt;
   const Insertion: string);
+// This was moved to LazStringUtils and a deprecated copy was left here. Will be removed.
 var
   MaxCount: SizeInt;
   InsertionLen: SizeInt;

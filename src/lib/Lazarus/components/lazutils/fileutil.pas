@@ -79,14 +79,21 @@ type
     sffDontSearchInBasePath, // do not search in BasePath, search only in SearchPath.
     sffSearchLoUpCase,
     sffFile, // must be file, not directory
-    sffExecutable // file must be executable
+    sffExecutable, // file must be executable
+    sffDequoteSearchPath // ansi dequote
     );
   TSearchFileInPathFlags = set of TSearchFileInPathFlag;
 const
-  sffFindProgramInPath = [{$IFDEF Unix}sffDontSearchInBasePath,{$ENDIF}sffFile,sffExecutable];
+  sffFindProgramInPath = [
+    {$IFDEF Unix}sffDontSearchInBasePath,{$ENDIF}
+    {$IFDEF Windows}sffDequoteSearchPath,{$ENDIF}
+    sffFile,
+    sffExecutable
+    ];
 
-function SearchFileInPath(const Filename, BasePath, SearchPath,
-  Delimiter: string; Flags: TSearchFileInPathFlags): string; overload;
+function SearchFileInPath(const Filename, BasePath: string;
+  SearchPath: string; const Delimiter: string;
+  Flags: TSearchFileInPathFlags): string; overload;
 function SearchAllFilesInPath(const Filename, BasePath, SearchPath,
   Delimiter: string; Flags: TSearchFileInPathFlags): TStrings;
 function FindDiskFilename(const Filename: string): string;
@@ -138,7 +145,7 @@ type
     procedure DoFileFound; virtual;
   public
     constructor Create;
-    procedure Search(ASearchPath: String; ASearchMask: String = '';
+    procedure Search(const ASearchPath: String; const ASearchMask: String = '';
       ASearchSubDirs: Boolean = True; CaseSensitive: Boolean = False);
   public
     property MaskSeparator: char read FMaskSeparator write FMaskSeparator;
@@ -173,11 +180,11 @@ type
     constructor Create(AList: TStrings);
   end;
 
-function FindAllFiles(const SearchPath: String; SearchMask: String = '';
+function FindAllFiles(const SearchPath: String; const SearchMask: String = '';
   SearchSubDirs: Boolean = True; DirAttr: Word = faDirectory;
   MaskSeparator: char = ';'; PathSeparator: char = ';'): TStringList; overload;
 procedure FindAllFiles(AList: TStrings; const SearchPath: String;
-  SearchMask: String = ''; SearchSubDirs: Boolean = True; DirAttr: Word = faDirectory;
+  const SearchMask: String = ''; SearchSubDirs: Boolean = True; DirAttr: Word = faDirectory;
   MaskSeparator: char = ';'; PathSeparator: char = ';'); overload;
 
 function FindAllDirectories(const SearchPath: string;

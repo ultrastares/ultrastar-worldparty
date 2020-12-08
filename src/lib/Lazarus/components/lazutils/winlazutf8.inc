@@ -323,18 +323,12 @@ function UTF8ToConsole(const s: string): string; // converts UTF8 to console str
 var
   Dst: PChar;
 begin
-  {$ifndef NO_CP_RTL}
   Result := UTF8ToWinCP(s);
-  {$else NO_CP_RTL}
-  Result := UTF8ToSys(s); // Kept for compatibility
-  {$endif NO_CP_RTL}
   Dst := AllocMem((Length(Result) + 1) * SizeOf(Char));
   if CharToOEM(PChar(Result), Dst) then
     Result := StrPas(Dst);
   FreeMem(Dst);
-  {$ifndef NO_CP_RTL}
   SetCodePage(RawByteString(Result), CP_OEMCP, False);
-  {$endif NO_CP_RTL}
 end;
 {$endif not WinCE}
 
@@ -426,27 +420,13 @@ end;
 function GetLocaleStr(aLocaleID, aLCType: Longint; const Def: string): String;
 var
   L: Integer;
-  {$IF FPC_FULLVERSION < 30000}
-  ResultLen: Integer;
-  {$ENDIF}
   Buf: array[0..255] of WideChar;
 begin
   L := GetLocaleInfoW(aLocaleID, aLCType, Buf, SizeOf(Buf));
   if L > 0 then
   begin
     Result:='';
-    {$IF FPC_FULLVERSION >= 30000}
     widestringmanager.Wide2AnsiMoveProc(PWideChar(@Buf[0]),Result,CP_UTF8,L-1);
-    {$ELSE}
-    ResultLen:=WideCharToMultiByte(CP_UTF8,0,PWideChar(@Buf[0]),L-1,nil,0,nil,nil);
-    if ResultLen > 0 then
-    begin
-      SetLength(Result,ResultLen);
-      WideCharToMultiByte(CP_UTF8,0,PWideChar(@Buf[0]),L-1,@result[1],ResultLen,nil,nil)
-    end
-    else
-      Result:=Def;
-    {$ENDIF}
   end
   else
     Result := Def;
