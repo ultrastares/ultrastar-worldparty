@@ -213,10 +213,18 @@ UVideo                    in 'media\UVideo.pas',
   // must be after UVideo, so it will not be the default video module
   UVisualizer               in 'media\UVisualizer.pas',
 {$ENDIF}
+  {$IFDEF UseBASS}
+  BASS in 'lib\bass\bass.pas',
+  BASS_FX in 'lib\bass_fx\bass_fx.pas',
+  UAudioCore_Bass in 'media\UAudioCore_Bass.pas',
+  UAudioInput_Bass in 'media\UAudioInput_Bass.pas',
+  UAudioPlayback_Bass in 'media\UAudioPlayback_Bass.pas',
+  UAudioDecoder_Bass in 'media\UAudioDecoder_Bass.pas',
+  {$ELSE}
   UAudioInput_SDL in 'media\UAudioInput_SDL.pas',
   UAudioPlayback_SDL in 'media\UAudioPlayback_SDL.pas',
   UAudioDecoder_FFmpeg in 'media\UAudioDecoder_FFmpeg.pas',
-
+  {$ENDIF}
   //------------------------------
   //Includes - Screens
   //------------------------------

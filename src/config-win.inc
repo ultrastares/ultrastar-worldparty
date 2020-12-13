@@ -65,6 +65,8 @@
   LIBSWSCALE_VERSION_RELEASE = 100;
 {$IFEND}
 
+{$DEFINE UseBASS}
+
 {$DEFINE HaveProjectM}
 {$IF Defined(HaveProjectM) and Defined(IncludeConstants)}
   ProjectM_DataDir = 'Visuals\projectM';
