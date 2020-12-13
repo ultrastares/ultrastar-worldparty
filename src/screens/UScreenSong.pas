@@ -1953,7 +1953,7 @@ begin
   Self.Text[Self.TextNoSongs].Visible := not Visibility;
   Self.Text[Self.TextNumber].Visible := Visibility;
   Self.SetRangeVisibilityText(VisibilityNoList, [Self.TextTitle, Self.TextFixer]);
-  Self.SetRangeVisibility(Visibility and Self.FreeListMode(), [Self.StaticNonParty[0], Self.StaticNonParty[7]], [Self.TextNonParty[0], Self.TextNonParty[7]]); //set legend visibility
+  Self.SetRangeVisibility(Visibility and Self.FreeListMode(), [Self.StaticNonParty[0], High(Self.StaticNonParty)], [Self.TextNonParty[0], High(Self.TextNonParty)]); //set legend visibility
   Self.SetRangeVisibility(false, [Self.Static6PlayersDuetSingerP6, Self.Static2PlayersDuetSingerP1], [Self.Text2PlayersDuetSingerP1, Self.Text3PlayersDuetSingerP3]); //hide duets
   for I := 0 to High(Self.StaticsList) do //hide items in smList, too after change from other mode
   begin
