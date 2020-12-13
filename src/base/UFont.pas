@@ -1088,8 +1088,9 @@ destructor TScalableFont.Destroy();
 var
   Level: integer;
 begin
-  for Level := 0 to High(fMipmapFonts) do
-    fMipmapFonts[Level].Free;
+  // TODO FIXME see how to do FreeAndNil(fMipmapFonts)
+  // for Level := 0 to High(fMipmapFonts) do
+  //   fMipmapFonts[Level].Free;
   inherited;
 end;
 
