@@ -58,7 +58,9 @@ type
       PlayerColor:   cardinal;
       PlayerSelect:  cardinal;
       PlayerSelectLevel: cardinal;
-      SingButton: boolean; //only change the screen with click on sing button
+      SingButtonPressed: boolean; //only change the screen with click on sing button
+      SingButton: integer;
+      ExitButton: integer;
       CountIndex:   integer;
       PlayerIndex:  integer;
       ColorIndex:   integer;
@@ -137,7 +139,7 @@ begin
   if BtnDown then
     case MouseButton of
       SDL_BUTTON_LEFT: //only change the screen if sing button is clicked
-        Self.SingButton := Self.Interaction = 6;
+        Self.SingButtonPressed := Self.Interaction in [6, 7];
       SDL_BUTTON_MIDDLE:
         begin
           Result := Self.ParseInput(SDLK_RETURN, 0, true);
@@ -245,7 +247,7 @@ begin
 
       SDLK_RETURN:
         begin
-          if not Self.SingButton then
+          if not Self.SingButtonPressed then
             Exit();
 
           Ini.Players := CountIndex;
@@ -687,7 +689,8 @@ begin
   Self.PlayerColor := AddSelectSlide(UThemes.Theme.PlayerSelector.SelectPlayerColor, Self.ColorIndex, PlayerColors, 'OPTION_VALUE_');
   Self.PlayerSelectLevel := Self.AddSelectSlide(UThemes.Theme.PlayerSelector.SelectPlayerLevel, Self.LevelIndex, UIni.IDifficulty, 'OPTION_VALUE_');
   Self.PlayerAvatar := Self.AddButton(UThemes.Theme.PlayerSelector.PlayerButtonAvatar);
-  Self.AddButton(UThemes.Theme.PlayerSelector.SingButton);
+  Self.ExitButton := Self.AddButton(UThemes.Theme.PlayerSelector.ExitButton);
+  Self.SingButton := Self.AddButton(UThemes.Theme.PlayerSelector.SingButton);
 
   isScrolling := false;
   GenerateAvatars();
@@ -730,7 +733,9 @@ var
   I: integer;
 begin
   inherited;
-  Self.SingButton := true;
+  Self.SingButtonPressed := true;
+  Self.Button[Self.ExitButton].Visible := Self.OpenedInOptions;
+  Self.Button[Self.SingButton].Visible := not Self.OpenedInOptions;
 
   CountIndex := Ini.Players;
 

@@ -269,6 +269,7 @@ type
     SelectPlayerColor:   TThemeSelectSlide;
     SelectPlayerLevel:   TThemeSelectSlide;
     SingButton: TThemeButton;
+    ExitButton: TThemeButton;
   end;
 
   TThemeSong = class(TThemeBasic)
@@ -1618,6 +1619,7 @@ begin
 
       ThemeLoadButton(PlayerSelector.PlayerAvatar, 'NamePlayerAvatar');
       Self.ThemeLoadButton(Self.PlayerSelector.SingButton, 'NamePlayerSingButton');
+      Self.ThemeLoadButton(Self.PlayerSelector.ExitButton, 'NamePlayerExitButton');
 
       ThemeLoadSelectSlide(PlayerSelector.SelectPlayersCount, 'NameSelectPlayerCount');
       ThemeLoadSelectSlide(PlayerSelector.SelectPlayerColor, 'NameSelectPlayerColor');
