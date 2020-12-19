@@ -275,7 +275,7 @@ begin
     TextGL.SetFontSize(Size);
     TextGL.SetFontItalic(false);
     TextGL.SetFontZ(Self.Z);
-    TextGL.SetOutlineAlpha(Alpha);
+    // TextGL.SetOutlineAlpha(Alpha); TODO don't work with japanese and chinese characters
 
     glColor4f(ColR*Int, ColG*Int, ColB*Int, Alpha);
 
