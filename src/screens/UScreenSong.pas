@@ -30,6 +30,7 @@ interface
 {$I switches.inc}
 
 uses
+  UAvatars,
   UCommon,
   UIni,
   UMenu,
@@ -96,7 +97,7 @@ type
 
       //Rap Icon
       RapIcon:     cardinal;
-	  
+
       CreatorIcon: cardinal;
       FixerIcon:   cardinal;
 
@@ -219,6 +220,7 @@ implementation
 
 uses
   Math,
+  md5,
   sdl2,
   SysUtils,
   StrUtils,
@@ -1423,17 +1425,51 @@ end;
 
 procedure TScreenSong.OnShow();
 var
-  I: integer;
+  Avatar: TAvatar;
+  Col: TRGB;
+  I, J: integer;
   Visible: boolean;
 begin
   inherited;
   if not Assigned(UGraphic.ScreenSongMenu) then //load the screens only the first time
   begin
-    UGraphic.ScreenScore := TScreenScore.Create();
-    UGraphic.ScreenSing := TScreenSingController.Create();
-    UGraphic.ScreenSongMenu := TScreenSongMenu.Create();
-    UGraphic.ScreenSongJumpto := TScreenSongJumpto.Create();
-    UGraphic.ScreenPopupScoreDownload := TScreenPopupScoreDownload.Create();
+    //TODO move avatar load to UAvatar
+    UIni.Ini.SingColor := UIni.Ini.PlayerColor; //FIXME remove this variable in all files
+    UNote.PlayersPlay:= UIni.IPlayersVals[UIni.Ini.Players]; //FIXME set this variable is needed to see avatars in scores screen!
+    J := 1;
+    for I := 1 to High(AvatarsList) do
+      if GetArrayIndex(UIni.Ini.PlayerAvatar, UpperCase(MD5Print(MD5File(AvatarsList[I].ToNative())))) <> -1 then
+      begin
+        Avatar := Avatars.FindAvatar(AvatarsList[I]);
+        if (Avatar <> nil) then
+          UAvatars.AvatarPlayerTextures[J] := Avatar.GetTexture()
+        else
+        begin
+          UAvatars.AvatarPlayerTextures[J] := UTexture.Texture.LoadTexture(Skin.GetTextureFileName('NoAvatar_P'+IntToStr(J)), TEXTURE_TYPE_TRANSPARENT, $FFFFFF);
+          Col := UThemes.GetPlayerColor(UIni.Ini.PlayerColor[J]);
+          UAvatars.AvatarPlayerTextures[J].ColR := Col.R;
+          UAvatars.AvatarPlayerTextures[J].ColG := Col.G;
+          UAvatars.AvatarPlayerTextures[J].ColB := Col.B;
+        end;
+        FreeAndNil(Avatar);
+        Inc(J);
+      end;
+
+    for I := J to UIni.IPlayersVals[UIni.Ini.Players] do
+    begin
+        UAvatars.AvatarPlayerTextures[I] := UTexture.Texture.LoadTexture(Skin.GetTextureFileName('NoAvatar_P'+IntToStr(J)), TEXTURE_TYPE_TRANSPARENT, $FFFFFF);
+        Col := UThemes.GetPlayerColor(UIni.Ini.PlayerColor[I - 1]);
+        UAvatars.AvatarPlayerTextures[I].ColR := Col.R;
+        UAvatars.AvatarPlayerTextures[I].ColG := Col.G;
+        UAvatars.AvatarPlayerTextures[I].ColB := Col.B;
+    end;
+    UThemes.LoadPlayersColors();
+    UThemes.Theme.ThemeScoreLoad();
+    UGraphic.ScreenScore := UScreenScore.TScreenScore.Create();
+    UGraphic.ScreenSing := UScreenSingController.TScreenSingController.Create();
+    UGraphic.ScreenSongMenu := UScreenSongMenu.TScreenSongMenu.Create();
+    UGraphic.ScreenSongJumpto := UScreenSongJumpto.TScreenSongJumpto.Create();
+    UGraphic.ScreenPopupScoreDownload := UScreenPopup.TScreenPopupScoreDownload.Create();
   end;
 
   Self.CloseMessage();
@@ -2060,7 +2096,7 @@ begin
       Self.Text[Self.TextUserLocalScore1].Text := UDataBase.DataBase.ReadUserScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]);
       Self.Text[Self.TextUserLocalScore2].Text := UDataBase.DataBase.ReadUserScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]);
       Self.Text[Self.TextUserLocalScore3].Text := UDataBase.DataBase.ReadUserScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]);
-	  
+
       if (High(UDllManager.DLLMan.Websites) >= 0) then
       begin
         Self.Text[Self.TextOnlineScore1].Text := IntToStr(UDataBase.DataBase.ReadMaxScore(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]));

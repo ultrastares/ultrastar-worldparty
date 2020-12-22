@@ -80,7 +80,7 @@ type
       PlayerNames:   array [0..UIni.IMaxPlayerCount-1] of UTF8String;
       PlayerAvatars: array [0..UIni.IMaxPlayerCount-1] of integer;
       PlayerLevel:   array [0..UIni.IMaxPlayerCount-1] of integer;
-
+      Num: array[0..UIni.IMaxPlayerCount-1] of integer;
       APlayerColor: array of integer;
 
       PlayerAvatarButton: array of integer;
@@ -93,6 +93,7 @@ type
       function ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean; override;
 
       procedure OnShow; override;
+      procedure OnHide; override;
       function Draw: boolean; override;
 
       procedure SetAnimationProgress(Progress: real); override;
@@ -113,9 +114,6 @@ type
 
 const
   PlayerColors: array[0..16] of UTF8String = ('Blue', 'Red', 'Green', 'Yellow', 'Magenta', 'Orange', 'Pink',  'Violet', 'Brown', 'Gray', 'DarkBlue', 'Sky', 'Cyan', 'Flame', 'Orchid', 'Harlequin', 'GreenYellow');
-
-var
-  Num: array[0..UIni.IMaxPlayerCount-1]of integer;
 
 implementation
 
@@ -187,8 +185,7 @@ end;
 
 function TScreenPlayerSelector.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
 var
-  I, CurrentAvatar, PrevAvatar: integer;
-  Col: TRGB;
+  CurrentAvatar, PrevAvatar: integer;
 begin
   Result := true;
   if (PressedDown) then
@@ -235,67 +232,18 @@ begin
           else
             ParseInput(SDLK_ESCAPE, CharCode, PressedDown);
         end;
-
       SDLK_ESCAPE :
-        begin
-          UIni.Ini.SaveNames();
           if Self.OpenedInOptions then
             Self.FadeTo(@UGraphic.ScreenOptions, UMusic.SoundLib.Back)
           else
             Self.FadeTo(@UGraphic.ScreenSong);
-        end;
-
       SDLK_RETURN:
         begin
           if not Self.SingButtonPressed then
             Exit();
 
-          Ini.Players := CountIndex;
-          PlayersPlay:= UIni.IPlayersVals[CountIndex];
-
-          for I := 1 to PlayersPlay do
-          begin
-            Ini.Name[I-1] := PlayerNames[I-1];
-            Ini.PlayerColor[I-1] := Num[I-1];
-            Ini.SingColor[I-1] := Num[I-1];
-            Ini.PlayerLevel[I-1] := PlayerLevel[I-1];
-
-            Ini.PlayerAvatar[I-1] := PlayerAvatarButtonMD5[PlayerAvatars[I-1]];
-
-            if (PlayerAvatars[I-1] = 0) then
-            begin
-              AvatarPlayerTextures[I] := NoAvatartexture[I];
-
-              Col := GetPlayerColor(Num[I-1]);
-
-              AvatarPlayerTextures[I].ColR := Col.R;
-              AvatarPlayerTextures[I].ColG := Col.G;
-              AvatarPlayerTextures[I].ColB := Col.B;
-            end
-            else
-            begin
-              Button[PlayerAvatarButton[PlayerAvatars[I-1]]].Texture.Int := 1;
-              AvatarPlayerTextures[I] := Button[PlayerAvatarButton[PlayerAvatars[I-1]]].Texture;
-            end;
-
-          end;
-
-          Ini.SaveNumberOfPlayers;
-          Ini.SaveNames;
-          Ini.SavePlayerColors;
-          Ini.SavePlayerAvatars;
-          Ini.SavePlayerLevels;
-
-          LoadPlayersColors;
-          Theme.ThemeScoreLoad;
-
-        ScreenScore := TScreenScore.Create;
-        ScreenSing  := TScreenSingController.Create;
-
-         if Self.OpenedInOptions then
-            Self.FadeTo(@UGraphic.ScreenOptions, UMusic.SoundLib.Start)
-          else
-            Self.FadeTo(@UGraphic.ScreenSing, UMusic.SoundLib.Start);
+          if Self.SelInteraction = 6 then
+            ParseInput(SDLK_ESCAPE, CharCode, PressedDown);
         end;
 
       // Up and Down could be done at the same time,
@@ -769,6 +717,46 @@ begin
   Interaction := 0;
 end;
 
+procedure TScreenPlayerSelector.OnHide();
+var
+  Col: TRGB;
+  I: integer;
+begin
+  inherited;
+  UIni.Ini.Players := Self.CountIndex;
+  UNote.PlayersPlay := UIni.IPlayersVals[Self.CountIndex];
+  for I := 1 to UIni.IPlayersVals[Self.CountIndex] do
+  begin
+    UIni.Ini.Name[I - 1] := Self.PlayerNames[I - 1];
+    UIni.Ini.PlayerColor[I - 1] := Self.Num[I - 1];
+    UIni.Ini.SingColor[I - 1] := Self.Num[I - 1];
+    UIni.Ini.PlayerLevel[I - 1] := Self.PlayerLevel[I - 1];
+    UIni.Ini.PlayerAvatar[I - 1] := Self.PlayerAvatarButtonMD5[Self.PlayerAvatars[I - 1]];
+    if Self.PlayerAvatars[I - 1] = 0 then
+    begin
+      UAvatars.AvatarPlayerTextures[I] := UAvatars.NoAvatartexture[I];
+      Col := UThemes.GetPlayerColor(Self.Num[I - 1]);
+      UAvatars.AvatarPlayerTextures[I].ColR := Col.R;
+      UAvatars.AvatarPlayerTextures[I].ColG := Col.G;
+      UAvatars.AvatarPlayerTextures[I].ColB := Col.B;
+    end
+    else
+    begin
+      Self.Button[Self.PlayerAvatarButton[Self.PlayerAvatars[I-1]]].Texture.Int := 1;
+      UAvatars.AvatarPlayerTextures[I] := Self.Button[Self.PlayerAvatarButton[Self.PlayerAvatars[I-1]]].Texture;
+    end;
+  end;
+  UIni.Ini.SaveNumberOfPlayers();
+  UIni.Ini.SaveNames();
+  UIni.Ini.SavePlayerColors();
+  UIni.Ini.SavePlayerAvatars();
+  UIni.Ini.SavePlayerLevels();
+  UThemes.LoadPlayersColors();
+  UThemes.Theme.ThemeScoreLoad();
+  UGraphic.ScreenScore := UScreenScore.TScreenScore.Create();
+  UGraphic.ScreenSing := UScreenSingController.TScreenSingController.Create();
+end;
+
 procedure TScreenPlayerSelector.SetAvatarScroll;
 var
   B:        integer;
@@ -782,7 +770,7 @@ begin
 
   VS := Length(AvatarsList);
 
-  case NumVisibleAvatars of    
+  case NumVisibleAvatars of
     3: Factor := 1;
     5: Factor := 1.5;
     else Factor := 0;

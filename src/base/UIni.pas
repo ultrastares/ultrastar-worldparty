@@ -104,7 +104,7 @@ type
       // Players or Teams colors
       SingColor:      array[0..(IMaxPlayerCount-1)] of integer;
 
-      Name:           array[0..15] of UTF8String;
+      Name: array[0..(IMaxPlayerCount-1)] of UTF8String;
       PlayerColor:    array[0..(IMaxPlayerCount-1)] of integer;
       TeamColor:      array[0..2] of integer;
 
