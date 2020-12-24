@@ -50,6 +50,7 @@ type
 
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
+      function ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
       procedure MenuShow(sMenu: byte);
       procedure HandleReturn;
       function CountMedleySongs: integer;
@@ -77,7 +78,7 @@ const
   SM_Medley           = 64 or 16;
   SM_Sorting = 64 or 32;
   SM_Jukebox          = 64 or 128;
-  
+
   SM_Search_new_songs = 64 or 7;
 
 var
@@ -94,6 +95,7 @@ implementation
 
 uses
   Math,
+  UCommon,
   UDatabase,
   UGraphic,
   UMain,
@@ -172,6 +174,36 @@ begin
   end;
 end;
 
+function TScreenSongMenu.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
+var
+  I: integer;
+begin
+  Result := true;
+  if BtnDown then
+  begin
+    Self.TransferMouseCords(X, Y);
+    case MouseButton of
+      SDL_BUTTON_LEFT:
+        Self.ParseInput(SDLK_RETURN, 0, true);
+      SDL_BUTTON_RIGHT,
+      SDL_BUTTON_MIDDLE:
+        if Self.RightMbESC then
+          Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
+      SDL_BUTTON_WHEELDOWN:
+          Self.ParseInput(SDLK_LEFT, 0, true);
+      SDL_BUTTON_WHEELUP:
+          Self.ParseInput(SDLK_RIGHT, 0, true);
+    end;
+  end
+  else
+  begin
+    Self.TransferMouseCords(X, Y);
+    I := Self.InteractAt(X, Y);
+    if (I >= 0) and (I <> Interaction) then
+        Self.SetInteraction(I);
+  end;
+end;
+
 constructor TScreenSongMenu.Create;
 begin
   inherited Create;
@@ -216,7 +248,7 @@ begin
 
   AddButton(Theme.SongMenu.Button6);
   if (Length(Button[5].Text) = 0) then
-    AddButtonText(14, 20, 'Button 6');					
+    AddButtonText(14, 20, 'Button 6');
 
   Interaction := 0;
 end;
@@ -283,7 +315,7 @@ begin
         Button[2].Selectable := true;
         Button[3].Selectable := true;
         Button[4].Selectable := true;
-        Button[5].Selectable := true;	
+        Button[5].Selectable := true;
 
         Button[0].Text[0].Text := Language.Translate('C_SELECT_THIS_SONG');
         Button[1].Text[0].Text := Language.Translate('C_SORT_SONGS');
@@ -517,12 +549,12 @@ begin
         begin
           SelectsS[0].Visible := false;
           SelectsS[1].Visible := false;
-		  
+
           SelectsS[2].Visible := false;
           Button[2].Visible := true;
           Button[2].Text[0].Text := Language.Translate('SONG_MENU_PLAYLIST_NOEXISTING');
           Button[2].Selectable := false;
-		  
+
           Button[3].Visible := false;
 
           Interaction := 7;
@@ -540,7 +572,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := false;
         Button[5].Visible := false;
-		
+
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
         SelectsS[2].Visible := false;
@@ -718,7 +750,7 @@ begin
           Interaction := 1;
 
       end;
-	  
+
 	SM_Search_new_songs:
 	  begin
         Self.FadeTo(@UGraphic.ScreenMain);
@@ -904,7 +936,7 @@ begin
             begin
               // dummy
             end;
-			  
+
         end;
       end;
 
@@ -932,7 +964,7 @@ begin
               // show song menu
               MenuShow(SM_Song);
             end;
-			 
+
         end;
       end;
 
