@@ -617,7 +617,9 @@ var
   WordArray: array of UTF8String;
 begin
   Result := 0;
-  FilterStr := UCommon.RemoveSpecialChars(FilterStr);
+  if FilterStr <> '' then //FIXME required because fails when cancel a search without results
+    FilterStr := UCommon.RemoveSpecialChars(FilterStr);
+
   if FilterStr <> '' then
   begin
     Self.CatNumShow := -2;
