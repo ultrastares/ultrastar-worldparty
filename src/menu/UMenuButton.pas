@@ -266,7 +266,7 @@ var
   T:       integer;
   Tick:    cardinal;
   Spacing: real;
-  x1, x2, x3, x4, y1, y2, y3, y4: real;
+  y1, y2, y3, y4: real;
 begin
   if Visible then
   begin
@@ -581,6 +581,10 @@ end;
 
 function TButton.GetMouseOverArea: TMouseOverRect;
 begin
+  Result.X := 0;
+  Result.Y := 0;
+  Result.W := 0;
+  Result.H := 0;
   if not(Display.Cursor_HiddenByScreen) then
   begin
     if (FadeTex.TexNum = 0) then

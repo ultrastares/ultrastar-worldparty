@@ -297,7 +297,7 @@ begin
           case Interaction of
             1: Team := 0;
             7: Team := 1;
-            13: Team := 2;
+            else Team := 2; //13
           end;
 
           Num[Team] := Num[Team] - 1;
@@ -315,7 +315,7 @@ begin
           case Interaction of
             1: Team := 0;
             7: Team := 1;
-            13: Team := 2;
+            else Team := 2; //13
           end;
 
           //Button[Team * 5].Text[0].Text := 'BUTTON ' + IntTostr(Team);

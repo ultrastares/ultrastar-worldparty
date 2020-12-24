@@ -13,7 +13,7 @@ if not %2==execute (
         fpc WorldParty.dpr -FE..\game -FU..\build -O4 -Xs
     )
     if not %2==compile if not %2==compile-execute (
-        fpc WorldParty.dpr -FE..\game -FU..\build -g -gl -gh -dDEBUG_MODE
+        fpc WorldParty.dpr -FE..\game -FU..\build -g -gl -dDEBUG_MODE
     )
     if exist ..\build\link.res (
         move /Y ..\build\link.res ..\res\link.res

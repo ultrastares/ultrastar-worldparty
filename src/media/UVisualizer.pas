@@ -103,9 +103,9 @@ type
 
       fState: TProjectMState;
 
-      fScreen:  integer;
+      // fScreen:  integer;
 
-      fVisualTex: GLuint;
+      // fVisualTex: GLuint;
       fPCMData: TPCMData;
       fRndPCMcount: integer;
 
@@ -379,6 +379,8 @@ begin
       glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, @Result);
     GL_TEXTURE:
       glGetIntegerv(GL_TEXTURE_STACK_DEPTH, @Result);
+    else
+      Result := 0
   end;
 end;
 

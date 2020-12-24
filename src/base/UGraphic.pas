@@ -44,7 +44,7 @@ uses
   UPathUtils,
   UScreenLoading,
   UScreenMain,
-  UScreenPlayerSelection,
+  UScreenPlayerSelector,
   UScreenOptions,
   UScreenOptionsGame,
   UScreenOptionsGraphics,
@@ -55,6 +55,7 @@ uses
   UScreenOptionsAdvanced,
   UScreenOptionsNetwork,
   UScreenOptionsWebcam,
+  UScreenOptionsProfiles,
   UScreenSong,
   UScreenSingController,
   UScreenJukebox,
@@ -146,6 +147,7 @@ var
   ScreenOptionsAdvanced:  TScreenOptionsAdvanced;
   ScreenOptionsNetwork:   TScreenOptionsNetwork;
   ScreenOptionsWebcam:    TScreenOptionsWebcam;
+  ScreenOptionsProfiles:  TScreenOptionsProfiles;
   ScreenOpen:         TScreenOpen;
   ScreenAbout:        TScreenAbout;
   ScreenDevelopers:   TScreenDevelopers;
@@ -429,7 +431,7 @@ NoDoubledResolution:
   begin
     Log.LogStatus('Set Video Mode...   Borderless fullscreen', 'SDL_SetVideoMode');
     CurrentWindowMode := Mode_Borderless;
-    screen := SDL_CreateWindow('UltraStar Deluxe loading...',
+    screen := SDL_CreateWindow('Loading...',
               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, W, H, SDL_WINDOW_OPENGL or SDL_WINDOW_FULLSCREEN_DESKTOP or SDL_WINDOW_RESIZABLE);
   end
   else if Fullscreen then
@@ -717,6 +719,7 @@ begin
   FreeAndNil(ScreenOptionsAdvanced);
   FreeAndNil(ScreenOptionsNetwork);
   FreeAndNil(ScreenOptionsWebcam);
+  FreeAndNil(ScreenOptionsProfiles);
   FreeAndNil(ScreenJukebox);
   FreeAndNil(ScreenJukeboxOptions);
   FreeAndNil(ScreenJukeboxPlaylist);

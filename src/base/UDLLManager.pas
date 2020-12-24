@@ -224,7 +224,7 @@ end;
 function TDLLMan.WebsiteEncryptScore (var SendInfo: TSendInfo): string;
 begin
   if (@P_EncryptScore <> nil) then
-    Result := P_EncryptScore (SendInfo)
+    Result := string(P_EncryptScore(SendInfo))
   else
     Result := '';
 end;
@@ -241,7 +241,7 @@ function TDLLMan.WebsiteEncryptPassword (var LoginInfo: TLoginInfo): string;
 begin
   if (@P_EncryptPassword <> nil) then
   begin
-    Result := P_EncryptPassword (LoginInfo);
+    Result := string(P_EncryptPassword(LoginInfo));
   end
   else
     Result := '';
@@ -250,7 +250,7 @@ end;
 function TDLLMan.WebsiteDownloadScore (List_MD5Song: widestring; Level: byte): string;
 begin
   if (@P_DownloadScore <> nil) then
-    Result := P_DownloadScore (List_MD5Song, Level)
+    Result := string(P_DownloadScore(List_MD5Song, Level))
   else
     Result := '';
 end;
@@ -258,7 +258,7 @@ end;
 function TDLLMan.WebsiteVerifySong (MD5Song: widestring): string;
 begin
   if (@P_VerifySong <> nil) then
-    Result := P_VerifySong (MD5Song)
+    Result := string(P_VerifySong(MD5Song))
   else
     Result := '';
 end;

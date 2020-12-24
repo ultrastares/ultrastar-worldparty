@@ -1,7 +1,3 @@
-bass:
-http://www.un4seen.com/ (2.4.2.1)
-- FPC Mac OS X compatibility fixes
-
 fft:
 translation of audacity's FFT.cpp by hennymcc (maybe replace this with FFTW?)
 
@@ -36,14 +32,6 @@ autocreated H2Pas file taken from freepascal trunk
 - bug fixes (especially H2Pas related stuff like wrong file types)
 - delphi compatibility
 - comments added
-
-portaudio:
-translation of the (patched) audacity C headers by hennymcc.
-See http://audacity.cvs.sourceforge.net/viewvc/audacity/lib-src/portaudio-v19/include/?sortdir=down
-
-portmixer:
-translation of the (patched) audacity C headers by hennymcc.
-- Unlike portaudio portmixer is part of audacity and there is no linux package for it. If we want to use it for linux, we have to link it statically. Unfortunately it requires a patched version of portaudio (which is part of audacity and statically linked to) so we have to statically link portaudio too :(.
 
 projectM:
 translation of the original C++ headers and C-wrapper by hennymcc

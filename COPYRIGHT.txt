@@ -1,5 +1,5 @@
 ﻿UltraStar WorldParty
-Copyright (C) 2010-2019 by the following:
+Copyright (C) 2010-2020 by the following:
 
 "Zup3r_vock"
 "Daniel20"
@@ -16,7 +16,7 @@ French:    ctariel
 If you have contributed to this project then you deserve to be on this
 list.  Contact us and we'll add you.
 
- --> Follow the project at https://github.com/ultrastares/usdxworldparty
+ --> Follow the project at https://github.com/ultrastares/ultrastar-worldparty/
 
  --> Support and contact: https://ultrastar-es.org
 

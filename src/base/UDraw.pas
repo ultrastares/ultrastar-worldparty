@@ -115,9 +115,6 @@ uses
 
 
 procedure SingDrawWebCamFrame;
-var
-  status: integer;
-  TextureCam2: PTexture;
 begin
 
   Webcam.GetWebcamFrame;
@@ -333,9 +330,6 @@ begin
 end;
 
 procedure SingDrawJukeboxBlackBackground;
-var
-  Rec:    TRecR;
-  TexRec: TRecR;
 begin
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, ScreenJukebox.Tex_Background.TexNum);
@@ -577,6 +571,10 @@ var
 //  R, G, B, A: real;
   NotesH2:    real;
 begin
+  Rec.Right := 0;
+  Rec.Left := 0;
+  Rec.Top := 0;
+  Rec.Bottom := 0;
   //Log.LogStatus('Player notes', 'SingDraw');
 {
   if NrGracza = 0 then
@@ -718,6 +716,10 @@ var
   TempR:          real;
   W, H:           real;
 begin
+  Rec.Right := 0;
+  Rec.Left := 0;
+  Rec.Top := 0;
+  Rec.Bottom := 0;
   if (ScreenSing.settings.NotesVisible and (1 shl PlayerIndex) <> 0) then
   begin
     //glColor4f(1, 1, 1, sqrt((1+sin( AudioPlayback.Position * 3))/4)/ 2 + 0.5 );
@@ -924,6 +926,7 @@ begin
       glEnable(GL_TEXTURE_2D);
       glEnable(GL_BLEND);
 
+      Col := HexToRGB(UIni.Ini.LyricsSingColor);
       if (CurrentSong.isDuet) then
       begin
         if (PlayersPlay = 1) or (PlayersPlay = 2) then
@@ -938,13 +941,8 @@ begin
             if (PlayersPlay = 6) then
               Col := GetLyricBarColor(CP + 1);
           end
-          else
-            Col := HexToRGB(UIni.Ini.LyricsSingColor)
-        end;
-      end
-      else
-        Col := HexToRGB(UIni.Ini.LyricsSingColor);
-
+        end
+      end;
       glColor4f(Col.R, Col.G, Col.B, BarAlpha);
 
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1070,8 +1068,6 @@ end;
 procedure SingDrawLines;
 var
   NR: TRecR;         // lyrics area bounds (NR = NoteRec?)
-  LyricEngine: TLyricEngine;
-  LyricEngineDuet: TLyricEngine;
 begin
   // positions
   if Ini.SingWindow = 0 then
@@ -1172,9 +1168,6 @@ end;
 procedure SingDraw;
 var
   NR: TRecR;         // lyrics area bounds (NR = NoteRec?)
-  LyricEngine: TLyricEngine;
-  LyricEngineDuetP1: TLyricEngine;
-  LyricEngineDuetP2: TLyricEngine;
   I: integer;
   Difficulty: integer;
 begin
@@ -1190,15 +1183,6 @@ begin
   NR.WMid  := NR.Width / 2;
   NR.Mid   := NR.Left + NR.WMid;
 
-  // FIXME: accessing ScreenSing is not that generic
-  if (CurrentSong.isDuet) and (PlayersPlay <> 1) then
-  begin
-    LyricEngineDuetP1 := ScreenSing.LyricsDuetP1;
-    LyricEngineDuetP2 := ScreenSing.LyricsDuetP2;
-  end
-  else
-    LyricEngine := ScreenSing.Lyrics;
-
   // draw time-bar
   SingDrawTimeBar();
 
@@ -1207,15 +1191,15 @@ begin
   begin
     if (CurrentSong.isDuet) and (PlayersPlay <> 1) then
     begin
-      LyricEngineDuetP1.Draw(LyricsState.MidBeat);
+      UGraphic.ScreenSing.LyricsDuetP1.Draw(LyricsState.MidBeat);
       SingDrawLyricHelper(0, NR.Left, NR.WMid);
 
-      LyricEngineDuetP2.Draw(LyricsState.MidBeat);
+      UGraphic.ScreenSing.LyricsDuetP2.Draw(LyricsState.MidBeat);
       SingDrawLyricHelper(1, NR.Left, NR.WMid);
     end
     else
     begin
-      LyricEngine.Draw(LyricsState.MidBeat);
+      UGraphic.ScreenSing.Lyrics.Draw(LyricsState.MidBeat);
       SingDrawLyricHelper(0, NR.Left, NR.WMid);
     end;
   end;
@@ -1996,7 +1980,10 @@ var
   LyricsProgress: real;
   CurLyricsTime:  real;
 begin
-
+  x := 0;
+  y := 0;
+  width := 0;
+  height := 0;
   if (ScreenJukebox.SongListVisible) then
   begin
     x := Theme.Jukebox.StaticTimeProgress.x;

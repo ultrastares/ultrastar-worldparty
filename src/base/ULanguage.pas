@@ -1,8 +1,8 @@
 {*
     UltraStar WorldParty - Karaoke Game
-	
-	UltraStar WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -55,7 +55,6 @@ type
 
       Implode_Glue1, Implode_Glue2: UTF8String;
 
-      procedure LoadList;
       function FindID(const ID: AnsiString; const EntryList: TLanguageEntryArray): integer;
 
     public
@@ -89,25 +88,35 @@ uses
 constructor TLanguage.Create;
 var
   I, J: Integer;
+  Iter: IFileIterator;
 begin
   inherited;
-
-  LoadList;
-
   //Set Implode Glues for Backward Compatibility
   Implode_Glue1 := ', ';
   Implode_Glue2 := ' and ';
 
+  SetLength(List, 0);
+  Iter := FileSystem.FileFind(LanguagesPath.Append('*.ini'), 0);
+  while(Iter.HasNext) do
+  begin
+    SetLength(List, Length(List)+1);
+    List[High(List)].Name := Iter.Next.Name.SetExtension('').ToUTF8;
+  end;
   if (Length(List) = 0) then //No Language Files Loaded -> Abort Loading
     Log.CriticalError('Could not load any Language File');
 
   //Standard Language (If a Language File is Incomplete)
   //Then use English Language
+  SetLength(UIni.ILanguage, 0);
+  SetLength(UIni.LanguageIso, 0);
   for I := 0 to high(List) do //Search for English Language
   begin
     // Load each language to store the native language name
     ChangeLanguage(List[I].Name);
-    ILanguage[I] := Translate('LANGUAGE');
+    SetLength(UIni.ILanguage, Length(UIni.ILanguage)+1);
+    SetLength(UIni.LanguageIso, Length(UIni.LanguageIso)+1);
+    UIni.ILanguage[I] := Self.Translate('LANGUAGE');
+    UIni.LanguageIso[I] := Self.Translate('LANGUAGE_ISO_CODE');
 
   //English Language Found -> Load
     if Uppercase(List[I].Name) = 'ENGLISH' then
@@ -118,39 +127,9 @@ begin
 
       SetLength(Entry, 0);
     end;
-
-    if (I = high(List)) then
-      Log.LogError('language file missing! No standard translation loaded');
   end;
-  //Standard Language END
-  
-end;
-
-{**
- * Parse the Language Dir searching Translations
- *}
-procedure TLanguage.LoadList;
-var
-  Iter: IFileIterator;
-  IniInfo: TFileInfo;
-  LangName: string;
-begin
-  SetLength(List, 0);
-  SetLength(ILanguage, 0);
-
-  Iter := FileSystem.FileFind(LanguagesPath.Append('*.ini'), 0);
-  while(Iter.HasNext) do
-  begin
-    IniInfo := Iter.Next;
-
-    LangName := IniInfo.Name.SetExtension('').ToUTF8;
-
-    SetLength(List, Length(List)+1);
-    List[High(List)].Name := LangName;
-
-    SetLength(ILanguage, Length(ILanguage)+1);
-    ILanguage[High(ILanguage)] := LangName;
-  end;
+  if Length(EntryDefault) = 0 then
+    Log.CriticalError('Cannot find Languages\English.ini');
 end;
 
 {**
@@ -205,8 +184,8 @@ end;
 {**
  * Translate the Text.
  * If Text is an ID, text will be translated according to the current language
- * setting. If Text is not a known ID, it will be returned as is. 
- * @param Text either an ID or an UTF-8 encoded string 
+ * setting. If Text is not a known ID, it will be returned as is.
+ * @param Text either an ID or an UTF-8 encoded string
  *}
 function TLanguage.Translate(const Text: RawByteString): UTF8String;
 var

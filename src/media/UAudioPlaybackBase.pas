@@ -208,12 +208,10 @@ var
 begin
   Result := nil;
 
-  //Log.LogStatus('Loading Sound: "' + Filename + '"', 'TAudioPlayback_Bass.OpenStream');
-
   DecodeStream := OpenDecodeStream(Filename);
   if (not assigned(DecodeStream)) then
   begin
-    Log.LogStatus('Could not open "' + Filename.ToNative + '"', 'TAudioPlayback_Bass.OpenStream');
+    Log.LogStatus('Could not open "' + Filename.ToNative + '"', 'TAudioPlaybackBase.OpenStream');
     Exit;
   end;
 

@@ -596,6 +596,7 @@ function TLuaCore_LoadModule (L: Plua_State): integer; cdecl;
   var
     Id: integer;
 begin
+  Result := 0;
   if (not lua_isnoneornil(L, lua_upvalueindex(1))) then
   begin
     Id := lua_ToInteger(L, lua_upvalueindex(1));
@@ -876,6 +877,7 @@ function TLuaPlugin_Register (L: Plua_State): integer; cdecl;
     P:  TLuaPlugin;
     Name, Version, Author, Url: string;
 begin
+  Result := 0;
   if (lua_gettop(L) >= 2) then
   begin // we got at least name and version
     if (not lua_isNumber(L, lua_upvalueindex(1))) then

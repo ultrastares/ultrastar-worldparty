@@ -165,8 +165,8 @@ end;
 destructor TSongsParse.Destroy();
 begin
   RTLeventDestroy(Self.Event);
-  Self.Txts.Destroy();
-  Self.TxtsParsed.Destroy();
+  Self.Txts.Free();
+  Self.TxtsParsed.Free();
   inherited;
 end;
 
@@ -221,13 +221,8 @@ begin
 end;
 
 destructor TSongs.Destroy();
-var
-  I: integer;
 begin
   RTLeventDestroy(Self.Event);
-  for I := 0 to Self.CoresAvailable do
-    Self.Threads[I].Terminate();
-
   inherited;
 end;
 
@@ -533,6 +528,7 @@ begin
     Self.SortSongs();
     CurCategory := '';
     SetLength(Self.Song, 0);
+    NewCategory := nil;
     for I := 0 to Songs.SongList.Count - 1 do
     begin
       NewSong := TSong(Songs.SongList[I]);
@@ -621,7 +617,9 @@ var
   WordArray: array of UTF8String;
 begin
   Result := 0;
-  FilterStr := UCommon.RemoveSpecialChars(FilterStr);
+  if FilterStr <> '' then //FIXME required because fails when cancel a search without results
+    FilterStr := UCommon.RemoveSpecialChars(FilterStr);
+
   if FilterStr <> '' then
   begin
     Self.CatNumShow := -2;
@@ -653,6 +651,8 @@ begin
             TmpString := Song[I].TitleNoAccent;
           sfArtist:
             TmpString := Song[I].ArtistNoAccent;
+          else
+            TmpString := '';
         end;
         Song[i].Visible := true;
         // Look for every searched word
@@ -686,6 +686,7 @@ function TCatSongs.ShowCategory(Index: integer): integer;
 var
   I: integer;
 begin
+  Result := 0;
   Self.CatNumShow := Index;
   Self.VisibleSongs := 0;
   for I := 0 to High(Self.Song) do

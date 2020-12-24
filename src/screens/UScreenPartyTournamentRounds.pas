@@ -618,7 +618,7 @@ begin
   case Phase of
     0: Valor := 8;
     1: Valor := 12;
-    2: Valor := 14;
+    else Valor := 14; //2
   end;
 
   Result := (Total < Valor);

@@ -37,7 +37,7 @@ uses
 type
   TScreenOptionsGame = class(TMenu)
     private
-      Language, SongMenu: integer;
+      Language, SongMenu: integer; static;
       procedure ReloadScreen();
       procedure ReloadScreens();
     protected
@@ -96,9 +96,7 @@ begin
             if Self.SelInteraction = 6 then //rebuild songs arrays with new config
             begin
               UIni.Ini.Save();
-              FreeAndNil(UGraphic.ScreenSong);
-              USongs.CatSongs := TCatSongs.Create();
-              USongs.Songs := TSongs.Create();
+              UGraphic.ScreenMain.ReloadSongs(false);
             end;
 
             AudioPlayback.PlaySound(SoundLib.Option);
@@ -141,7 +139,7 @@ end;
 // Reload all screens, after Language changed or screen song after songmenu, sorting or tabs changed
 procedure TScreenOptionsGame.ReloadScreens();
 begin
-  UIni.Ini.Save;
+  UIni.Ini.Save();
   if (Self.SongMenu <> UIni.Ini.SongMenu) then
   begin
     UThemes.Theme.ThemeSongLoad();
@@ -166,16 +164,16 @@ end;
 
 procedure TScreenOptionsGame.ReloadScreen();
 begin
-  ULanguage.Language.ChangeLanguage(ILanguage[Ini.Language]);
+  ULanguage.Language.ChangeLanguage(ILanguage[UIni.Ini.Language]);
   UThemes.Theme.OptionsGame.SelectLanguage.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_LANGUAGE');
   UThemes.Theme.OptionsGame.SelectSongMenu.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SONGMENU');
   UThemes.Theme.OptionsGame.SelectDuets.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_DUETS');
   UThemes.Theme.OptionsGame.SelectTabs.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_TABS');
   UThemes.Theme.OptionsGame.SelectSorting.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SORTING');
   UThemes.Theme.OptionsGame.SelectShowScores.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SHOWSCORES');
-  UThemes.Theme.OptionsGame.SelectFindUnsetMedley.Text := ULanguage.Language.Translate('SING_SONG_SELECTION_LEGEND_MEDLEYC');
+  UThemes.Theme.OptionsGame.SelectFindUnsetMedley.Text := ULanguage.Language.Translate('C_MEDLEYC');
   UThemes.Theme.OptionsGame.SelectJoypad.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_JOYPAD_SUPPORT');
-  UThemes.Theme.OptionsGame.ButtonExit.Text[0].Text := ULanguage.Language.Translate('SING_OPTIONS_EXIT');
+  UThemes.Theme.OptionsGame.ButtonExit.Text[0].Text := ULanguage.Language.Translate('C_BACK');
   UGraphic.ScreenOptionsGame.Free();
   UGraphic.ScreenOptionsGame := TScreenOptionsGame.Create();
 end;

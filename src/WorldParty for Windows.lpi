@@ -266,7 +266,7 @@
         <IsPartOfProject Value="True"/>
       </Unit58>
       <Unit59>
-        <Filename Value="screens\UScreenPlayerSelection.pas"/>
+        <Filename Value="screens\UScreenPlayerSelector.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit59>
       <Unit60>

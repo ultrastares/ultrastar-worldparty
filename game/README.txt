@@ -6,11 +6,11 @@ Due to huge amount of changes, we focus all documentation at our repository.
 
 
 
-----------------------------------------------
+---------------------------------------------------
 
-https://github.com/ultrastares/usdxworldparty
+https://github.com/ultrastares/ultrastar-worldparty
 
-----------------------------------------------
+---------------------------------------------------
 
 
 

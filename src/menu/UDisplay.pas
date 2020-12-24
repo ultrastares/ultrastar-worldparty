@@ -574,6 +574,7 @@ var
   Ticks: cardinal;
   DrawX: double;
 begin
+  Alpha := 0;
   if (Ini.Mouse = 2) and ((Screens = 1) or ((ScreenAct - 1) = (Round(Cursor_X+16) div RenderW))) then
   begin // draw software cursor
     Ticks := SDL_GetTicks;
@@ -662,27 +663,26 @@ end;
 
 function TDisplay.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown : boolean): boolean;
 begin
-  if Console_Draw and ConsoleParseInput(PressedKey, CharCode, PressedDown) then Exit;
+  Result := true;
+  if Console_Draw and ConsoleParseInput(PressedKey, CharCode, PressedDown) then 
+    Exit;
 
   if (assigned(NextScreen)) then
     Result := NextScreen^.ParseInput(PressedKey, CharCode, PressedDown)
   else if (assigned(CurrentScreen)) then
     Result := CurrentScreen^.ParseInput(PressedKey, CharCode, PressedDown)
-  else
-    Result := True;
 end;
 
 function TDisplay.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 begin
-  if Console_Draw and ConsoleParseMouse(MouseButton, BtnDown, X, Y) then Exit;
+  Result := true;
+  if Console_Draw and ConsoleParseMouse(MouseButton, BtnDown, X, Y) then 
+    Exit;
 
   if (assigned(NextScreen)) then
     Result := NextScreen^.ParseMouse(MouseButton, BtnDown, X, Y)
-  else
-  if (assigned(CurrentScreen)) then
+  else if (assigned(CurrentScreen)) then
     Result := CurrentScreen^.ParseMouse(MouseButton, BtnDown, X, Y)
-  else
-    Result := True;
 end;
 
 { abort fading to the next screen, may be used in OnShow, or during fade process }
@@ -893,7 +893,7 @@ procedure TDisplay.DrawDebugConsole;
 var
   I, LineCount: integer;
   YOffset, ScaleF, FontSize: real;
-  PosX, PosY: real;
+  PosY: real;
   W, H: real;
   ScrollPad, ScrollW: real;
   OldStretch: real;

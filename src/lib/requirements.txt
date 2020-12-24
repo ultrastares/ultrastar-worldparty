@@ -10,9 +10,10 @@ pngImage
 
 BASS.pas
   http://www.un4seen.com/download.php?bass24
-BASS_FX.pas
-  www.un4seen.com/download.php?z/0/bass_fx24
 
+BASS_FX.pas
+  http://www.un4seen.com/download.php?z/0/bass_fx24
+  
 ffmpeg
   http://www.iversenit.dk/dev/ffmpeg-headers/
 
@@ -26,7 +27,7 @@ On top of the above pas files, you will need development libraries for them.
 
 here are the instructions needed to compile on ubunty ( 7.04 )
 
-		sudo apt-get install libavcodec-dev libavformat-dev libsqlite3-dev libsdl-ttf2.0-dev libsdl-image1.2-dev portaudio19-dev 
+		sudo apt-get install libavcodec-dev libavformat-dev libsqlite3-dev libsdl-ttf2.0-dev libsdl-image1.2-dev
 
 in order to build the configure file ( with autogen.sh )
 
@@ -35,7 +36,7 @@ in order to build the configure file ( with autogen.sh )
 
 for Fedora 8 ( contributed by kdub )
 
-		yum install ffmpeg-devel portaudio-devel SDL_ttf-devel SDL_image-devel sqlite-devel
+		yum install ffmpeg-devel SDL_ttf-devel SDL_image-devel sqlite-devel
 
 ======================================
 Mac OS X build
@@ -47,4 +48,4 @@ Install the FreePascal compiler (version 2.2.2 or later) using fink or a package
 Install these libs and their dependences using fink:
 
 		fink install pkgconfig libavcodec-dev libavformat-dev libavutil-dev libswscale-dev
-		fink install portaudio2 SDL SDL-image libpng3 sqlite3-dev
+		fink install SDL SDL-image libpng3 sqlite3-dev
