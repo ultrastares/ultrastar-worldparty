@@ -903,7 +903,7 @@ type
     ButtonPreVisualization: TThemeButton;
     ButtonExit:           TThemeButton;
   end;
-  
+
   TThemeOptionsProfiles = class(TThemeBasic)
     ButtonExit:           TThemeButton;
   end;
@@ -963,9 +963,6 @@ type
   end;
 
   TThemeSongJumpTo = class(TThemeBasic)
-    ButtonSearchText: TThemeButton;
-    SelectSlideType:  TThemeSelectSlide;
-    TextFound:        TThemeText;
   end;
 
   //Party Screens
@@ -2147,7 +2144,6 @@ begin
 
       //Options Profiles
 	  ThemeLoadBasic(OptionsProfiles, 'OptionsProfiles');
-	  
 	  ThemeLoadButton(OptionsProfiles.ButtonExit,          'OptionsProfilesButtonExit');
 
       //error popup
@@ -2202,11 +2198,7 @@ begin
       ThemeLoadText(SongMenu.TextMenu, 'SongMenuTextMenu');
 
       //Song Jumpto
-      ThemeLoadBasic (SongJumpto, 'SongJumpto');
-      ThemeLoadButton(SongJumpto.ButtonSearchText, 'SongJumptoButtonSearchText');
-
-      ThemeLoadSelectSlide(SongJumpto.SelectSlideType, 'SongJumptoSelectSlideType');
-      ThemeLoadText(SongJumpto.TextFound, 'SongJumptoTextFound');
+      Self.ThemeLoadBasic(Self.SongJumpto, 'SongJumpto');
 
       //Party Options
       ThemeLoadBasic(PartyOptions, 'PartyOptions');
@@ -3705,7 +3697,7 @@ begin
 
   ThemeLoadEqualizer(Song.Equalizer, 'Song' + prefix + 'Equalizer');
 
-  //Ranking Song Screen  
+  //Ranking Song Screen
   ThemeLoadText(Song.TextMyScores, 'Song' + prefix + 'TextMyScores');
   ThemeLoadText(Song.TextWebsite, 'Song' + prefix + 'TextWebsite');
   ThemeLoadText(Song.TextUserLocalScore1, 'Song' + prefix + 'TextUserLocalScore1');

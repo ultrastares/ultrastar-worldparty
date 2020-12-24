@@ -25,28 +25,19 @@ unit UScreenSongJumpto;
 
 interface
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
 uses
   sdl2,
-  SysUtils,
-  UMenu,
-  UDisplay,
-  UMusic,
-  UFiles,
-  USongs,
-  UThemes;
+  UMenu;
 
 type
   TScreenSongJumpto = class(TMenu)
     private
       //For ChangeMusic
       fVisible: boolean;
-      fSelectType: TSongFilter;
       procedure SetTextFound();
 
       //Visible //Whether the Menu should be Drawn
@@ -66,108 +57,49 @@ implementation
 
 uses
   UGraphic,
-  UMain,
-  UIni,
-  UTexture,
-  ULanguage,
-  UParty,
-  UScreenSong,
-  ULog,
+  UMusic,
+  USongs,
+  UThemes,
   UUnicodeUtils;
 
 function TScreenSongJumpto.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
 begin
   Result := true;
-  if (PressedDown) then
-  begin // Key Down
-    // check normal keys
-    if (IsAlphaNumericChar(CharCode) or
-        IsPunctuationChar(CharCode)) then
+  if PressedDown then
+  begin
+    if UUnicodeUtils.IsPrintableChar(CharCode) and (Self.Interaction = 0) and (Length(Self.Text[1].Text) < 25) then
     begin
-      if (Interaction = 0) then
-      begin
-        Button[0].Text[0].ColR := Theme.SongJumpto.ButtonSearchText.ColR;
-        Button[0].Text[0].ColG := Theme.SongJumpto.ButtonSearchText.ColG;
-        Button[0].Text[0].ColB := Theme.SongJumpto.ButtonSearchText.ColB;
-        Button[0].Text[0].Text := Button[0].Text[0].Text + UCS4ToUTF8String(CharCode);
-        Self.SetTextFound();
+      Self.Text[0].Visible := false;
+      Self.Text[1].Text := Self.Text[1].Text+UUnicodeUtils.UCS4ToUTF8String(CharCode);
+      Self.SetTextFound();
+    end
+    else
+      case PressedKey of
+        SDLK_BACKSPACE:
+          begin
+            Self.Text[1].DeleteLastLetter();
+            Self.SetTextFound();
+          end;
+        SDLK_RETURN,
+        SDLK_ESCAPE:
+          begin
+            Self.Visible := false;
+            UMusic.AudioPlayback.PlaySound(UMusic.SoundLib.Back);
+            if (USongs.CatSongs.GetVisibleSongs() = 0) and (Self.Text[1].Text <> '') then
+            begin
+              Self.Text[1].Text := '';
+              Self.SetTextFound();
+            end;
+          end;
       end;
-    end;
-
-    // check special keys
-    case PressedKey of
-      SDLK_BACKSPACE:
-        begin
-          if (Interaction = 0) and (Length(Button[0].Text[0].Text) > 0) then
-          begin
-            Button[0].Text[0].DeleteLastLetter();
-            Self.SetTextFound();
-          end;
-        end;
-
-      SDLK_RETURN,
-      SDLK_ESCAPE:
-        begin
-          Visible := false;
-          AudioPlayback.PlaySound(SoundLib.Back);
-          if (USongs.CatSongs.GetVisibleSongs() = 0) and (Length(Self.Button[0].Text[0].Text) > 0) then
-          begin
-            Self.Button[0].Text[0].Text := '';
-            Self.SetTextFound();
-          end;
-        end;
-
-      SDLK_DOWN:
-        begin
-          {SelectNext;
-          Button[0].Text[0].Selected := (Interaction = 0);}
-        end;
-
-      SDLK_UP:
-        begin
-          {SelectPrev;
-          Button[0].Text[0].Selected := (Interaction = 0); }
-        end;
-
-      SDLK_RIGHT:
-        begin
-          Interaction := 1;
-          InteractInc;
-          if (Length(Button[0].Text[0].Text) > 0) then
-            Self.SetTextFound();
-          Interaction := 0;
-        end;
-      SDLK_LEFT:
-        begin
-          Interaction := 1;
-          InteractDec;
-          if (Length(Button[0].Text[0].Text) > 0) then
-            Self.SetTextFound();
-          Interaction := 0;
-        end;
-    end;
   end;
 end;
 
 constructor TScreenSongJumpto.Create;
-var
-  ButtonID: integer;
 begin
   inherited Create;
-
-  LoadFromTheme(Theme.SongJumpto);
-
-  ButtonID := AddButton(Theme.SongJumpto.ButtonSearchText);
-
-  if (Length(Button[0].Text) = 0) then
-    AddButtonText(14, 20, '');
-
-  Button[ButtonID].Text[0].Writable := true;
-
-  fSelectType := sfAll;
-  AddSelectSlide(Theme.SongJumpto.SelectSlideType, PInteger(@fSelectType)^, []);
-
-  Interaction := 0;
+  Self.LoadFromTheme(UThemes.Theme.SongJumpto);
+  Self.Text[1].Writable := true;
 end;
 
 procedure TScreenSongJumpto.SetVisible(Value: boolean);
@@ -182,28 +114,19 @@ end;
 procedure TScreenSongJumpto.OnShow;
 begin
   inherited;
-
-  //Reset Screen if no Old Search is Displayed
-  if (CatSongs.CatNumShow <> -2) then
-  begin
-    SelectsS[0].SetSelectOpt(0);
-
-    Button[0].Text[0].Text := '';
-  end;
-
-  //Select Input
-  Interaction := 0;
-  Button[0].Text[0].Selected := true;
+  if (USongs.CatSongs.CatNumShow <> -2) then
+    Self.Text[1].Text := '';
 end;
 
 function TScreenSongJumpto.Draw: boolean;
 begin
+  Self.Text[0].Visible := Self.Text[1].Text = '';
   Result := inherited Draw;
 end;
 
 procedure TScreenSongJumpto.SetTextFound();
 begin
-  UGraphic.ScreenSong.SetSubselection(Self.Button[0].Text[0].Text, fSelectType);
+  UGraphic.ScreenSong.SetSubselection(Self.Text[1].Text)
 end;
 
 end.
