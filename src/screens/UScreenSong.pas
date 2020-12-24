@@ -111,20 +111,20 @@ type
       CoverTime:    real;
 
       //Scores
-      TextMyScores:           integer;
-      TextWebsite:            integer;
-      TextUserLocalScore1:    integer;
-      TextUserLocalScore2:    integer;
-      TextUserLocalScore3:    integer;
-      TextLocalScore1:        integer;
-      TextLocalScore2:        integer;
-      TextLocalScore3:        integer;
-      TextUserOnlineScore1:   integer;
-      TextUserOnlineScore2:   integer;
-      TextUserOnlineScore3:   integer;
-      TextOnlineScore1:       integer;
-      TextOnlineScore2:       integer;
-      TextOnlineScore3:       integer;
+      TextMyScores: integer;
+      TextWebsite: integer;
+      TextUserLocalScore1: integer;
+      TextUserLocalScore2: integer;
+      TextUserLocalScore3: integer;
+      TextLocalScore1: integer;
+      TextLocalScore2: integer;
+      TextLocalScore3: integer;
+      TextUserOnlineScore1: integer;
+      TextUserOnlineScore2: integer;
+      TextUserOnlineScore3: integer;
+      TextOnlineScore1: integer;
+      TextOnlineScore2: integer;
+      TextOnlineScore3: integer;
 
       //Party Mod
       Mode: TSingMode;
@@ -726,20 +726,20 @@ begin
   Self.FixerIcon := Self.AddStatic(UThemes.Theme.Song.FixerIcon);
 
   //Show Scores
-  TextMyScores           := AddText(Theme.Song.TextMyScores);
-  TextWebsite            := AddText(Theme.Song.TextWebsite);
-  TextUserLocalScore1    := AddText(Theme.Song.TextUserLocalScore1);
-  TextUserLocalScore2    := AddText(Theme.Song.TextUserLocalScore2);
-  TextUserLocalScore3    := AddText(Theme.Song.TextUserLocalScore3);
-  TextLocalScore1        := AddText(Theme.Song.TextLocalScore1);
-  TextLocalScore2        := AddText(Theme.Song.TextLocalScore2);
-  TextLocalScore3        := AddText(Theme.Song.TextLocalScore3);
-  TextUserOnlineScore1   := AddText(Theme.Song.TextUserOnlineScore1);
-  TextUserOnlineScore2   := AddText(Theme.Song.TextUserOnlineScore2);
-  TextUserOnlineScore3   := AddText(Theme.Song.TextUserOnlineScore3);
-  TextOnlineScore1       := AddText(Theme.Song.TextOnlineScore1);
-  TextOnlineScore2       := AddText(Theme.Song.TextOnlineScore2);
-  TextOnlineScore3       := AddText(Theme.Song.TextOnlineScore3);
+  Self.TextMyScores := Self.AddText(UThemes.Theme.Song.TextMyScores);
+  Self.TextWebsite := Self.AddText(UThemes.Theme.Song.TextWebsite);
+  Self.TextUserLocalScore1 := Self.AddText(UThemes.Theme.Song.TextUserLocalScore1);
+  Self.TextUserLocalScore2 := Self.AddText(UThemes.Theme.Song.TextUserLocalScore2);
+  Self.TextUserLocalScore3 := Self.AddText(UThemes.Theme.Song.TextUserLocalScore3);
+  Self.TextLocalScore1 := Self.AddText(UThemes.Theme.Song.TextLocalScore1);
+  Self.TextLocalScore2 := Self.AddText(UThemes.Theme.Song.TextLocalScore2);
+  Self.TextLocalScore3 := Self.AddText(UThemes.Theme.Song.TextLocalScore3);
+  Self.TextUserOnlineScore1 := Self.AddText(UThemes.Theme.Song.TextUserOnlineScore1);
+  Self.TextUserOnlineScore2 := Self.AddText(UThemes.Theme.Song.TextUserOnlineScore2);
+  Self.TextUserOnlineScore3 := Self.AddText(UThemes.Theme.Song.TextUserOnlineScore3);
+  Self.TextOnlineScore1 := Self.AddText(UThemes.Theme.Song.TextOnlineScore1);
+  Self.TextOnlineScore2 := Self.AddText(UThemes.Theme.Song.TextOnlineScore2);
+  Self.TextOnlineScore3 := Self.AddText(UThemes.Theme.Song.TextOnlineScore3);
 
   //Party Mode
   for I := 0 to UParty.PartyTeamsMax - 1 do
@@ -2090,9 +2090,7 @@ begin
       end;
     end;
 
-// >>>>>>> FIX ME <<<<<<<<
-    Self.Text[Self.TextWebsite].text := UTF8Encode('UltraStar España');
-
+    Self.Text[Self.TextWebsite].text := UTF8Decode('UltraStar España'); //FIXME use the constant
     if (UIni.Ini.ShowScores > 0) and (Self.Mode = smNormal) and (not Song.isDuet) then //show scores
     begin
       Self.Text[Self.TextLocalScore1].Text := IntToStr(UDataBase.DataBase.ReadMaxScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]));
@@ -2112,9 +2110,20 @@ begin
         Self.Text[Self.TextUserOnlineScore3].Text := UDataBase.DataBase.ReadUser_Score(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]);
       end;
       //show local score, web score and captions
-      Self.SetRangeVisibilityText((UIni.Ini.ShowScores = 2) or (Self.Text[Self.TextLocalScore1].Text <> '0'), [Self.TextUserLocalScore1, Self.TextUserLocalScore2, Self.TextUserLocalScore3, Self.TextLocalScore1, Self.TextLocalScore2, Self.TextLocalScore3]);
-      Self.SetRangeVisibilityText((UIni.Ini.ShowScores = 2) or ((Self.Text[Self.TextOnlineScore1].Text <> '') and (Self.Text[Self.TextUserOnlineScore1].Text <> '0')), [Self.TextUserOnlineScore1, Self.TextUserOnlineScore1, Self.TextUserOnlineScore2, Self.TextUserOnlineScore3, Self.TextOnlineScore1, Self.TextOnlineScore2, Self.TextOnlineScore3]);
-      Self.SetRangeVisibilityText(Self.Text[Self.TextOnlineScore1].Visible or Self.Text[Self.TextUserOnlineScore1].Visible, [Self.TextOnlineScore1, Self.TextOnlineScore2, Self.TextOnlineScore3, Self.TextUserOnlineScore1, Self.TextUserOnlineScore2, Self.TextUserOnlineScore3]);
+      Self.SetRangeVisibilityText(
+        (UIni.Ini.ShowScores = 2) or (Self.Text[Self.TextLocalScore1].Text <> '0'),
+        [Self.TextUserLocalScore1, Self.TextLocalScore3]
+      );
+      Self.Text[Self.TextMyScores].Visible := Self.Text[Self.TextUserLocalScore1].Visible;
+      Self.SetRangeVisibilityText(
+        (UIni.Ini.ShowScores = 2) or ((Self.Text[Self.TextOnlineScore1].Text <> '') and (Self.Text[Self.TextUserOnlineScore1].Text <> '0')),
+        [Self.TextUserOnlineScore1, Self.TextOnlineScore3]
+      );
+      Self.Text[Self.TextWebsite].Visible := Self.Text[Self.TextUserOnlineScore1].Visible;
+      Self.SetRangeVisibilityText(
+        Self.Text[Self.TextOnlineScore1].Visible or Self.Text[Self.TextUserOnlineScore1].Visible,
+        [Self.TextOnlineScore1, Self.TextUserOnlineScore3]
+      );
     end
     else
       Self.SetRangeVisibilityText(false, [Self.TextOnlineScore1, Self.TextOnlineScore2, Self.TextOnlineScore3, Self.TextUserOnlineScore1, Self.TextUserOnlineScore2, Self.TextUserOnlineScore3]);
