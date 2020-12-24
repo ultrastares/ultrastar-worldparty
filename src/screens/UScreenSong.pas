@@ -611,6 +611,7 @@ end;
 
 function TScreenSong.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 var
+  CurrentSong: boolean;
   B, CoverX, CoverY: integer;
 begin
   Result := true;
@@ -622,15 +623,15 @@ begin
     else
     begin
       Self.TransferMouseCords(X, Y);
+      CurrentSong := Self.InRegion(X, Y, Self.Button[Self.Interaction].GetMouseOverArea()) //button
+        or Self.InRegion(X, Y, Self.Statics[0].GetMouseOverArea()) //song info
+        or (Self.Statics[Self.MainCover].Visible and Self.InRegion(X, Y, Self.Statics[Self.MainCover].GetMouseOverArea())); //main cover
+
       case MouseButton of
         SDL_BUTTON_LEFT: //sing or move to the selected song/page
           begin
             if Self.FreeListMode() then
-              if //current song
-                Self.InRegion(X, Y, Self.Button[Self.Interaction].GetMouseOverArea()) //button
-                or Self.InRegion(X, Y, Self.Statics[0].GetMouseOverArea()) //song info
-                or (Self.Statics[Self.MainCover].Visible and Self.InRegion(X, Y, Self.Statics[Self.MainCover].GetMouseOverArea())) //main cover
-              then
+              if CurrentSong then
                 Self.ParseInput(SDLK_RETURN, 0, true)
               else
                 case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
@@ -656,7 +657,12 @@ begin
                       end;
                 end;
           end;
-        SDL_BUTTON_RIGHT, SDL_BUTTON_MIDDLE: //open song menu
+        SDL_BUTTON_RIGHT: //go back
+          if CurrentSong then //open song menu
+            Self.ParseInput(0, Ord('M'), true)
+          else if Self.RightMbESC then
+            Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
+        SDL_BUTTON_MIDDLE: //open song menu
           Self.ParseInput(0, Ord('M'), true);
         SDL_BUTTON_WHEELDOWN: //next song
           Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_RIGHT, SDLK_DOWN), 0, true);
@@ -664,7 +670,7 @@ begin
           Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_LEFT, SDLK_UP), 0, true);
       end
     end
-  else if Self.FreeListMode() then //hover cover
+  else if Self.FreeListMode() and (not UGraphic.ScreenSongMenu.Visible) then //hover cover
   begin
     Self.TransferMouseCords(X, Y);
     B := Round(Self.SongTarget);
