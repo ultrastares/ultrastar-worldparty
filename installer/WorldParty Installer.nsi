@@ -155,7 +155,6 @@ Var StartMenuFolder
 
 ; WorldParty Settings Page
 
-Page custom Settings
 
 
 ; User data info
