@@ -179,12 +179,16 @@ var
   I: integer;
 begin
   Result := true;
+  Self.TransferMouseCords(X, Y);
+  I := Self.InteractAt(X, Y);
   if BtnDown then
   begin
-    Self.TransferMouseCords(X, Y);
     case MouseButton of
       SDL_BUTTON_LEFT:
-        Self.ParseInput(SDLK_RETURN, 0, true);
+        if I >= 0 then
+          Self.ParseInput(SDLK_RETURN, 0, true)
+        else
+          Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
       SDL_BUTTON_RIGHT,
       SDL_BUTTON_MIDDLE:
         if Self.RightMbESC then
@@ -195,13 +199,8 @@ begin
           Self.ParseInput(SDLK_RIGHT, 0, true);
     end;
   end
-  else
-  begin
-    Self.TransferMouseCords(X, Y);
-    I := Self.InteractAt(X, Y);
-    if (I >= 0) and (I <> Interaction) then
-        Self.SetInteraction(I);
-  end;
+  else if (I >= 0) and (I <> Interaction) then
+    Self.SetInteraction(I);
 end;
 
 constructor TScreenSongMenu.Create;
