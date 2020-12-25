@@ -134,9 +134,9 @@ type
     PreviewStart: real;   // in seconds
     Medley:     TMedley;  // medley params
 
+    Validated: boolean;
     isDuet: boolean;
     DuetNames:  array of UTF8String; // duet singers name
-
     hasRap: boolean;
 
     Score:      array[0..2] of array of TScore;
@@ -300,6 +300,7 @@ begin
   Self.Fixer   := '';
   Self.PreviewStart := 0;
   Self.Medley.Source := msNone;
+  Self.Validated := true;
   Self.isDuet := false;
   SetLength(Self.DuetNames, 2);
   Self.DuetNames[0] := 'P1';

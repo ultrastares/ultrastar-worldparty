@@ -289,13 +289,14 @@ type
     TextNumberMedley: array of TThemeText;
 
     //Song icons
-    VideoIcon:              TThemeStatic;
-    MedleyIcon:             TThemeStatic;
-    CalculatedMedleyIcon:   TThemeStatic;
-    DuetIcon:               TThemeStatic;
-    RapIcon:                TThemeStatic;
-    CreatorIcon:            TThemeStatic;
-    FixerIcon:              TThemeStatic;
+    VideoIcon: TThemeStatic;
+    MedleyIcon: TThemeStatic;
+    CalculatedMedleyIcon: TThemeStatic;
+    DuetIcon: TThemeStatic;
+    RapIcon: TThemeStatic;
+    CreatorIcon: TThemeStatic;
+    FixerIcon: TThemeStatic;
+    UnvalidatedIcon: TThemeStatic;
 
     //Show Cat in TopLeft Mod
     TextCat:          TThemeText;
@@ -3632,13 +3633,14 @@ begin
   end;
 
   //Song icons
-  ThemeLoadStatic(Song.VideoIcon, 'Song' + prefix + 'VideoIcon');
-  ThemeLoadStatic(Song.MedleyIcon, 'Song' + prefix + 'MedleyIcon');
-  ThemeLoadStatic(Song.CalculatedMedleyIcon, 'Song' + prefix + 'CalculatedMedleyIcon');
-  ThemeLoadStatic(Song.DuetIcon, 'Song' + prefix + 'DuetIcon');
-  ThemeLoadStatic(Song.RapIcon, 'Song' + prefix + 'RapIcon');
-  ThemeLoadStatic(Song.CreatorIcon, 'Song' + prefix + 'CreatorIcon');
-  ThemeLoadStatic(Song.FixerIcon, 'Song' + prefix + 'FixerIcon');
+  Self.ThemeLoadStatic(Self.Song.VideoIcon, 'Song'+prefix+'VideoIcon');
+  Self.ThemeLoadStatic(Self.Song.MedleyIcon, 'Song'+prefix+'MedleyIcon');
+  Self.ThemeLoadStatic(Self.Song.CalculatedMedleyIcon, 'Song'+prefix+'CalculatedMedleyIcon');
+  Self.ThemeLoadStatic(Self.Song.DuetIcon, 'Song'+prefix+'DuetIcon');
+  Self.ThemeLoadStatic(Self.Song.RapIcon, 'Song'+prefix+'RapIcon');
+  Self.ThemeLoadStatic(Self.Song.CreatorIcon, 'Song'+prefix+'CreatorIcon');
+  Self.ThemeLoadStatic(Self.Song.FixerIcon, 'Song'+prefix+'FixerIcon');
+  Self.ThemeLoadStatic(Self.Song.UnvalidatedIcon, 'Song'+prefix+'UnvalidatedIcon');
 
   //Show Cat in TopLeft Mod
   ThemeLoadText(Song.TextCat, 'Song' + prefix + 'TextCat');
