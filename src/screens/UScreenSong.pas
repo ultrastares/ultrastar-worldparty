@@ -1604,6 +1604,9 @@ var
   Increment: real;
 begin
   Result := true;
+  if USongs.CatSongs.GetVisibleSongs() = 0 then
+    Exit();
+
   FadeMessage();
 
   if Self.IsScrolling and not ((TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic])) then
