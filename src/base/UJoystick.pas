@@ -19,6 +19,7 @@
     along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
+
 unit UJoystick;
 
 interface
@@ -410,6 +411,7 @@ begin
   inherited;
 
   Controllers := TControllerIDMap.Create;
+  Controllers.Sorted := true;
   Controller := nil;
 
   SDL_InitSubSystem( SDL_INIT_JOYSTICK or SDL_INIT_GAMECONTROLLER );
@@ -499,6 +501,7 @@ end;
 destructor TJoy.Destroy;
 var
   i, index: integer;
+  Controller: TJoyController;
 begin
   inherited;
 
@@ -710,7 +713,9 @@ begin
   //inherited;
 
   DPadStates := TControllerDPadIDStateMap.Create;
+  DPadStates.Sorted := true;
   AxesStates := TControllerAxisIDStateMap.Create;
+  AxesStates.Sorted := true;
 
   MouseMode := false;
 
@@ -834,15 +839,15 @@ end;
 // TODO: Move to Joystick manager
 function TJoyController.SimulateMouse(Axis: byte; Delta: real): boolean;
 var
-  mouseX, mouseY: PInt;
+  mouseX, mouseY: integer;
 begin
   Result := true;
 
   if not LastMouseState.IsSet then
   begin
     SDL_GetMouseState(@mouseX, @mouseY);
-    LastMouseState.X := integer(mousex);
-    LastMouseState.Y := integer(mousey);
+    LastMouseState.X := mousex;
+    LastMouseState.Y := mousey;
     LastMouseState.Time := SDL_GetTicks();
   end;
 
