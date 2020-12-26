@@ -636,6 +636,9 @@ begin
         end;
       SDLK_F5:
         begin
+          if not Self.Text[Self.SearchTextPlaceholder].Visible then
+            Self.ParseInput(SDLK_ESCAPE, 0, true);
+
           Self.FadeTo(@UGraphic.ScreenMain);
           UGraphic.ScreenMain.ReloadSongs();
         end;
@@ -1604,7 +1607,7 @@ var
   Increment: real;
 begin
   Result := true;
-  if USongs.CatSongs.GetVisibleSongs() = 0 then
+  if (USongs.CatSongs.GetVisibleSongs() = 0) and Self.Text[Self.SearchTextPlaceholder].Visible then
     Exit();
 
   FadeMessage();
