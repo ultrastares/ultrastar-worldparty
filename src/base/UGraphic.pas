@@ -68,7 +68,6 @@ uses
   UScreenDevelopers,
   USkins,
   UScreenSongMenu,
-  UScreenSongJumpto,
   {Party Screens}
   UScreenPartyNewRound,
   UScreenPartyScore,
@@ -153,7 +152,6 @@ var
   ScreenDevelopers:   TScreenDevelopers;
 
   ScreenSongMenu:     TScreenSongMenu;
-  ScreenSongJumpto:     TScreenSongJumpto;
 
   //Party Screens
   //ScreenSingModi:         TScreenSingModi;
@@ -728,7 +726,6 @@ begin
   FreeAndNil(ScreenAbout);
   FreeAndNil(ScreenDevelopers);
   FreeAndNil(ScreenSongMenu);
-  FreeAndNil(ScreenSongJumpto);
   FreeAndNil(ScreenPopupCheck);
   FreeAndNil(ScreenPopupError);
   FreeAndNil(ScreenPopupInfo);

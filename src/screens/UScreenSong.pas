@@ -96,6 +96,9 @@ type
       CreatorIcon: integer;
       FixerIcon: integer;
       UnvalidatedIcon: integer;
+      SearchIcon: integer;
+      SearchTextPlaceholder: integer;
+      SearchText: integer;
       TextCat: integer;
 
       SongCurrent:  real;
@@ -236,7 +239,6 @@ uses
   UScreenScore,
   UScreenSingController,
   UScreenSongMenu,
-  UScreenSongJumpto,
   USkins,
   UThemes,
   UTime,
@@ -287,17 +289,21 @@ begin
   begin
     Result := ScreenSongMenu.ParseInput(PressedKey, CharCode, PressedDown);
     Exit;
-  end
-  else if (ScreenSongJumpto.Visible) then
-  begin
-    Result := ScreenSongJumpto.ParseInput(PressedKey, CharCode, PressedDown);
-    Exit;
   end;
 
   if (PressedDown) then
   begin // Key Down
-    SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
+    if (not Self.Text[Self.SearchTextPlaceholder].Visible) and UUnicodeUtils.IsPrintableChar(CharCode) then
+    begin
+      if Length(Self.Text[Self.SearchText].Text) < 25 then
+      begin
+        Self.Text[Self.SearchText].Text := Self.Text[Self.SearchText].Text+UUnicodeUtils.UCS4ToUTF8String(CharCode);
+        Self.SetSubselection(Self.Text[Self.SearchText].Text);
+      end;
+      Exit;
+    end;
 
+    SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
     //jump to artist or title letter
     if Self.FreeListMode() and ((SDL_ModState = KMOD_LCTRL) or (SDL_ModState = KMOD_LALT)) then
     begin
@@ -359,9 +365,6 @@ begin
             StartMedley(99, msCalculated);
           end;
         end;
-      Ord('J'):
-        if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
-          UGraphic.ScreenSongJumpto.Visible := true;
       Ord('M'): //Show SongMenu
         if USongs.CatSongs.GetVisibleSongs() > 0 then
         begin
@@ -435,29 +438,46 @@ begin
 
     // check special keys
     case PressedKey of
-      SDLK_ESCAPE, SDLK_BACKSPACE:
-      begin
-        Self.CloseMessage();
-        case Mode of
-          smJukebox:
-            Self.FadeTo(@ScreenJukeboxPlaylist);
-          smPartyClassic:
-            Self.CheckFadeTo(@ScreenMain,'MSG_END_PARTY');
-          smPartyFree:
-            Self.FadeTo(@ScreenPartyNewRound);
-          smPartyTournament:
-            Self.FadeTo(@ScreenPartyTournamentRounds);
-          else
-            if USongs.CatSongs.CatNumShow <> -1 then
-              Self.SetSubselection()
-            else
-              Self.FadeTo(@ScreenMain);
+      SDLK_BACKSPACE:
+        begin
+          if not Self.Text[Self.SearchTextPlaceholder].Visible then
+          begin
+            Self.Text[Self.SearchText].DeleteLastLetter();
+            Self.SetSubselection(Self.Text[Self.SearchText].Text);
+            Exit;
+          end;
+          Self.ParseInput(SDLK_ESCAPE, 0, true);
+        end;
+      SDLK_ESCAPE:
+        if not Self.Text[Self.SearchTextPlaceholder].Visible then
+        begin
+          Self.Text[Self.SearchText].Text := '';
+          Self.SetSubselection();
+          Self.ParseInput(SDLK_F3, 0, true);
         end
-      end;
+        else
+        begin
+          Self.CloseMessage();
+          case Mode of
+            smJukebox:
+              Self.FadeTo(@ScreenJukeboxPlaylist);
+            smPartyClassic:
+              Self.CheckFadeTo(@ScreenMain,'MSG_END_PARTY');
+            smPartyFree:
+              Self.FadeTo(@ScreenPartyNewRound);
+            smPartyTournament:
+              Self.FadeTo(@ScreenPartyTournamentRounds);
+            else
+              if USongs.CatSongs.CatNumShow <> -1 then
+                Self.SetSubselection()
+              else
+                Self.FadeTo(@ScreenMain);
+          end;
+        end;
       SDLK_RETURN:
         begin
-          CloseMessage();
-          if (Songs.SongList.Count > 0) then
+          Self.CloseMessage();
+          if USongs.CatSongs.GetVisibleSongs() > 0 then
           begin
             if USongs.CatSongs.Song[Self.Interaction].Main then
               Self.SetSubselection(USongs.CatSongs.Song[Self.Interaction].OrderNum, sfCategory)
@@ -596,6 +616,24 @@ begin
             Self.SetJoker();
           end;
         end;
+      SDLK_F3:
+        begin
+          if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
+            if Self.Text[Self.SearchTextPlaceholder].Visible then
+            begin
+              Self.Text[Self.SearchTextPlaceholder].Visible := false;
+              Self.Text[Self.SearchText].Selected := true;
+              Self.Statics[Self.SearchIcon].Texture.Alpha := 1;
+            end
+            else
+            begin
+              Self.Text[Self.SearchTextPlaceholder].Visible := true;
+              Self.Text[Self.SearchText].Selected := false;
+              Self.Statics[Self.SearchIcon].Texture.Alpha := UThemes.Theme.Song.SearchIcon.Alpha;
+              if USongs.CatSongs.CatNumShow <> -2 then
+                Self.Text[Self.SearchText].Text := '';
+            end;
+        end;
       SDLK_F5:
         begin
           Self.FadeTo(@UGraphic.ScreenMain);
@@ -613,8 +651,6 @@ begin
   Result := true;
   if UGraphic.ScreenSongMenu.Visible then
     Result := UGraphic.ScreenSongMenu.ParseMouse(MouseButton, BtnDown, X, Y)
-  else if UGraphic.ScreenSongJumpTo.Visible then
-    Result := UGraphic.ScreenSongJumpTo.ParseMouse(MouseButton, BtnDown, X, Y)
   else if BtnDown then
   begin
     Self.TransferMouseCords(X, Y);
@@ -628,6 +664,8 @@ begin
           if Self.FreeListMode() then
             if CurrentSong then
               Self.ParseInput(SDLK_RETURN, 0, true)
+            else if Self.InRegion(X, Y, Self.Statics[Self.SearchIcon].GetMouseOverArea()) then
+              Self.ParseInput(SDLK_F3, 0, true)
             else
               case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
                 smList: //current song in list mode
@@ -721,6 +759,9 @@ begin
   Self.CreatorIcon := Self.AddStatic(UThemes.Theme.Song.CreatorIcon);
   Self.FixerIcon := Self.AddStatic(UThemes.Theme.Song.FixerIcon);
   Self.UnvalidatedIcon := Self.AddStatic(UThemes.Theme.Song.UnvalidatedIcon);
+  Self.SearchIcon := Self.AddStatic(UThemes.Theme.Song.SearchIcon);
+  Self.SearchTextPlaceholder := Self.AddText(UThemes.Theme.Song.SearchTextPlaceholder);
+  Self.SearchText := Self.AddText(UThemes.Theme.Song.SearchText);
 
   //Show Scores
   Self.TextMyScores := Self.AddText(UThemes.Theme.Song.TextMyScores);
@@ -1475,7 +1516,6 @@ begin
     UGraphic.ScreenScore := UScreenScore.TScreenScore.Create();
     UGraphic.ScreenSing := UScreenSingController.TScreenSingController.Create();
     UGraphic.ScreenSongMenu := UScreenSongMenu.TScreenSongMenu.Create();
-    UGraphic.ScreenSongJumpto := UScreenSongJumpto.TScreenSongJumpto.Create();
     UGraphic.ScreenPopupScoreDownload := UScreenPopup.TScreenPopupScoreDownload.Create();
   end;
 
@@ -1564,9 +1604,6 @@ var
   Increment: real;
 begin
   Result := true;
-  if (USongs.CatSongs.GetVisibleSongs() = 0) and (not UGraphic.ScreenSongJumpTo.Visible) then
-    Exit();
-
   FadeMessage();
 
   if Self.IsScrolling and not ((TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic])) then
@@ -1739,11 +1776,8 @@ begin
 
   Equalizer.Draw;
 
-  //Draw Song Menu
-  if ScreenSongMenu.Visible then
-    ScreenSongMenu.Draw
-  else if ScreenSongJumpto.Visible then
-    ScreenSongJumpto.Draw;
+  if UGraphic.ScreenSongMenu.Visible then
+    UGraphic.ScreenSongMenu.Draw();
 
   //if (Mode = smPartyTournament) then
   //  PartyTimeLimit();
