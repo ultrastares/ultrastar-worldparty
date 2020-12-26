@@ -63,6 +63,7 @@ type
       TextCreator: integer;
       TextFixer: integer;
       procedure ColorDuetNameSingers;
+      procedure EnableSearch(const Enable: boolean);
       procedure LoadCover(Const I: integer);
       procedure LoadMainCover();
       procedure OnSongSelect(Preview: boolean = true);
@@ -617,23 +618,8 @@ begin
           end;
         end;
       SDLK_F3:
-        begin
-          if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
-            if Self.Text[Self.SearchTextPlaceholder].Visible then
-            begin
-              Self.Text[Self.SearchTextPlaceholder].Visible := false;
-              Self.Text[Self.SearchText].Selected := true;
-              Self.Statics[Self.SearchIcon].Texture.Alpha := 1;
-            end
-            else
-            begin
-              Self.Text[Self.SearchTextPlaceholder].Visible := true;
-              Self.Text[Self.SearchText].Selected := false;
-              Self.Statics[Self.SearchIcon].Texture.Alpha := UThemes.Theme.Song.SearchIcon.Alpha;
-              if USongs.CatSongs.CatNumShow <> -2 then
-                Self.Text[Self.SearchText].Text := '';
-            end;
-        end;
+        if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
+          Self.EnableSearch(Self.Text[Self.SearchTextPlaceholder].Visible);
       SDLK_F5:
         begin
           if not Self.Text[Self.SearchTextPlaceholder].Visible then
@@ -661,6 +647,7 @@ begin
       or Self.InRegion(X, Y, Self.Statics[0].GetMouseOverArea()) //song info
       or (Self.Statics[Self.MainCover].Visible and Self.InRegion(X, Y, Self.Statics[Self.MainCover].GetMouseOverArea())); //main cover
 
+    Self.EnableSearch(false);
     case MouseButton of
       SDL_BUTTON_LEFT: //sing or move to the selected song/page
         begin
@@ -668,7 +655,7 @@ begin
             if CurrentSong then
               Self.ParseInput(SDLK_RETURN, 0, true)
             else if Self.InRegion(X, Y, Self.Statics[Self.SearchIcon].GetMouseOverArea()) then
-              Self.ParseInput(SDLK_F3, 0, true)
+              Self.EnableSearch(true)
             else
               case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
                 smList: //current song in list mode
@@ -709,6 +696,11 @@ begin
   else if Self.FreeListMode() and (not UGraphic.ScreenSongMenu.Visible) then //hover cover
   begin
     Self.TransferMouseCords(X, Y);
+    Self.Statics[Self.SearchIcon].Texture.Alpha := IfThen(
+      Self.InRegion(X, Y, Self.Statics[Self.SearchIcon].GetMouseOverArea()),
+      1,
+      UThemes.Theme.Song.SearchIcon.Alpha
+    );
     B := Round(Self.SongTarget);
     case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
       smList:
@@ -1565,6 +1557,9 @@ begin
     Self.Refresh(UIni.Ini.Sorting, UIni.Ini.Tabs = 1, UIni.Ini.ShowDuets = 1);
     if (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow = -1) then //fix scroll on show and when enter after on first time with a category selected in the middle of the list
       Self.SetSubselection();
+
+    if Self.Text[Self.SearchText].Text <> '' then
+      Self.EnableSearch(true);
   end;
 
   Self.SetScroll(true);
@@ -1943,6 +1938,25 @@ begin
       Self.Statics[Self.StaticTeamJoker[I][J]].Texture.ColG := Col.G;
       Self.Statics[Self.StaticTeamJoker[I][J]].Texture.ColB := Col.B;
     end;
+  end;
+end;
+
+{ Enable or disable search box }
+procedure TScreenSong.EnableSearch(Const Enable: boolean);
+begin
+  if Enable then
+  begin
+    Self.Text[Self.SearchTextPlaceholder].Visible := false;
+    Self.Text[Self.SearchText].Selected := true;
+    Self.Statics[Self.SearchIcon].Texture.Alpha := 1;
+  end
+  else
+  begin
+    Self.Text[Self.SearchTextPlaceholder].Visible := true;
+    Self.Text[Self.SearchText].Selected := false;
+    Self.Statics[Self.SearchIcon].Texture.Alpha := UThemes.Theme.Song.SearchIcon.Alpha;
+    if USongs.CatSongs.CatNumShow <> -2 then
+      Self.Text[Self.SearchText].Text := '';
   end;
 end;
 
