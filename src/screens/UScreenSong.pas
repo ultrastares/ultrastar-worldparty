@@ -712,12 +712,16 @@ begin
         then
           B := Self.MinLine + (Y - UThemes.Theme.Song.ListCover.Y) div (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding);
       smChessboard, smMosaic:
-        if (X >= UThemes.Theme.Song.Cover.X) and (Y >= UThemes.Theme.Song.Cover.Y) then
         begin
-          CoverX := (X - UThemes.Theme.Song.Cover.X) div (UThemes.Theme.Song.Cover.W + UThemes.Theme.Song.Cover.Padding);
-          CoverY := (Y - UThemes.Theme.Song.Cover.Y) div (UThemes.Theme.Song.Cover.H + UThemes.Theme.Song.Cover.Padding);
-          if (CoverX < UThemes.Theme.Song.Cover.Cols) and (CoverY < UThemes.Theme.Song.Cover.Rows) then
-            B := (Self.MinLine + CoverY) * UThemes.Theme.Song.Cover.Cols + CoverX;
+          Self.Statics[1].Texture.Alpha := IfThen(Self.InRegion(X, Y, Self.Statics[1].GetMouseOverArea()), 0.5, UThemes.Theme.Song.Statics[1].Alpha);
+          Self.Statics[2].Texture.Alpha := IfThen(Self.InRegion(X, Y, Self.Statics[2].GetMouseOverArea()), 0.5, UThemes.Theme.Song.Statics[2].Alpha);
+          if (X >= UThemes.Theme.Song.Cover.X) and (Y >= UThemes.Theme.Song.Cover.Y) then
+          begin
+            CoverX := (X - UThemes.Theme.Song.Cover.X) div (UThemes.Theme.Song.Cover.W + UThemes.Theme.Song.Cover.Padding);
+            CoverY := (Y - UThemes.Theme.Song.Cover.Y) div (UThemes.Theme.Song.Cover.H + UThemes.Theme.Song.Cover.Padding);
+            if (CoverX < UThemes.Theme.Song.Cover.Cols) and (CoverY < UThemes.Theme.Song.Cover.Rows) then
+              B := (Self.MinLine + CoverY) * UThemes.Theme.Song.Cover.Cols + CoverX;
+          end;
         end;
     end;
     if (B < USongs.CatSongs.GetVisibleSongs()) and (CompareValue(Self.SongTarget, B) <> 0) then
