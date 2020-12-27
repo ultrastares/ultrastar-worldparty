@@ -273,29 +273,31 @@ type
   end;
 
   TThemeSong = class(TThemeBasic)
-    TextArtist: TThemeText;
     TextNoSongs: TThemeText;
+    TextArtist: TThemeText;
     TextNumber: TThemeText;
     TextTitle: TThemeText;
     TextYear: TThemeText;
     TextCreator: TThemeText;
     TextFixer: TThemeText;
-
-    TextMedleyMax:    integer;
-
+    SearchIcon: TThemeStatic;
+    SearchText: TThemeText;
+    SearchTextPlaceholder: TThemeText;
+    TextMedleyMax: integer;
     TextArtistMedley: array of TThemeText;
-    TextTitleMedley:  array of TThemeText;
-    StaticMedley:     array of TThemeStatic;
+    TextTitleMedley: array of TThemeText;
+    StaticMedley: array of TThemeStatic;
     TextNumberMedley: array of TThemeText;
 
     //Song icons
-    VideoIcon:              TThemeStatic;
-    MedleyIcon:             TThemeStatic;
-    CalculatedMedleyIcon:   TThemeStatic;
-    DuetIcon:               TThemeStatic;
-    RapIcon:                TThemeStatic;
-    CreatorIcon:            TThemeStatic;
-    FixerIcon:              TThemeStatic;
+    VideoIcon: TThemeStatic;
+    MedleyIcon: TThemeStatic;
+    CalculatedMedleyIcon: TThemeStatic;
+    DuetIcon: TThemeStatic;
+    RapIcon: TThemeStatic;
+    CreatorIcon: TThemeStatic;
+    FixerIcon: TThemeStatic;
+    UnvalidatedIcon: TThemeStatic;
 
     //Show Cat in TopLeft Mod
     TextCat:          TThemeText;
@@ -340,7 +342,6 @@ type
       ColR, ColG, ColB: real;
       DColR, DColG, DColB: real;
     end;
-
 
     //Party and Non Party specific Statics and Texts
     StaticParty:    AThemeStatic;
@@ -954,15 +955,10 @@ type
     Button4: TThemeButton;
     Button5: TThemeButton;
     Button6: TThemeButton;
-
     SelectSlide1: TThemeSelectSlide;
     SelectSlide2: TThemeSelectSlide;
     SelectSlide3: TThemeSelectSlide;
-
     TextMenu: TThemeText;
-  end;
-
-  TThemeSongJumpTo = class(TThemeBasic)
   end;
 
   //Party Screens
@@ -1259,7 +1255,6 @@ type
     ScoreDownloadPopup: TThemeScoreDownload;
     //ScreenSong extensions
     SongMenu:         TThemeSongMenu;
-    SongJumpto:       TThemeSongJumpTo;
     //Party Screens:
     PartyNewRound:    TThemePartyNewRound;
     PartyScore:       TThemePartyScore;
@@ -2197,9 +2192,6 @@ begin
 
       ThemeLoadText(SongMenu.TextMenu, 'SongMenuTextMenu');
 
-      //Song Jumpto
-      Self.ThemeLoadBasic(Self.SongJumpto, 'SongJumpto');
-
       //Party Options
       ThemeLoadBasic(PartyOptions, 'PartyOptions');
       ThemeLoadSelectSlide(PartyOptions.SelectMode, 'PartyOptionsSelectMode');
@@ -2449,6 +2441,7 @@ begin
   end;
 
   Self.ReadProperty(Name, 'Size', 0, ThemeText.Size);
+  Self.ReadProperty(Name, 'Writable', false, ThemeText.Writable);
   Self.ReadProperty(Name, 'Reflection', false, ThemeText.Reflection);
   Self.ReadProperty(Name, 'ReflectionSpacing', 15, ThemeText.ReflectionSpacing);
 end;
@@ -3613,6 +3606,9 @@ begin
   ThemeLoadText(Song.TextYear, 'Song' + prefix + 'TextYear');
   ThemeLoadText(Song.TextCreator, 'Song' + prefix + 'TextCreator');
   ThemeLoadText(Song.TextFixer, 'Song' + prefix + 'TextFixer');
+  Self.ThemeLoadText(Self.Song.SearchText, 'Song'+prefix+'SearchText');
+  Self.ThemeLoadText(Self.Song.SearchTextPlaceholder, 'Song'+prefix+'SearchTextPlaceholder');
+  Self.ThemeLoadStatic(Self.Song.SearchIcon, 'Song'+prefix+'SearchIcon');
 
   // medley playlist
   Self.SetInheritance('Song'+prefix+'TextMedleyMax');
@@ -3632,13 +3628,14 @@ begin
   end;
 
   //Song icons
-  ThemeLoadStatic(Song.VideoIcon, 'Song' + prefix + 'VideoIcon');
-  ThemeLoadStatic(Song.MedleyIcon, 'Song' + prefix + 'MedleyIcon');
-  ThemeLoadStatic(Song.CalculatedMedleyIcon, 'Song' + prefix + 'CalculatedMedleyIcon');
-  ThemeLoadStatic(Song.DuetIcon, 'Song' + prefix + 'DuetIcon');
-  ThemeLoadStatic(Song.RapIcon, 'Song' + prefix + 'RapIcon');
-  ThemeLoadStatic(Song.CreatorIcon, 'Song' + prefix + 'CreatorIcon');
-  ThemeLoadStatic(Song.FixerIcon, 'Song' + prefix + 'FixerIcon');
+  Self.ThemeLoadStatic(Self.Song.VideoIcon, 'Song'+prefix+'VideoIcon');
+  Self.ThemeLoadStatic(Self.Song.MedleyIcon, 'Song'+prefix+'MedleyIcon');
+  Self.ThemeLoadStatic(Self.Song.CalculatedMedleyIcon, 'Song'+prefix+'CalculatedMedleyIcon');
+  Self.ThemeLoadStatic(Self.Song.DuetIcon, 'Song'+prefix+'DuetIcon');
+  Self.ThemeLoadStatic(Self.Song.RapIcon, 'Song'+prefix+'RapIcon');
+  Self.ThemeLoadStatic(Self.Song.CreatorIcon, 'Song'+prefix+'CreatorIcon');
+  Self.ThemeLoadStatic(Self.Song.FixerIcon, 'Song'+prefix+'FixerIcon');
+  Self.ThemeLoadStatic(Self.Song.UnvalidatedIcon, 'Song'+prefix+'UnvalidatedIcon');
 
   //Show Cat in TopLeft Mod
   ThemeLoadText(Song.TextCat, 'Song' + prefix + 'TextCat');
@@ -3780,7 +3777,6 @@ begin
   Self.SendScorePopup := TThemeSendScore.Create();
   Self.ScoreDownloadPopup := TThemeScoreDownload.Create();
   Self.SongMenu := TThemeSongMenu.Create();
-  Self.SongJumpto := TThemeSongJumpto.Create();
   Self.PartyNewRound := TThemePartyNewRound.Create();
   Self.PartyWin := TThemePartyWin.Create();
   Self.PartyScore := TThemePartyScore.Create();

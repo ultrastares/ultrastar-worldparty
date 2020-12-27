@@ -50,7 +50,6 @@ type
 
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
-      function ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
       procedure MenuShow(sMenu: byte);
       procedure HandleReturn;
       function CountMedleySongs: integer;
@@ -171,36 +170,6 @@ begin
           or (Interaction=8) or (Interaction=9) or (Interaction=10) then
             InteractDec;
     end;
-  end;
-end;
-
-function TScreenSongMenu.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
-var
-  I: integer;
-begin
-  Result := true;
-  if BtnDown then
-  begin
-    Self.TransferMouseCords(X, Y);
-    case MouseButton of
-      SDL_BUTTON_LEFT:
-        Self.ParseInput(SDLK_RETURN, 0, true);
-      SDL_BUTTON_RIGHT,
-      SDL_BUTTON_MIDDLE:
-        if Self.RightMbESC then
-          Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
-      SDL_BUTTON_WHEELDOWN:
-          Self.ParseInput(SDLK_LEFT, 0, true);
-      SDL_BUTTON_WHEELUP:
-          Self.ParseInput(SDLK_RIGHT, 0, true);
-    end;
-  end
-  else
-  begin
-    Self.TransferMouseCords(X, Y);
-    I := Self.InteractAt(X, Y);
-    if (I >= 0) and (I <> Interaction) then
-        Self.SetInteraction(I);
   end;
 end;
 
@@ -454,11 +423,14 @@ begin
         Button[3].Text[0].Text := Language.Translate('SONG_MENU_PLAYLIST_ADD_EXISTING');
         Button[4].Text[0].Text := Language.Translate('C_BACK');
 
-        SetLength(ISelections3, Length(PlaylistMan.Playlists));
+        I := Length(PlaylistMan.Playlists);
+        SetLength(ISelections3, I);
         PlaylistMan.GetNames(ISelections3);
-
-        if (Length(ISelections3)>=1) then
+        if I >= 1 then
         begin
+          if SelectValue3 >= I then
+            SelectValue3 := I - 1;
+
           UpdateSelectSlideOptions(Theme.SongMenu.SelectSlide3, 2, ISelections3, SelectValue3);
         end
         else
@@ -537,11 +509,14 @@ begin
         Button[3].Text[0].Text := Language.Translate('SONG_MENU_PLAYLIST_LOAD');
         Button[4].Text[0].Text := Language.Translate('C_BACK');
 
-        SetLength(ISelections3, Length(PlaylistMan.Playlists));
+        I := Length(PlaylistMan.Playlists);
+        SetLength(ISelections3, I);
         PlaylistMan.GetNames(ISelections3);
-
-        if (Length(ISelections3)>=1) then
+        if I >= 1 then
         begin
+          if SelectValue3 >= I then
+            SelectValue3 := I - 1;
+
           UpdateSelectSlideOptions(Theme.SongMenu.SelectSlide3, 2, ISelections3, SelectValue3);
           Interaction := 3;
         end

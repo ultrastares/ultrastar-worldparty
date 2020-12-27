@@ -247,11 +247,10 @@ UVideo                    in 'media\UVideo.pas',
   UScreenOptionsNetwork in 'screens\UScreenOptionsNetwork.pas',
   UScreenOptionsWebcam  in 'screens\UScreenOptionsWebcam.pas',
   UScreenOptionsProfiles  in 'screens\UScreenOptionsProfiles.pas',
-	
+
   UScreenOpen             in 'screens\UScreenOpen.pas',
   UScreenTop5             in 'screens\UScreenTop5.pas',
   UScreenSongMenu         in 'screens\UScreenSongMenu.pas',
-  UScreenSongJumpto       in 'screens\UScreenSongJumpto.pas',
   UScreenStatMain         in 'screens\UScreenStatMain.pas',
   UScreenStatDetail       in 'screens\UScreenStatDetail.pas',
   UScreenPopup            in 'screens\UScreenPopup.pas',

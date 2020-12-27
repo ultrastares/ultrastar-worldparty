@@ -548,10 +548,10 @@
 ;TODO: ABOUT_CHECK_AVAILABLE=There is a new version available
 ;TODO: ABOUT_CHECK_UPTODATE=WorldParty is up to date
 ;TODO: ABOUT_CHECK_CONNECTION=There is no internet connection
-;TODO: ABOUT_OVERVIEW=Discover a new way of singing, alone, in couple, or with friends. \n Fun is guaranteed.\n\nWorldParty is a fork of the original version Ultrastar Deluxe 1.1 designed and developed by UltraStar España Team, it counts with the biggest karaoke community.\n\n\nThis program is free and libre under the GPL license. \n\n Visit us for more information.\n\nhttps://ultrastar-es.org
+;TODO: ABOUT_OVERVIEW=Discover a new way of singing, alone, in couple, or with friends. \n Fun is guaranteed.\n\nWorldParty is a fork of the original version Ultrastar Deluxe 1.1 designed and developed by UltraStar España Team, it counts with the biggest karaoke community.\n\n\nThis program is free and libre under the GPL license. \n\n Visit us for more information.\n%s
 
 ;TODO: DEVELOPERS_TITLE=Developed by
-;TODO: DEVELOPERS_OVERVIEW=People who has contributed to this project:\n\n\nZup3r_vock\n\nDaniel20\n\njmfb\n\nTeLiX\n\n\n Visit us for more information.\n\nhttps://ultrastar-es.org
+;TODO: DEVELOPERS_OVERVIEW=People who has contributed to this project:\n\n\n%s\n\n\n Visit us for more information.\n%s
 
 ;TODO: SCREENSHOT_SAVED=Screenshot saved
 ;TODO: SCREENSHOT_FAILED=Couldn't save screenshot

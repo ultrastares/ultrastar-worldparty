@@ -344,7 +344,7 @@ begin
   Visible := true;
   Reflection := ParReflection;
   ReflectionSpacing := ParReflectionSpacing;
-  Writable := Writable;
+  Self.Writable := Writable;
 end;
 
 function TText.GetMouseOverArea: TMouseOverRect;
