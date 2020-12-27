@@ -720,8 +720,8 @@ begin
           B := Self.MinLine + (Y - UThemes.Theme.Song.ListCover.Y) div (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding);
       smChessboard, smMosaic:
         begin
-          Self.Statics[1].Texture.Alpha := IfThen(Self.InRegion(X, Y, Self.Statics[1].GetMouseOverArea()), 0.5, UThemes.Theme.Song.Statics[1].Alpha);
-          Self.Statics[2].Texture.Alpha := IfThen(Self.InRegion(X, Y, Self.Statics[2].GetMouseOverArea()), 0.5, UThemes.Theme.Song.Statics[2].Alpha);
+          Self.Statics[1].Texture.Alpha := IfThen(Self.InRegion(X, Y, Self.Statics[1].GetMouseOverArea()), 1, UThemes.Theme.Song.Statics[1].Alpha);
+          Self.Statics[2].Texture.Alpha := IfThen(Self.InRegion(X, Y, Self.Statics[2].GetMouseOverArea()), 1, UThemes.Theme.Song.Statics[2].Alpha);
           if (X >= UThemes.Theme.Song.Cover.X) and (Y >= UThemes.Theme.Song.Cover.Y) then
           begin
             CoverX := (X - UThemes.Theme.Song.Cover.X) div (UThemes.Theme.Song.Cover.W + UThemes.Theme.Song.Cover.Padding);
