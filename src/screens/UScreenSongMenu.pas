@@ -50,7 +50,6 @@ type
 
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
-      function ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
       procedure MenuShow(sMenu: byte);
       procedure HandleReturn;
       function CountMedleySongs: integer;
@@ -172,35 +171,6 @@ begin
             InteractDec;
     end;
   end;
-end;
-
-function TScreenSongMenu.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
-var
-  I: integer;
-begin
-  Result := true;
-  Self.TransferMouseCords(X, Y);
-  I := Self.InteractAt(X, Y);
-  if BtnDown then
-  begin
-    case MouseButton of
-      SDL_BUTTON_LEFT:
-        if I >= 0 then
-          Self.ParseInput(SDLK_RETURN, 0, true)
-        else
-          Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
-      SDL_BUTTON_RIGHT,
-      SDL_BUTTON_MIDDLE:
-        if Self.RightMbESC then
-          Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
-      SDL_BUTTON_WHEELDOWN:
-          Self.ParseInput(SDLK_LEFT, 0, true);
-      SDL_BUTTON_WHEELUP:
-          Self.ParseInput(SDLK_RIGHT, 0, true);
-    end;
-  end
-  else if (I >= 0) and (I <> Interaction) then
-    Self.SetInteraction(I);
 end;
 
 constructor TScreenSongMenu.Create;
