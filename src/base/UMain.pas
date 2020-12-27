@@ -434,8 +434,11 @@ begin
           if UpdateMouse then
           begin
             // used to update mouse coords and allow the relative mouse emulated by joystick axis motion
-            if assigned(Joy) then Joy.OnMouseMove(EnsureRange(Event.button.X, 0, 799),
-                                                  EnsureRange(Event.button.Y, 0,599));
+            if Assigned(UJoystick.Joy) then
+              UJoystick.Joy.OnMouseMove(
+                EnsureRange(Event.button.X, 0, UGraphic.ScreenW - 1),
+                EnsureRange(Event.button.Y, 0, UGraphic.ScreenH - 1)
+              );
 
             Display.MoveCursor(Event.button.X * 800 * Screens / ScreenW,
                                Event.button.Y * 600 / ScreenH);
