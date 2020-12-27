@@ -64,7 +64,7 @@ type
       TextFixer: integer;
       procedure ColorDuetNameSingers;
       procedure EnableSearch(const Enable: boolean);
-      procedure LoadCover(Const I: integer);
+      procedure LoadCover(const I: integer);
       procedure LoadMainCover();
       procedure OnSongSelect(Preview: boolean = true);
       procedure SetJoker();
@@ -77,7 +77,7 @@ type
       procedure SetListScroll();
       procedure StartPreview();
       procedure StopPreview();
-      procedure UnloadCover(Const I: integer);
+      procedure UnloadCover(const I: integer);
     public
       MakeMedley:   boolean;
 
@@ -1961,7 +1961,7 @@ begin
 end;
 
 { Enable or disable search box }
-procedure TScreenSong.EnableSearch(Const Enable: boolean);
+procedure TScreenSong.EnableSearch(const Enable: boolean);
 begin
   if Enable then
   begin
@@ -1977,7 +1977,7 @@ begin
 end;
 
 { Load a cover dynamically in a song button }
-procedure TScreenSong.LoadCover(Const I: integer);
+procedure TScreenSong.LoadCover(const I: integer);
 begin
   if Self.Button[I].Texture.TexNum = 0 then
   begin
@@ -1988,7 +1988,7 @@ begin
 end;
 
 { Unload a cover and hide his button }
-procedure TScreenSong.UnloadCover(Const I: integer);
+procedure TScreenSong.UnloadCover(const I: integer);
 begin
   Self.Button[I].Visible := false;
   if (Self.Button[I].Texture.TexNum <> 0) and (Self.Button[I].Texture.TexNum <> Self.DefaultCover.TexNum) then
