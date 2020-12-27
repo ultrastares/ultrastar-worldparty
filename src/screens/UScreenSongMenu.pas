@@ -423,11 +423,14 @@ begin
         Button[3].Text[0].Text := Language.Translate('SONG_MENU_PLAYLIST_ADD_EXISTING');
         Button[4].Text[0].Text := Language.Translate('C_BACK');
 
-        SetLength(ISelections3, Length(PlaylistMan.Playlists));
+        I := Length(PlaylistMan.Playlists);
+        SetLength(ISelections3, I);
         PlaylistMan.GetNames(ISelections3);
-
-        if (Length(ISelections3)>=1) then
+        if I >= 1 then
         begin
+          if SelectValue3 >= I then
+            SelectValue3 := I - 1;
+
           UpdateSelectSlideOptions(Theme.SongMenu.SelectSlide3, 2, ISelections3, SelectValue3);
         end
         else
@@ -506,11 +509,14 @@ begin
         Button[3].Text[0].Text := Language.Translate('SONG_MENU_PLAYLIST_LOAD');
         Button[4].Text[0].Text := Language.Translate('C_BACK');
 
-        SetLength(ISelections3, Length(PlaylistMan.Playlists));
+        I := Length(PlaylistMan.Playlists);
+        SetLength(ISelections3, I);
         PlaylistMan.GetNames(ISelections3);
-
-        if (Length(ISelections3)>=1) then
+        if I >= 1 then
         begin
+          if SelectValue3 >= I then
+            SelectValue3 := I - 1;
+
           UpdateSelectSlideOptions(Theme.SongMenu.SelectSlide3, 2, ISelections3, SelectValue3);
           Interaction := 3;
         end
