@@ -659,7 +659,9 @@ begin
               Self.EnableSearch(true)
             else
             begin
-              Self.EnableSearch(false);
+              if (not Self.Text[Self.SearchTextPlaceholder].Visible) and (Self.Text[Self.SearchText].Text = '') then
+                Self.EnableSearch(false);
+
               case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
                 smList: //current song in list mode
                   if
