@@ -294,7 +294,11 @@ begin
 
   if (PressedDown) then
   begin // Key Down
-    if (not Self.Text[Self.SearchTextPlaceholder].Visible) and UUnicodeUtils.IsPrintableChar(CharCode) then
+    if
+      (not (PressedKey in [SDL_BUTTON_RIGHT, SDL_BUTTON_MIDDLE]))
+      and (not Self.Text[Self.SearchTextPlaceholder].Visible)
+      and UUnicodeUtils.IsPrintableChar(CharCode)
+    then
     begin
       if Length(Self.Text[Self.SearchText].Text) < 25 then
       begin
@@ -634,7 +638,6 @@ end;
 
 function TScreenSong.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 var
-  CurrentSong: boolean;
   B, CoverX, CoverY: integer;
 begin
   Result := true;
@@ -643,20 +646,20 @@ begin
   else if BtnDown then
   begin
     Self.TransferMouseCords(X, Y);
-    CurrentSong := Self.InRegion(X, Y, Self.Button[Self.Interaction].GetMouseOverArea()) //button
-      or Self.InRegion(X, Y, Self.Statics[0].GetMouseOverArea()) //song info
-      or (Self.Statics[Self.MainCover].Visible and Self.InRegion(X, Y, Self.Statics[Self.MainCover].GetMouseOverArea())); //main cover
-
-    Self.EnableSearch(false);
     case MouseButton of
       SDL_BUTTON_LEFT: //sing or move to the selected song/page
         begin
           if Self.FreeListMode() then
-            if CurrentSong then
+            if
+              Self.InRegion(X, Y, Self.Button[Self.Interaction].GetMouseOverArea()) //button
+              or (Self.Statics[Self.MainCover].Visible and Self.InRegion(X, Y, Self.Statics[Self.MainCover].GetMouseOverArea())) //main cover
+            then
               Self.ParseInput(SDLK_RETURN, 0, true)
             else if Self.InRegion(X, Y, Self.Statics[Self.SearchIcon].GetMouseOverArea()) then
               Self.EnableSearch(true)
             else
+            begin
+              Self.EnableSearch(false);
               case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
                 smList: //current song in list mode
                   if
@@ -679,14 +682,18 @@ begin
                       Exit();
                     end;
               end;
+            end;
         end;
       SDL_BUTTON_RIGHT: //go back
-        if CurrentSong then //open song menu
-          Self.ParseInput(0, Ord('M'), true)
+        if //open song menu
+          Self.InRegion(X, Y, Self.Button[Self.Interaction].GetMouseOverArea()) //button
+          or (Self.Statics[Self.MainCover].Visible and Self.InRegion(X, Y, Self.Statics[Self.MainCover].GetMouseOverArea())) //main cover
+        then
+          Self.ParseInput(SDL_BUTTON_RIGHT, Ord('M'), true)
         else if Self.RightMbESC then
           Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
       SDL_BUTTON_MIDDLE: //open song menu
-        Self.ParseInput(0, Ord('M'), true);
+        Self.ParseInput(SDL_BUTTON_MIDDLE, Ord('M'), true);
       SDL_BUTTON_WHEELDOWN: //next song
         Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_RIGHT, SDLK_DOWN), 0, true);
       SDL_BUTTON_WHEELUP: //previous song
@@ -697,7 +704,7 @@ begin
   begin
     Self.TransferMouseCords(X, Y);
     Self.Statics[Self.SearchIcon].Texture.Alpha := IfThen(
-      Self.InRegion(X, Y, Self.Statics[Self.SearchIcon].GetMouseOverArea()),
+      (not Self.Text[Self.SearchTextPlaceholder].Visible) or Self.InRegion(X, Y, Self.Statics[Self.SearchIcon].GetMouseOverArea()),
       1,
       UThemes.Theme.Song.SearchIcon.Alpha
     );
@@ -1606,8 +1613,14 @@ var
   Increment: real;
 begin
   Result := true;
-  if (USongs.CatSongs.GetVisibleSongs() = 0) and Self.Text[Self.SearchTextPlaceholder].Visible then
-    Exit();
+  if Self.Text[Self.SearchTextPlaceholder].Visible or UGraphic.ScreenSongMenu.Visible then
+  begin
+    Self.Text[Self.SearchText].Selected := false;
+    if (USongs.CatSongs.GetVisibleSongs() = 0) then //needed on song refresh
+      Exit()
+  end
+  else if not Self.Text[Self.SearchText].Selected then
+    Self.Text[Self.SearchText].Selected := true;
 
   FadeMessage();
 
@@ -1951,17 +1964,14 @@ begin
   if Enable then
   begin
     Self.Text[Self.SearchTextPlaceholder].Visible := false;
-    Self.Text[Self.SearchText].Selected := true;
     Self.Statics[Self.SearchIcon].Texture.Alpha := 1;
   end
   else
   begin
     Self.Text[Self.SearchTextPlaceholder].Visible := true;
-    Self.Text[Self.SearchText].Selected := false;
     Self.Statics[Self.SearchIcon].Texture.Alpha := UThemes.Theme.Song.SearchIcon.Alpha;
-    if USongs.CatSongs.CatNumShow <> -2 then
-      Self.Text[Self.SearchText].Text := '';
-  end;
+    Self.SetSubselection();
+  end
 end;
 
 { Load a cover dynamically in a song button }
