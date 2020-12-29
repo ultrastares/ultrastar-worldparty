@@ -449,18 +449,18 @@ begin
     Num[I] := NoRepeatColors(Ini.TeamColor[I], I, 1);
 
   // Templates for Names Mod
-  for I := 1 to 4 do
+  for I := 1 to 6 do
     Button[I].Text[0].Text := Ini.Name[I-1];
 
-  for I := 6 to 9 do
-    Button[I].Text[0].Text := Ini.Name[I-2];
+  // for I := 6 to 9 do
+  //   Button[I].Text[0].Text := Ini.Name[I-2];
 
-  for I := 11 to 14 do
-    Button[I].Text[0].Text := Ini.Name[I-3];
+  // for I := 11 to 14 do
+  //   Button[I].Text[0].Text := Ini.Name[I-3];
 
-    Button[0].Text[0].Text := Ini.NameTeam[0];
-    Button[5].Text[0].Text := Ini.NameTeam[1];
-    Button[10].Text[0].Text := Ini.NameTeam[2];
+  //   Button[0].Text[0].Text := Ini.NameTeam[0];
+  //   Button[5].Text[0].Text := Ini.NameTeam[1];
+  //   Button[10].Text[0].Text := Ini.NameTeam[2];
     // Templates for Names Mod end
 
   Party.Clear;
