@@ -84,7 +84,7 @@ begin
         end;
       SDLK_RETURN:
         begin
-          if SelInteraction = 7 then
+          if SelInteraction = 6 then
           begin
             UIni.Ini.Save;
             AudioPlayback.PlaySound(SoundLib.Back);
