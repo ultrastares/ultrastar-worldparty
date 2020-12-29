@@ -563,6 +563,14 @@ begin
     if (High(Lines[I].Line) >= 0) then
       Lines[I].Line[High(Lines[I].Line)].LastLine := true;
   end;
+
+  I := Self.Lines[0].Line[High(Self.Lines[0].Line)].Note[High(Self.Lines[0].Line[High(Self.Lines[0].Line)].Note)].End_;
+  if (Self.Medley.StartBeat > I) or (Self.Medley.EndBeat > I) then
+  begin
+    Log.LogError('Medley out of range: '+Self.FullPath);
+    Exit;
+  end;
+
   //TODO idk why do it only in windows
   {$IFDEF MSWINDOWS}
     Self.MD5 := MD5Print(MD5String(Self.MD5));
