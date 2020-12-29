@@ -166,6 +166,8 @@ begin
         if (Interaction=3) or (Interaction=4) or (Interaction=5)
           or (Interaction=8) or (Interaction=9) or (Interaction=10) then
             InteractDec;
+      SDLK_F10:
+        Self.Visible := false;
     end;
   end;
 end;
@@ -680,8 +682,8 @@ begin
 
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_PLAY');
       end;
-	SM_Search_new_songs:
-	  begin
+	  SM_Search_new_songs:
+	    begin
         Self.FadeTo(@UGraphic.ScreenMain);
         UGraphic.ScreenMain.ReloadSongs();
       end;
@@ -689,8 +691,6 @@ begin
 end;
 
 procedure TScreenSongMenu.HandleReturn;
-var
-  I: integer;
 begin
   case CurMenu of
     SM_Main:

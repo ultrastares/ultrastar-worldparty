@@ -294,11 +294,7 @@ begin
 
   if (PressedDown) then
   begin // Key Down
-    if
-      (not (PressedKey in [SDL_BUTTON_RIGHT, SDL_BUTTON_MIDDLE]))
-      and (not Self.Text[Self.SearchTextPlaceholder].Visible)
-      and UUnicodeUtils.IsPrintableChar(CharCode)
-    then
+    if (not Self.Text[Self.SearchTextPlaceholder].Visible) and UUnicodeUtils.IsPrintableChar(CharCode) then
     begin
       if Length(Self.Text[Self.SearchText].Text) < 25 then
       begin
@@ -333,7 +329,6 @@ begin
           end;
         end;
       end;
-      Exit;
     end;
 
     // check normal keys
@@ -343,102 +338,6 @@ begin
           Result := false;
           Exit;
         end;
-
-      Ord('K'):
-        begin
-          UAudioPlaybackBase.ToggleVoiceRemoval();
-          Self.StartPreview();
-          Exit;
-        end;
-
-      Ord('F'):
-        begin
-          if (Mode = smNormal) and (SDL_ModState = KMOD_LSHIFT) and MakeMedley then
-          begin
-            if Length(PlaylistMedley.Song)>0 then
-            begin
-              SetLength(PlaylistMedley.Song, Length(PlaylistMedley.Song)-1);
-              PlaylistMedley.NumMedleySongs := Length(PlaylistMedley.Song);
-            end;
-
-            if Length(PlaylistMedley.Song)=0 then
-              MakeMedley := false;
-          end else if (Mode = smNormal) and (CatSongs.Song[Interaction].Medley.Source>=msCalculated) and
-            (Length(getVisibleMedleyArr(msCalculated)) > 0) then
-          begin
-            MakeMedley := true;
-            StartMedley(99, msCalculated);
-          end;
-        end;
-      Ord('M'): //Show SongMenu
-        if USongs.CatSongs.GetVisibleSongs() > 0 then
-        begin
-          if Self.MakeMedley then
-            UGraphic.ScreenSongMenu.MenuShow(SM_Medley)
-          else if Self.Mode = smJukebox then
-            UGraphic.ScreenSongMenu.MenuShow(SM_Jukebox)
-          else if Self.Mode = smNormal then
-            if USongs.CatSongs.Song[Interaction].Main then
-              UGraphic.ScreenSongMenu.MenuShow(SM_Sorting)
-            else if USongs.CatSongs.CatNumShow = -3 then
-              UGraphic.ScreenSongMenu.MenuShow(SM_Playlist)
-            else
-              UGraphic.ScreenSongMenu.MenuShow(SM_Main)
-          else
-            UGraphic.ScreenSongMenu.MenuShow(IfThen(Self.Mode = smPartyClassic, SM_Party_Main, SM_Party_Free_Main));
-        end;
-      Ord('O'):
-        if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
-          UGraphic.ScreenSongMenu.MenuShow(SM_Sorting);
-      Ord('P'):
-        if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
-          UGraphic.ScreenSongMenu.MenuShow(SM_Playlist_Load);
-      Ord('S'):
-        begin
-          if not (SDL_ModState = KMOD_LSHIFT) and (CatSongs.Song[Interaction].Medley.Source>=msTag)
-            and not MakeMedley and (Mode = smNormal) then
-            StartMedley(0, msTag)
-          else if not MakeMedley and
-            (CatSongs.Song[Interaction].Medley.Source>=msCalculated) and
-            (Mode = smNormal)then
-            StartMedley(0, msCalculated);
-        end;
-
-      Ord('D'):
-        begin
-          if not (SDL_ModState = KMOD_LSHIFT) and (Mode = smNormal) and
-            (Length(getVisibleMedleyArr(msTag)) > 0) and not MakeMedley then
-            StartMedley(5, msTag)
-          else if (Mode = smNormal) and not MakeMedley and
-            (length(getVisibleMedleyArr(msCalculated))>0) then
-            StartMedley(5, msCalculated);
-        end;
-
-      Ord('R'):
-        if Self.FreeListMode() and (not SlowChessboardScroll()) then
-          Self.SelectRandomSong(SDL_ModState = KMOD_LSHIFT);
-
-      Ord('W'):
-        begin
-
-          if not CatSongs.Song[Interaction].Main then
-          begin
-            WebList := '';
-
-            for I:= 0 to High(Database.NetworkUser) do
-            begin
-              DllMan.LoadWebsite(I);
-              if (DllMan.WebsiteVerifySong(WideString(CatSongs.Song[Interaction].MD5)) = 'OK_SONG') then
-                WebList := Database.NetworkUser[I].Website + #13
-            end;
-
-            if (WebList <> '') then
-              ScreenPopupInfo.ShowPopup(Format(Language.Translate('WEBSITE_EXIST_SONG'), [WebList]))
-            else
-              ScreenPopupError.ShowPopup(Language.Translate('WEBSITE_NOT_EXIST_SONG'));
-          end;
-        end;
-
     end; // normal keys
 
     // check special keys
@@ -502,6 +401,15 @@ begin
                     1: SelectPlayers;
                     2: FadeTo(@ScreenSing);
                   end;
+                end
+                else if (SDL_ModState and KMOD_CTRL) <> 0 then
+                  Self.StartMedley(0, USongs.CatSongs.Song[Self.Interaction].Medley.Source)
+                else if (SDL_ModState and KMOD_SHIFT) <> 0 then
+                begin
+                  if Length(getVisibleMedleyArr(msTag)) > 0 then
+                    Self.StartMedley(5, msTag)
+                  else if Length(getVisibleMedleyArr(msCalculated)) > 0 then
+                    Self.StartMedley(5, msCalculated)
                 end
                 else
                 begin
@@ -587,36 +495,97 @@ begin
               end;
             end;
         end;
-      SDLK_SPACE:
-        begin
-          if (Mode = smNormal) and (USongs.CatSongs.Song[Interaction].isDuet) then
-          begin
-            Self.DuetChange := not Self.DuetChange;
-            Self.SetScroll(true);
-          end;
-        end;
       SDLK_1..SDLK_3: //use teams jokers
+        if
+          (Self.Mode = smPartyClassic)
+          and (High(UParty.Party.Teams) >= PressedKey - SDLK_1)
+          and (UParty.Party.Teams[PressedKey - SDLK_1].JokersLeft > 0) then
         begin
-          if
-            (Self.Mode = smPartyClassic)
-            and (High(UParty.Party.Teams) >= PressedKey - SDLK_1)
-            and (UParty.Party.Teams[PressedKey - SDLK_1].JokersLeft > 0) then
-          begin
-            Dec(UParty.Party.Teams[PressedKey - SDLK_1].JokersLeft);
-            Self.SelectRandomSong();
-            Self.SetJoker();
-          end;
+          Dec(UParty.Party.Teams[PressedKey - SDLK_1].JokersLeft);
+          Self.SelectRandomSong();
+          Self.SetJoker();
         end;
-      SDLK_F3:
+      SDLK_F2: //toggle duet names
+        if (Self.Mode = smNormal) and (USongs.CatSongs.Song[Self.Interaction].isDuet) then
+        begin
+          Self.DuetChange := not Self.DuetChange;
+          Self.SetScroll(true);
+        end;
+      SDLK_F3: //show search
         if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
           Self.EnableSearch(Self.Text[Self.SearchTextPlaceholder].Visible);
-      SDLK_F5:
+      SDLK_F4: //random song
+        if Self.FreeListMode() and (not SlowChessboardScroll()) then
+          Self.SelectRandomSong(SDL_ModState = KMOD_LSHIFT);
+      SDLK_F5: //reload songs
         begin
           if not Self.Text[Self.SearchTextPlaceholder].Visible then
             Self.ParseInput(SDLK_ESCAPE, 0, true);
 
           Self.FadeTo(@UGraphic.ScreenMain);
           UGraphic.ScreenMain.ReloadSongs();
+        end;
+      SDLK_F6: //online verify song
+        if not Usongs.CatSongs.Song[Self.Interaction].Main then
+        begin
+          WebList := '';
+          for I := 0 to High(UDataBase.Database.NetworkUser) do
+          begin
+            UDllManager.DllMan.LoadWebsite(I);
+            if (UDllManager.DllMan.WebsiteVerifySong(WideString(USongs.CatSongs.Song[Self.Interaction].MD5)) = 'OK_SONG') then
+              WebList := UDataBase.Database.NetworkUser[I].Website + #13
+          end;
+          if (WebList <> '') then
+            ScreenPopupInfo.ShowPopup(Format(Language.Translate('WEBSITE_EXIST_SONG'), [WebList]))
+          else
+            ScreenPopupError.ShowPopup(Language.Translate('WEBSITE_NOT_EXIST_SONG'));
+        end;
+      SDLK_F7: //voice removal
+        begin
+          UAudioPlaybackBase.ToggleVoiceRemoval();
+          Self.StartPreview();
+        end;
+      SDLK_F8: //medley list
+        if (Self.Mode = smNormal) then
+          if (SDL_GetModState and KMOD_CTRL <> 0) and Self.MakeMedley then
+          begin
+            if Length(PlaylistMedley.Song) > 0 then
+            begin
+              SetLength(UNote.PlaylistMedley.Song, Length(UNote.PlaylistMedley.Song) - 1);
+              UNote.PlaylistMedley.NumMedleySongs := Length(UNote.PlaylistMedley.Song);
+            end;
+            Self.MakeMedley := Length(UNote.PlaylistMedley.Song) <> 0;
+          end
+          else if
+            (USongs.CatSongs.Song[Self.Interaction].Medley.Source >= msCalculated)
+            and (Length(getVisibleMedleyArr(msCalculated)) > 0)
+          then
+          begin
+            Self.MakeMedley := true;
+            Self.StartMedley(99, msCalculated);
+          end;
+      SDLK_F10: //show menu
+        begin
+        if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
+          if SDL_GetModState and KMOD_ALT <> 0 then
+            I := SM_Sorting
+          else if SDL_GetModState and KMOD_CTRL <> 0 then
+            I := SM_Playlist_Load
+          else if (SDL_GetModState and KMOD_SHIFT <> 0) or Self.MakeMedley then
+            I := SM_Medley
+          else if Self.Mode = smNormal then
+            if USongs.CatSongs.Song[Interaction].Main then
+              I := SM_Sorting
+            else if USongs.CatSongs.CatNumShow = -2 then
+              I := SM_Song
+            else if USongs.CatSongs.CatNumShow = -3 then
+              I := SM_Playlist
+            else
+              I := SM_Main
+          else
+            I := IfThen(Self.Mode = smPartyClassic, SM_Party_Main, SM_Party_Free_Main);
+
+          UGraphic.ScreenSongMenu.MenuShow(I);
         end;
     end;
   end;
@@ -677,11 +646,11 @@ begin
           Self.InRegion(X, Y, Self.Button[Self.Interaction].GetMouseOverArea()) //button
           or (Self.Statics[Self.MainCover].Visible and Self.InRegion(X, Y, Self.Statics[Self.MainCover].GetMouseOverArea())) //main cover
         then
-          Self.ParseInput(SDL_BUTTON_RIGHT, Ord('M'), true)
+          Self.ParseInput(SDLK_F10, 0, true)
         else if Self.RightMbESC then
           Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
       SDL_BUTTON_MIDDLE: //open song menu
-        Self.ParseInput(SDL_BUTTON_MIDDLE, Ord('M'), true);
+        Self.ParseInput(SDLK_F10, 0, true);
       SDL_BUTTON_WHEELDOWN: //next song
         Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_RIGHT, SDLK_DOWN), 0, true);
       SDL_BUTTON_WHEELUP: //previous song
