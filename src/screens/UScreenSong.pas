@@ -1056,21 +1056,17 @@ begin
       else if (Pos > VS / 2) then
         Pos := Pos - VS;
 
-      // Avoid overlapping of the front covers.
-      // Use an alternate position for the five front covers.
-      if (Abs(Pos) < 2.5) then
+      if (Abs(Pos) < 3.5) then //7 covers
       begin
         Self.LoadCover(I);
-        Angle := Pi * (Pos / Min(VS, 5)); // Range: (-1/4*Pi .. +1/4*Pi)
-        B.H := Abs(Theme.Song.Cover.H * AutoWidthCorrection * Cos(Angle * 0.8));
-        B.W := Abs(Theme.Song.Cover.W * Cos(Angle * 0.8));
-        // B.Reflectionspacing := 15 * B.H / Theme.Song.Cover.H;
-        B.DeSelectReflectionspacing := 15 * B.H / Theme.Song.Cover.H;
-        B.X := Theme.Song.Cover.X + Theme.Song.Cover.W * Sin(Angle * 1.3) * 0.9 * 1.6 - (B.W - Theme.Song.Cover.W) / 2;
-        B.Y := ((Theme.Song.Cover.Y) + ((Theme.Song.Cover.H) - Abs(Theme.Song.Cover.H * Cos(Angle))) * 0.5) - (B.H - (B.H / AutoWidthCorrection));
+        Angle := Pi * (Pos / Min(VS, 7)); // Range: (-1/4*Pi .. +1/4*Pi)
+        B.H := Abs(UThemes.Theme.Song.Cover.H * AutoWidthCorrection * Cos(Angle * 0.8));
+        B.W := Abs(UThemes.Theme.Song.Cover.W * Cos(Angle * 0.8));
+        B.X := UThemes.Theme.Song.Cover.X + UThemes.Theme.Song.Cover.W * Sin(Angle * 1.25) * 2.4 - (B.W - UThemes.Theme.Song.Cover.W) / 2;
+        B.Y := ((UThemes.Theme.Song.Cover.Y) + ((UThemes.Theme.Song.Cover.H) - Abs(UThemes.Theme.Song.Cover.H * Cos(Angle))) * 0.5) - (B.H - (B.H / AutoWidthCorrection));
         B.Z := 0.95 - Abs(Pos) * 0.01;
         B.SetSelect(true);
-        B.Texture.Alpha := 1;
+        B.Reflection := true;
       end
       //only draw 5 visible covers in the background (the 5 that are on the opposite of the front covers
       else if (VS > 9) and (Abs(Pos) > Floor(VS / 2) - 2.5) then
@@ -1086,17 +1082,14 @@ begin
         else
           Pos := (Pos + 2 - Floor(VS / 2)) / 8 + 0.75;
 
-        // angle in radians [-2Pi..-Pi, +Pi..+2Pi]
-        Angle := 2 * Pi * Pos;
-        B.H := 0.6 * (Theme.Song.Cover.H - Abs(Theme.Song.Cover.H * Cos(Angle / 2) * 0.8));
-        B.W := 0.6 * (Theme.Song.Cover.W - Abs(Theme.Song.Cover.W * Cos(Angle / 2) * 0.8));
-        B.X := Theme.Song.Cover.X + Theme.Song.Cover.W / 2 - B.W / 2 + Theme.Song.Cover.W / 320 * (Theme.Song.Cover.W * Sin(Angle / 2) * 1.52);
-        B.Y := Theme.Song.Cover.Y - (B.H - Theme.Song.Cover.H) * 0.75;
-        B.Z := (0.4 - Abs(Pos / 4)) - 0.00001; //z < 0.49999 is behind the cover 1 is in front of the covers
-        B.SetSelect(true);
-        B.Texture.Alpha := 1;
-        //B.Reflectionspacing := 15 * B.H / Theme.Song.Cover.H;
-        B.DeSelectReflectionspacing := 15 * B.H / Theme.Song.Cover.H;
+        Angle := Pi * Pos;
+        B.H := UThemes.Theme.Song.Cover.H - Abs(UThemes.Theme.Song.Cover.H * Cos(Angle) * 0.6);
+        B.W := UThemes.Theme.Song.Cover.W - Abs(UThemes.Theme.Song.Cover.W * Cos(Angle) * 0.6);
+        B.X := UThemes.Theme.Song.Cover.X + (UThemes.Theme.Song.Cover.W * Sin(Angle) * 2.4) - (B.W - UThemes.Theme.Song.Cover.W) / 2;
+        B.Y := UThemes.Theme.Song.Cover.Y - (B.H - Theme.Song.Cover.H) * 0.5;
+        B.Z := 0.4;
+        B.SetSelect(false);
+        B.Reflection := false;
       end
       else
         Self.UnloadCover(I);
