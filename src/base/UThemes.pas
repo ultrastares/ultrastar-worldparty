@@ -798,15 +798,15 @@ type
   end;
 
   TThemeOptionsGame = class(TThemeBasic)
-    SelectLanguage:     TThemeSelectSlide;
-    SelectSongMenu:     TThemeSelectSlide;
+    SelectLanguage: TThemeSelectSlide;
+    SelectSongMenu: TThemeSelectSlide;
     SelectDuets: TThemeSelectSlide;
-    SelectSorting:      TThemeSelectSlide;
-    SelectTabs:         TThemeSelectSlide;
-    SelectShowScores:   TThemeSelectSlide;
+    SelectTabs: TThemeSelectSlide;
+    SelectSorting: TThemeSelectSlide;
+    SelectShowScores: TThemeSelectSlide;
+    SelectSingScores: TThemeSelectSlide;
     SelectFindUnsetMedley: TThemeSelectSlide;
-    SelectJoypad:       TThemeSelectSlide;
-    ButtonExit:         TThemeButton;
+    ButtonExit:TThemeButton;
   end;
 
   TThemeOptionsGraphics = class(TThemeBasic)
@@ -872,7 +872,6 @@ type
     SelectAskbeforeDel:   TThemeSelectSlide;
     SelectOnSongClick:    TThemeSelectSlide;
     SelectPartyPopup:     TThemeSelectSlide;
-    SelectSingScores:     TThemeSelectSlide;
     SelectTopScores:      TThemeSelectSlide;
     ButtonExit:           TThemeButton;
   end;
@@ -2020,15 +2019,15 @@ begin
       // Options Game
       ThemeLoadBasic(OptionsGame, 'OptionsGame');
 
-      ThemeLoadSelectSlide(OptionsGame.SelectLanguage,   'OptionsGameSelectSlideLanguage');
-      ThemeLoadSelectSlide(OptionsGame.SelectSongMenu,   'OptionsGameSelectSongMenu');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectLanguage, 'OptionsGameSelectSlideLanguage');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSongMenu, 'OptionsGameSelectSongMenu');
       Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectDuets, 'OptionsGameSelectDuets');
-      ThemeLoadSelectSlide(OptionsGame.SelectSorting,    'OptionsGameSelectSlideSorting');
-      ThemeLoadSelectSlide(OptionsGame.SelectTabs,       'OptionsGameSelectTabs');
-      ThemeLoadSelectSlide(OptionsGame.SelectShowScores, 'OptionsGameSelectShowScores');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectTabs, 'OptionsGameSelectTabs');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSorting, 'OptionsGameSelectSlideSorting');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectShowScores, 'OptionsGameSelectShowScores');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSingScores, 'OptionsGameSelectSingScores');
       Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectFindUnsetMedley, 'OptionsGameSelectFindUnsetMedley');
-      ThemeLoadSelectSlide(OptionsGame.SelectJoypad,     'OptionsGameSelectJoypad');
-      ThemeLoadButton(OptionsGame.ButtonExit,            'OptionsGameButtonExit');
+      Self.ThemeLoadButton(Self.OptionsGame.ButtonExit, 'OptionsGameButtonExit');
 
       // Options Graphics
       ThemeLoadBasic(OptionsGraphics, 'OptionsGraphics');
@@ -2102,7 +2101,6 @@ begin
       ThemeLoadSelectSlide(OptionsAdvanced.SelectOnSongClick,   'OptionsAdvancedSelectSlideOnSongClick');
       ThemeLoadSelectSlide(OptionsAdvanced.SelectAskbeforeDel,  'OptionsAdvancedSelectAskbeforeDel');
       ThemeLoadSelectSlide(OptionsAdvanced.SelectPartyPopup,    'OptionsAdvancedSelectPartyPopup');
-      ThemeLoadSelectSlide(OptionsAdvanced.SelectSingScores,    'OptionsAdvancedSelectSingScores');
       ThemeLoadSelectSlide(OptionsAdvanced.SelectTopScores,     'OptionsAdvancedSelectTopScores');
       ThemeLoadButton     (OptionsAdvanced.ButtonExit,          'OptionsAdvancedButtonExit');
 

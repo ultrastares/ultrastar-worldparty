@@ -1,8 +1,8 @@
 {*
     UltraStar WorldParty - Karaoke Game
-	
-	UltraStar WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -58,7 +58,6 @@ type
       Benchmark:  boolean;
       NoLog:      boolean;
       ScreenMode: TScreenMode;
-      Joypad:     boolean;
       Split:      TSplitMode;
 
       // some value variables set when reading infos {-1: Not Set, others: Value}
@@ -100,7 +99,7 @@ uses SysUtils,
 constructor TCMDParams.Create;
 begin
   inherited;
-  
+
   if FindCmdLineSwitch( cHelp ) or FindCmdLineSwitch( 'h' ) then
     ShowHelp();
 
@@ -139,7 +138,6 @@ begin
   Benchmark   := False;
   NoLog       := false;
   ScreenMode  := scmDefault;
-  Joypad      := False;
   Split       := spmDefault;
 
   // some value variables set when reading infos {-1: Not Set, others: Value}
@@ -190,8 +188,6 @@ begin
         ScreenMode  := scmFullscreen
       else if (Command = 'window') then
         ScreenMode  := scmWindowed
-      else if (Command = 'joypad') then
-        Joypad    := True
       else if (Command = 'split') then
         Split     := spmSplit
       else if (Command = 'nosplit') then

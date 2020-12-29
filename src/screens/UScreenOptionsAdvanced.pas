@@ -45,8 +45,6 @@ type
    protected
       // interaction IDs
 	  ButtonExitIID: integer;
-      SelectJoyPad: integer;
-
 
     public
       constructor Create; override;
@@ -127,7 +125,6 @@ begin
   AddSelectSlide(Theme.OptionsAdvanced.SelectOnSongClick, UIni.Ini.OnSongClick, UIni.IOnSongClick, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsAdvanced.SelectAskbeforeDel, UIni.Ini.AskBeforeDel, UIni.IAskbeforeDel, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsAdvanced.SelectPartyPopup, UIni.Ini.PartyPopup, UIni.IPartyPopup, 'OPTION_VALUE_');
-  AddSelectSlide(Theme.OptionsAdvanced.SelectSingScores, UIni.Ini.SingScores, UIni.ISingScores, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsAdvanced.SelectTopScores, UIni.Ini.TopScores, UIni.ITopScores, 'OPTION_VALUE_');
 
   AddButton(Theme.OptionsAdvanced.ButtonExit);

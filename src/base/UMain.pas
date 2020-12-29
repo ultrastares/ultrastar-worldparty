@@ -196,11 +196,7 @@ begin
     // GoldenStarsTwinkleMod
     GoldenRec := TEffectManager.Create;
 
-    // Joypad
-    if (Ini.Joypad = 1) or (Params.Joypad) then
-    begin
-      InitializeJoystick;
-    end;
+    UJoystick.InitializeJoystick();
 
     // Webcam
     //Log.LogStatus('WebCam', 'Initialization');
