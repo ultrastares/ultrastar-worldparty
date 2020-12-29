@@ -87,15 +87,6 @@ begin
   Result := true;
   if (PressedDown) then
   begin
-    //check normal keys
-    case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-        begin
-          Result := false;
-          Exit;
-        end;
-    end;
-
     //check special keys
     case PressedKey of
       SDLK_ESCAPE, SDLK_BACKSPACE:
@@ -113,7 +104,7 @@ begin
             begin
               if Self.CheckSongs() then
               begin
-                UGraphic.ScreenSong.Mode := smNormal;               
+                UGraphic.ScreenSong.Mode := smNormal;
                 Screen := @UGraphic.ScreenSong;
               end;
             end;

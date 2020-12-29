@@ -194,11 +194,6 @@ begin
     begin
       // check normal keys
       case UCS4UpperCase(CharCode) of
-        Ord('Q'):
-          begin
-            Result := false;
-            Exit;
-          end;
         Ord('R'):
           begin
             Randomize();

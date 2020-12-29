@@ -331,15 +331,6 @@ begin
       end;
     end;
 
-    // check normal keys
-    case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-        begin
-          Result := false;
-          Exit;
-        end;
-    end; // normal keys
-
     // check special keys
     case PressedKey of
       SDLK_BACKSPACE:

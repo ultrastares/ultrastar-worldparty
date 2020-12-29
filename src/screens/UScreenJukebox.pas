@@ -1256,19 +1256,6 @@ begin
     else
     begin
       case UCS4UpperCase(CharCode) of
-        Ord('Q'):
-        begin
-          // when not ask before exit then finish now
-          if (Ini.AskbeforeDel <> 1) then
-            Finish
-          // else just pause and let the popup make the work
-          else if not Paused then
-            Pause;
-
-          Result := false;
-          Exit;
-        end;
-
         // show visualization
         Ord('V'):
         begin

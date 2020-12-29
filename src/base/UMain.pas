@@ -546,9 +546,9 @@ begin
 
             end;
 
-            if (not SuppressKey and (Event.key.keysym.sym = SDLK_F11)) then // toggle full screen
+            if not SuppressKey then
             begin
-              if (CurrentWindowMode <> Mode_Fullscreen) then // only switch borderless fullscreen in windowed mode
+              if (Event.key.keysym.sym = SDLK_F11) and (CurrentWindowMode <> Mode_Fullscreen) then //toggle fullscreen only switch borderless fullscreen in windowed mode
               begin
                 if SwitchVideoMode(Mode_Borderless) = Mode_Borderless then
                 begin
@@ -559,12 +559,10 @@ begin
                   Ini.FullScreen := 0;
                 end;
                 Ini.Save();
-              end;
-
-              //Display.SetCursor;
-
-              //glViewPort(0, 0, ScreenW, ScreenH);
-            end;
+              end
+              else if Event.key.keysym.sym = SDLK_F12 then
+                DoQuit();
+            end
           end;
         end;
       SDL_CONTROLLERDEVICEADDED, SDL_CONTROLLERDEVICEREMOVED,
