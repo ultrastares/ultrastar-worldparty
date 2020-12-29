@@ -53,7 +53,6 @@ type
       procedure MenuShow(sMenu: byte);
       procedure HandleReturn;
       function CountMedleySongs: integer;
-      procedure UpdateJukeboxButtons;
   end;
 
 const
@@ -76,8 +75,6 @@ const
   SM_Song             = 64 or 8;
   SM_Medley           = 64 or 16;
   SM_Sorting = 64 or 32;
-  SM_Jukebox          = 64 or 128;
-
   SM_Search_new_songs = 64 or 7;
 
 var
@@ -241,17 +238,6 @@ begin
   end;
 
   Result := Count;
-end;
-
-procedure TScreenSongMenu.UpdateJukeboxButtons();
-begin
-   Button[1].Visible := not (CatSongs.Song[ScreenSong.Interaction].Main);
-   Button[2].Visible := (Length(ScreenJukebox.JukeboxSongsList) > 0);
-
-   if (CatSongs.Song[ScreenSong.Interaction].Main) then
-     Button[0].Text[0].Text := Language.Translate('SONG_MENU_OPEN_CATEGORY')
-   else
-     Button[0].Text[0].Text := Language.Translate('SONG_MENU_CLOSE_CATEGORY');
 end;
 
 procedure TScreenSongMenu.MenuShow(sMenu: byte);
@@ -694,38 +680,6 @@ begin
 
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_PLAY');
       end;
-
-    SM_Jukebox:
-      begin
-        CurMenu := sMenu;
-
-        Text[0].Text := Language.Translate('SONG_MENU_NAME_JUKEBOX');
-
-        UpdateJukeboxButtons();
-
-        Button[0].Visible := (UIni.Ini.Tabs = 1);
-        Button[1].Visible := false;
-        Button[2].Visible := true;
-        Button[3].Visible := false;
-        Button[4].Visible := false;
-        Button[5].Visible := false;
-
-        SelectsS[0].Visible := false;
-        SelectsS[1].Visible := false;
-        SelectsS[2].Visible := false;
-
-        Button[1].Text[0].Text := Language.Translate('SONG_MENU_ADD_SONG');
-        Button[2].Text[0].Text := Language.Translate('SONG_MENU_DELETE_SONG');
-
-        Button[4].Text[0].Text := Language.Translate('SONG_MENU_START_JUKEBOX');
-
-        if (UIni.Ini.Tabs = 1) then
-          Interaction := 0
-        else
-          Interaction := 1;
-
-      end;
-
 	SM_Search_new_songs:
 	  begin
         Self.FadeTo(@UGraphic.ScreenMain);
@@ -1089,73 +1043,6 @@ begin
             end;
         end;
       end;
-
-    SM_Jukebox:
-      begin
-        Case Interaction of
-          0: //Button 1
-            begin
-
-              if (Songs.SongList.Count > 0) then
-              begin
-                if USongs.CatSongs.Song[UGraphic.ScreenSong.Interaction].Main then
-                  UGraphic.ScreenSong.SetSubselection(UGraphic.ScreenSong.Interaction, sfCategory)
-                else
-                begin
-                  //Find Category
-                  I := ScreenSong.Interaction;
-                  while (not CatSongs.Song[I].Main) do
-                  begin
-                    Dec(I);
-                    if (I < 0) then
-                      break;
-                  end;
-
-                  if (I <= 1) then
-                    ScreenSong.Interaction := High(CatSongs.Song)
-                  else
-                    ScreenSong.Interaction := I - 1;
-
-                  UGraphic.ScreenSong.SetSubselection();
-                end;
-              end;
-
-              UpdateJukeboxButtons;
-            end;
-
-          1: //Button 2
-            begin
-              if (not CatSongs.Song[Interaction].Main) then
-                ScreenJukebox.AddSongToJukeboxList(ScreenSong.Interaction);
-
-              UpdateJukeboxButtons;
-            end;
-
-          2: //Button 3
-            begin
-              SetLength(ScreenJukebox.JukeboxSongsList, Length(ScreenJukebox.JukeboxSongsList)-1);
-              SetLength(ScreenJukebox.JukeboxVisibleSongs, Length(ScreenJukebox.JukeboxVisibleSongs)-1);
-
-              if (Length(ScreenJukebox.JukeboxSongsList) = 0) then
-                Interaction := 1;
-
-              UpdateJukeboxButtons;
-            end;
-
-          7: //Button 4
-            begin
-              if (Length(ScreenJukebox.JukeboxSongsList) > 0) then
-              begin
-                ScreenJukebox.CurrentSongID := ScreenJukebox.JukeboxVisibleSongs[0];
-                FadeTo(@ScreenJukebox);
-                Visible := False;
-              end
-              else
-                ScreenPopupError.ShowPopup(Language.Translate('PARTY_MODE_JUKEBOX_NO_SONGS'));
-            end;
-        end;
-      end;
-
   end;
 end;
 

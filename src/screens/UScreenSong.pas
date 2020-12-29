@@ -536,17 +536,6 @@ begin
                 begin
                   ScreenSong.StartSong;
                 end;
-
-                if (Mode = smJukebox) then
-                begin
-                  if (Length(ScreenJukebox.JukeboxSongsList) > 0) then
-                  begin
-                    ScreenJukebox.CurrentSongID := ScreenJukebox.JukeboxVisibleSongs[0];
-                    FadeTo(@ScreenJukebox);
-                  end
-                  else
-                    ScreenPopupError.ShowPopup(Language.Translate('PARTY_MODE_JUKEBOX_NO_SONGS'));
-                end;
               end;
           end;
         end;
@@ -600,9 +589,6 @@ begin
         end;
       SDLK_SPACE:
         begin
-          if (Mode = smJukebox) and (not CatSongs.Song[Interaction].Main) then
-            ScreenJukebox.AddSongToJukeboxList(Interaction);
-
           if (Mode = smNormal) and (USongs.CatSongs.Song[Interaction].isDuet) then
           begin
             Self.DuetChange := not Self.DuetChange;
@@ -1569,10 +1555,6 @@ begin
   end;
 
   Self.SetScroll(true);
-
-  if (ScreenSong.Mode = smJukebox) and (Ini.PartyPopup = 1) then
-    ScreenSongMenu.MenuShow(SM_Jukebox);
-
   Self.IsScrolling := false;
   Self.SetJoker();
 
@@ -1659,39 +1641,6 @@ begin
     StaticsList[I].Draw;
   end;
 
-  // Jukebox Playlist
-  if (Mode = smJukebox) then
-  begin
-    if Length(ScreenJukebox.JukeboxSongsList) > Theme.Song.TextMedleyMax then
-      J := Length(ScreenJukebox.JukeboxSongsList) - Theme.Song.TextMedleyMax
-    else
-      J := 0;
-
-    for I := 0 to Theme.Song.TextMedleyMax - 1 do
-    begin
-      if (Length(ScreenJukebox.JukeboxSongsList) > I + J) then
-      begin
-        Text[TextMedleyArtist[I]].Visible := true;
-        Text[TextMedleyTitle[I]].Visible  := true;
-        Text[TextMedleyNumber[I]].Visible := true;
-        Statics[StaticMedley[I]].Visible  := true;
-
-        Text[TextMedleyNumber[I]].Text := IntToStr(I + 1 + J);
-        Text[TextMedleyArtist[I]].Text := CatSongs.Song[ScreenJukebox.JukeboxSongsList[I + J]].Artist;
-        Text[TextMedleyTitle[I]].Text  := CatSongs.Song[ScreenJukebox.JukeboxSongsList[I + J]].Title;
-      end
-      else
-      begin
-        Text[TextMedleyArtist[I]].Visible := false;
-        Text[TextMedleyTitle[I]].Visible  := false;
-        Text[TextMedleyNumber[I]].Visible := false;
-        Statics[StaticMedley[I]].Visible  := false;
-      end;
-    end;
-  end
-  else
-  begin
-
     //Medley Playlist
     if Length(PlaylistMedley.Song) > Theme.Song.TextMedleyMax then
       J := Length(PlaylistMedley.Song) - Theme.Song.TextMedleyMax
@@ -1719,7 +1668,6 @@ begin
         Statics[StaticMedley[I]].Visible  := false;
       end;
     end;
-  end;
 
   //Instead of Draw FG Procedure:
   //We draw Buttons for our own
