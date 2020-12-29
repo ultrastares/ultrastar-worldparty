@@ -214,9 +214,6 @@ type
       JukeboxTimebarMode:    integer;
       FindUnsetMedley: integer;
 
-      // Controller
-      Mouse:          integer;
-
       // WebCam
       WebCamID:         integer;
       WebcamResolution: integer;
@@ -379,9 +376,6 @@ const
 
   ILineBonus:     array[0..1] of UTF8String = ('Off', 'On');
   IPartyPopup:    array[0..1] of UTF8String = ('Off', 'On');
-
-  IMouse:         array[0..2] of UTF8String = ('Off', 'System', 'Game');
-  IMouseLegacy:         array[0..2] of UTF8String = ('Off', 'Hardware Cursor', 'Software Cursor'); // use to convert old config option to new
 
   ISingTimebarMode:    array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
   IJukeboxTimebarMode: array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
@@ -1103,13 +1097,6 @@ begin
   // SyncTo
   SyncTo := ReadArrayIndex(ISyncTo, IniFile, 'Advanced', 'SyncTo', Ord(stMusic));
 
-  // Mouse
-  Mouse := ReadArrayIndex(IMouse, IniFile, 'Controller', 'Mouse', 2);
-  if Mouse < 0 then // try finding legacy option
-  begin
-    Mouse := ReadArrayIndex(IMouseLegacy, IniFile, 'Controller', 'Mouse', 2);
-  end;
-
   // SingTimebarMode
   SingTimebarMode := ReadArrayIndex(ISingTimebarMode, IniFile, 'Advanced', 'SingTimebarMode', IGNORE_INDEX, 'Remaining');
 
@@ -1311,9 +1298,6 @@ begin
 
   //SyncTo
   IniFile.WriteString('Advanced', 'SyncTo', ISyncTo[SyncTo]);
-
-  // Mouse
-  IniFile.WriteString('Controller', 'Mouse', IMouse[Mouse]);
 
   // SingTimebarMode
   IniFile.WriteString('Advanced', 'SingTimebarMode', ISingTimebarMode[SingTimebarMode]);

@@ -93,8 +93,6 @@ type
       procedure UpdateCursorFade;
 
     public
-      Cursor_HiddenByScreen: boolean; // hides software cursor and deactivate auto fade in, must be public for access in UMenuButton
-
       NextScreen:          PMenu;
       CurrentScreen:       PMenu;
 
@@ -218,7 +216,6 @@ begin
   Cursor_X        := -1;
   Cursor_Y        := -1;
   Cursor_Fade     := false;
-  Cursor_HiddenByScreen := true;
   Cursor_Update   := false;
 
   Tex_Cursor_Unpressed := UTexture.Texture.LoadTexture('Cursor', TEXTURE_TYPE_TRANSPARENT, 0);
@@ -477,46 +474,8 @@ end;
 
 { sets SDL_ShowCursor depending on options set in Ini }
 procedure TDisplay.SetCursor;
-var
-  Cursor: Integer;
 begin
-  Cursor := 0;
-
-  if (CurrentScreen <> @ScreenSing) or (Cursor_HiddenByScreen) then
-  begin // hide cursor on singscreen
-    if (Ini.Mouse = 0) and (Ini.FullScreen = 0) then
-      // show sdl (os) cursor in window mode even when mouse support is off
-      Cursor := 1
-    else if (Ini.Mouse = 1) then
-      // show sdl (os) cursor when hardware cursor is selected
-      Cursor := 1;
-
-    if (Ini.Mouse <> 2) then
-      Cursor_HiddenByScreen := false;
-  end
-  else if (Ini.Mouse <> 2) then
-    Cursor_HiddenByScreen := true;
-
-
-  SDL_ShowCursor(Cursor);
-
-  if (Ini.Mouse = 2) then
-  begin
-    if Cursor_HiddenByScreen then
-    begin
-      // show software cursor
-      Cursor_HiddenByScreen := false;
-      Cursor_Visible := false;
-      Cursor_Fade := false;
-    end
-    else if (CurrentScreen = @ScreenSing) then
-    begin
-      // hide software cursor in singscreen
-      Cursor_HiddenByScreen := true;
-      Cursor_Visible := false;
-      Cursor_Fade := false;
-    end;
-  end;
+  SDL_ShowCursor(0);
 end;
 
 { called by MoveCursor and OnMouseButton to update last move and start fade in }
@@ -546,8 +505,7 @@ end;
 { called when cursor moves, positioning of software cursor }
 procedure TDisplay.MoveCursor(X, Y: double);
 begin
-  if (Ini.Mouse = 2) and
-     ((X <> Cursor_X) or (Y <> Cursor_Y)) then
+  if (X <> Cursor_X) or (Y <> Cursor_Y) then
   begin
     Cursor_X := X;
     Cursor_Y := Y;
@@ -559,12 +517,9 @@ end;
 { called when left or right mousebutton is pressed or released }
 procedure TDisplay.OnMouseButton(Pressed: boolean);
 begin
-  if (Ini.Mouse = 2) then
-  begin
     Cursor_Pressed := Pressed;
 
     UpdateCursorFade;
-  end;
 end;
 
 { draws software cursor }
@@ -575,7 +530,7 @@ var
   DrawX: double;
 begin
   Alpha := 0;
-  if (Ini.Mouse = 2) and ((Screens = 1) or ((ScreenAct - 1) = (Round(Cursor_X+16) div RenderW))) then
+  if (Screens = 1) or ((ScreenAct - 1) = (Round(Cursor_X+16) div RenderW)) then
   begin // draw software cursor
     Ticks := SDL_GetTicks;
 
@@ -614,7 +569,7 @@ begin
         Alpha := 0;  // alpha when cursor is hidden
     end;
 
-    if (Alpha > 0) and (not Cursor_HiddenByScreen) then
+    if Alpha > 0 then
     begin
       DrawX := Cursor_X;
       if (ScreenAct = 2) then
@@ -664,7 +619,7 @@ end;
 function TDisplay.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown : boolean): boolean;
 begin
   Result := true;
-  if Console_Draw and ConsoleParseInput(PressedKey, CharCode, PressedDown) then 
+  if Console_Draw and ConsoleParseInput(PressedKey, CharCode, PressedDown) then
     Exit;
 
   if (assigned(NextScreen)) then
@@ -676,7 +631,7 @@ end;
 function TDisplay.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 begin
   Result := true;
-  if Console_Draw and ConsoleParseMouse(MouseButton, BtnDown, X, Y) then 
+  if Console_Draw and ConsoleParseMouse(MouseButton, BtnDown, X, Y) then
     Exit;
 
   if (assigned(NextScreen)) then

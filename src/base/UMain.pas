@@ -383,8 +383,6 @@ begin
       end;
 
       SDL_MOUSEMOTION, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_MOUSEWHEEL:
-      begin
-        if (Ini.Mouse > 0) then
         begin
           UpdateMouse := true;
           case Event.type_ of
@@ -464,7 +462,6 @@ begin
             end;
           end;
         end;
-      end;
       SDL_WINDOWEVENT://SDL_WINDOWEVENT_RESIZED:
       begin
         case Event.window.event of
