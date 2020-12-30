@@ -237,7 +237,7 @@ begin
           if not Self.SingButtonPressed then
             Exit();
 
-          if Self.SelInteraction = 6 then
+          if Self.SelInteraction in [6, 7] then
             ParseInput(SDLK_ESCAPE, CharCode, PressedDown);
         end;
 
