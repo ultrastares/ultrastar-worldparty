@@ -302,23 +302,21 @@ begin
 
         Text[0].Text := Language.Translate('C_MEDLEY');
 
-        Button[0].Visible := (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone);
-        Button[1].Visible := (Length(PlaylistMedley.Song)>0);
-        Button[2].Visible := (Length(PlaylistMedley.Song)>0) or
-          (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone);
-        Button[3].Visible := (not ScreenSong.MakeMedley) and (MSongs > 1);
-        Button[4].Visible := true;
+        Self.Button[0].Visible := (Length(UNote.PlaylistMedley.Song) > 0)
+          or (USongs.CatSongs.Song[UGraphic.ScreenSong.Interaction].Medley.Source > msNone);
+        Button[1].Visible := MSongs > 1;
+        Button[2].Visible := true;
+        Button[3].Visible := false;
+        Button[4].Visible := false;
         Button[5].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
         SelectsS[2].Visible := false;
 
-        Button[0].Text[0].Text := Language.Translate('SONG_MENU_ADD_SONG_TO_LIST');
-        Button[1].Text[0].Text := Language.Translate('SONG_MENU_DELETE_SONG');
-        Button[2].Text[0].Text := Language.Translate('SONG_MENU_START_MEDLEY');
-        Button[3].Text[0].Text := Format(Language.Translate('SONG_MENU_START_5_MEDLEY'), [MSongs]);
-        Button[4].Text[0].Text := Language.Translate('C_BACK');
+        Button[0].Text[0].Text := Language.Translate('SONG_MENU_START_MEDLEY');
+        Button[1].Text[0].Text := Format(Language.Translate('SONG_MENU_START_5_MEDLEY'), [MSongs]);
+        Button[2].Text[0].Text := Language.Translate('C_BACK');
       end;
 
     SM_Sorting:
@@ -741,63 +739,20 @@ begin
       end;
 
     SM_Medley:
-      begin
-        Case Interaction of
-          0: //Button 1
-            begin
-              ScreenSong.MakeMedley := true;
-              ScreenSong.StartMedley(99, msCalculated);
-
-              Visible := False;
-            end;
-
-          1: //Button 2
-            begin
-              SetLength(PlaylistMedley.Song, Length(PlaylistMedley.Song)-1);
-              PlaylistMedley.NumMedleySongs := Length(PlaylistMedley.Song);
-
-              if Length(PlaylistMedley.Song)=0 then
-                ScreenSong.MakeMedley := false;
-
-              Visible := False;
-            end;
-
-          2: //Button 3
-            begin
-
-              if ScreenSong.MakeMedley then
-              begin
-                ScreenSong.Mode := smMedley;
-                PlaylistMedley.CurrentMedleySong := 0;
-
-                //Do the Action that is specified in Ini
-                case Ini.OnSongClick of
-                  0: FadeTo(@ScreenSing);
-                  1: ScreenSong.SelectPlayers;
-                  2: FadeTo(@ScreenSing);
-                end;
-              end
-              else
-                ScreenSong.StartMedley(0, msCalculated);
-
-              Visible := False;
-
-            end;
-
-          6: //Button 4
-            begin
-              ScreenSong.StartMedley(5, msCalculated);
-              Visible := False;
-            end;
-
-          7: // button 5
-            begin
-              // show main menu
-              MenuShow(SM_Main);
-            end;
-        end;
+      case Self.Interaction of
+        0:
+          begin
+            UGraphic.ScreenSong.StartMedley(0, msCalculated);
+            Self.Visible := False;
+          end;
+        1:
+          begin
+            UGraphic.ScreenSong.StartMedley(5, msCalculated);
+            Self.Visible := False;
+          end;
+        2:
+          Self.MenuShow(SM_Main);
       end;
-
       SM_Sorting:
         begin
           case Self.Interaction of

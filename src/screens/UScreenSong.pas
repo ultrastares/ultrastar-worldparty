@@ -79,18 +79,12 @@ type
       procedure StopPreview();
       procedure UnloadCover(const I: integer);
     public
-      MakeMedley:   boolean;
-
       //Video Icon Mod
       VideoIcon: cardinal;
 
       //Medley Icons
       MedleyIcon:     cardinal;
       CalcMedleyIcon: cardinal;
-      TextMedleyArtist:   array of integer;
-      TextMedleyTitle:    array of integer;
-      TextMedleyNumber:   array of integer;
-      StaticMedley:   array of integer;
       DuetIcon: integer;
       DuetChange: boolean;
       RapIcon: integer;
@@ -380,18 +374,7 @@ begin
 
               if (Mode = smNormal) then //Normal Mode -> Start Song
               begin
-                if MakeMedley then
-                begin
-                  Mode := smMedley;
-
-                  //Do the Action that is specified in Ini
-                  case Ini.OnSongClick of
-                    0: FadeTo(@ScreenSing);
-                    1: SelectPlayers;
-                    2: FadeTo(@ScreenSing);
-                  end;
-                end
-                else if (SDL_ModState and KMOD_CTRL) <> 0 then
+                if (SDL_ModState and KMOD_CTRL) <> 0 then
                   Self.StartMedley(0, USongs.CatSongs.Song[Self.Interaction].Medley.Source)
                 else if (SDL_ModState and KMOD_SHIFT) <> 0 then
                 begin
@@ -536,25 +519,6 @@ begin
           UAudioPlaybackBase.ToggleVoiceRemoval();
           Self.StartPreview();
         end;
-      SDLK_F8: //medley list
-        if (Self.Mode = smNormal) then
-          if (SDL_GetModState and KMOD_CTRL <> 0) and Self.MakeMedley then
-          begin
-            if Length(PlaylistMedley.Song) > 0 then
-            begin
-              SetLength(UNote.PlaylistMedley.Song, Length(UNote.PlaylistMedley.Song) - 1);
-              UNote.PlaylistMedley.NumMedleySongs := Length(UNote.PlaylistMedley.Song);
-            end;
-            Self.MakeMedley := Length(UNote.PlaylistMedley.Song) <> 0;
-          end
-          else if
-            (USongs.CatSongs.Song[Self.Interaction].Medley.Source >= msCalculated)
-            and (Length(getVisibleMedleyArr(msCalculated)) > 0)
-          then
-          begin
-            Self.MakeMedley := true;
-            Self.StartMedley(99, msCalculated);
-          end;
       SDLK_F10: //show menu
         begin
         if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
@@ -562,8 +526,6 @@ begin
             I := SM_Sorting
           else if SDL_GetModState and KMOD_CTRL <> 0 then
             I := SM_Playlist_Load
-          else if (SDL_GetModState and KMOD_SHIFT <> 0) or Self.MakeMedley then
-            I := SM_Medley
           else if Self.Mode = smNormal then
             if USongs.CatSongs.Song[Interaction].Main then
               I := SM_Sorting
@@ -800,20 +762,6 @@ begin
   Self.Text3PlayersDuetSingerP1 := Self.AddText(UThemes.Theme.Song.Text3PlayersDuetSingerP1);
   Self.Text3PlayersDuetSingerP2 := Self.AddText(UThemes.Theme.Song.Text3PlayersDuetSingerP2);
   Self.Text3PlayersDuetSingerP3 := Self.AddText(UThemes.Theme.Song.Text3PlayersDuetSingerP3);
-
-  // Medley Playlist
-  SetLength(TextMedleyArtist, Theme.Song.TextMedleyMax);
-  SetLength(TextMedleyTitle, Theme.Song.TextMedleyMax);
-  SetLength(TextMedleyNumber, Theme.Song.TextMedleyMax);
-  SetLength(StaticMedley, Theme.Song.TextMedleyMax);
-
-  for I := 0 to Theme.Song.TextMedleyMax - 1 do
-  begin
-    TextMedleyArtist[I] := AddText(Theme.Song.TextArtistMedley[I]);
-    TextMedleyTitle[I] := AddText(Theme.Song.TextTitleMedley[I]);
-    TextMedleyNumber[I] := AddText(Theme.Song.TextNumberMedley[I]);
-    StaticMedley[I] := AddStatic(Theme.Song.StaticMedley[I]);
-  end;
 
   Self.MainCover := Self.AddStatic(UThemes.Theme.Song.MainCover);
 
@@ -1501,9 +1449,7 @@ begin
   // reset video playback engine
   CurrentVideo := nil;
 
-  // reset Medley-Playlist
   SetLength(PlaylistMedley.Song, 0);
-  MakeMedley := false;
 
   if Mode = smMedley then
     Mode := smNormal;
@@ -1616,34 +1562,6 @@ begin
   begin
     StaticsList[I].Draw;
   end;
-
-    //Medley Playlist
-    if Length(PlaylistMedley.Song) > Theme.Song.TextMedleyMax then
-      J := Length(PlaylistMedley.Song) - Theme.Song.TextMedleyMax
-    else
-      J := 0;
-
-    for I := 0 to Theme.Song.TextMedleyMax - 1 do
-    begin
-      if (Length(PlaylistMedley.Song) > I + J) and (MakeMedley) then
-      begin
-        Text[TextMedleyArtist[I]].Visible := true;
-        Text[TextMedleyTitle[I]].Visible  := true;
-        Text[TextMedleyNumber[I]].Visible := true;
-        Statics[StaticMedley[I]].Visible  := true;
-
-        Text[TextMedleyNumber[I]].Text := IntToStr(I + 1 + J);
-        Text[TextMedleyArtist[I]].Text := CatSongs.Song[PlaylistMedley.Song[I + J]].Artist;
-        Text[TextMedleyTitle[I]].Text  := CatSongs.Song[PlaylistMedley.Song[I + J]].Title;
-      end
-      else
-      begin
-        Text[TextMedleyArtist[I]].Visible := false;
-        Text[TextMedleyTitle[I]].Visible  := false;
-        Text[TextMedleyNumber[I]].Visible := false;
-        Statics[StaticMedley[I]].Visible  := false;
-      end;
-    end;
 
   //Instead of Draw FG Procedure:
   //We draw Buttons for our own
@@ -2219,7 +2137,7 @@ var
   VS: integer;
 begin
   //Sel3 := 0;
-  if (NumSongs > 0) and not MakeMedley then
+  if (NumSongs > 0) then
   begin
     VS := Length(getVisibleMedleyArr(MinSource));
     if VS < NumSongs then
@@ -2233,22 +2151,15 @@ begin
     begin
       AddSong(GetNextSongNr(MinSource));
     end;
-  end else if not MakeMedley then //start this song
+  end
+  else //start this song
   begin
     SetLength(PlaylistMedley.Song, 1);
     PlaylistMedley.Song[0] := Interaction;
     PlaylistMedley.NumMedleySongs := 1;
-  end
-  else if MakeMedley then
-  begin
-    if (CatSongs.Song[Interaction].Medley.Source >= MinSource) then
-    begin
-      AddSong(Interaction);
-      PlaylistMedley.NumMedleySongs := Length(PlaylistMedley.Song);
-    end;
   end;
 
-  if (Mode = smNormal) and not MakeMedley then
+  if Self.Mode = smNormal then
   begin
     Mode := smMedley;
 
@@ -2265,27 +2176,6 @@ begin
          else
            ScreenSongMenu.MenuShow(SM_Main);
        end;}
-    end;
-  end
-  else if MakeMedley then
-  begin
-    if PlaylistMedley.NumMedleySongs = NumSongs then
-    begin
-      Mode := smMedley;
-      Self.StopPreview();
-
-      //TODO: how about case 2? menu for medley mode?
-      case Ini.OnSongClick of
-        0: FadeTo(@ScreenSing);
-        1: SelectPlayers;
-        2: FadeTo(@ScreenSing);
-        {2: begin
-          if (CatSongs.CatNumShow = -3) then
-            ScreenSongMenu.MenuShow(SM_Playlist)
-          else
-            ScreenSongMenu.MenuShow(SM_Main);
-        end;}
-      end;
     end;
   end;
 end;

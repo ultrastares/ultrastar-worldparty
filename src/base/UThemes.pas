@@ -283,11 +283,6 @@ type
     SearchIcon: TThemeStatic;
     SearchText: TThemeText;
     SearchTextPlaceholder: TThemeText;
-    TextMedleyMax: integer;
-    TextArtistMedley: array of TThemeText;
-    TextTitleMedley: array of TThemeText;
-    StaticMedley: array of TThemeStatic;
-    TextNumberMedley: array of TThemeText;
 
     //Song icons
     VideoIcon: TThemeStatic;
@@ -3607,23 +3602,6 @@ begin
   Self.ThemeLoadText(Self.Song.SearchText, 'Song'+prefix+'SearchText');
   Self.ThemeLoadText(Self.Song.SearchTextPlaceholder, 'Song'+prefix+'SearchTextPlaceholder');
   Self.ThemeLoadStatic(Self.Song.SearchIcon, 'Song'+prefix+'SearchIcon');
-
-  // medley playlist
-  Self.SetInheritance('Song'+prefix+'TextMedleyMax');
-  Self.ReadProperty('Song'+prefix+'TextMedleyMax', 'N', 4, Self.Song.TextMedleyMax);
-
-  SetLength(Song.TextArtistMedley, Song.TextMedleyMax);
-  SetLength(Song.TextTitleMedley, Song.TextMedleyMax);
-  SetLength(Song.TextNumberMedley, Song.TextMedleyMax);
-  SetLength(Song.StaticMedley, Song.TextMedleyMax);
-
-  for I := 0 to Song.TextMedleyMax - 1 do
-  begin
-    ThemeLoadText(Song.TextArtistMedley[I], 'Song' + prefix + 'TextMedleyArtist' + IntToStr(I + 1));
-    ThemeLoadText(Song.TextTitleMedley[I], 'Song' + prefix + 'TextMedleyTitle' + IntToStr(I + 1));
-    ThemeLoadText(Song.TextNumberMedley[I], 'Song' + prefix + 'TextMedleyNumber' + IntToStr(I + 1));
-    ThemeLoadStatic(Song.StaticMedley[I], 'Song' + prefix + 'StaticMedley' + IntToStr(I + 1));
-  end;
 
   //Song icons
   Self.ThemeLoadStatic(Self.Song.VideoIcon, 'Song'+prefix+'VideoIcon');
