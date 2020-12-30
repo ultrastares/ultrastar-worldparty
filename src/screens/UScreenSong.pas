@@ -253,7 +253,7 @@ const
 // ***** Public methods ****** //
 function TScreenSong.FreeListMode: boolean;
 begin
-  Result := (Mode in [smNormal, smPartyTournament, smPartyFree, smJukebox]);
+  Result := (Mode in [smNormal, smPartyTournament, smPartyFree]);
 end;
 
 // Method for input parsing. If false is returned, GetNextWindow
@@ -354,8 +354,6 @@ begin
         begin
           Self.CloseMessage();
           case Mode of
-            smJukebox:
-              Self.FadeTo(@ScreenJukeboxPlaylist);
             smPartyClassic:
               Self.CheckFadeTo(@ScreenMain,'MSG_END_PARTY');
             smPartyFree:

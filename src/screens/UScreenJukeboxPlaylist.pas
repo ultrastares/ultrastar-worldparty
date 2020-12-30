@@ -78,7 +78,6 @@ begin
         Self.FadeTo(@ScreenMain, UMusic.SoundLib.Back);
       SDLK_RETURN:
         begin
-          UGraphic.ScreenSong.Mode := smJukebox;
           SetLength(UGraphic.ScreenJukebox.JukeboxSongsList, 0);
           SetLength(UGraphic.ScreenJukebox.JukeboxVisibleSongs, 0);
           UGraphic.ScreenJukebox.ActualInteraction := 0;
