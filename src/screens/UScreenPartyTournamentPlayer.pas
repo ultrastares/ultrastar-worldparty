@@ -278,7 +278,7 @@ begin
   PartyTournament.Clear;
 
   // Templates for Names Mod
-  for I := 0 to 15 do
+  for I := 0 to 5 do
     Button[I].Text[0].Text := Ini.Name[I];
 
   UpdateInterface;
