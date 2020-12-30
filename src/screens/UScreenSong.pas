@@ -294,7 +294,11 @@ begin
 
   if (PressedDown) then
   begin // Key Down
-    if (not Self.Text[Self.SearchTextPlaceholder].Visible) and UUnicodeUtils.IsPrintableChar(CharCode) then
+    if
+      Self.FreeListMode()
+      and (not Self.Text[Self.SearchTextPlaceholder].Visible)
+      and UUnicodeUtils.IsPrintableChar(CharCode)
+    then
     begin
       if Length(Self.Text[Self.SearchText].Text) < 25 then
       begin
@@ -344,12 +348,8 @@ begin
           Self.ParseInput(SDLK_ESCAPE, 0, true);
         end;
       SDLK_ESCAPE:
-        if not Self.Text[Self.SearchTextPlaceholder].Visible then
-        begin
-          Self.Text[Self.SearchText].Text := '';
-          Self.SetSubselection();
-          Self.ParseInput(SDLK_F3, 0, true);
-        end
+        if Self.FreeListMode() and (not Self.Text[Self.SearchTextPlaceholder].Visible) then
+          Self.ParseInput(SDLK_F3, 0, true)
         else
         begin
           Self.CloseMessage();
@@ -503,8 +503,10 @@ begin
           Self.SetScroll(true);
         end;
       SDLK_F3: //show search
-        if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
+        begin
+          Self.Text[Self.SearchText].Text := ''; //needed on hide
           Self.EnableSearch(Self.Text[Self.SearchTextPlaceholder].Visible);
+        end;
       SDLK_F4: //random song
         if Self.FreeListMode() and (not SlowChessboardScroll()) then
           Self.SelectRandomSong(SDL_ModState = KMOD_LSHIFT);
@@ -595,42 +597,45 @@ begin
     case MouseButton of
       SDL_BUTTON_LEFT: //sing or move to the selected song/page
         begin
-          if Self.FreeListMode() then
-            if
-              Self.InRegion(X, Y, Self.Button[Self.Interaction].GetMouseOverArea()) //button
-              or (Self.Statics[Self.MainCover].Visible and Self.InRegion(X, Y, Self.Statics[Self.MainCover].GetMouseOverArea())) //main cover
-            then
-              Self.ParseInput(SDLK_RETURN, 0, true)
-            else if Self.InRegion(X, Y, Self.Statics[Self.SearchIcon].GetMouseOverArea()) then
-              Self.EnableSearch(true)
-            else
-            begin
-              if (not Self.Text[Self.SearchTextPlaceholder].Visible) and (Self.Text[Self.SearchText].Text = '') then
-                Self.EnableSearch(false);
+          if
+            Self.InRegion(X, Y, Self.Button[Self.Interaction].GetMouseOverArea()) //button
+            or (Self.Statics[Self.MainCover].Visible and Self.InRegion(X, Y, Self.Statics[Self.MainCover].GetMouseOverArea())) //main cover
+          then
+            Self.ParseInput(SDLK_RETURN, 0, true)
+          else if Self.InRegion(X, Y, Self.Statics[Self.SearchIcon].GetMouseOverArea()) then
+            Self.EnableSearch(true)
+          else
+          begin
+            if (not Self.Text[Self.SearchTextPlaceholder].Visible) and (Self.Text[Self.SearchText].Text = '') then
+              Self.EnableSearch(false);
 
-              case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
-                smList: //current song in list mode
-                  if
-                    (X > UThemes.Theme.Song.ListCover.X)
-                    and (X < UThemes.Theme.Song.ListCover.X + UThemes.Theme.Song.ListCover.W)
-                    and (Y > UThemes.Theme.Song.ListCover.Y)
-                    and (Y < UThemes.Theme.Song.ListCover.Y + (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding) * UThemes.Theme.Song.Cover.Rows)
-                  then
-                    Self.ParseInput(SDLK_RETURN, 0, true);
-                smChessboard: //left arrows to move a entire page
+            case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
+              smList: //current song in list mode
+                if
+                  (X > UThemes.Theme.Song.ListCover.X)
+                  and (X < UThemes.Theme.Song.ListCover.X + UThemes.Theme.Song.ListCover.W)
+                  and (Y > UThemes.Theme.Song.ListCover.Y)
+                  and (Y < UThemes.Theme.Song.ListCover.Y + (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding) * UThemes.Theme.Song.Cover.Rows)
+                then
+                  Self.ParseInput(SDLK_RETURN, 0, true);
+              smChessboard: //left arrows to move a entire page
+                if Self.FreeListMode() then
+                begin
                   if Self.InRegion(X, Y, Self.Statics[1].GetMouseOverArea()) then //arrow to page up
                     Self.ParseInput(SDLK_PAGEUP, 0, true)
                   else if Self.InRegion(X, Y, Self.Statics[2].GetMouseOverArea()) then //arrow to page down
                     Self.ParseInput(SDLK_PAGEDOWN, 0, true);
-                else
+                end;
+              else
+                if Self.FreeListMode() then
                   for B := 0 to High(Self.Button) do
                     if Self.Button[B].Visible and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) then
                     begin
                       Self.SkipTo(B);
                       Exit();
                     end;
-              end;
             end;
+          end;
         end;
       SDL_BUTTON_RIGHT: //go back
         if //open song menu
@@ -1498,13 +1503,11 @@ begin
 
   UNote.PlayersPlay := IfThen(UIni.Ini.Players = 4, 6, UIni.Ini.Players + 1);
 
-  if Self.Mode = smPartyClassic then
-  begin
-    Self.SelectRandomSong();
-    if UIni.Ini.PartyPopup = 1 then
-      UGraphic.ScreenSongMenu.MenuShow(SM_Party_Main);
-  end
-  else
+  Visible := not (Self.Mode = smPartyClassic);
+  Self.Statics[Self.SearchIcon].Visible := Visible;
+  Self.Text[Self.SearchTextPlaceholder].Visible := Visible;
+  Self.Text[Self.SearchText].Visible := Visible;
+  if Visible then
   begin
     Self.Refresh(UIni.Ini.Sorting, UIni.Ini.Tabs = 1, UIni.Ini.ShowDuets = 1);
     if (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow = -1) then //fix scroll on show and when enter after on first time with a category selected in the middle of the list
@@ -1512,6 +1515,12 @@ begin
 
     if Self.Text[Self.SearchText].Text <> '' then
       Self.EnableSearch(true);
+  end
+  else
+  begin
+    Self.SelectRandomSong();
+    if UIni.Ini.PartyPopup = 1 then
+      UGraphic.ScreenSongMenu.MenuShow(SM_Party_Main);
   end;
 
   Self.SetScroll(true);
@@ -1864,7 +1873,10 @@ end;
 { Enable or disable search box }
 procedure TScreenSong.EnableSearch(const Enable: boolean);
 begin
-  if Enable then
+  if not Self.FreeListMode() then
+    Exit;
+
+  if Enable and (USongs.CatSongs.GetVisibleSongs() <> 0) then
   begin
     Self.Text[Self.SearchTextPlaceholder].Visible := false;
     Self.Statics[Self.SearchIcon].Texture.Alpha := 1;
