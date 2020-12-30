@@ -586,7 +586,7 @@ end;
 
 function TScreenSong.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 var
-  B, CoverX, CoverY: integer;
+  B, I, J, CoverX, CoverY: integer;
 begin
   Result := true;
   if UGraphic.ScreenSongMenu.Visible then
@@ -606,6 +606,15 @@ begin
             Self.EnableSearch(true)
           else
           begin
+            if Self.Mode = smPartyClassic then
+              for I := 0 to UParty.PartyTeamsMax - 1 do
+                for J := 0 to UParty.PartyJokers - 1 do
+                  if
+                    Self.InRegion(X, Y, Self.Statics[Self.StaticTeamJoker[I][J]].GetMouseOverArea())
+                    and Self.Statics[Self.StaticTeamJoker[I][J]].Visible
+                  then
+                    Self.ParseInput(IfThen(I = 0, SDLK_1, IfThen(I = 1, SDLK_2, SDLK_3)), 0, true);
+
             if (not Self.Text[Self.SearchTextPlaceholder].Visible) and (Self.Text[Self.SearchText].Text = '') then
               Self.EnableSearch(false);
 
