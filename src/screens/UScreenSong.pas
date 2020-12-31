@@ -499,21 +499,9 @@ begin
           Self.FadeTo(@UGraphic.ScreenMain);
           UGraphic.ScreenMain.ReloadSongs();
         end;
-      SDLK_F6: //online verify song
-        if not Usongs.CatSongs.Song[Self.Interaction].Main then
-        begin
-          WebList := '';
-          for I := 0 to High(UDataBase.Database.NetworkUser) do
-          begin
-            UDllManager.DllMan.LoadWebsite(I);
-            if (UDllManager.DllMan.WebsiteVerifySong(WideString(USongs.CatSongs.Song[Self.Interaction].MD5)) = 'OK_SONG') then
-              WebList := UDataBase.Database.NetworkUser[I].Website + #13
-          end;
-          if (WebList <> '') then
-            ScreenPopupInfo.ShowPopup(Format(Language.Translate('WEBSITE_EXIST_SONG'), [WebList]))
-          else
-            ScreenPopupError.ShowPopup(Language.Translate('WEBSITE_NOT_EXIST_SONG'));
-        end;
+      SDLK_F6: //online update songs
+        if (not Usongs.CatSongs.Song[Self.Interaction].Main) and Self.FreeListMode() then
+          UGraphic.ScreenPopupScoreDownload.ShowPopup(0, IfThen(SDL_GetModState and KMOD_CTRL <> 0, 1, 0), 0);
       SDLK_F7: //voice removal
         begin
           UAudioPlaybackBase.ToggleVoiceRemoval();
@@ -2033,17 +2021,13 @@ begin
       );
       Self.Text[Self.TextMyScores].Visible := Self.Text[Self.TextUserLocalScore1].Visible;
       Self.SetRangeVisibilityText(
-        (UIni.Ini.ShowScores = 2) or ((Self.Text[Self.TextOnlineScore1].Text <> '') and (Self.Text[Self.TextUserOnlineScore1].Text <> '0')),
+        (UIni.Ini.ShowScores = 2) or ((Self.Text[Self.TextOnlineScore1].Text <> '0') and (Self.Text[Self.TextUserOnlineScore1].Text <> '')),
         [Self.TextUserOnlineScore1, Self.TextOnlineScore3]
       );
       Self.Text[Self.TextWebsite].Visible := Self.Text[Self.TextUserOnlineScore1].Visible;
-      Self.SetRangeVisibilityText(
-        Self.Text[Self.TextOnlineScore1].Visible or Self.Text[Self.TextUserOnlineScore1].Visible,
-        [Self.TextOnlineScore1, Self.TextUserOnlineScore3]
-      );
     end
     else
-      Self.SetRangeVisibilityText(false, [Self.TextOnlineScore1, Self.TextOnlineScore2, Self.TextOnlineScore3, Self.TextUserOnlineScore1, Self.TextUserOnlineScore2, Self.TextUserOnlineScore3]);
+      Self.SetRangeVisibilityText(false, [Self.TextMyScores, Self.TextOnlineScore3]);
   end;
   case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
     smRoulette: Self.SetRouletteScroll();

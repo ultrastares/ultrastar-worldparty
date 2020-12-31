@@ -602,8 +602,8 @@ begin
 
         Button[0].Visible := false;
         Button[1].Visible := false;
-        Button[2].Visible := true;
-        Button[3].Visible := false;
+        Button[2].Visible := false;
+        Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
 
@@ -611,7 +611,7 @@ begin
         SelectsS[1].Visible := true;
         SelectsS[2].Visible := true;
 
-        Button[2].Text[0].Text := Language.Translate('SONG_MENU_REFRESH_SCORES_REFRESH');
+        Button[3].Text[0].Text := Language.Translate('SONG_MENU_REFRESH_SCORES_REFRESH');
         Button[4].Text[0].Text := Language.Translate('C_BACK');
 
         if (High(DataBase.NetworkUser) > 0) then
@@ -973,7 +973,7 @@ begin
     SM_Refresh_Scores:
       begin
         case Interaction of
-          7: // button 5
+          6: // button 5
             begin
               if (Length(ISelections3)>=1) then
               begin
@@ -987,6 +987,8 @@ begin
                 MenuShow(SM_Main);
               end;
             end;
+          7:
+            Self.MenuShow(SM_Main);
         end;
       end;
   end;
