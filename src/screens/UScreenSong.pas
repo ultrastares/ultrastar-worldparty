@@ -1870,7 +1870,8 @@ begin
       JokersLeft := UParty.Party.Teams[I].JokersLeft;
       Self.SetRangeVisibilityStatic(Self.Mode = smPartyClassic, [Self.StaticTeamJoker[I][0], Self.StaticTeamJoker[I][JokersLeft - 1]]);
     end;
-    Self.SetRangeVisibilityStatic(false, [Self.StaticTeamJoker[I][JokersLeft], Self.StaticTeamJoker[I][UParty.PartyJokers - 1]]);
+    if JokersLeft <= UParty.PartyJokers - 1 then
+      Self.SetRangeVisibilityStatic(false, [Self.StaticTeamJoker[I][JokersLeft], Self.StaticTeamJoker[I][UParty.PartyJokers - 1]]);
   end;
 end;
 
