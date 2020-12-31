@@ -367,7 +367,7 @@ begin
         Button[0].Visible := true;
         Button[1].Visible := true;
         Button[2].Visible := true;
-        Button[3].Visible := true;
+        Button[3].Visible := false;
         Button[4].Visible := false;
         Button[5].Visible := false;
 

@@ -521,24 +521,30 @@ begin
         end;
       SDLK_F10: //show menu
         begin
-        if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
-          if SDL_GetModState and KMOD_ALT <> 0 then
-            I := SM_Sorting
-          else if SDL_GetModState and KMOD_CTRL <> 0 then
-            I := SM_Playlist_Load
-          else if Self.Mode = smNormal then
-            if USongs.CatSongs.Song[Interaction].Main then
-              I := SM_Sorting
-            else if USongs.CatSongs.CatNumShow = -2 then
-              I := SM_Song
-            else if USongs.CatSongs.CatNumShow = -3 then
-              I := SM_Playlist
+          I := -1;
+          case Self.Mode of
+            smPartyClassic:
+              I := SM_Party_Main;
+            smPartyTournament,
+            smPartyFree:
+              I := SM_Party_Free_Main;
             else
-              I := SM_Main
-          else
-            I := IfThen(Self.Mode = smPartyClassic, SM_Party_Main, SM_Party_Free_Main);
-
-          UGraphic.ScreenSongMenu.MenuShow(I);
+              if USongs.CatSongs.GetVisibleSongs() > 0 then
+                if USongs.CatSongs.Song[Self.Interaction].Main then
+                  I := SM_Sorting
+                else if USongs.CatSongs.CatNumShow = -2 then
+                  I := SM_Song
+                else if USongs.CatSongs.CatNumShow = -3 then
+                  I := SM_Playlist
+                else if SDL_GetModState and KMOD_ALT <> 0 then
+                  I := SM_Sorting
+                else if SDL_GetModState and KMOD_CTRL <> 0 then
+                  I := SM_Playlist_Load
+                else
+                  I := SM_Main
+          end;
+          if I <> -1 then
+            UGraphic.ScreenSongMenu.MenuShow(I);
         end;
     end;
   end;
