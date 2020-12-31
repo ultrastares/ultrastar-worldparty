@@ -1472,7 +1472,6 @@ begin
   end;
 
   Self.SetScroll(true);
-  Self.IsScrolling := false;
   Self.SetJoker();
 
   //Set Visibility of Party Statics and Text
@@ -1930,7 +1929,7 @@ begin
       Self.Statics[Self.VideoIcon].Visible := Song.Video.IsSet;
       Self.Statics[Self.CreatorIcon].Visible := Song.Creator <> '';
       Self.Statics[Self.FixerIcon].Visible := Song.Fixer <> '';
-      Self.Statics[Self.UnvalidatedIcon].Visible := not Song.Validated;
+      Self.Statics[Self.UnvalidatedIcon].Visible := false; //not Song.Validated;
       Self.Text[Self.TextArtist].Text := Song.Artist; //not visible on smList
       Self.Text[Self.TextYear].Text := IfThen(Song.Year <> 0, IntToStr(Song.Year), '');
       Self.Text[Self.TextCreator].Text := Song.Creator;
@@ -2063,12 +2062,11 @@ begin
         Caption := Format(ULanguage.Language.Translate('PLAYLIST_CATTEXT'), [UPlaylist.PlayListMan.SetPlayList(StrToInt(Id)).Name]);
       end;
     else //search using Id as string to found or show all songs if is empty
-      Caption := IfThen(Id = '', '', ULanguage.Language.Translate('SONG_JUMPTO_TYPE_DESC')+' '+Id);
       if (UIni.Ini.Tabs = 1) and (USongs.CatSongs.CatNumShow > -2) then //move to correct category after leave it or after OnShow if the category is in the middle of the list
         Position := IfThen(USongs.CatSongs.CatNumShow > -1, USongs.CatSongs.CatNumShow - 1, Round(Self.SongTarget));
 
       USongs.CatSongs.SetFilter(Id, sfAll);
-    end;
+  end;
   Self.Text[Self.TextCat].Text := Caption;
   Self.SkipTo(Position, true);
 end;
