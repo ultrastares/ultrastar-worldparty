@@ -18,12 +18,12 @@
 
 ; Delete remaining files
  Delete "$INSTDIR\${exe}.exe"
- Delete "$INSTDIR\${exeupdate}.exe"
+ Delete "$INSTDIR\${exe_debug}.exe"
  Delete "$INSTDIR\Readme.txt"
  Delete "$INSTDIR\screenshots.lnk"
  Delete "$INSTDIR\playlists.lnk"
  Delete "$INSTDIR\config.ini.lnk"
- 
+
  Delete "$INSTDIR\Error.log"
  Delete "$INSTDIR\cover.db"
  Delete "$INSTDIR\avatar.db"
@@ -32,7 +32,7 @@
 
 
  StrCpy $0 "$INSTDIR\songs"
- Call un.DeleteIfEmpty 
+ Call un.DeleteIfEmpty
 
  StrCpy $0 "$INSTDIR\covers"
  Call un.DeleteIfEmpty
@@ -50,7 +50,7 @@
  Delete "$APPDATA\WorldParty\Error.log"
  Delete "$APPDATA\WorldParty\cover.db"
  Delete "$APPDATA\WorldParty\avatar.db"
- 
+
  StrCpy $0 "$APPDATA\WorldParty\covers"
  Call un.DeleteIfEmpty
 

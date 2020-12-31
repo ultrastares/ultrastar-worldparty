@@ -20,7 +20,7 @@ Official Website:  https://ultrastar-es.org
 -----------------
 
 ## Documentation
-Visit our [Wiki](https://github.com/ultrastares/usdxworldparty/wiki) to get help about how to compile the game, see changelog, etc..
+Visit our [Wiki](https://github.com/ultrastares/ultrastar-worldparty/wiki) to get help about how to compile the game, see changelog, etc..
 
 ## Support and contact
 Visit our [official website](https://ultrastar-es.org) where you can find tutorials, songs, contests and more

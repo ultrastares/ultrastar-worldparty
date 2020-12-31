@@ -17,7 +17,7 @@ AC_PREREQ(2.61)
 # Init autoconf
 AC_INIT([WorldParty],
         m4_esyscmd_s([cat VERSION]),
-        [https://github.com/ultrastares/usdxworldparty/])
+        [https://github.com/ultrastares/ultrastar-worldparty/])
 # specify the website here
 PACKAGE_WEBSITE="https://ultrastar-es.org/"
 AC_SUBST(PACKAGE_WEBSITE)
@@ -75,7 +75,7 @@ AC_ARG_WITH([cfg-dummy1], [
 External Libraries:])
 
 # add projectM option
-AC_ARG_WITH([libprojectM], 
+AC_ARG_WITH([libprojectM],
     [AS_HELP_STRING([--with-libprojectM],
       [enable projectM visualization support @<:@default=no@:>@])],
     [with_libprojectM=$withval], [with_libprojectM="no"])
@@ -141,7 +141,7 @@ if [[ "$FPC_VERSION_MAJOR" -lt 3 ]]; then
 !!! fpc (the free Pascal compiler) is required in at least
 !!! version 3.0.0, but only version $FPC_VERSION was found.
 !!! Please install a newer fpc version.
-]) 
+])
 fi
 
 # find and test the C compiler (for C-libs and wrappers)
@@ -154,7 +154,7 @@ AC_PROG_RANLIB
 PKG_PROG_PKG_CONFIG()
 if [[ x$PKG_CONFIG = x ]]; then
    AC_MSG_ERROR([
-!!! pkg-config was not found on your system. 
+!!! pkg-config was not found on your system.
 !!! It is needed to determine the versions of your libraries.
 !!! Install it and try again.])
 fi
@@ -185,7 +185,7 @@ PKG_HAVE([freetype], [freetype2], yes)
 PKG_HAVE([sqlite3], [sqlite3], yes)
 
 # find lua 5.3, 5.2 or 5.11
-# (K)Ubuntu uses lua5.2.pc and lua5.1.pc, 
+# (K)Ubuntu uses lua5.2.pc and lua5.1.pc,
 # Mac OS X and other linux distributions use lua.pc
 # Archlinux aur package for 5.3 use lua5.3.pc in order
 # to make it work alongside the 5.2 version.
@@ -223,15 +223,15 @@ AC_MSG_RESULT([$LUA_INTEGER_BITS bits])
 
 # find FFMpeg
 # Note: do not use the min/max version parameters with ffmpeg
-# otherwise it might fail in ubuntu due to a wrong version number 
+# otherwise it might fail in ubuntu due to a wrong version number
 # format in ffmpeg's .pc-files.
 # For example: 0d.51.1.2 instead of the correct 51.1.2.
-#   A check for version >=52.0.0 will return version 0d.51.1.2 
+#   A check for version >=52.0.0 will return version 0d.51.1.2
 #   although it is lower because pkg-config is confused by the 0d.
 # Use [mylib]_VERSION_INT for version-checking instead
 PKG_HAVE([libavcodec], [libavcodec], check)
 # The following finds libavcodec.pc in its new location on Mac OS X.
-# It only takes the last from the list, assuming that this is the latest 
+# It only takes the last from the list, assuming that this is the latest
 # version.
 if [[ x$libavcodec_HAVE = xno -a x$FPC_PLATFORM = xdarwin ]]; then
     if [[ x$enable_osx_fink != x ]]; then
@@ -331,10 +331,10 @@ PKG_HAVE([libprojectM], [$libprojectM_PKG], no)
 PKG_VERSION([libprojectM], [$libprojectM_PKG])
 AC_SUBST_DEFINE(HAVE_PROJECTM, $libprojectM_HAVE)
 # get projectM include-dir
-PKG_VALUE([libprojectM], [INCLUDEDIR], [variable=includedir], [$libprojectM_PKG], 
+PKG_VALUE([libprojectM], [INCLUDEDIR], [variable=includedir], [$libprojectM_PKG],
           [C-Header include-dir (e.g. /usr/include)])
 # get projectM data-dir (for preset- and font-dir)
-PKG_VALUE([libprojectM], [DATADIR], [variable=pkgdatadir], [$libprojectM_PKG], 
+PKG_VALUE([libprojectM], [DATADIR], [variable=pkgdatadir], [$libprojectM_PKG],
           [projectM data-directory for presets etc. (e.g. /usr/share/projectM)])
 # check if we need the c-wrapper
 if [[ "$libprojectM_VERSION_MAJOR" -ge 1 ]]; then
@@ -387,7 +387,7 @@ AC_MSG_NOTICE([
 !!!
 !!! Configuration of $PACKAGE_NAME $PACKAGE_VERSION done!
 !!!
-!!! Type "make" to compile and 
+!!! Type "make" to compile and
 !!!      "make install" to install it afterwards.
 !!!
 !!! For further information on $PACKAGE_NAME visit:

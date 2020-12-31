@@ -4,8 +4,8 @@
 
 ; Product Information:
 
-!define VersionStr "21.1"
-!define FullVersion "21.1"
+!define VersionStr "20.12"
+!define FullVersion "20.12"
 
 !define installername " Installer"
 !define installerexe "WorldParty ${VersionStr} installer"
@@ -20,11 +20,11 @@
 !define publisher "UltraStar España"
 !define homepage "https://ultrastar-es.org"
 !define forum "https://ultrastar-es.org/foro"
-!define wiki "https://github.com/ultrastares/usdxworldparty/wiki"
+!define wiki "https://github.com/ultrastares/ultrastar-worldparty/wiki"
 
 !define exe "WorldParty"
+!define exe_debug "WorldPartyDebug"
 !define exeuninstall "Uninstall"
-!define exeupdate "Update"
 
 !define license ".\dependencies\documents\license.txt"
 
@@ -32,8 +32,8 @@
 
 !define installer_version_path "$LOCALAPPDATA\Temp\WorldParty"
 !define installer_exe_path "$LOCALAPPDATA\Temp\WorldPartyupdate.exe"
-;!define version_url "https://github.com/ultrastares/usdxworldparty/blob/master/VERSION"
-;!define update_url "https://github.com/ultrastares/usdxworldparty/releases/download/%VERSION%/UltraStar.Deluxe.WorldParty_%VERSIONSTRING%-installer.exe"
+;!define version_url "https://github.com/ultrastares/ultrastar-worldparty/blob/master/VERSION"
+;!define update_url "https://github.com/ultrastares/ultrastar-worldparty/releases/download/%VERSION%/UltraStar.Deluxe.WorldParty_%VERSIONSTRING%-installer.exe"
 !define update_mask_online_version "%VERSION%"
 !define update_mask_installer_version "%VERSIONSTRING%"
 

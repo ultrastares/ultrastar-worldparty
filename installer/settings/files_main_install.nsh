@@ -22,7 +22,7 @@ CreateDirectory $INSTDIR\avatars
 ${If} $UseAppData == true
 
   ; Create folders in appdata for current user
-  SetShellVarContext current		
+  SetShellVarContext current
   CreateDirectory $UserDataPath
   CreateDirectory $UserDataPath\screenshots
   CreateDirectory $UserDataPath\playlists
@@ -57,6 +57,7 @@ File /r /x .svn /x .gitignore ..\game\licenses
 File ..\game\*.dll
 File ..\game\Readme.txt
 File ..\game\WorldParty.exe
+File ..\game\WorldPartyDebug.exe
 
 ; Covers dir:
 
