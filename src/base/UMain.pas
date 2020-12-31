@@ -107,7 +107,7 @@ begin
   {$IFNDEF Debug}
   try
   {$ENDIF}
-    WindowTitle := USDXVersionStr;
+    WindowTitle := USWPVersionStr;
 
     Platform.Init;
 
@@ -152,7 +152,7 @@ begin
     Log.BenchmarkStart(1);
     Log.SetLogFileLevel(50);
     Language := TLanguage.Create;
-    Language.AddConst('US_VERSION', USDXVersionStr);
+    Language.AddConst('US_VERSION', USWPVersionStr);
 
     // Skin
     Skin := TSkin.Create;
@@ -347,7 +347,7 @@ begin
   // if question option is enabled then show exit popup
   if (Ini.AskbeforeDel = 1) then
   begin
-    Display.CurrentScreen^.CheckFadeTo(nil,'MSG_QUIT_USDX');
+    Display.CurrentScreen^.CheckFadeTo(nil,'MSG_QUIT_USWP');
   end
   else // if ask-for-exit is disabled then simply exit
   begin

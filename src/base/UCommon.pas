@@ -517,7 +517,7 @@ begin
     mtError: Flags := MB_ICONERROR or MB_OK;
     else Flags := MB_OK;
   end;
-  MessageBox(0, PChar(msg), PChar(USDXVersionStr()), Flags);
+  MessageBox(0, PChar(msg), PChar(USWPVersionStr()), Flags);
 {$ELSE}
   ConsoleWriteln(msg);
 {$IFEND}

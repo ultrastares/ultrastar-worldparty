@@ -313,7 +313,7 @@ begin
 end;
 
 type
-  EUSDXParseException = class(Exception);
+  EUSWPParseException = class(Exception);
 
 {**
  * Parses the Line string starting from LinePos for a parameter.
@@ -321,7 +321,7 @@ type
  * After the call LinePos will point to the position after the first trailing
  * whitespace.
  *
- * Raises an EUSDXParseException if no string was found.
+ * Raises an EUSWPParseException if no string was found.
  *
  * Example:
  *   ParseLyricParam(Line:'Param0  Param1 Param2', LinePos:8, ...)
@@ -357,7 +357,7 @@ begin
   if (StartLyric = 0) then
   begin
     LinePos := OldLinePos;
-    raise EUSDXParseException.Create('String expected');
+    raise EUSWPParseException.Create('String expected');
   end
   else
   begin
@@ -381,7 +381,7 @@ begin
   begin // on convert error
     Result := 0;
     LinePos := OldLinePos;
-    raise EUSDXParseException.Create('Integer expected');
+    raise EUSWPParseException.Create('Integer expected');
   end;
 end;
 

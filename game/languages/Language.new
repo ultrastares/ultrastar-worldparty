@@ -536,7 +536,7 @@
 ;TODO: JUKEBOX_MODE=Jukebox mode
 
 ;TODO: ABOUT_MAIN=About...
-;TODO: ABOUT_USDX_DEVELOPEDBY=Developed by
+;TODO: ABOUT_USWP_DEVELOPEDBY=Developed by
 ;TODO: ABOUT_CHECK_CHECKING=Checking for new updates...
 ;TODO: ABOUT_CHECK_AVAILABLE=There is a new version available
 ;TODO: ABOUT_CHECK_UPTODATE=WorldParty is up to date
@@ -552,7 +552,7 @@
 ;TODO: MSG_ERROR_TITLE=Error
 ;TODO: MSG_INFO_TITLE=Information
 ;TODO: MSG_QUESTION_TITLE=Question
-;TODO: MSG_QUIT_USDX=Really leave UltraStar?
+;TODO: MSG_QUIT_USWP=Really leave UltraStar?
 ;TODO: MSG_END_PARTY=Really leave party mode?
 
 ;TODO: ERROR_NO_SONGS=No songs loaded
