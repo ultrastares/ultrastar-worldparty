@@ -492,6 +492,7 @@ begin
         if Self.FreeListMode() and (not SlowChessboardScroll()) then
           Self.SelectRandomSong(SDL_ModState = KMOD_LSHIFT);
       SDLK_F5: //reload songs
+        if Self.FreeListMode() then
         begin
           if not Self.Text[Self.SearchTextPlaceholder].Visible then
             Self.ParseInput(SDLK_ESCAPE, 0, true);
