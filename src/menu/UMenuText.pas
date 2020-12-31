@@ -353,8 +353,6 @@ begin
   Result.Y := 0;
   Result.W := 0;
   Result.H := 0;
-  if not(Display.Cursor_HiddenByScreen) then
-  begin
     if (Align = 0) then
     begin
       Result.X := X;
@@ -387,7 +385,6 @@ begin
 
       Result.H := Size;
     end;
-  end;
 end;
 
 end.

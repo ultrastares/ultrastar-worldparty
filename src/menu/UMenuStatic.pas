@@ -1,8 +1,8 @@
 {*
     UltraStar WorldParty - Karaoke Game
-	
-	UltraStar WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -120,20 +120,10 @@ end;
 
 function TStatic.GetMouseOverArea: TMouseOverRect;
 begin
-  if not(Display.Cursor_HiddenByScreen) then
-  begin
-    Result.X := Texture.X;
-    Result.Y := Texture.Y;
-    Result.W := Texture.W;
-    Result.H := Texture.H;
-  end
-  else
-  begin
-    Result.X := 0;
-    Result.Y := 0;
-    Result.W := 0;
-    Result.H := 0;
-  end;
+  Result.X := Self.Texture.X;
+  Result.Y := Self.Texture.Y;
+  Result.W := Self.Texture.W;
+  Result.H := Self.Texture.H;
 end;
 
 end.

@@ -71,15 +71,6 @@ begin
   Result := true;
   if (PressedDown) then
   begin // Key Down
-    // check normal keys
-    case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-        begin
-          Result := false;
-          Exit;
-        end;
-    end;
-
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -87,7 +78,6 @@ begin
         Self.FadeTo(@ScreenMain, UMusic.SoundLib.Back);
       SDLK_RETURN:
         begin
-          UGraphic.ScreenSong.Mode := smJukebox;
           SetLength(UGraphic.ScreenJukebox.JukeboxSongsList, 0);
           SetLength(UGraphic.ScreenJukebox.JukeboxVisibleSongs, 0);
           UGraphic.ScreenJukebox.ActualInteraction := 0;

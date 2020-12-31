@@ -72,15 +72,6 @@ begin
   Result := true;
   if (PressedDown) then
   begin // Key Down
-    // check normal keys
-    case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-        begin
-          Result := false;
-          Exit;
-        end;
-    end;
-
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -160,9 +151,9 @@ begin
   inherited;
   UIni.Ini.ClearCustomResolutions();
   UIni.Ini.Save();
-  if Self.OldWindowMode <> UIni.Ini.FullScreen then 
+  if Self.OldWindowMode <> UIni.Ini.FullScreen then
     UGraphic.UpdateVideoMode()
-  else 
+  else
     UGraphic.UpdateResolution();
 end;
 

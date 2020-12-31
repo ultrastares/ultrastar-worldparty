@@ -217,7 +217,7 @@ var
   Bounds: TBoundsDbl;
 begin
   Bounds := Fonts[ActFont].Font.BBox(Text, true);
-  Result := Bounds.Right - Bounds.Left;
+  Result := Bounds.Right;
 end;
 
 // Custom GL "Print" Routine

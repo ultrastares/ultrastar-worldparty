@@ -124,11 +124,11 @@ const
   (*
    * Current version of UltraStar WorldParty
    *)
-   USDX_VERSION_MAJOR   = 21;
-   USDX_VERSION_MINOR   = 1;
-   USDX_VERSION_RELEASE = '';
-   USDX_VERSION_STATE   = '';
-   USDX_STRING = 'UltraStar WorldParty';
+   USWP_VERSION_MAJOR   = 20;
+   USWP_VERSION_MINOR   = 12;
+   USWP_VERSION_RELEASE = '';
+   USWP_VERSION_STATE   = '';
+   USWP_STRING = 'UltraStar WorldParty';
 
   (*
    * FPC version numbers are already defined as built-in macros:
@@ -186,28 +186,28 @@ const
                      (PROJECTM_VERSION_RELEASE * VERSION_RELEASE);
   {$ENDIF}
 
-function USDXVersionStr(): string;
-function USDXShortVersionStr(): string;
+function USWPVersionStr(): string;
+function USWPShortVersionStr(): string;
 
 implementation
 
 uses
   StrUtils, Math;
 
-function USDXShortVersionStr(): string;
+function USWPShortVersionStr(): string;
 begin
   Result :=
-    USDX_STRING +
-    IfThen(USDX_VERSION_STATE <> '', ' '+USDX_VERSION_STATE);
+    USWP_STRING +
+    IfThen(USWP_VERSION_STATE <> '', ' '+USWP_VERSION_STATE);
 end;
 
-function USDXVersionStr(): string;
+function USWPVersionStr(): string;
 begin
   Result :=
-    USDX_STRING + ' ' +
-    IntToStr(USDX_VERSION_MAJOR) + '.' +
-    IntToStr(USDX_VERSION_MINOR) +
-    IfThen(USDX_VERSION_STATE <> '', ' '+USDX_VERSION_STATE)
+    USWP_STRING + ' ' +
+    IntToStr(USWP_VERSION_MAJOR) + '.' +
+    IntToStr(USWP_VERSION_MINOR) +
+    IfThen(USWP_VERSION_STATE <> '', ' '+USWP_VERSION_STATE)
 end;
 
 end.

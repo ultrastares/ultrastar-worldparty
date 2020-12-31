@@ -283,11 +283,6 @@ type
     SearchIcon: TThemeStatic;
     SearchText: TThemeText;
     SearchTextPlaceholder: TThemeText;
-    TextMedleyMax: integer;
-    TextArtistMedley: array of TThemeText;
-    TextTitleMedley: array of TThemeText;
-    StaticMedley: array of TThemeStatic;
-    TextNumberMedley: array of TThemeText;
 
     //Song icons
     VideoIcon: TThemeStatic;
@@ -764,9 +759,6 @@ type
     StaticLevelRound:       array[1..UIni.IMaxPlayerCount] of TThemeStatic;
 
     ButtonSend:  array[1..UIni.IMaxPlayerCount] of TThemeButton;
-
-    StaticNavigate:   TThemeStatic;
-    TextNavigate:     TThemeText;
   end;
 
   TThemeTop5 = class(TThemeBasic)
@@ -798,15 +790,15 @@ type
   end;
 
   TThemeOptionsGame = class(TThemeBasic)
-    SelectLanguage:     TThemeSelectSlide;
-    SelectSongMenu:     TThemeSelectSlide;
+    SelectLanguage: TThemeSelectSlide;
+    SelectSongMenu: TThemeSelectSlide;
     SelectDuets: TThemeSelectSlide;
-    SelectSorting:      TThemeSelectSlide;
-    SelectTabs:         TThemeSelectSlide;
-    SelectShowScores:   TThemeSelectSlide;
+    SelectTabs: TThemeSelectSlide;
+    SelectSorting: TThemeSelectSlide;
+    SelectShowScores: TThemeSelectSlide;
+    SelectSingScores: TThemeSelectSlide;
     SelectFindUnsetMedley: TThemeSelectSlide;
-    SelectJoypad:       TThemeSelectSlide;
-    ButtonExit:         TThemeButton;
+    ButtonExit:TThemeButton;
   end;
 
   TThemeOptionsGraphics = class(TThemeBasic)
@@ -872,7 +864,6 @@ type
     SelectAskbeforeDel:   TThemeSelectSlide;
     SelectOnSongClick:    TThemeSelectSlide;
     SelectPartyPopup:     TThemeSelectSlide;
-    SelectSingScores:     TThemeSelectSlide;
     SelectTopScores:      TThemeSelectSlide;
     ButtonExit:           TThemeButton;
   end;
@@ -1986,9 +1977,6 @@ begin
       for I := 1 to 3 do
          ThemeLoadButton(Score.ButtonSend[I], 'ScoreButtonSend' + IntToStr(I));
 
-      ThemeLoadStatic(Score.StaticNavigate, 'ScoreStaticNavigate');
-      ThemeLoadText(Score.TextNavigate, 'ScoreTextNavigate');
-
       // Top5
       ThemeLoadBasic(Top5, 'Top5');
 
@@ -2020,15 +2008,15 @@ begin
       // Options Game
       ThemeLoadBasic(OptionsGame, 'OptionsGame');
 
-      ThemeLoadSelectSlide(OptionsGame.SelectLanguage,   'OptionsGameSelectSlideLanguage');
-      ThemeLoadSelectSlide(OptionsGame.SelectSongMenu,   'OptionsGameSelectSongMenu');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectLanguage, 'OptionsGameSelectSlideLanguage');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSongMenu, 'OptionsGameSelectSongMenu');
       Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectDuets, 'OptionsGameSelectDuets');
-      ThemeLoadSelectSlide(OptionsGame.SelectSorting,    'OptionsGameSelectSlideSorting');
-      ThemeLoadSelectSlide(OptionsGame.SelectTabs,       'OptionsGameSelectTabs');
-      ThemeLoadSelectSlide(OptionsGame.SelectShowScores, 'OptionsGameSelectShowScores');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectTabs, 'OptionsGameSelectTabs');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSorting, 'OptionsGameSelectSlideSorting');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectShowScores, 'OptionsGameSelectShowScores');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSingScores, 'OptionsGameSelectSingScores');
       Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectFindUnsetMedley, 'OptionsGameSelectFindUnsetMedley');
-      ThemeLoadSelectSlide(OptionsGame.SelectJoypad,     'OptionsGameSelectJoypad');
-      ThemeLoadButton(OptionsGame.ButtonExit,            'OptionsGameButtonExit');
+      Self.ThemeLoadButton(Self.OptionsGame.ButtonExit, 'OptionsGameButtonExit');
 
       // Options Graphics
       ThemeLoadBasic(OptionsGraphics, 'OptionsGraphics');
@@ -2102,7 +2090,6 @@ begin
       ThemeLoadSelectSlide(OptionsAdvanced.SelectOnSongClick,   'OptionsAdvancedSelectSlideOnSongClick');
       ThemeLoadSelectSlide(OptionsAdvanced.SelectAskbeforeDel,  'OptionsAdvancedSelectAskbeforeDel');
       ThemeLoadSelectSlide(OptionsAdvanced.SelectPartyPopup,    'OptionsAdvancedSelectPartyPopup');
-      ThemeLoadSelectSlide(OptionsAdvanced.SelectSingScores,    'OptionsAdvancedSelectSingScores');
       ThemeLoadSelectSlide(OptionsAdvanced.SelectTopScores,     'OptionsAdvancedSelectTopScores');
       ThemeLoadButton     (OptionsAdvanced.ButtonExit,          'OptionsAdvancedButtonExit');
 
@@ -3609,23 +3596,6 @@ begin
   Self.ThemeLoadText(Self.Song.SearchText, 'Song'+prefix+'SearchText');
   Self.ThemeLoadText(Self.Song.SearchTextPlaceholder, 'Song'+prefix+'SearchTextPlaceholder');
   Self.ThemeLoadStatic(Self.Song.SearchIcon, 'Song'+prefix+'SearchIcon');
-
-  // medley playlist
-  Self.SetInheritance('Song'+prefix+'TextMedleyMax');
-  Self.ReadProperty('Song'+prefix+'TextMedleyMax', 'N', 4, Self.Song.TextMedleyMax);
-
-  SetLength(Song.TextArtistMedley, Song.TextMedleyMax);
-  SetLength(Song.TextTitleMedley, Song.TextMedleyMax);
-  SetLength(Song.TextNumberMedley, Song.TextMedleyMax);
-  SetLength(Song.StaticMedley, Song.TextMedleyMax);
-
-  for I := 0 to Song.TextMedleyMax - 1 do
-  begin
-    ThemeLoadText(Song.TextArtistMedley[I], 'Song' + prefix + 'TextMedleyArtist' + IntToStr(I + 1));
-    ThemeLoadText(Song.TextTitleMedley[I], 'Song' + prefix + 'TextMedleyTitle' + IntToStr(I + 1));
-    ThemeLoadText(Song.TextNumberMedley[I], 'Song' + prefix + 'TextMedleyNumber' + IntToStr(I + 1));
-    ThemeLoadStatic(Song.StaticMedley[I], 'Song' + prefix + 'StaticMedley' + IntToStr(I + 1));
-  end;
 
   //Song icons
   Self.ThemeLoadStatic(Self.Song.VideoIcon, 'Song'+prefix+'VideoIcon');

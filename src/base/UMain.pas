@@ -107,7 +107,7 @@ begin
   {$IFNDEF Debug}
   try
   {$ENDIF}
-    WindowTitle := USDXVersionStr;
+    WindowTitle := USWPVersionStr;
 
     Platform.Init;
 
@@ -152,7 +152,7 @@ begin
     Log.BenchmarkStart(1);
     Log.SetLogFileLevel(50);
     Language := TLanguage.Create;
-    Language.AddConst('US_VERSION', USDXVersionStr);
+    Language.AddConst('US_VERSION', USWPVersionStr);
 
     // Skin
     Skin := TSkin.Create;
@@ -196,11 +196,7 @@ begin
     // GoldenStarsTwinkleMod
     GoldenRec := TEffectManager.Create;
 
-    // Joypad
-    if (Ini.Joypad = 1) or (Params.Joypad) then
-    begin
-      InitializeJoystick;
-    end;
+    UJoystick.InitializeJoystick();
 
     // Webcam
     //Log.LogStatus('WebCam', 'Initialization');
@@ -351,7 +347,7 @@ begin
   // if question option is enabled then show exit popup
   if (Ini.AskbeforeDel = 1) then
   begin
-    Display.CurrentScreen^.CheckFadeTo(nil,'MSG_QUIT_USDX');
+    Display.CurrentScreen^.CheckFadeTo(nil,'MSG_QUIT_USWP');
   end
   else // if ask-for-exit is disabled then simply exit
   begin
@@ -387,8 +383,6 @@ begin
       end;
 
       SDL_MOUSEMOTION, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_MOUSEWHEEL:
-      begin
-        if (Ini.Mouse > 0) then
         begin
           UpdateMouse := true;
           case Event.type_ of
@@ -468,7 +462,6 @@ begin
             end;
           end;
         end;
-      end;
       SDL_WINDOWEVENT://SDL_WINDOWEVENT_RESIZED:
       begin
         case Event.window.event of
@@ -553,9 +546,9 @@ begin
 
             end;
 
-            if (not SuppressKey and (Event.key.keysym.sym = SDLK_F11)) then // toggle full screen
+            if not SuppressKey then
             begin
-              if (CurrentWindowMode <> Mode_Fullscreen) then // only switch borderless fullscreen in windowed mode
+              if (Event.key.keysym.sym = SDLK_F11) and (CurrentWindowMode <> Mode_Fullscreen) then //toggle fullscreen only switch borderless fullscreen in windowed mode
               begin
                 if SwitchVideoMode(Mode_Borderless) = Mode_Borderless then
                 begin
@@ -566,12 +559,10 @@ begin
                   Ini.FullScreen := 0;
                 end;
                 Ini.Save();
-              end;
-
-              //Display.SetCursor;
-
-              //glViewPort(0, 0, ScreenW, ScreenH);
-            end;
+              end
+              else if Event.key.keysym.sym = SDLK_F12 then
+                DoQuit();
+            end
           end;
         end;
       SDL_CONTROLLERDEVICEADDED, SDL_CONTROLLERDEVICEREMOVED,
