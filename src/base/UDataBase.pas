@@ -1004,7 +1004,7 @@ begin
 
   TableData.Free;
 
-  Result := UTF8Decode(User_Score);
+  Result := string(UTF8Decode(User_Score));
 
 end;
 

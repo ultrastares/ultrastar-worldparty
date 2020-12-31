@@ -82,7 +82,7 @@ type
   TScreenSingController = class(TMenu)
   private
 
-    StartNote, EndNote:     TPos;
+    StartNote:     TPos;
 
     procedure LoadNextSong();
 
@@ -216,33 +216,14 @@ const
 function TScreenSingController.ParseInput(PressedKey: Cardinal; CharCode: UCS4Char;
   PressedDown: boolean): boolean;
 var
-  SDL_ModState:  word;
   i1: integer;
   Color:      TRGB;
 begin
   Result := true;
   if (PressedDown) then
   begin // key down
-
-    SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT
-    + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
-
-
     // check normal keys
     case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-      begin
-        // when not ask before exit then finish now
-        if (Ini.AskbeforeDel <> 1) then
-          Finish
-        // else just pause and let the popup make the work
-        else if not Paused then
-          Pause;
-
-        Result := false;
-        Exit;
-      end;
-
       //Restart and pause song
       Ord('R'):
       begin
@@ -463,10 +444,6 @@ begin
 end;
 
 constructor TScreenSingController.Create;
-var
-
-  I: integer;
-  Color: cardinal;
 begin
   inherited Create;
   ScreenSing := self;
@@ -507,8 +484,6 @@ var
   V5DuetSixP: boolean;
   V6DuetSixP: boolean;
   BadPlayer: integer;
-  Col_Sty_Up, Col_Sty_Sing, Col_Sty_dn: TRGB; //stylized typo color
-  Col_Out_Up, Col_Out_Sing, Col_Out_dn: TRGB; //Outline typo color
   I: integer;
 begin
   inherited;
@@ -736,7 +711,7 @@ end;
 
 procedure TScreenSingController.onShowFinish;
 var
-  I, Index: integer;
+  Index: integer;
 begin
   // hide cursor on singscreen show
   //Display.SetCursor;
@@ -900,7 +875,10 @@ var
 
   begin
     found := false;
-
+    Result.part := 0;
+    Result.line := 0;
+    Result.note := 0;
+    Result.CP := 0;
     for line := 0 to length(CurrentSong.Lines[0].Line) - 1 do
     begin
       for note := 0 to length(CurrentSong.Lines[0].Line[line].Note) - 1 do
@@ -1427,7 +1405,7 @@ var
   LineBonus: real;
   MaxSongScore: integer; // max. points for the song (without line bonus)
   MaxLineScore: real;    // max. points for the current line
-  Index: integer;
+  // Index: integer;
 const
   // TODO: move this to a better place
   MAX_LINE_RATING = 8;        // max. rating for singing performance

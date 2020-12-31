@@ -100,8 +100,6 @@ begin
 end;
 
 function TScreenJukeboxOptions.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
-var
-  LeftPressedKey: boolean;
 begin
   Result := true;
 
@@ -135,6 +133,7 @@ begin
           // close
           if Self.Interaction = 11 then
           begin
+            UIni.Ini.Save();
             Visible := false;
             ScreenJukebox.CloseClickTime := SDL_GetTicks;
             Exit;

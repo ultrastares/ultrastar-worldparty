@@ -83,7 +83,7 @@ const
 
   (* Supported version by this header *)
   LIBSWRESAMPLE_MAX_VERSION_MAJOR   = 3;
-  LIBSWRESAMPLE_MAX_VERSION_MINOR   = 5;
+  LIBSWRESAMPLE_MAX_VERSION_MINOR   = 7;
   LIBSWRESAMPLE_MAX_VERSION_RELEASE = 100;
   LIBSWRESAMPLE_MAX_VERSION = (LIBSWRESAMPLE_MAX_VERSION_MAJOR * VERSION_MAJOR) +
                            (LIBSWRESAMPLE_MAX_VERSION_MINOR * VERSION_MINOR) +
@@ -106,7 +106,7 @@ const
 {$IF (LIBSWRESAMPLE_VERSION > LIBSWRESAMPLE_MAX_VERSION)}
   {$MESSAGE Error 'Linked version of libswresample is not yet supported!'}
 {$IFEND}
-  
+
 {$IF LIBSWRESAMPLE_VERSION_MAJOR < 1}
   SWR_CH_MAX = 32;  (* < Maximum number of channels *)
 {$ENDIF}
@@ -200,7 +200,7 @@ function swr_init(s: PSwrContext): cint;
  *)
 function swr_is_initialized(s: PSwrContext): cint;
   cdecl; external sw__resample;
-  
+
 (**
  * Allocate SwrContext if needed and set/reset common parameters.
  *
@@ -464,4 +464,3 @@ function swresample_license(): PAnsiChar;
 implementation
 
 end.
-

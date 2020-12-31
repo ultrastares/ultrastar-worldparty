@@ -1,8 +1,8 @@
 {*
     UltraStar WorldParty - Karaoke Game
-	
-	UltraStar WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -244,7 +244,7 @@ begin
       Text[T].SetSelect(SelectBool);
       Text[T].Int := DeselectTInt;
     end;
-    
+
     //Fade Mod
     if Fade then
     begin
@@ -266,7 +266,7 @@ var
   T:       integer;
   Tick:    cardinal;
   Spacing: real;
-  x1, x2, x3, x4, y1, y2, y3, y4: real;
+  y1, y2, y3, y4: real;
 begin
   if Visible then
   begin
@@ -581,8 +581,10 @@ end;
 
 function TButton.GetMouseOverArea: TMouseOverRect;
 begin
-  if not(Display.Cursor_HiddenByScreen) then
-  begin
+  Result.X := 0;
+  Result.Y := 0;
+  Result.W := 0;
+  Result.H := 0;
     if (FadeTex.TexNum = 0) then
     begin
       Result.X := Texture.X;
@@ -622,7 +624,6 @@ begin
         end;
       end;
     end;
-  end;
 end;
 
 

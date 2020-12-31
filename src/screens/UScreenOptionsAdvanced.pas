@@ -45,8 +45,6 @@ type
    protected
       // interaction IDs
 	  ButtonExitIID: integer;
-      SelectJoyPad: integer;
-
 
     public
       constructor Create; override;
@@ -66,15 +64,6 @@ begin
   Result := true;
   if (PressedDown) then
   begin // Key Down
-    // check normal keys
-    case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-        begin
-          Result := false;
-          Exit;
-        end;
-    end;
-
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -86,7 +75,7 @@ begin
         end;
       SDLK_RETURN:
         begin
-          if SelInteraction = 7 then
+          if SelInteraction = 6 then
           begin
             UIni.Ini.Save;
             AudioPlayback.PlaySound(SoundLib.Back);
@@ -127,7 +116,6 @@ begin
   AddSelectSlide(Theme.OptionsAdvanced.SelectOnSongClick, UIni.Ini.OnSongClick, UIni.IOnSongClick, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsAdvanced.SelectAskbeforeDel, UIni.Ini.AskBeforeDel, UIni.IAskbeforeDel, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsAdvanced.SelectPartyPopup, UIni.Ini.PartyPopup, UIni.IPartyPopup, 'OPTION_VALUE_');
-  AddSelectSlide(Theme.OptionsAdvanced.SelectSingScores, UIni.Ini.SingScores, UIni.ISingScores, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsAdvanced.SelectTopScores, UIni.Ini.TopScores, UIni.ITopScores, 'OPTION_VALUE_');
 
   AddButton(Theme.OptionsAdvanced.ButtonExit);

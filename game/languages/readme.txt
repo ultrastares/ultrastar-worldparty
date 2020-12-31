@@ -1,45 +1,29 @@
-.o0 Ultrastar Deluxe in your language 0o.
+** How to translate Ultrastar WorldParty to your language **
 
------------------------
-   Table of Contents
------------------------
-1. Introduction
-2. Translate texts
-3. Wildcards
+First of all, thanks for your interest helping us to approach the game to more people.
 
------------------------
-1. Introduction:
------------------------
-To translate USDX to a new language, copy the file Language.new to [Language].ini with [Language]
-replaced by the English name of your language (e.g. German.ini for German).
-Translate all texts according to section (2) of this file.
+You should clone the project to make the changes.
 
------------------------
-2. Translate texts:
------------------------
-1) For each target language there is a translation file named [Language].ini where [Language] is the target
-   language.
-2) All lines that have not been translated so far are prefixed with ";TODO:" like the following line
-     ;TODO: SOME_OPTION=English text here
-3) Translate the text if you are familiar with the target language
-4) After you have done so remove the ";TODO: " prefix so that it looks like in this German translation:
-     SOME_OPTION=Hier der deutsche Text
-   IMPORTANT: Do NOT remove the ";TODO: " prefix if you did not translate the text and it is still English.
-5) At the end of the file there might be some lines which start with ";INVALID: " or ";UNUSED: ". 
-   Invalid lines are not correctly formatted lines and might crash USDX. Unused lines are not used
-   anymore by USDX or they have been renamed.
-6) If you want you may add your name to the END (not the beginning) of the file:
-     ;TRANSLATOR: Mario Translatori
-   Note the ";" in front of it.
-7) Share your translation with others:
-   - Send the translated file to our Patch-Tracker at SourceForge (http://sourceforge.net/tracker/?group_id=191560&atid=937872)
-   - or contact us via our IRC channel
+Check if your language is under this folder.
+
+If your language is already created, you should edit that file, if not, copy the English file and rename it to your language.
+
+
+--------------------
+Translating texts:
+--------------------
+
+- First, check if there are lines with "TODO:" prefix at the begining.
+
+- You have to translate everything to the right of the "=" sign.
+
+- Once done, delete the "TODO:" prefix. DO NOT remove it if you haven't translated it
+
+- Keep in mind, there are some weird signs in the translation, we use it to introduce additional information in the game, DO NOT remove it, adjust it with the rest of the sentence translated. Here you have more info:
 
 -----------------------
 3. Wildcards:
 -----------------------
-Here are some informations about the wildcards in the language texts for the statistic screens (STAT_...):
-Information that will replace the wildcards:
 
 STAT_OVERVIEW_INTRO:
   Format:
@@ -97,3 +81,10 @@ Y is optional, it is the number of digits for deciaml numbers (Z=d). So, if y is
 z can be d for numbers and s for texts
 
 For the date thing in STAT_OVERVIEW_INTRO you may use %1:.2d for the day and %2:.2d for the month.
+
+
+Once you're done, create a pull request with your changes, or you can upload it to our forum https:/ultrastar-es.org/foro
+
+If you have any doubt in any translation, you can ask in our forum, we'll be pleased to help you.
+
+we'll add you to the credits in github, once merged ;)

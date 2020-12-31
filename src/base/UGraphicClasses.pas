@@ -515,7 +515,6 @@ end;
 procedure TEffectManager.SentenceChange(CP: integer);
 var
   c: cardinal;
-  p: integer;
 begin
 
   c := 0;
@@ -658,6 +657,9 @@ var
   Left, Right, Top, Bottom: cardinal;
   cScreen, Nstars: integer;
 begin
+  Bottom := 0;
+  Top := 0;
+  cScreen := 0;
 // calculation of coordinates done with hardcoded values like in UDraw.pas
 // might need to be adjusted if drawing of SingScreen is modified
 // coordinates may still be a bit weird and need adjustment

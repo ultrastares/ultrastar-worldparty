@@ -791,9 +791,10 @@ begin
     TmpResult := Path(Self.AppendPathDelim().ToUTF8() + Child.ToUTF8());
 
   case DelimOption of
-    pdKeep: Result := TmpResult;
     pdAppend: Result := TmpResult.AppendPathDelim;
     pdRemove: Result := TmpResult.RemovePathDelim;
+    else //pdKeep
+      Result := TmpResult;
   end;
 end;
 

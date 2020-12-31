@@ -46,7 +46,6 @@ type
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure SetAnimationProgress(Progress: real); override;
-      procedure SetOverview(Team: string);
     private
       TextOverview: integer;
   end;
@@ -64,15 +63,6 @@ begin
   Result := true;
   if (PressedDown) then
   begin // Key Down
-    // check normal keys
-    case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-        begin
-          Result := false;
-          Exit;
-        end;
-    end;
-
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -116,19 +106,17 @@ constructor TScreenDevelopers.Create;
 begin
   inherited Create;
 
-  Self.TextOverview := AddText(Theme.Developers.TextOverview);
+  Self.TextOverview := Self.AddText(UThemes.Theme.Developers.TextOverview);
+  Self.Text[Self.TextOverview].Text := Format(Self.Text[Self.TextOverview].Text, [
+    'Zup3r_vock\n\nDaniel20\n\njmfb\n\nTeLiXj',
+    'https://ultrastar-es.org'
+  ]);
 
   LoadFromTheme(Theme.Developers);
 
   AddButton(Theme.Developers.ButtonExit);
 
   Interaction := 0;
-end;
-
-procedure TScreenDevelopers.SetOverview(Team: string);
-begin
-  // Format overview
-  Text[0].Text := Language.Translate('DEVELOPERS_'+IfThen(Team <> '', Team+'_', '')+'OVERVIEW');
 end;
 
 procedure TScreenDevelopers.SetAnimationProgress(Progress: real);

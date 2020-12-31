@@ -71,16 +71,6 @@ begin
   Result := true;
   if (PressedDown) then
   begin // Key Down
-    // check normal keys
-    case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-        begin
-          UIni.Ini.Save;
-          Result := false;
-          Exit;
-        end;
-    end;
-
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -150,7 +140,7 @@ begin
   LoadFromTheme(Theme.OptionsThemes);
   AddSelectSlide(Theme.OptionsThemes.SelectTheme, Ini.Theme, ITheme);
   Self.SkinSelect := AddSelectSlide(UThemes.Theme.OptionsThemes.SelectSkin, UIni.Ini.Skin, UThemes.Theme.Themes[UIni.Ini.Theme].Skins);
-  AddSelectSlide(Theme.OptionsThemes.SelectColor, UIni.Ini.Color, UIni.IColor, 'OPTION_VALUE_');
+  AddSelectSlide(Theme.OptionsThemes.SelectColor, UIni.Ini.Color, UIni.IColor, 'C_COLOR_');
 
   AddButton(Theme.OptionsThemes.ButtonExit);
 

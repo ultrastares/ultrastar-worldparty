@@ -93,7 +93,7 @@ begin
   Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectTransparency, Self.SelectTransparency, UIni.ILyricsAlpha);
   Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectLines, Self.SelectLines, UIni.ILine, 'OPTION_VALUE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectProperty, Self.SelectProperty, UIni.IProperty, 'OPTION_VALUE_');
-  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectColor, Self.SelectColor, UIni.LineColor, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectColor, Self.SelectColor, UIni.LineColor, 'C_COLOR_');
   Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectR, Self.Red, IRed);
   Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectG, Self.Green, IGreen);
   Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectB, Self.Blue, IBlue);
@@ -128,7 +128,7 @@ end;
 function TScreenOptionsLyrics.Draw(): boolean;
 begin
   Result := inherited Draw();
-  Self.Lyrics.Draw(13); //to see effects in the second note in slide mode too
+  Self.Lyrics.Draw(11); //to see effects in the second note in slide mode too
 end;
 
 procedure TScreenOptionsLyrics.OnShow();
@@ -148,16 +148,6 @@ begin
   Result := true;
   if (PressedDown) then
   begin // Key Down
-    // check normal keys
-    case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-        begin
-          UIni.Ini.Save();
-          Result := false;
-          Exit;
-        end;
-    end;
-
     SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
 
     // check special keys
@@ -295,7 +285,7 @@ begin
       0: //sing
         begin
           Self.SelectColor := Self.GetColorPosition(UIni.IHexSingColor, Self.SingColor);
-          Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectColor, 6, UIni.LineColor, Self.SelectColor, 'OPTION_VALUE_');
+          Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectColor, 6, UIni.LineColor, Self.SelectColor, 'C_COLOR_');
         end;
       1: //upper
         begin
@@ -315,7 +305,7 @@ begin
       1: Self.SelectColor := Self.GetColorPosition(UIni.IHexOColor, Self.CurrentOutlineColor);
       2: Self.SelectColor := Self.GetColorPosition(UIni.IHexOColor, Self.NextOutlineColor);
     end;
-    Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectColor, 6, UIni.OutlineColor, Self.SelectColor, 'OPTION_VALUE_');
+    Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectColor, 6, UIni.OutlineColor, Self.SelectColor, 'C_COLOR_');
   end;
 end;
 
@@ -363,6 +353,7 @@ var
 begin
   Self.Lyrics.SetProperties(Self.SelectMode = 1);
   Self.SelectsS[5].Visible := Self.SelectFont <> 0;
+  HexColor := '';
   if Self.SelectProperty = 0 then //fill
     case Self.SelectLines of
       0: HexColor := Self.SingColor;

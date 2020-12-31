@@ -75,16 +75,6 @@ begin
   Result := true;
   if (PressedDown) then
   begin // Key Down
-    // check normal keys
-    case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-        begin
-          if (PreVisualization) then Webcam.Release;
-          Result := false;
-          Exit;
-        end;
-    end;
-
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -178,7 +168,6 @@ constructor TScreenOptionsWebcam.Create;
 var
   WebcamsIDs: array[0..2] of UTF8String;
   IWebcamEffectTranslated: array [0..10] of UTF8String = ('NORMAL', 'GRAYSCALE', 'BLACK_WHITE', 'NEGATIVE', 'BINARY_IMAGE', 'DILATE', 'THRESHOLD', 'EDGES', 'GAUSSIAN_BLUR', 'EQUALIZED', 'ERODE');
-  SelectWebcam: integer;
 begin
   inherited Create;
 

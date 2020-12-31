@@ -645,6 +645,7 @@ procedure ColorizeImage(ImgSurface: PSDL_Surface; NewColor: longword);
       // longword to double as expected.
       // After the change to longint, we may not need it, but left for now
       // Something to check
+      Hue := 0;
       if      (Max = Red  ) then Hue :=             Green - Blue
       else if (Max = Green) then Hue := 2.0*Delta + Blue  - Red
       else if (Max = Blue ) then Hue := 4.0*Delta + Red   - Green;

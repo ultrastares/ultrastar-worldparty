@@ -176,7 +176,6 @@ end;
 
 function GetTimeFromBeat(Beat: integer; SelfSong: TSong = nil): real;
 var
-  CurBPM: integer;
   Song: TSong;
 begin
 

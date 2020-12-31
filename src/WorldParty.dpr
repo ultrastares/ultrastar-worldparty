@@ -27,25 +27,11 @@ program WorldParty;
   {$R '..\res\link.res' '..\res\link.rc'}
 {$ENDIF}
 
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+{$MODE OBJFPC}
 
 {$I switches.inc}
 
-{$IFDEF MSWINDOWS}
-  // Set global application-type (GUI/CONSOLE) switch for Windows.
-  // CONSOLE is the default for FPC, GUI for Delphi, so we have
-  // to specify one of the two in any case.
-  {$IFDEF CONSOLE}
-    {$APPTYPE CONSOLE}
-  {$ELSE}
-    {$APPTYPE GUI}
-  {$ENDIF}
-{$ENDIF}
-
 uses
-  //heaptrc,
   {$IFDEF Unix}
   cthreads,            // THIS MUST be the first used unit in FPC if Threads are used!!
                        // (see http://wiki.lazarus.freepascal.org/Multithreaded_Application_Tutorial)
@@ -70,55 +56,14 @@ uses
   zlib                   in 'lib\zlib\zlib.pas',
   freetype               in 'lib\freetype\freetype.pas',
 
-  {$IFDEF UseBass}
-  BASS                   in 'lib\bass\delphi\bass.pas',
-  BASS_FX                in 'lib\bass_fx\bass_fx.pas',
-  UAudioCore_Bass        in 'media\UAudioCore_Bass.pas',
-  {$ENDIF}
-  {$IFDEF UsePortaudio}
-  portaudio              in 'lib\portaudio\portaudio.pas',
-  UAudioCore_Portaudio   in 'media\UAudioCore_Portaudio.pas',
-  {$ENDIF}
-  {$IFDEF UsePortmixer}
-  portmixer              in 'lib\portmixer\portmixer.pas',
-  {$ENDIF}
-
-  {$IFDEF UseFFmpeg}
-    {$IFDEF FPC} // This solution is not very elegant, but working
-      avcodec             in 'lib\' + FFMPEG_DIR + '\avcodec.pas',
-      avformat            in 'lib\' + FFMPEG_DIR + '\avformat.pas',
-      avutil              in 'lib\' + FFMPEG_DIR + '\avutil.pas',
-      rational            in 'lib\' + FFMPEG_DIR + '\rational.pas',
-      avio                in 'lib\' + FFMPEG_DIR + '\avio.pas',
-      {$IFDEF UseSWResample}
-      swresample          in 'lib\' + FFMPEG_DIR + '\swresample.pas',
-      {$ENDIF}
-      {$IFDEF useOLD_FFMPEG}
-        mathematics       in 'lib\' + FFMPEG_DIR + '\mathematics.pas',
-        opt               in 'lib\' + FFMPEG_DIR + '\opt.pas',
-      {$ENDIF}
-      {$IFDEF UseSWScale}
-        swscale           in 'lib\' + FFMPEG_DIR + '\swscale.pas',
-      {$ENDIF}
-    {$ELSE} // speak: This is for Delphi. Change version as needed!
-      avcodec            in 'lib\ffmpeg-0.10\avcodec.pas',
-      avformat           in 'lib\ffmpeg-0.10\avformat.pas',
-      avutil             in 'lib\ffmpeg-0.10\avutil.pas',
-      rational           in 'lib\ffmpeg-0.10\rational.pas',
-      avio               in 'lib\ffmpeg-0.10\avio.pas',
-      {$IFDEF UseSWResample}
-      swresample         in 'lib\ffmpeg-0.10\swresample.pas',
-      {$ENDIF}
-      {$IFDEF UseSWScale}
-        swscale          in 'lib\ffmpeg-0.10\swscale.pas',
-      {$ENDIF}
-    {$ENDIF}
-    UMediaCore_FFmpeg    in 'media\UMediaCore_FFmpeg.pas',
-  {$ENDIF}  // UseFFmpeg
-
-  {$IFDEF UseSRCResample}
-  samplerate             in 'lib\samplerate\samplerate.pas',
-  {$ENDIF}
+  avcodec in 'lib\'+FFMPEG_DIR+'\avcodec.pas',
+  avformat in 'lib\'+FFMPEG_DIR+'\avformat.pas',
+  avutil in 'lib\'+FFMPEG_DIR+'\avutil.pas',
+  rational in 'lib\'+FFMPEG_DIR+'\rational.pas',
+  avio in 'lib\'+FFMPEG_DIR+'\avio.pas',
+  swresample in 'lib\'+FFMPEG_DIR+'\swresample.pas',
+  swscale in 'lib\'+FFMPEG_DIR+'\swscale.pas',
+  UMediaCore_FFmpeg in 'media\UMediaCore_FFmpeg.pas',
 
   {$IFDEF UseProjectM}
   projectM      in 'lib\projectM\projectM.pas',
@@ -136,15 +81,13 @@ uses
   {$ENDIF}
 
   {$IFDEF FPC}
-  FileUtil in 'lib\Lazarus\fileutil.pas',
-  FPCAdds in 'lib\Lazarus\fpcadds.pas',
-  LazUtilsStrConsts in 'lib\Lazarus\lazutilsstrconsts.pas',
-  LazFileUtils in 'lib\Lazarus\lazfileutils.pas',
-  LazUTF8 in 'lib\Lazarus\lazutf8.pas',
-  LazUTF8Classes in 'lib\Lazarus\lazutf8classes.pas',
-  Masks in 'lib\Lazarus\masks.pas',
-  MTProcs in 'lib\Lazarus\components\multithreadprocs\mtprocs.pas',
-  MTPCPU in 'lib\Lazarus\components\multithreadprocs\mtpcpu.pas',
+  FileUtil in 'lib\Lazarus\components\lazutils\fileutil.pas',
+  FPCAdds in 'lib\Lazarus\components\lazutils\fpcadds.pas',
+  LazUtilsStrConsts in 'lib\Lazarus\components\lazutils\lazutilsstrconsts.pas',
+  LazFileUtils in 'lib\Lazarus\components\lazutils\lazfileutils.pas',
+  LazUTF8 in 'lib\Lazarus\components\lazutils\lazutf8.pas',
+  LazUTF8Classes in 'lib\Lazarus\components\lazutils\lazutf8classes.pas',
+  Masks in 'lib\Lazarus\components\lazutils\masks.pas',
   {$ENDIF}
   CpuCount in 'lib\other\cpucount.pas',
   {$IFDEF MSWINDOWS}
@@ -253,13 +196,11 @@ uses
   //Includes - Media
   //------------------------------
 
-  UMusic                    in 'base\UMusic.pas',
-  UAudioPlaybackBase        in 'media\UAudioPlaybackBase.pas',
-{$IF Defined(UsePortaudioPlayback) or Defined(UseSDLPlayback)}
-  UFFT                      in 'lib\fft\UFFT.pas',
-  UAudioPlayback_SoftMixer  in 'media\UAudioPlayback_SoftMixer.pas',
-{$IFEND}
-  UAudioConverter           in 'media\UAudioConverter.pas',
+  UMusic in 'base\UMusic.pas',
+  UAudioPlaybackBase in 'media\UAudioPlaybackBase.pas',
+  UFFT in 'lib\fft\UFFT.pas',
+  UAudioPlayback_SoftMixer in 'media\UAudioPlayback_SoftMixer.pas',
+  UAudioConverter in 'media\UAudioConverter.pas',
 
   //******************************
   //Pluggable media modules
@@ -267,45 +208,29 @@ uses
   // This means the first entry has highest priority, the last lowest.
   //******************************
 
-{$IFDEF UseFFmpegVideo}
-  UVideo                    in 'media\UVideo.pas',
-{$ENDIF}
+UVideo                    in 'media\UVideo.pas',
 {$IFDEF UseProjectM}
   // must be after UVideo, so it will not be the default video module
   UVisualizer               in 'media\UVisualizer.pas',
 {$ENDIF}
-{$IFDEF UseBASSInput}
-  UAudioInput_Bass          in 'media\UAudioInput_Bass.pas',
-{$ENDIF}
-{$IFDEF UseBASSDecoder}
-  // prefer Bass to FFmpeg if possible
-  UAudioDecoder_Bass        in 'media\UAudioDecoder_Bass.pas',
-{$ENDIF}
-{$IFDEF UseBASSPlayback}
-  UAudioPlayback_Bass       in 'media\UAudioPlayback_Bass.pas',
-{$ENDIF}
-{$IFDEF UseSDLPlayback}
-  UAudioPlayback_SDL        in 'media\UAudioPlayback_SDL.pas',
-{$ENDIF}
-{$IFDEF UsePortaudioInput}
-  UAudioInput_Portaudio     in 'media\UAudioInput_Portaudio.pas',
-{$ENDIF}
-{$IFDEF UsePortaudioPlayback}
-  UAudioPlayback_Portaudio  in 'media\UAudioPlayback_Portaudio.pas',
-{$ENDIF}
-{$IFDEF UseFFmpegDecoder}
-  UAudioDecoder_FFmpeg      in 'media\UAudioDecoder_FFmpeg.pas',
-{$ENDIF}
-  // fallback dummy, must be last
-  UMedia_dummy              in 'media\UMedia_dummy.pas',
-
-
+  {$IFDEF UseBASS}
+  BASS in 'lib\bass\bass.pas',
+  BASS_FX in 'lib\bass_fx\bass_fx.pas',
+  UAudioCore_Bass in 'media\UAudioCore_Bass.pas',
+  UAudioInput_Bass in 'media\UAudioInput_Bass.pas',
+  UAudioPlayback_Bass in 'media\UAudioPlayback_Bass.pas',
+  UAudioDecoder_Bass in 'media\UAudioDecoder_Bass.pas',
+  {$ELSE}
+  UAudioInput_SDL in 'media\UAudioInput_SDL.pas',
+  UAudioPlayback_SDL in 'media\UAudioPlayback_SDL.pas',
+  UAudioDecoder_FFmpeg in 'media\UAudioDecoder_FFmpeg.pas',
+  {$ENDIF}
   //------------------------------
   //Includes - Screens
   //------------------------------
   UScreenLoading          in 'screens\UScreenLoading.pas',
   UScreenMain             in 'screens\UScreenMain.pas',
-  UScreenPlayerSelection  in 'screens\UScreenPlayerSelection.pas',
+  UScreenPlayerSelector in 'screens\UScreenPlayerSelector.pas',
   UScreenSong             in 'screens\UScreenSong.pas',
   UScreenSingController   in 'screens\controllers\UScreenSingController.pas',
   UScreenSingView         in 'screens\views\UScreenSingView.pas',
@@ -319,10 +244,13 @@ uses
   UScreenOptionsThemes    in 'screens\UScreenOptionsThemes.pas',
   UScreenOptionsMicrophones    in 'screens\UScreenOptionsMicrophones.pas',
   UScreenOptionsAdvanced  in 'screens\UScreenOptionsAdvanced.pas',
+  UScreenOptionsNetwork in 'screens\UScreenOptionsNetwork.pas',
+  UScreenOptionsWebcam  in 'screens\UScreenOptionsWebcam.pas',
+  UScreenOptionsProfiles  in 'screens\UScreenOptionsProfiles.pas',
+
   UScreenOpen             in 'screens\UScreenOpen.pas',
   UScreenTop5             in 'screens\UScreenTop5.pas',
   UScreenSongMenu         in 'screens\UScreenSongMenu.pas',
-  UScreenSongJumpto       in 'screens\UScreenSongJumpto.pas',
   UScreenStatMain         in 'screens\UScreenStatMain.pas',
   UScreenStatDetail       in 'screens\UScreenStatDetail.pas',
   UScreenPopup            in 'screens\UScreenPopup.pas',
@@ -343,8 +271,6 @@ uses
   opencv_imgproc          in 'lib\openCV\opencv_imgproc.pas',
   opencv_types            in 'lib\openCV\opencv_types.pas',
 
-  //BassMIDI                in 'lib\bassmidi\bassmidi.pas',
-
   UWebcam                 in 'base\UWebcam.pas',
 
   UDLLManager             in 'base\UDLLManager.pas',
@@ -357,8 +283,6 @@ uses
   UScreenJukeboxOptions         in 'screens\UScreenJukeboxOptions.pas',
   UScreenJukeboxPlaylist        in 'screens\UScreenJukeboxPlaylist.pas',
 
-  UScreenOptionsNetwork in 'screens\UScreenOptionsNetwork.pas',
-  UScreenOptionsWebcam  in 'screens\UScreenOptionsWebcam.pas',
 
   UAvatars                in 'base\UAvatars.pas',
   UScreenAbout            in 'screens\UScreenAbout.pas',
@@ -374,12 +298,10 @@ var
 
 begin
   try
-  {$IFDEF MSWINDOWS}
-  {$IFDEF CONSOLE}
-  FreeConsole(); //hacky workaround to get a working GUI-only experience on windows 10 when using fpc 3.0.0 on windows
-  {$ENDIF}
-  {$ENDIF}
-  Main;
+    {$IF DEFINED(MSWINDOWS) AND NOT DEFINED(DEBUG)}
+    FreeConsole(); //hacky workaround to get a working GUI-only experience on windows 10 when using fpc 3.0.0 on windows
+    {$IFEND}
+    UMain.Main();
   except
     on E : Exception do
     begin

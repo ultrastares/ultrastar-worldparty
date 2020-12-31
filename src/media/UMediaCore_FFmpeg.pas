@@ -258,6 +258,7 @@ begin
     else                  Result := 'AVERROR_#'+inttostr(ErrorNum);
   end;
 {$ELSE}
+  Result := '';
 {$IFEND}
 end;
 
@@ -654,9 +655,6 @@ begin
   av_init_packet(TempPacket^);
   TempPacket^.data  := Pointer(STATUS_PACKET);
   TempPacket^.flags := StatusFlag;
-{$IF FFMPEG_VERSION_INT < 2000000}
-  TempPacket^.priv  := StatusInfo;
-{$ENDIF}
   // put a copy of the package into the queue
   Result := Put(TempPacket);
   // data has been copied -> delete temp. package
@@ -665,17 +663,11 @@ end;
 
 procedure TPacketQueue.FreeStatusInfo(var Packet: TAVPacket);
 begin
-{$IF FFMPEG_VERSION_INT < 2000000}
-  if (Packet.priv <> nil) then
-    FreeMem(Packet.priv);
-{$ENDIF}
 end;
 
 function TPacketQueue.GetStatusInfo(var Packet: TAVPacket): Pointer;
 begin
-{$IF FFMPEG_VERSION_INT < 2000000}
-  Result := Packet.priv;
-{$ENDIF}
+  Result := nil;
 end;
 
 function TPacketQueue.Get(var Packet: TAVPacket; Blocking: boolean): integer;
@@ -750,7 +742,7 @@ begin
     if (PChar(CurrentListEntry^.pkt.data) = STATUS_PACKET) then
       FreeStatusInfo(CurrentListEntry^.pkt);
     // free packet data
-    av_free_packet(@CurrentListEntry^.pkt);
+    av_packet_unref(@CurrentListEntry^.pkt);
     // Note: param must be a pointer to a pointer!
     av_freep(@CurrentListEntry);
     CurrentListEntry := TempListEntry;

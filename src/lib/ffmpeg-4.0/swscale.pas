@@ -21,7 +21,7 @@
  * Conversion of libswscale/swscale.h
  * version: 3.0.100
  *)
- 
+
 unit swscale;
 
 {$IFDEF FPC}
@@ -72,12 +72,12 @@ const
  * You can accelerate this process by posting a patch with the git changes
  * translated to Pascal to our bug tracker (please join our IRC chat before
  * you start working on it). Simply adjusting the max. versions is NOT a valid
- * fix. 
+ * fix.
  *)
 
   (* Max. supported version by this header *)
   LIBSWSCALE_MAX_VERSION_MAJOR   =  5;
-  LIBSWSCALE_MAX_VERSION_MINOR   =  5;
+  LIBSWSCALE_MAX_VERSION_MINOR   =  7;
   LIBSWSCALE_MAX_VERSION_RELEASE =  100;
   LIBSWSCALE_MAX_VERSION = (LIBSWSCALE_MAX_VERSION_MAJOR * VERSION_MAJOR) +
                            (LIBSWSCALE_MAX_VERSION_MINOR * VERSION_MINOR) +
@@ -164,7 +164,7 @@ const
  *)
 function sws_getCoefficients(colorspace: cint): Pcint;
   cdecl; external sw__scale;
-  
+
 type
 
   // when used for filters they must have an odd number of elements
@@ -289,7 +289,7 @@ function sws_getContext(srcW: cint; srcH: cint; srcFormat: TAVPixelFormat;
  * @return          the height of the output slice
  *)
 function sws_scale(c: PSwsContext; {const} srcSlice: PPCuint8Array;
-              {const} srcStride: PCintArray; srcSliceY: cint; srcSliceH: cint; 
+              {const} srcStride: PCintArray; srcSliceY: cint; srcSliceH: cint;
               {const} dst: PPCuint8Array; {const} dstStride: PCintArray): cint;
   cdecl; external sw__scale;
 
@@ -303,7 +303,7 @@ function sws_scale(c: PSwsContext; {const} srcSlice: PPCuint8Array;
  * @param saturation 16.16 fixed point saturation correction
  * @return -1 if not supported
  *)
-function sws_setColorspaceDetails(c: PSwsContext; inv_table: PQuadCintArray; 
+function sws_setColorspaceDetails(c: PSwsContext; inv_table: PQuadCintArray;
               srcRange: cint; table: PQuadCintArray; dstRange: cint;
               brightness: cint; contrast: cint; saturation: cint): cint;
   cdecl; external sw__scale;
@@ -365,7 +365,7 @@ procedure sws_printVec2(a:         PSwsVector;
 procedure sws_freeVec(a: PSwsVector);
   cdecl; external sw__scale;
 
-function sws_getDefaultFilter(lumaGBlur: cfloat; chromaGBlur: cfloat; 
+function sws_getDefaultFilter(lumaGBlur: cfloat; chromaGBlur: cfloat;
                               lumaSharpen: cfloat; chromaSharpen: cfloat;
                               chromaHShift: cfloat; chromaVShift: cfloat;
                               verbose: cint): PSwsFilter;
@@ -376,20 +376,20 @@ procedure sws_freeFilter(filter: PSwsFilter);
 
 (**
  * Check if context can be reused, otherwise reallocates a new one.
- * 
+ *
  * If context is NULL, just calls sws_getContext() to get a new
  * context. Otherwise, checks if the parameters are the ones already
  * saved in context. If that is the case, returns the current
  * context. Otherwise, frees context and gets a new context with
  * the new parameters.
- * 
+ *
  * Be warned that srcFilter and dstFilter are not checked, they
  * are assumed to remain the same.
  *)
 function sws_getCachedContext(context: PSwsContext;
               srcW: cint; srcH: cint; srcFormat: TAVPixelFormat;
               dstW: cint; dstH: cint; dstFormat: TAVPixelFormat;
-              flags: cint; srcFilter: PSwsFilter; 
+              flags: cint; srcFilter: PSwsFilter;
               dstFilter: PSwsFilter; param: PCdouble): PSwsContext;
   cdecl; external sw__scale;
 

@@ -1,8 +1,8 @@
 {*
     UltraStar WorldParty - Karaoke Game
-	
-	UltraStar WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -158,16 +158,16 @@ function Lua_GetOwner(L: PLua_State): TLuaPlugin;
 begin
   lua_checkstack(L, 1);
 
-  lua_getfield (L, LUA_REGISTRYINDEX, '_USDX_STATE_ID');
+  lua_getfield (L, LUA_REGISTRYINDEX, '_USWP_STATE_ID');
   if (not lua_isNumber(L, -1)) then
-    luaL_error(L, 'unable to get _USDX_STATE_ID');
+    luaL_error(L, 'unable to get _USWP_STATE_ID');
 
   Result := LuaCore.GetPluginById(lua_toInteger(L, -1));
 
   lua_pop(L, 1); //< remove state id from stack
 
   if (Result = nil) then
-    luaL_error(L, '_USDX_STATE_ID has invalid value')
+    luaL_error(L, '_USWP_STATE_ID has invalid value')
   else if (Result.Status > psRunning) then
     luaL_error(L, 'owning plugin is not loaded or already unloaded in Lua_GetOwner');
 end;

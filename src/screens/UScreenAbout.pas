@@ -49,8 +49,6 @@ type
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure OnShow; override;
       procedure SetAnimationProgress(Progress: real); override;
-
-      procedure SetOverview;
   end;
 
 implementation
@@ -72,15 +70,6 @@ begin
   Result := true;
   if (PressedDown) then
   begin // Key Down
-    // check normal keys
-    case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-        begin
-          Result := false;
-          Exit;
-        end;
-    end;
-
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -96,7 +85,6 @@ begin
           if Interaction = 1 then
           begin
             AudioPlayback.PlaySound(SoundLib.Back);
-            ScreenDevelopers.SetOverview('');
             FadeTo(@ScreenDevelopers);
           end;
           //Exit Button Pressed
@@ -131,7 +119,8 @@ constructor TScreenAbout.Create;
 begin
   inherited Create;
 
-  TextOverview := AddText(Theme.AboutMain.TextOverview);
+  Self.TextOverview := Self.AddText(UThemes.Theme.AboutMain.TextOverview);
+  Self.Text[Self.TextOverview].Text := Format(Self.Text[Self.TextOverview].Text, ['https://ultrastar-es.org']);
 
   LoadFromTheme(Theme.AboutMain);
 
@@ -147,18 +136,6 @@ begin
   inherited;
   if not Assigned(UGraphic.ScreenDevelopers) then //load the screen only the first time
     UGraphic.ScreenDevelopers := TScreenDevelopers.Create();
-
-  //Set Overview Text:
-  SetOverview;
-end;
-
-procedure TScreenAbout.SetOverview;
-var
-  Overview: UTF8String;
-begin
-  // Format overview
-  Overview := Language.Translate('ABOUT_OVERVIEW');
-  Text[0].Text := Overview;
 end;
 
 procedure TScreenAbout.SetAnimationProgress(Progress: real);

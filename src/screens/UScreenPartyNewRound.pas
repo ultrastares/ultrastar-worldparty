@@ -106,15 +106,6 @@ begin
   Result := true;
   if (PressedDown) then
   begin // Key Down
-    // check normal keys
-    case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-        begin
-          Result := false;
-          Exit;
-        end;
-    end;
-
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -253,15 +244,16 @@ begin
 end;
 
 procedure TScreenPartyNewRound.OnShow;
-var
-  I: integer;
   function GetTeamPlayers(const Num: integer): UTF8String;
   var
     Players: array of UTF8String;
     J: integer;
   begin
     if (Num > High(Party.Teams)) or (Num < 0) then
-      exit;
+    begin
+      Result := '';
+      Exit();
+    end;
 
     //Create Players array
     SetLength(Players, Length(Party.Teams[Num].Players));

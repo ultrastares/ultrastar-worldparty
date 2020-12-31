@@ -1,8 +1,8 @@
 {*
     UltraStar WorldParty - Karaoke Game
-	
-	UltraStar WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -104,13 +104,13 @@ type
         if result is false there was an error calling the function
         if ReportErrors is true the errorstring is popped from stack
         and written to error.log otherwise it is left on stack}
-      function CallFunctionByName(Name:               string; 
+      function CallFunctionByName(Name:               string;
                                   const nArgs:        integer = 0;
 				  const nResults:     integer = 0;
 				  const ReportErrors: boolean = true): boolean;
       procedure ClearStack;
 
-      procedure Unload; //< Destroys the Luastate, and frees as much mem as possible, without destroying the class and important information 
+      procedure Unload; //< Destroys the Luastate, and frees as much mem as possible, without destroying the class and important information
 
       destructor Destroy; override;
   end;
@@ -286,7 +286,7 @@ end;
   usdx lua environment for the plugins state }
 procedure TLuaCore.LoadPlugin(Filename: IPath);
   var
-    Len: integer;  
+    Len: integer;
 begin
   Len := Length(Plugins);
   SetLength(Plugins, Len + 1);
@@ -335,7 +335,7 @@ begin
 
   FuncLen := Length(Functions);
   SetLength(Modules[Len].Functions, FuncLen + 1);
-  
+
   for I := 0 to FuncLen-1 do
     Modules[Len].Functions[I] := Functions[I];
 
@@ -532,7 +532,7 @@ function TLuaCore.GetModuleIdByName(Name: string): integer;
     I: integer;
 begin
   Result := -1;
-  
+
   for I := 0 to High(Modules) do
     if (Modules[I].Name = Name) then
     begin
@@ -586,7 +586,7 @@ begin
       luaL_argerror(L, 1, PChar('string expected'));
   end
   else
-    luaL_error(L, PChar('no modulename specified in usdx moduleloader')); 
+    luaL_error(L, PChar('no modulename specified in usdx moduleloader'));
 end;
 
 { loads module specified by a cfunction upvalue to
@@ -596,6 +596,7 @@ function TLuaCore_LoadModule (L: Plua_State): integer; cdecl;
   var
     Id: integer;
 begin
+  Result := 0;
   if (not lua_isnoneornil(L, lua_upvalueindex(1))) then
   begin
     Id := lua_ToInteger(L, lua_upvalueindex(1));
@@ -708,12 +709,12 @@ begin
       // set register function
       lua_checkstack(State, 2);
       lua_pushinteger(State, Id);
-      lua_pushcclosure(State, TLuaPlugin_Register, 1); 
+      lua_pushcclosure(State, TLuaPlugin_Register, 1);
       lua_setglobal(State, PChar('register'));
 
       // write plugin id to registry
       lua_pushinteger(State, iId);
-      lua_setfield (State, LUA_REGISTRYINDEX, '_USDX_STATE_ID');
+      lua_setfield (State, LUA_REGISTRYINDEX, '_USWP_STATE_ID');
       lua_pop(State, Lua_GetTop(State));
 
       // now run the plugin_init function
@@ -786,7 +787,7 @@ end;
   if result is false there was an error calling the function,
   if ReportErrors is true the errorstring is popped from stack
   and written to error.log otherwise it is left on stack}
-function TLuaPlugin.CallFunctionByName(Name:               string; 
+function TLuaPlugin.CallFunctionByName(Name:               string;
                                        const nArgs:        integer;
 				       const nResults:     integer;
 				       const ReportErrors: boolean): boolean;
@@ -876,6 +877,7 @@ function TLuaPlugin_Register (L: Plua_State): integer; cdecl;
     P:  TLuaPlugin;
     Name, Version, Author, Url: string;
 begin
+  Result := 0;
   if (lua_gettop(L) >= 2) then
   begin // we got at least name and version
     if (not lua_isNumber(L, lua_upvalueindex(1))) then
@@ -926,7 +928,7 @@ begin
 
     // return true
     Result := 1;
-    lua_pushboolean(L, true);  
+    lua_pushboolean(L, true);
   end
   else
     luaL_error(L, PChar('not enough arguments, at least 2 expected. in TLuaPlugin_Register'));

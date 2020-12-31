@@ -64,13 +64,6 @@ make $makearg
 make install
 make distclean
 
-echo "Building PortAudio"
-cd "$SRC/portaudio"
-./configure --prefix="$PREFIX" PKG_CONFIG_PATH="$PKG_CONFIG_PATH" --disable-static
-make $makearg
-make install
-make distclean
-
 echo "Building Yasm"
 cd "$SRC/yasm"
 ./configure --prefix="$PREFIX" PKG_CONFIG_PATH="$PKG_CONFIG_PATH" --disable-static

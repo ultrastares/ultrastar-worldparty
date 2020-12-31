@@ -58,7 +58,7 @@ uses
 
 type
 
-  TSingMode = ( smNormal, smPartyClassic, smPartyFree, smPartyChallenge, smPartyTournament, smJukebox, smPlaylistRandom , smMedley );
+  TSingMode = ( smNormal, smPartyClassic, smPartyFree, smPartyChallenge, smPartyTournament, smPlaylistRandom , smMedley );
 
   TMedleySource = ( msNone, msCalculated, msTag );
 
@@ -134,9 +134,9 @@ type
     PreviewStart: real;   // in seconds
     Medley:     TMedley;  // medley params
 
+    Validated: boolean;
     isDuet: boolean;
     DuetNames:  array of UTF8String; // duet singers name
-
     hasRap: boolean;
 
     Score:      array[0..2] of array of TScore;
@@ -297,8 +297,10 @@ begin
   Self.Video := PATH_NONE;
   Self.VideoGAP := 0;
   Self.Creator := '';
+  Self.Fixer   := '';
   Self.PreviewStart := 0;
   Self.Medley.Source := msNone;
+  Self.Validated := true;
   Self.isDuet := false;
   SetLength(Self.DuetNames, 2);
   Self.DuetNames[0] := 'P1';
@@ -311,7 +313,7 @@ begin
 end;
 
 type
-  EUSDXParseException = class(Exception);
+  EUSWPParseException = class(Exception);
 
 {**
  * Parses the Line string starting from LinePos for a parameter.
@@ -319,7 +321,7 @@ type
  * After the call LinePos will point to the position after the first trailing
  * whitespace.
  *
- * Raises an EUSDXParseException if no string was found.
+ * Raises an EUSWPParseException if no string was found.
  *
  * Example:
  *   ParseLyricParam(Line:'Param0  Param1 Param2', LinePos:8, ...)
@@ -355,7 +357,7 @@ begin
   if (StartLyric = 0) then
   begin
     LinePos := OldLinePos;
-    raise EUSDXParseException.Create('String expected');
+    raise EUSWPParseException.Create('String expected');
   end
   else
   begin
@@ -379,7 +381,7 @@ begin
   begin // on convert error
     Result := 0;
     LinePos := OldLinePos;
-    raise EUSDXParseException.Create('Integer expected');
+    raise EUSWPParseException.Create('Integer expected');
   end;
 end;
 
@@ -561,6 +563,14 @@ begin
     if (High(Lines[I].Line) >= 0) then
       Lines[I].Line[High(Lines[I].Line)].LastLine := true;
   end;
+
+  I := Self.Lines[0].Line[High(Self.Lines[0].Line)].Note[High(Self.Lines[0].Line[High(Self.Lines[0].Line)].Note)].End_;
+  if (Self.Medley.StartBeat > I) or (Self.Medley.EndBeat > I) then
+  begin
+    Log.LogError('Medley out of range: '+Self.FullPath);
+    Exit;
+  end;
+
   //TODO idk why do it only in windows
   {$IFDEF MSWINDOWS}
     Self.MD5 := MD5Print(MD5String(Self.MD5));

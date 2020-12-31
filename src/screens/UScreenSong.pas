@@ -30,6 +30,7 @@ interface
 {$I switches.inc}
 
 uses
+  UAvatars,
   UCommon,
   UIni,
   UMenu,
@@ -59,8 +60,11 @@ type
       TextNumber: integer;
       TextTitle: integer;
       TextYear: integer;
+      TextCreator: integer;
+      TextFixer: integer;
       procedure ColorDuetNameSingers;
-      procedure LoadCover(Const I: integer);
+      procedure EnableSearch(const Enable: boolean);
+      procedure LoadCover(const I: integer);
       procedure LoadMainCover();
       procedure OnSongSelect(Preview: boolean = true);
       procedure SetJoker();
@@ -73,29 +77,24 @@ type
       procedure SetListScroll();
       procedure StartPreview();
       procedure StopPreview();
-      procedure UnloadCover(Const I: integer);
+      procedure UnloadCover(const I: integer);
     public
-      MakeMedley:   boolean;
-
       //Video Icon Mod
       VideoIcon: cardinal;
 
       //Medley Icons
       MedleyIcon:     cardinal;
       CalcMedleyIcon: cardinal;
-      TextMedleyArtist:   array of integer;
-      TextMedleyTitle:    array of integer;
-      TextMedleyNumber:   array of integer;
-      StaticMedley:   array of integer;
-
-      //Duet Icon
-      DuetIcon:     cardinal;
-      DuetChange:   boolean;
-
-      //Rap Icon
-      RapIcon:     cardinal;
-
-      TextCat:   integer;
+      DuetIcon: integer;
+      DuetChange: boolean;
+      RapIcon: integer;
+      CreatorIcon: integer;
+      FixerIcon: integer;
+      UnvalidatedIcon: integer;
+      SearchIcon: integer;
+      SearchTextPlaceholder: integer;
+      SearchText: integer;
+      TextCat: integer;
 
       SongCurrent:  real;
       SongTarget:   real;
@@ -105,15 +104,20 @@ type
       CoverTime:    real;
 
       //Scores
-      TextScore:       integer;
-      TextMaxScore:    integer;
-      TextMediaScore:  integer;
-      TextMaxScore2:   integer;
-      TextMediaScore2: integer;
-      TextScoreUser:   integer;
-      TextMaxScoreLocal:    integer;
-      TextMediaScoreLocal:  integer;
-      TextScoreUserLocal:   integer;
+      TextMyScores: integer;
+      TextWebsite: integer;
+      TextUserLocalScore1: integer;
+      TextUserLocalScore2: integer;
+      TextUserLocalScore3: integer;
+      TextLocalScore1: integer;
+      TextLocalScore2: integer;
+      TextLocalScore3: integer;
+      TextUserOnlineScore1: integer;
+      TextUserOnlineScore2: integer;
+      TextUserOnlineScore3: integer;
+      TextOnlineScore1: integer;
+      TextOnlineScore2: integer;
+      TextOnlineScore3: integer;
 
       //Party Mod
       Mode: TSingMode;
@@ -130,14 +134,19 @@ type
       // for list songmenu
       StaticList: array of integer;
 
-      ListTextArtist:     array of integer;
-      ListTextTitle:      array of integer;
-      ListTextYear:       array of integer;
-      ListVideoIcon:      array of integer;
-      ListMedleyIcon:     array of integer;
+      ListTextArtist: array of integer;
+      ListTextTitle: array of integer;
+      ListTextYear: array of integer;
+      ListTextCreator: array of integer;
+      ListTextFixer: array of integer;
+      ListVideoIcon: array of integer;
+      ListMedleyIcon: array of integer;
       ListCalcMedleyIcon: array of integer;
-      ListDuetIcon:       array of integer;
-      ListRapIcon:        array of integer;
+      ListDuetIcon: array of integer;
+      ListRapIcon: array of integer;
+      ListCreatorIcon: array of integer;
+      ListFixerIcon: array of integer;
+      ListUnvalidatedIcon: array of integer;
 
       PlayMidi: boolean;
       MidiFadeIn: boolean;
@@ -205,6 +214,7 @@ implementation
 
 uses
   Math,
+  md5,
   sdl2,
   SysUtils,
   StrUtils,
@@ -219,10 +229,11 @@ uses
   UNote,
   UPath,
   UPlaylist,
-  UScreenPlayerSelection,
+  UScreenPlayerSelector,
   UScreenPopup,
+  UScreenScore,
+  UScreenSingController,
   UScreenSongMenu,
-  UScreenSongJumpto,
   USkins,
   UThemes,
   UTime,
@@ -236,7 +247,7 @@ const
 // ***** Public methods ****** //
 function TScreenSong.FreeListMode: boolean;
 begin
-  Result := (Mode in [smNormal, smPartyTournament, smPartyFree, smJukebox]);
+  Result := (Mode in [smNormal, smPartyTournament, smPartyFree]);
 end;
 
 // Method for input parsing. If false is returned, GetNextWindow
@@ -273,17 +284,25 @@ begin
   begin
     Result := ScreenSongMenu.ParseInput(PressedKey, CharCode, PressedDown);
     Exit;
-  end
-  else if (ScreenSongJumpto.Visible) then
-  begin
-    Result := ScreenSongJumpto.ParseInput(PressedKey, CharCode, PressedDown);
-    Exit;
   end;
 
   if (PressedDown) then
   begin // Key Down
-    SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
+    if
+      Self.FreeListMode()
+      and (not Self.Text[Self.SearchTextPlaceholder].Visible)
+      and UUnicodeUtils.IsPrintableChar(CharCode)
+    then
+    begin
+      if Length(Self.Text[Self.SearchText].Text) < 25 then
+      begin
+        Self.Text[Self.SearchText].Text := Self.Text[Self.SearchText].Text+UUnicodeUtils.UCS4ToUTF8String(CharCode);
+        Self.SetSubselection(Self.Text[Self.SearchText].Text);
+      end;
+      Exit;
+    end;
 
+    SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
     //jump to artist or title letter
     if Self.FreeListMode() and ((SDL_ModState = KMOD_LCTRL) or (SDL_ModState = KMOD_LALT)) then
     begin
@@ -308,142 +327,44 @@ begin
           end;
         end;
       end;
-      Exit;
     end;
-
-    // check normal keys
-    case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-        begin
-          Result := false;
-          Exit;
-        end;
-
-      Ord('K'):
-        begin
-          UAudioPlaybackBase.ToggleVoiceRemoval();
-          Self.StartPreview();
-          Exit;
-        end;
-
-      Ord('F'):
-        begin
-          if (Mode = smNormal) and (SDL_ModState = KMOD_LSHIFT) and MakeMedley then
-          begin
-            if Length(PlaylistMedley.Song)>0 then
-            begin
-              SetLength(PlaylistMedley.Song, Length(PlaylistMedley.Song)-1);
-              PlaylistMedley.NumMedleySongs := Length(PlaylistMedley.Song);
-            end;
-
-            if Length(PlaylistMedley.Song)=0 then
-              MakeMedley := false;
-          end else if (Mode = smNormal) and (CatSongs.Song[Interaction].Medley.Source>=msCalculated) and
-            (Length(getVisibleMedleyArr(msCalculated)) > 0) then
-          begin
-            MakeMedley := true;
-            StartMedley(99, msCalculated);
-          end;
-        end;
-      Ord('J'):
-        if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
-          UGraphic.ScreenSongJumpto.Visible := true;
-      Ord('M'): //Show SongMenu
-        if USongs.CatSongs.GetVisibleSongs() > 0 then
-        begin
-          if Self.MakeMedley then
-            UGraphic.ScreenSongMenu.MenuShow(SM_Medley)
-          else if Self.Mode = smJukebox then
-            UGraphic.ScreenSongMenu.MenuShow(SM_Jukebox)
-          else if Self.Mode = smNormal then
-            if USongs.CatSongs.Song[Interaction].Main then
-              UGraphic.ScreenSongMenu.MenuShow(SM_Sorting)
-            else if USongs.CatSongs.CatNumShow = -3 then
-              UGraphic.ScreenSongMenu.MenuShow(SM_Playlist)
-            else
-              UGraphic.ScreenSongMenu.MenuShow(SM_Main)
-          else
-            UGraphic.ScreenSongMenu.MenuShow(IfThen(Self.Mode = smPartyClassic, SM_Party_Main, SM_Party_Free_Main));
-        end;
-      Ord('O'):
-        if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
-          UGraphic.ScreenSongMenu.MenuShow(SM_Sorting);
-      Ord('P'):
-        if (USongs.CatSongs.GetVisibleSongs() > 0) and Self.FreeListMode() then
-          UGraphic.ScreenSongMenu.MenuShow(SM_Playlist_Load);
-      Ord('S'):
-        begin
-          if not (SDL_ModState = KMOD_LSHIFT) and (CatSongs.Song[Interaction].Medley.Source>=msTag)
-            and not MakeMedley and (Mode = smNormal) then
-            StartMedley(0, msTag)
-          else if not MakeMedley and
-            (CatSongs.Song[Interaction].Medley.Source>=msCalculated) and
-            (Mode = smNormal)then
-            StartMedley(0, msCalculated);
-        end;
-
-      Ord('D'):
-        begin
-          if not (SDL_ModState = KMOD_LSHIFT) and (Mode = smNormal) and
-            (Length(getVisibleMedleyArr(msTag)) > 0) and not MakeMedley then
-            StartMedley(5, msTag)
-          else if (Mode = smNormal) and not MakeMedley and
-            (length(getVisibleMedleyArr(msCalculated))>0) then
-            StartMedley(5, msCalculated);
-        end;
-
-      Ord('R'):
-        if Self.FreeListMode() and (not SlowChessboardScroll()) then
-          Self.SelectRandomSong(SDL_ModState = KMOD_LSHIFT);
-
-      Ord('W'):
-        begin
-
-          if not CatSongs.Song[Interaction].Main then
-          begin
-            WebList := '';
-
-            for I:= 0 to High(Database.NetworkUser) do
-            begin
-              DllMan.LoadWebsite(I);
-              if (DllMan.WebsiteVerifySong(WideString(CatSongs.Song[Interaction].MD5)) = 'OK_SONG') then
-                WebList := Database.NetworkUser[I].Website + #13
-            end;
-
-            if (WebList <> '') then
-              ScreenPopupInfo.ShowPopup(Format(Language.Translate('WEBSITE_EXIST_SONG'), [WebList]))
-            else
-              ScreenPopupError.ShowPopup(Language.Translate('WEBSITE_NOT_EXIST_SONG'));
-          end;
-        end;
-
-    end; // normal keys
 
     // check special keys
     case PressedKey of
-      SDLK_ESCAPE, SDLK_BACKSPACE:
-      begin
-        Self.CloseMessage();
-        case Mode of
-          smJukebox:
-            Self.FadeTo(@ScreenJukeboxPlaylist);
-          smPartyClassic:
-            Self.CheckFadeTo(@ScreenMain,'MSG_END_PARTY');
-          smPartyFree:
-            Self.FadeTo(@ScreenPartyNewRound);
-          smPartyTournament:
-            Self.FadeTo(@ScreenPartyTournamentRounds);
-          else
-            if USongs.CatSongs.CatNumShow <> -1 then
-              Self.SetSubselection()
+      SDLK_BACKSPACE:
+        begin
+          if not Self.Text[Self.SearchTextPlaceholder].Visible then
+          begin
+            Self.Text[Self.SearchText].DeleteLastLetter();
+            Self.SetSubselection(Self.Text[Self.SearchText].Text);
+            Exit;
+          end;
+          Self.ParseInput(SDLK_ESCAPE, 0, true);
+        end;
+      SDLK_ESCAPE:
+        if Self.FreeListMode() and (not Self.Text[Self.SearchTextPlaceholder].Visible) then
+          Self.ParseInput(SDLK_F3, 0, true)
+        else
+        begin
+          Self.CloseMessage();
+          case Mode of
+            smPartyClassic:
+              Self.CheckFadeTo(@ScreenMain,'MSG_END_PARTY');
+            smPartyFree:
+              Self.FadeTo(@ScreenPartyNewRound);
+            smPartyTournament:
+              Self.FadeTo(@ScreenPartyTournamentRounds);
             else
-              Self.FadeTo(@ScreenMain);
-        end
-      end;
+              if USongs.CatSongs.CatNumShow <> -1 then
+                Self.SetSubselection()
+              else
+                Self.FadeTo(@ScreenMain);
+          end;
+        end;
       SDLK_RETURN:
         begin
-          CloseMessage();
-          if (Songs.SongList.Count > 0) then
+          Self.CloseMessage();
+          if USongs.CatSongs.GetVisibleSongs() > 0 then
           begin
             if USongs.CatSongs.Song[Self.Interaction].Main then
               Self.SetSubselection(USongs.CatSongs.Song[Self.Interaction].OrderNum, sfCategory)
@@ -453,16 +374,14 @@ begin
 
               if (Mode = smNormal) then //Normal Mode -> Start Song
               begin
-                if MakeMedley then
+                if (SDL_ModState and KMOD_CTRL) <> 0 then
+                  Self.StartMedley(0, USongs.CatSongs.Song[Self.Interaction].Medley.Source)
+                else if (SDL_ModState and KMOD_SHIFT) <> 0 then
                 begin
-                  Mode := smMedley;
-
-                  //Do the Action that is specified in Ini
-                  case Ini.OnSongClick of
-                    0: FadeTo(@ScreenSing);
-                    1: SelectPlayers;
-                    2: FadeTo(@ScreenSing);
-                  end;
+                  if Length(getVisibleMedleyArr(msTag)) > 0 then
+                    Self.StartMedley(5, msTag)
+                  else if Length(getVisibleMedleyArr(msCalculated)) > 0 then
+                    Self.StartMedley(5, msCalculated)
                 end
                 else
                 begin
@@ -496,17 +415,6 @@ begin
                 if (Mode = smPartyTournament) then
                 begin
                   ScreenSong.StartSong;
-                end;
-
-                if (Mode = smJukebox) then
-                begin
-                  if (Length(ScreenJukebox.JukeboxSongsList) > 0) then
-                  begin
-                    ScreenJukebox.CurrentSongID := ScreenJukebox.JukeboxVisibleSongs[0];
-                    FadeTo(@ScreenJukebox);
-                  end
-                  else
-                    ScreenPopupError.ShowPopup(Language.Translate('PARTY_MODE_JUKEBOX_NO_SONGS'));
                 end;
               end;
           end;
@@ -559,28 +467,73 @@ begin
               end;
             end;
         end;
-      SDLK_SPACE:
-        begin
-          if (Mode = smJukebox) and (not CatSongs.Song[Interaction].Main) then
-            ScreenJukebox.AddSongToJukeboxList(Interaction);
-
-          if (Mode = smNormal) and (USongs.CatSongs.Song[Interaction].isDuet) then
-          begin
-            Self.DuetChange := not Self.DuetChange;
-            Self.SetScroll(true);
-          end;
-        end;
       SDLK_1..SDLK_3: //use teams jokers
+        if
+          (Self.Mode = smPartyClassic)
+          and (High(UParty.Party.Teams) >= PressedKey - SDLK_1)
+          and (UParty.Party.Teams[PressedKey - SDLK_1].JokersLeft > 0) then
         begin
-          if
-            (Self.Mode = smPartyClassic)
-            and (High(UParty.Party.Teams) >= PressedKey - SDLK_1)
-            and (UParty.Party.Teams[PressedKey - SDLK_1].JokersLeft > 0) then
-          begin
-            Dec(UParty.Party.Teams[PressedKey - SDLK_1].JokersLeft);
-            Self.SelectRandomSong();
-            Self.SetJoker();
+          Dec(UParty.Party.Teams[PressedKey - SDLK_1].JokersLeft);
+          Self.SelectRandomSong();
+          Self.SetJoker();
+        end;
+      SDLK_F2: //toggle duet names
+        if (Self.Mode = smNormal) and (USongs.CatSongs.Song[Self.Interaction].isDuet) then
+        begin
+          Self.DuetChange := not Self.DuetChange;
+          Self.SetScroll(true);
+        end;
+      SDLK_F3: //show search
+        begin
+          Self.Text[Self.SearchText].Text := ''; //needed on hide
+          Self.EnableSearch(Self.Text[Self.SearchTextPlaceholder].Visible);
+        end;
+      SDLK_F4: //random song
+        if Self.FreeListMode() and (not SlowChessboardScroll()) then
+          Self.SelectRandomSong(SDL_ModState = KMOD_LSHIFT);
+      SDLK_F5: //reload songs
+        if Self.FreeListMode() then
+        begin
+          if not Self.Text[Self.SearchTextPlaceholder].Visible then
+            Self.ParseInput(SDLK_ESCAPE, 0, true);
+
+          Self.FadeTo(@UGraphic.ScreenMain);
+          UGraphic.ScreenMain.ReloadSongs();
+        end;
+      SDLK_F6: //online update songs
+        if (not Usongs.CatSongs.Song[Self.Interaction].Main) and Self.FreeListMode() then
+          UGraphic.ScreenPopupScoreDownload.ShowPopup(0, IfThen(SDL_GetModState and KMOD_CTRL <> 0, 1, 0), 0);
+      SDLK_F7: //voice removal
+        begin
+          UAudioPlaybackBase.ToggleVoiceRemoval();
+          Self.StartPreview();
+        end;
+      SDLK_F10: //show menu
+        begin
+          I := -1;
+          case Self.Mode of
+            smPartyClassic:
+              I := SM_Party_Main;
+            smPartyTournament,
+            smPartyFree:
+              I := SM_Party_Free_Main;
+            else
+              if USongs.CatSongs.GetVisibleSongs() > 0 then
+                if USongs.CatSongs.Song[Self.Interaction].Main then
+                  I := SM_Sorting
+                else if USongs.CatSongs.CatNumShow = -2 then
+                  I := SM_Song
+                else if USongs.CatSongs.CatNumShow = -3 then
+                  I := SM_Playlist
+                else if SDL_GetModState and KMOD_ALT <> 0 then
+                  I := SM_Sorting
+                else if SDL_GetModState and KMOD_CTRL <> 0 then
+                  I := SM_Playlist_Load
+                else
+                  I := SM_Main
           end;
+          if I <> -1 then
+            UGraphic.ScreenSongMenu.MenuShow(I);
         end;
     end;
   end;
@@ -588,65 +541,90 @@ end;
 
 function TScreenSong.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
 var
-  B, CoverX, CoverY: integer;
+  B, I, J, CoverX, CoverY: integer;
 begin
   Result := true;
-  if BtnDown then
-    if UGraphic.ScreenSongMenu.Visible then
-      Result := UGraphic.ScreenSongMenu.ParseMouse(MouseButton, BtnDown, X, Y)
-    else if UGraphic.ScreenSongJumpTo.Visible then
-      Result := UGraphic.ScreenSongJumpTo.ParseMouse(MouseButton, BtnDown, X, Y)
-    else
-    begin
-      Self.TransferMouseCords(X, Y);
-      case MouseButton of
-        SDL_BUTTON_LEFT: //sing or move to the selected song/page
-          begin
-            if Self.FreeListMode() then
-              if //current song
-                Self.InRegion(X, Y, Self.Button[Self.Interaction].GetMouseOverArea()) //button
-                or Self.InRegion(X, Y, Self.Statics[0].GetMouseOverArea()) //song info
-                or (Self.Statics[Self.MainCover].Visible and Self.InRegion(X, Y, Self.Statics[Self.MainCover].GetMouseOverArea())) //main cover
-              then
-                Self.ParseInput(SDLK_RETURN, 0, true)
-              else
-                case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
-                  smList: //current song in list mode
-                    if
-                      (X > UThemes.Theme.Song.ListCover.X)
-                      and (X < UThemes.Theme.Song.ListCover.X + UThemes.Theme.Song.ListCover.W)
-                      and (Y > UThemes.Theme.Song.ListCover.Y)
-                      and (Y < UThemes.Theme.Song.ListCover.Y + (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding) * UThemes.Theme.Song.Cover.Rows)
-                    then
-                      Self.ParseInput(SDLK_RETURN, 0, true);
-                  smChessboard: //left arrows to move a entire page
-                    if Self.InRegion(X, Y, Self.Statics[1].GetMouseOverArea()) then //arrow to page up
-                      Self.ParseInput(SDLK_PAGEUP, 0, true)
-                    else if Self.InRegion(X, Y, Self.Statics[2].GetMouseOverArea()) then //arrow to page down
-                      Self.ParseInput(SDLK_PAGEDOWN, 0, true);
-                  else
-                    for B := 0 to High(Self.Button) do
-                      if Self.Button[B].Visible and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) then
-                      begin
-                        Self.SkipTo(B);
-                        Exit();
-                      end;
-                end;
-          end;
-        SDL_BUTTON_RIGHT: //go back
-          if Self.RightMbESC then
-            Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
-        SDL_BUTTON_MIDDLE: //open song menu
-          Self.ParseInput(0, Ord('M'), true);
-        SDL_BUTTON_WHEELDOWN: //next song
-          Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_RIGHT, SDLK_DOWN), 0, true);
-        SDL_BUTTON_WHEELUP: //previous song
-          Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_LEFT, SDLK_UP), 0, true);
-      end
-    end
-  else if Self.FreeListMode() then //hover cover
+  if UGraphic.ScreenSongMenu.Visible then
+    Result := UGraphic.ScreenSongMenu.ParseMouse(MouseButton, BtnDown, X, Y)
+  else if BtnDown then
   begin
     Self.TransferMouseCords(X, Y);
+    case MouseButton of
+      SDL_BUTTON_LEFT: //sing or move to the selected song/page
+        begin
+          if
+            Self.InRegion(X, Y, Self.Button[Self.Interaction].GetMouseOverArea()) //button
+            or (Self.Statics[Self.MainCover].Visible and Self.InRegion(X, Y, Self.Statics[Self.MainCover].GetMouseOverArea())) //main cover
+          then
+            Self.ParseInput(SDLK_RETURN, 0, true)
+          else if Self.InRegion(X, Y, Self.Statics[Self.SearchIcon].GetMouseOverArea()) then
+            Self.EnableSearch(true)
+          else
+          begin
+            if Self.Mode = smPartyClassic then
+              for I := 0 to UParty.PartyTeamsMax - 1 do
+                for J := 0 to UParty.PartyJokers - 1 do
+                  if
+                    Self.InRegion(X, Y, Self.Statics[Self.StaticTeamJoker[I][J]].GetMouseOverArea())
+                    and Self.Statics[Self.StaticTeamJoker[I][J]].Visible
+                  then
+                    Self.ParseInput(IfThen(I = 0, SDLK_1, IfThen(I = 1, SDLK_2, SDLK_3)), 0, true);
+
+            if (not Self.Text[Self.SearchTextPlaceholder].Visible) and (Self.Text[Self.SearchText].Text = '') then
+              Self.EnableSearch(false);
+
+            case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
+              smList: //current song in list mode
+                if
+                  (X > UThemes.Theme.Song.ListCover.X)
+                  and (X < UThemes.Theme.Song.ListCover.X + UThemes.Theme.Song.ListCover.W)
+                  and (Y > UThemes.Theme.Song.ListCover.Y)
+                  and (Y < UThemes.Theme.Song.ListCover.Y + (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding) * UThemes.Theme.Song.Cover.Rows)
+                then
+                  Self.ParseInput(SDLK_RETURN, 0, true);
+              smChessboard: //left arrows to move a entire page
+                if Self.FreeListMode() then
+                begin
+                  if Self.InRegion(X, Y, Self.Statics[1].GetMouseOverArea()) then //arrow to page up
+                    Self.ParseInput(SDLK_PAGEUP, 0, true)
+                  else if Self.InRegion(X, Y, Self.Statics[2].GetMouseOverArea()) then //arrow to page down
+                    Self.ParseInput(SDLK_PAGEDOWN, 0, true);
+                end;
+              else
+                if Self.FreeListMode() then
+                  for B := 0 to High(Self.Button) do
+                    if Self.Button[B].Visible and Self.InRegion(X, Y, Self.Button[B].GetMouseOverArea()) then
+                    begin
+                      Self.SkipTo(B);
+                      Exit();
+                    end;
+            end;
+          end;
+        end;
+      SDL_BUTTON_RIGHT: //go back
+        if //open song menu
+          Self.InRegion(X, Y, Self.Button[Self.Interaction].GetMouseOverArea()) //button
+          or (Self.Statics[Self.MainCover].Visible and Self.InRegion(X, Y, Self.Statics[Self.MainCover].GetMouseOverArea())) //main cover
+        then
+          Self.ParseInput(SDLK_F10, 0, true)
+        else if Self.RightMbESC then
+          Result := Self.ParseInput(SDLK_ESCAPE, 0, true);
+      SDL_BUTTON_MIDDLE: //open song menu
+        Self.ParseInput(SDLK_F10, 0, true);
+      SDL_BUTTON_WHEELDOWN: //next song
+        Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_RIGHT, SDLK_DOWN), 0, true);
+      SDL_BUTTON_WHEELUP: //previous song
+        Self.ParseInput(IfThen(UThemes.Theme.Song.Cover.Rows = 1, SDLK_LEFT, SDLK_UP), 0, true);
+    end
+  end
+  else if Self.FreeListMode() and (not UGraphic.ScreenSongMenu.Visible) then //hover cover
+  begin
+    Self.TransferMouseCords(X, Y);
+    Self.Statics[Self.SearchIcon].Texture.Alpha := IfThen(
+      (not Self.Text[Self.SearchTextPlaceholder].Visible) or Self.InRegion(X, Y, Self.Statics[Self.SearchIcon].GetMouseOverArea()),
+      1,
+      UThemes.Theme.Song.SearchIcon.Alpha
+    );
     B := Round(Self.SongTarget);
     case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
       smList:
@@ -658,12 +636,16 @@ begin
         then
           B := Self.MinLine + (Y - UThemes.Theme.Song.ListCover.Y) div (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding);
       smChessboard, smMosaic:
-        if (X >= UThemes.Theme.Song.Cover.X) and (Y >= UThemes.Theme.Song.Cover.Y) then
         begin
-          CoverX := (X - UThemes.Theme.Song.Cover.X) div (UThemes.Theme.Song.Cover.W + UThemes.Theme.Song.Cover.Padding);
-          CoverY := (Y - UThemes.Theme.Song.Cover.Y) div (UThemes.Theme.Song.Cover.H + UThemes.Theme.Song.Cover.Padding);
-          if (CoverX < UThemes.Theme.Song.Cover.Cols) and (CoverY < UThemes.Theme.Song.Cover.Rows) then
-            B := (Self.MinLine + CoverY) * UThemes.Theme.Song.Cover.Cols + CoverX;
+          Self.Statics[1].Texture.Alpha := IfThen(Self.InRegion(X, Y, Self.Statics[1].GetMouseOverArea()), 1, UThemes.Theme.Song.Statics[1].Alpha);
+          Self.Statics[2].Texture.Alpha := IfThen(Self.InRegion(X, Y, Self.Statics[2].GetMouseOverArea()), 1, UThemes.Theme.Song.Statics[2].Alpha);
+          if (X >= UThemes.Theme.Song.Cover.X) and (Y >= UThemes.Theme.Song.Cover.Y) then
+          begin
+            CoverX := (X - UThemes.Theme.Song.Cover.X) div (UThemes.Theme.Song.Cover.W + UThemes.Theme.Song.Cover.Padding);
+            CoverY := (Y - UThemes.Theme.Song.Cover.Y) div (UThemes.Theme.Song.Cover.H + UThemes.Theme.Song.Cover.Padding);
+            if (CoverX < UThemes.Theme.Song.Cover.Cols) and (CoverY < UThemes.Theme.Song.Cover.Rows) then
+              B := (Self.MinLine + CoverY) * UThemes.Theme.Song.Cover.Cols + CoverX;
+          end;
         end;
     end;
     if (B < USongs.CatSongs.GetVisibleSongs()) and (CompareValue(Self.SongTarget, B) <> 0) then
@@ -673,11 +655,9 @@ begin
   end;
 end;
 
-constructor TScreenSong.Create;
+constructor TScreenSong.Create();
 var
   I, J, Num, Padding: integer;
-  TextArtistY, TextTitleY, TextYearY, StaticMedCY,
-  StaticMedMY, StaticVideoY, StaticDuetY, StaticRapY: integer;
   StaticY: real;
 begin
   inherited Create;
@@ -692,22 +672,35 @@ begin
   Self.TextNumber := Self.AddText(UThemes.Theme.Song.TextNumber);
   Self.TextTitle := Self.AddText(UThemes.Theme.Song.TextTitle);
   Self.TextYear := Self.AddText(UThemes.Theme.Song.TextYear);
+  Self.TextCreator := Self.AddText(UThemes.Theme.Song.TextCreator);
+  Self.TextFixer := Self.AddText(UThemes.Theme.Song.TextFixer);
   Self.CalcMedleyIcon := Self.AddStatic(UThemes.Theme.Song.CalculatedMedleyIcon);
   Self.DuetIcon := Self.AddStatic(UThemes.Theme.Song.DuetIcon);
   Self.MedleyIcon := Self.AddStatic(UThemes.Theme.Song.MedleyIcon);
   Self.RapIcon := Self.AddStatic(UThemes.Theme.Song.RapIcon);
   Self.VideoIcon := Self.AddStatic(UThemes.Theme.Song.VideoIcon);
+  Self.CreatorIcon := Self.AddStatic(UThemes.Theme.Song.CreatorIcon);
+  Self.FixerIcon := Self.AddStatic(UThemes.Theme.Song.FixerIcon);
+  Self.UnvalidatedIcon := Self.AddStatic(UThemes.Theme.Song.UnvalidatedIcon);
+  Self.SearchIcon := Self.AddStatic(UThemes.Theme.Song.SearchIcon);
+  Self.SearchTextPlaceholder := Self.AddText(UThemes.Theme.Song.SearchTextPlaceholder);
+  Self.SearchText := Self.AddText(UThemes.Theme.Song.SearchText);
 
   //Show Scores
-  TextScore       := AddText(Theme.Song.TextScore);
-  TextMaxScore    := AddText(Theme.Song.TextMaxScore);
-  TextMediaScore  := AddText(Theme.Song.TextMediaScore);
-  TextMaxScore2   := AddText(Theme.Song.TextMaxScore2);
-  TextMediaScore2 := AddText(Theme.Song.TextMediaScore2);
-  TextScoreUser   := AddText(Theme.Song.TextScoreUser);
-  TextMaxScoreLocal   := AddText(Theme.Song.TextMaxScoreLocal);
-  TextMediaScoreLocal := AddText(Theme.Song.TextMediaScoreLocal);
-  TextScoreUserLocal  := AddText(Theme.Song.TextScoreUserLocal);
+  Self.TextMyScores := Self.AddText(UThemes.Theme.Song.TextMyScores);
+  Self.TextWebsite := Self.AddText(UThemes.Theme.Song.TextWebsite);
+  Self.TextUserLocalScore1 := Self.AddText(UThemes.Theme.Song.TextUserLocalScore1);
+  Self.TextUserLocalScore2 := Self.AddText(UThemes.Theme.Song.TextUserLocalScore2);
+  Self.TextUserLocalScore3 := Self.AddText(UThemes.Theme.Song.TextUserLocalScore3);
+  Self.TextLocalScore1 := Self.AddText(UThemes.Theme.Song.TextLocalScore1);
+  Self.TextLocalScore2 := Self.AddText(UThemes.Theme.Song.TextLocalScore2);
+  Self.TextLocalScore3 := Self.AddText(UThemes.Theme.Song.TextLocalScore3);
+  Self.TextUserOnlineScore1 := Self.AddText(UThemes.Theme.Song.TextUserOnlineScore1);
+  Self.TextUserOnlineScore2 := Self.AddText(UThemes.Theme.Song.TextUserOnlineScore2);
+  Self.TextUserOnlineScore3 := Self.AddText(UThemes.Theme.Song.TextUserOnlineScore3);
+  Self.TextOnlineScore1 := Self.AddText(UThemes.Theme.Song.TextOnlineScore1);
+  Self.TextOnlineScore2 := Self.AddText(UThemes.Theme.Song.TextOnlineScore2);
+  Self.TextOnlineScore3 := Self.AddText(UThemes.Theme.Song.TextOnlineScore3);
 
   //Party Mode
   for I := 0 to UParty.PartyTeamsMax - 1 do
@@ -765,20 +758,6 @@ begin
   Self.Text3PlayersDuetSingerP2 := Self.AddText(UThemes.Theme.Song.Text3PlayersDuetSingerP2);
   Self.Text3PlayersDuetSingerP3 := Self.AddText(UThemes.Theme.Song.Text3PlayersDuetSingerP3);
 
-  // Medley Playlist
-  SetLength(TextMedleyArtist, Theme.Song.TextMedleyMax);
-  SetLength(TextMedleyTitle, Theme.Song.TextMedleyMax);
-  SetLength(TextMedleyNumber, Theme.Song.TextMedleyMax);
-  SetLength(StaticMedley, Theme.Song.TextMedleyMax);
-
-  for I := 0 to Theme.Song.TextMedleyMax - 1 do
-  begin
-    TextMedleyArtist[I] := AddText(Theme.Song.TextArtistMedley[I]);
-    TextMedleyTitle[I] := AddText(Theme.Song.TextTitleMedley[I]);
-    TextMedleyNumber[I] := AddText(Theme.Song.TextNumberMedley[I]);
-    StaticMedley[I] := AddStatic(Theme.Song.StaticMedley[I]);
-  end;
-
   Self.MainCover := Self.AddStatic(UThemes.Theme.Song.MainCover);
 
   Num := IfThen(UIni.TSongMenuMode(UIni.Ini.SongMenu) = smList, UThemes.Theme.Song.Cover.Rows, 0);
@@ -809,50 +788,46 @@ begin
   SetLength(ListTextArtist, Num);
   SetLength(ListTextTitle, Num);
   SetLength(ListTextYear, Num);
+  SetLength(ListTextCreator, Num);
+  SetLength(ListTextFixer, Num);
   SetLength(ListVideoIcon, Num);
   SetLength(ListMedleyIcon, Num);
   SetLength(ListCalcMedleyIcon, Num);
   SetLength(ListDuetIcon, Num);
   SetLength(ListRapIcon, Num);
-
-  TextArtistY := Theme.Song.TextArtist.Y;
-  TextTitleY := Theme.Song.TextTitle.Y;
-  TextYearY := Theme.Song.TextYear.Y;
-
-  StaticVideoY := Theme.Song.VideoIcon.Y;
-  StaticMedMY := Theme.Song.MedleyIcon.Y;
-  StaticMedCY := Theme.Song.CalculatedMedleyIcon.Y;
-  StaticDuetY := Theme.Song.DuetIcon.Y;
-  StaticRapY := Theme.Song.RapIcon.Y;
+  SetLength(ListCreatorIcon, Num);
+  SetLength(ListFixerIcon, Num);
+  SetLength(Self.ListUnvalidatedIcon, Num);
 
   for I := 0 to Num - 1 do
   begin
-    Padding := I * (Theme.Song.ListCover.H + Theme.Song.ListCover.Padding);
-
-    Theme.Song.TextArtist.Y  := TextArtistY + Padding;
-
-    ListTextArtist[I] := AddText(Theme.Song.TextArtist);
-
-    Theme.Song.TextTitle.Y  := TextTitleY + Padding;
-    ListTextTitle[I]  := AddText(Theme.Song.TextTitle);
-
-    Theme.Song.TextYear.Y  := TextYearY + Padding;
-    ListTextYear[I]   := AddText(Theme.Song.TextYear);
-
-    Theme.Song.VideoIcon.Y  := StaticVideoY + Padding;
-    ListVideoIcon[I]  := AddStatic(Theme.Song.VideoIcon);
-
-    Theme.Song.MedleyIcon.Y  := StaticMedMY + Padding;
-    ListMedleyIcon[I] := AddStatic(Theme.Song.MedleyIcon);
-
-    Theme.Song.CalculatedMedleyIcon.Y  := StaticMedCY + Padding;
-    ListCalcMedleyIcon[I] := AddStatic(Theme.Song.CalculatedMedleyIcon);
-
-    Theme.Song.DuetIcon.Y  := StaticDuetY + Padding;
-    ListDuetIcon[I] := AddStatic(Theme.Song.DuetIcon);
-
-    Theme.Song.RapIcon.Y  := StaticRapY + Padding;
-    ListRapIcon[I] := AddStatic(Theme.Song.RapIcon);
+    Self.ListTextArtist[I] := Self.AddText(UThemes.Theme.Song.TextArtist);
+    Self.ListTextTitle[I] := Self.AddText(UThemes.Theme.Song.TextTitle);
+    Self.ListTextYear[I] := Self.AddText(UThemes.Theme.Song.TextYear);
+    Self.ListTextCreator[I] := Self.AddText(UThemes.Theme.Song.TextCreator);
+    Self.ListTextFixer[I] := Self.AddText(UThemes.Theme.Song.TextFixer);
+    Self.ListVideoIcon[I] := Self.AddStatic(UThemes.Theme.Song.VideoIcon);
+    Self.ListMedleyIcon[I] := Self.AddStatic(UThemes.Theme.Song.MedleyIcon);
+    Self.ListCalcMedleyIcon[I] := Self.AddStatic(UThemes.Theme.Song.CalculatedMedleyIcon);
+    Self.ListDuetIcon[I] := Self.AddStatic(UThemes.Theme.Song.DuetIcon);
+    Self.ListRapIcon[I] := Self.AddStatic(UThemes.Theme.Song.RapIcon);
+    Self.ListCreatorIcon[I] := Self.AddStatic(UThemes.Theme.Song.CreatorIcon);
+    Self.ListFixerIcon[I] := Self.AddStatic(UThemes.Theme.Song.FixerIcon);
+    Self.ListUnvalidatedIcon[I] := Self.AddStatic(UThemes.Theme.Song.UnvalidatedIcon);
+    Padding := I * (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding);
+    Self.Text[Self.ListTextArtist[I]].Y := Self.Text[Self.ListTextArtist[I]].Y + Padding;
+    Self.Text[Self.ListTextTitle[I]].Y := Self.Text[Self.ListTextTitle[I]].Y + Padding;
+    Self.Text[Self.ListTextYear[I]].Y := Self.Text[Self.ListTextYear[I]].Y + Padding;
+    Self.Text[Self.ListTextCreator[I]].Y := Self.Text[Self.ListTextCreator[I]].Y + Padding;
+    Self.Text[Self.ListTextFixer[I]].Y := Self.Text[Self.ListTextFixer[I]].Y + Padding;
+    Self.Statics[Self.ListVideoIcon[I]].Texture.Y := Self.Statics[Self.ListVideoIcon[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListMedleyIcon[I]].Texture.Y := Self.Statics[Self.ListMedleyIcon[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListCalcMedleyIcon[I]].Texture.Y := Self.Statics[Self.ListCalcMedleyIcon[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListDuetIcon[I]].Texture.Y := Self.Statics[Self.ListDuetIcon[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListRapIcon[I]].Texture.Y := Self.Statics[Self.ListRapIcon[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListCreatorIcon[I]].Texture.Y := Self.Statics[Self.ListCreatorIcon[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListFixerIcon[I]].Texture.Y := Self.Statics[Self.ListFixerIcon[I]].Texture.Y + Padding;
+    Self.Statics[Self.ListUnvalidatedIcon[I]].Texture.Y := Self.Statics[Self.ListUnvalidatedIcon[I]].Texture.Y + Padding;
   end;
 
   Self.MinLine := 0;
@@ -982,21 +957,17 @@ begin
       else if (Pos > VS / 2) then
         Pos := Pos - VS;
 
-      // Avoid overlapping of the front covers.
-      // Use an alternate position for the five front covers.
-      if (Abs(Pos) < 2.5) then
+      if (Abs(Pos) < 3.5) then //7 covers
       begin
         Self.LoadCover(I);
-        Angle := Pi * (Pos / Min(VS, 5)); // Range: (-1/4*Pi .. +1/4*Pi)
-        B.H := Abs(Theme.Song.Cover.H * AutoWidthCorrection * Cos(Angle * 0.8));
-        B.W := Abs(Theme.Song.Cover.W * Cos(Angle * 0.8));
-        // B.Reflectionspacing := 15 * B.H / Theme.Song.Cover.H;
-        B.DeSelectReflectionspacing := 15 * B.H / Theme.Song.Cover.H;
-        B.X := Theme.Song.Cover.X + Theme.Song.Cover.W * Sin(Angle * 1.3) * 0.9 * 1.6 - (B.W - Theme.Song.Cover.W) / 2;
-        B.Y := ((Theme.Song.Cover.Y) + ((Theme.Song.Cover.H) - Abs(Theme.Song.Cover.H * Cos(Angle))) * 0.5) - (B.H - (B.H / AutoWidthCorrection));
+        Angle := Pi * (Pos / Min(VS, 7)); // Range: (-1/4*Pi .. +1/4*Pi)
+        B.H := Abs(UThemes.Theme.Song.Cover.H * AutoWidthCorrection * Cos(Angle * 0.8));
+        B.W := Abs(UThemes.Theme.Song.Cover.W * Cos(Angle * 0.8));
+        B.X := UThemes.Theme.Song.Cover.X + UThemes.Theme.Song.Cover.W * Sin(Angle * 1.25) * 2.4 - (B.W - UThemes.Theme.Song.Cover.W) / 2;
+        B.Y := ((UThemes.Theme.Song.Cover.Y) + ((UThemes.Theme.Song.Cover.H) - Abs(UThemes.Theme.Song.Cover.H * Cos(Angle))) * 0.5) - (B.H - (B.H / AutoWidthCorrection));
         B.Z := 0.95 - Abs(Pos) * 0.01;
         B.SetSelect(true);
-        B.Texture.Alpha := 1;
+        B.Reflection := true;
       end
       //only draw 5 visible covers in the background (the 5 that are on the opposite of the front covers
       else if (VS > 9) and (Abs(Pos) > Floor(VS / 2) - 2.5) then
@@ -1012,17 +983,14 @@ begin
         else
           Pos := (Pos + 2 - Floor(VS / 2)) / 8 + 0.75;
 
-        // angle in radians [-2Pi..-Pi, +Pi..+2Pi]
-        Angle := 2 * Pi * Pos;
-        B.H := 0.6 * (Theme.Song.Cover.H - Abs(Theme.Song.Cover.H * Cos(Angle / 2) * 0.8));
-        B.W := 0.6 * (Theme.Song.Cover.W - Abs(Theme.Song.Cover.W * Cos(Angle / 2) * 0.8));
-        B.X := Theme.Song.Cover.X + Theme.Song.Cover.W / 2 - B.W / 2 + Theme.Song.Cover.W / 320 * (Theme.Song.Cover.W * Sin(Angle / 2) * 1.52);
-        B.Y := Theme.Song.Cover.Y - (B.H - Theme.Song.Cover.H) * 0.75;
-        B.Z := (0.4 - Abs(Pos / 4)) - 0.00001; //z < 0.49999 is behind the cover 1 is in front of the covers
-        B.SetSelect(true);
-        B.Texture.Alpha := 1;
-        //B.Reflectionspacing := 15 * B.H / Theme.Song.Cover.H;
-        B.DeSelectReflectionspacing := 15 * B.H / Theme.Song.Cover.H;
+        Angle := Pi * Pos;
+        B.H := UThemes.Theme.Song.Cover.H - Abs(UThemes.Theme.Song.Cover.H * Cos(Angle) * 0.6);
+        B.W := UThemes.Theme.Song.Cover.W - Abs(UThemes.Theme.Song.Cover.W * Cos(Angle) * 0.6);
+        B.X := UThemes.Theme.Song.Cover.X + (UThemes.Theme.Song.Cover.W * Sin(Angle) * 2.4) - (B.W - UThemes.Theme.Song.Cover.W) / 2;
+        B.Y := UThemes.Theme.Song.Cover.Y - (B.H - Theme.Song.Cover.H) * 0.5;
+        B.Z := 0.4;
+        B.SetSelect(false);
+        B.Reflection := false;
       end
       else
         Self.UnloadCover(I);
@@ -1083,7 +1051,9 @@ begin
       end;
       Inc(Index);
     end;
-    if not Self.Button[Self.Interaction].Visible then
+    if USongs.CatSongs.GetVisibleSongs() = 0 then
+      Self.SkipTo(0)
+    else if not Self.Button[Self.Interaction].Visible then
     begin
       Self.MinLine := Ceil((USongs.CatSongs.FindVisibleIndex(Self.Interaction) + 1 - Cols * Rows) / Cols);
       if (Line - Self.MinLine) > Rows then //to decrease line when push up (or pag up) key
@@ -1377,12 +1347,22 @@ begin
         Self.Statics[ListDuetIcon[I]].Visible := USongs.CatSongs.Song[B].isDuet;
         Self.Statics[ListRapIcon[I]].Texture.Alpha := Alpha;
         Self.Statics[ListRapIcon[I]].Visible := USongs.CatSongs.Song[B].hasRap;
+        Self.Statics[ListCreatorIcon[I]].Texture.Alpha := Alpha;
+        Self.Statics[ListCreatorIcon[I]].Visible := USongs.CatSongs.Song[B].Creator <> '';
+        Self.Statics[ListFixerIcon[I]].Texture.Alpha := Alpha;
+        Self.Statics[ListFixerIcon[I]].Visible := USongs.CatSongs.Song[B].Fixer <> '';
+        Self.Statics[Self.ListUnvalidatedIcon[I]].Texture.Alpha := Alpha;
+        Self.Statics[Self.ListUnvalidatedIcon[I]].Visible := USongs.CatSongs.Song[B].Validated;
         Self.Text[ListTextArtist[I]].Alpha := Alpha;
         Self.Text[ListTextArtist[I]].Text := USongs.CatSongs.Song[B].Artist;
         Self.Text[ListTextTitle[I]].Alpha := Alpha;
         Self.Text[ListTextTitle[I]].Text := USongs.CatSongs.Song[B].Title;
         Self.Text[ListTextYear[I]].Alpha := Alpha;
         Self.Text[ListTextYear[I]].Text := IfThen(USongs.CatSongs.Song[B].Year <> 0, IntToStr(USongs.CatSongs.Song[B].Year), '');
+        Self.Text[ListTextCreator[I]].Alpha := Alpha;
+        Self.Text[ListTextCreator[I]].Text := USongs.CatSongs.Song[B].Creator;
+        Self.Text[ListTextFixer[I]].Alpha := Alpha;
+        Self.Text[ListTextFixer[I]].Text := USongs.CatSongs.Song[B].Fixer;
       end
       else
         Self.UnloadCover(B);
@@ -1395,15 +1375,50 @@ end;
 
 procedure TScreenSong.OnShow();
 var
-  I: integer;
+  Avatar: TAvatar;
+  Col: TRGB;
+  I, J: integer;
   Visible: boolean;
 begin
   inherited;
   if not Assigned(UGraphic.ScreenSongMenu) then //load the screens only the first time
   begin
-    UGraphic.ScreenSongMenu := TScreenSongMenu.Create();
-    UGraphic.ScreenSongJumpto := TScreenSongJumpto.Create();
-    UGraphic.ScreenPopupScoreDownload := TScreenPopupScoreDownload.Create();
+    //TODO move avatar load to UAvatar
+    UIni.Ini.SingColor := UIni.Ini.PlayerColor; //FIXME remove this variable in all files
+    UNote.PlayersPlay:= UIni.IPlayersVals[UIni.Ini.Players]; //FIXME set this variable is needed to see avatars in scores screen!
+    J := 1;
+    for I := 1 to High(AvatarsList) do
+      if GetArrayIndex(UIni.Ini.PlayerAvatar, UpperCase(MD5Print(MD5File(AvatarsList[I].ToNative())))) <> -1 then
+      begin
+        Avatar := Avatars.FindAvatar(AvatarsList[I]);
+        if (Avatar <> nil) then
+          UAvatars.AvatarPlayerTextures[J] := Avatar.GetTexture()
+        else
+        begin
+          UAvatars.AvatarPlayerTextures[J] := UTexture.Texture.LoadTexture(Skin.GetTextureFileName('NoAvatar_P'+IntToStr(J)), TEXTURE_TYPE_TRANSPARENT, $FFFFFF);
+          Col := UThemes.GetPlayerColor(UIni.Ini.PlayerColor[J]);
+          UAvatars.AvatarPlayerTextures[J].ColR := Col.R;
+          UAvatars.AvatarPlayerTextures[J].ColG := Col.G;
+          UAvatars.AvatarPlayerTextures[J].ColB := Col.B;
+        end;
+        FreeAndNil(Avatar);
+        Inc(J);
+      end;
+
+    for I := J to UIni.IPlayersVals[UIni.Ini.Players] do
+    begin
+        UAvatars.AvatarPlayerTextures[I] := UTexture.Texture.LoadTexture(Skin.GetTextureFileName('NoAvatar_P'+IntToStr(J)), TEXTURE_TYPE_TRANSPARENT, $FFFFFF);
+        Col := UThemes.GetPlayerColor(UIni.Ini.PlayerColor[I - 1]);
+        UAvatars.AvatarPlayerTextures[I].ColR := Col.R;
+        UAvatars.AvatarPlayerTextures[I].ColG := Col.G;
+        UAvatars.AvatarPlayerTextures[I].ColB := Col.B;
+    end;
+    UThemes.LoadPlayersColors();
+    UThemes.Theme.ThemeScoreLoad();
+    UGraphic.ScreenScore := UScreenScore.TScreenScore.Create();
+    UGraphic.ScreenSing := UScreenSingController.TScreenSingController.Create();
+    UGraphic.ScreenSongMenu := UScreenSongMenu.TScreenSongMenu.Create();
+    UGraphic.ScreenPopupScoreDownload := UScreenPopup.TScreenPopupScoreDownload.Create();
   end;
 
   Self.CloseMessage();
@@ -1429,35 +1444,34 @@ begin
   // reset video playback engine
   CurrentVideo := nil;
 
-  // reset Medley-Playlist
   SetLength(PlaylistMedley.Song, 0);
-  MakeMedley := false;
 
   if Mode = smMedley then
     Mode := smNormal;
 
-  if Ini.Players <= 3 then PlayersPlay := Ini.Players + 1;
-  if Ini.Players  = 4 then PlayersPlay := 6;
+  UNote.PlayersPlay := IfThen(UIni.Ini.Players = 4, 6, UIni.Ini.Players + 1);
 
-  if Self.Mode = smPartyClassic then
-  begin
-    Self.SelectRandomSong();
-    if UIni.Ini.PartyPopup = 1 then
-      UGraphic.ScreenSongMenu.MenuShow(SM_Party_Main);
-  end
-  else
+  Visible := not (Self.Mode = smPartyClassic);
+  Self.Statics[Self.SearchIcon].Visible := Visible;
+  Self.Text[Self.SearchTextPlaceholder].Visible := Visible;
+  Self.Text[Self.SearchText].Visible := Visible;
+  if Visible then
   begin
     Self.Refresh(UIni.Ini.Sorting, UIni.Ini.Tabs = 1, UIni.Ini.ShowDuets = 1);
     if (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow = -1) then //fix scroll on show and when enter after on first time with a category selected in the middle of the list
       Self.SetSubselection();
+
+    if Self.Text[Self.SearchText].Text <> '' then
+      Self.EnableSearch(true);
+  end
+  else
+  begin
+    Self.SelectRandomSong();
+    if UIni.Ini.PartyPopup = 1 then
+      UGraphic.ScreenSongMenu.MenuShow(SM_Party_Main);
   end;
 
   Self.SetScroll(true);
-
-  if (ScreenSong.Mode = smJukebox) and (Ini.PartyPopup = 1) then
-    ScreenSongMenu.MenuShow(SM_Jukebox);
-
-  Self.IsScrolling := false;
   Self.SetJoker();
 
   //Set Visibility of Party Statics and Text
@@ -1491,6 +1505,15 @@ var
   I, J:       integer;
   Increment: real;
 begin
+  Result := true;
+  if Self.Text[Self.SearchTextPlaceholder].Visible or UGraphic.ScreenSongMenu.Visible then
+  begin
+    Self.Text[Self.SearchText].Selected := false;
+    if (USongs.CatSongs.GetVisibleSongs() = 0) then //needed on song refresh
+      Exit()
+  end
+  else if not Self.Text[Self.SearchText].Selected then
+    Self.Text[Self.SearchText].Selected := true;
 
   FadeMessage();
 
@@ -1532,68 +1555,6 @@ begin
   for I := 0 to Length(StaticsList) - 1 do
   begin
     StaticsList[I].Draw;
-  end;
-
-  // Jukebox Playlist
-  if (Mode = smJukebox) then
-  begin
-    if Length(ScreenJukebox.JukeboxSongsList) > Theme.Song.TextMedleyMax then
-      J := Length(ScreenJukebox.JukeboxSongsList) - Theme.Song.TextMedleyMax
-    else
-      J := 0;
-
-    for I := 0 to Theme.Song.TextMedleyMax - 1 do
-    begin
-      if (Length(ScreenJukebox.JukeboxSongsList) > I + J) then
-      begin
-        Text[TextMedleyArtist[I]].Visible := true;
-        Text[TextMedleyTitle[I]].Visible  := true;
-        Text[TextMedleyNumber[I]].Visible := true;
-        Statics[StaticMedley[I]].Visible  := true;
-
-        Text[TextMedleyNumber[I]].Text := IntToStr(I + 1 + J);
-        Text[TextMedleyArtist[I]].Text := CatSongs.Song[ScreenJukebox.JukeboxSongsList[I + J]].Artist;
-        Text[TextMedleyTitle[I]].Text  := CatSongs.Song[ScreenJukebox.JukeboxSongsList[I + J]].Title;
-      end
-      else
-      begin
-        Text[TextMedleyArtist[I]].Visible := false;
-        Text[TextMedleyTitle[I]].Visible  := false;
-        Text[TextMedleyNumber[I]].Visible := false;
-        Statics[StaticMedley[I]].Visible  := false;
-      end;
-    end;
-  end
-  else
-  begin
-
-    //Medley Playlist
-    if Length(PlaylistMedley.Song) > Theme.Song.TextMedleyMax then
-      J := Length(PlaylistMedley.Song) - Theme.Song.TextMedleyMax
-    else
-      J := 0;
-
-    for I := 0 to Theme.Song.TextMedleyMax - 1 do
-    begin
-      if (Length(PlaylistMedley.Song) > I + J) and (MakeMedley) then
-      begin
-        Text[TextMedleyArtist[I]].Visible := true;
-        Text[TextMedleyTitle[I]].Visible  := true;
-        Text[TextMedleyNumber[I]].Visible := true;
-        Statics[StaticMedley[I]].Visible  := true;
-
-        Text[TextMedleyNumber[I]].Text := IntToStr(I + 1 + J);
-        Text[TextMedleyArtist[I]].Text := CatSongs.Song[PlaylistMedley.Song[I + J]].Artist;
-        Text[TextMedleyTitle[I]].Text  := CatSongs.Song[PlaylistMedley.Song[I + J]].Title;
-      end
-      else
-      begin
-        Text[TextMedleyArtist[I]].Visible := false;
-        Text[TextMedleyTitle[I]].Visible  := false;
-        Text[TextMedleyNumber[I]].Visible := false;
-        Statics[StaticMedley[I]].Visible  := false;
-      end;
-    end;
   end;
 
   //Instead of Draw FG Procedure:
@@ -1664,16 +1625,11 @@ begin
 
   Equalizer.Draw;
 
-  //Draw Song Menu
-  if ScreenSongMenu.Visible then
-    ScreenSongMenu.Draw
-  else if ScreenSongJumpto.Visible then
-    ScreenSongJumpto.Draw;
+  if UGraphic.ScreenSongMenu.Visible then
+    UGraphic.ScreenSongMenu.Draw();
 
   //if (Mode = smPartyTournament) then
   //  PartyTimeLimit();
-
-  Result := true;
 end;
 
 procedure TScreenSong.StartPreview();
@@ -1806,13 +1762,13 @@ end;
 
 procedure TScreenSong.SelectPlayers;
 begin
-  CatSongs.Selected := Interaction;
+  USongs.CatSongs.Selected := Self.Interaction;
   Self.StopPreview();
   if not Assigned(UGraphic.ScreenPlayerSelector) then
     UGraphic.ScreenPlayerSelector := TScreenPlayerSelector.Create();
 
-  UGraphic.ScreenPlayerSelector.Goto_SingScreen := true;
-  FadeTo(@UGraphic.ScreenPlayerSelector);
+  UGraphic.ScreenPlayerSelector.OpenedInOptions := false;
+  Self.FadeTo(@UGraphic.ScreenPlayerSelector);
 end;
 
 { Set teams jokers colors }
@@ -1833,8 +1789,27 @@ begin
   end;
 end;
 
+{ Enable or disable search box }
+procedure TScreenSong.EnableSearch(const Enable: boolean);
+begin
+  if not Self.FreeListMode() then
+    Exit;
+
+  if Enable and (USongs.CatSongs.GetVisibleSongs() <> 0) then
+  begin
+    Self.Text[Self.SearchTextPlaceholder].Visible := false;
+    Self.Statics[Self.SearchIcon].Texture.Alpha := 1;
+  end
+  else
+  begin
+    Self.Text[Self.SearchTextPlaceholder].Visible := true;
+    Self.Statics[Self.SearchIcon].Texture.Alpha := UThemes.Theme.Song.SearchIcon.Alpha;
+    Self.SetSubselection();
+  end
+end;
+
 { Load a cover dynamically in a song button }
-procedure TScreenSong.LoadCover(Const I: integer);
+procedure TScreenSong.LoadCover(const I: integer);
 begin
   if Self.Button[I].Texture.TexNum = 0 then
   begin
@@ -1845,7 +1820,7 @@ begin
 end;
 
 { Unload a cover and hide his button }
-procedure TScreenSong.UnloadCover(Const I: integer);
+procedure TScreenSong.UnloadCover(const I: integer);
 begin
   Self.Button[I].Visible := false;
   if (Self.Button[I].Texture.TexNum <> 0) and (Self.Button[I].Texture.TexNum <> Self.DefaultCover.TexNum) then
@@ -1893,9 +1868,10 @@ begin
     if I <= High(UParty.Party.Teams) then
     begin
       JokersLeft := UParty.Party.Teams[I].JokersLeft;
-      Self.SetRangeVisibilityStatic(true, [Self.StaticTeamJoker[I][0], Self.StaticTeamJoker[I][JokersLeft - 1]]);
+      Self.SetRangeVisibilityStatic(Self.Mode = smPartyClassic, [Self.StaticTeamJoker[I][0], Self.StaticTeamJoker[I][JokersLeft - 1]]);
     end;
-    Self.SetRangeVisibilityStatic(false, [Self.StaticTeamJoker[I][JokersLeft], Self.StaticTeamJoker[I][UParty.PartyJokers - 1]]);
+    if JokersLeft <= UParty.PartyJokers - 1 then
+      Self.SetRangeVisibilityStatic(false, [Self.StaticTeamJoker[I][JokersLeft], Self.StaticTeamJoker[I][UParty.PartyJokers - 1]]);
   end;
 end;
 
@@ -1917,14 +1893,13 @@ begin
   VisibilityNoList := Visibility and (UIni.TSongMenuMode(UIni.Ini.SongMenu) <> smList);
 
   Self.SetRangeVisibilityStatic(VisibilityNoList, [0, 2]); //0 arrow, 1 song info panel and 2 only for smChessboard down arrow
-  Self.SetRangeVisibilityStatic(VisibilityNoList, [Self.CalcMedleyIcon, Self.VideoIcon]); //icons
+  Self.SetRangeVisibilityStatic(VisibilityNoList, [Self.CalcMedleyIcon, Self.UnvalidatedIcon]); //icons
   Self.Statics[Self.MainCover].Visible := Visibility and (UIni.TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smList, smMosaic]);
   Self.Text[Self.TextArtist].Visible := VisibilityNoList;
   Self.Text[Self.TextNoSongs].Visible := not Visibility;
   Self.Text[Self.TextNumber].Visible := Visibility;
-  Self.Text[Self.TextTitle].Visible := VisibilityNoList;
-  Self.Text[Self.TextYear].Visible := VisibilityNoList;
-  Self.SetRangeVisibility(Visibility and Self.FreeListMode(), [Self.StaticNonParty[0], Self.StaticNonParty[4]], [Self.TextNonParty[0], Self.TextNonParty[4]]); //set legend visibility
+  Self.SetRangeVisibilityText(VisibilityNoList, [Self.TextTitle, Self.TextFixer]);
+  Self.SetRangeVisibility(Visibility and Self.FreeListMode(), [Self.StaticNonParty[0], High(Self.StaticNonParty)], [Self.TextNonParty[0], High(Self.TextNonParty)]); //set legend visibility
   Self.SetRangeVisibility(false, [Self.Static6PlayersDuetSingerP6, Self.Static2PlayersDuetSingerP1], [Self.Text2PlayersDuetSingerP1, Self.Text3PlayersDuetSingerP3]); //hide duets
   for I := 0 to High(Self.StaticsList) do //hide items in smList, too after change from other mode
   begin
@@ -1932,11 +1907,15 @@ begin
     Self.Text[Self.ListTextArtist[I]].Text := '';
     Self.Text[Self.ListTextTitle[I]].Text := '';
     Self.Text[Self.ListTextYear[I]].Text := '';
+    Self.Text[Self.ListTextCreator[I]].Text := '';
+    Self.Text[Self.ListTextFixer[I]].Text := '';
     Self.Statics[Self.ListCalcMedleyIcon[I]].Visible := false;
     Self.Statics[Self.ListDuetIcon[I]].Visible := false;
     Self.Statics[Self.ListMedleyIcon[I]].Visible := false;
     Self.Statics[Self.ListRapIcon[I]].Visible := false;
     Self.Statics[Self.ListVideoIcon[I]].Visible := false;
+    Self.Statics[Self.ListCreatorIcon[I]].Visible := false;
+    Self.Statics[Self.ListUnvalidatedIcon[I]].Visible := false;
   end;
   if Visibility then
   begin
@@ -1948,8 +1927,13 @@ begin
       Self.Statics[Self.MedleyIcon].Visible := (Song.Medley.Source = msTag) and not Song.isDuet;
       Self.Statics[Self.RapIcon].Visible := Song.hasRap;
       Self.Statics[Self.VideoIcon].Visible := Song.Video.IsSet;
+      Self.Statics[Self.CreatorIcon].Visible := Song.Creator <> '';
+      Self.Statics[Self.FixerIcon].Visible := Song.Fixer <> '';
+      Self.Statics[Self.UnvalidatedIcon].Visible := false; //not Song.Validated;
       Self.Text[Self.TextArtist].Text := Song.Artist; //not visible on smList
       Self.Text[Self.TextYear].Text := IfThen(Song.Year <> 0, IntToStr(Song.Year), '');
+      Self.Text[Self.TextCreator].Text := Song.Creator;
+      Self.Text[Self.TextFixer].Text := Song.Fixer;
     end;
     if (USongs.CatSongs.CatNumShow = -1) and (UIni.Ini.Tabs = 1) and Self.FreeListMode() then //list of categories
     begin
@@ -2012,25 +1996,39 @@ begin
       end;
     end;
 
+    Self.Text[Self.TextWebsite].text := UTF8Decode('UltraStar España'); //FIXME use the constant
     if (UIni.Ini.ShowScores > 0) and (Self.Mode = smNormal) and (not Song.isDuet) then //show scores
     begin
-      Self.Text[Self.TextMaxScoreLocal].Text := IntToStr(UDataBase.DataBase.ReadMaxScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]));
-      Self.Text[Self.TextMediaScoreLocal].Text := IntToStr(UDataBase.DataBase.ReadAverageScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]));
-      Self.Text[Self.TextScoreUserLocal].Text := UDataBase.DataBase.ReadUserScoreLocal(Song.Artist, Song.Title, UIni.Ini.PlayerLevel[0]);
+      Self.Text[Self.TextLocalScore1].Text := IntToStr(UDataBase.DataBase.ReadMaxScoreLocal(Song.Artist, Song.Title, 0));
+      Self.Text[Self.TextLocalScore2].Text := IntToStr(UDataBase.DataBase.ReadMaxScoreLocal(Song.Artist, Song.Title, 1));
+      Self.Text[Self.TextLocalScore3].Text := IntToStr(UDataBase.DataBase.ReadMaxScoreLocal(Song.Artist, Song.Title, 2));
+      Self.Text[Self.TextUserLocalScore1].Text := UDataBase.DataBase.ReadUserScoreLocal(Song.Artist, Song.Title, 0);
+      Self.Text[Self.TextUserLocalScore2].Text := UDataBase.DataBase.ReadUserScoreLocal(Song.Artist, Song.Title, 1);
+      Self.Text[Self.TextUserLocalScore3].Text := UDataBase.DataBase.ReadUserScoreLocal(Song.Artist, Song.Title, 2);
+
       if (High(UDllManager.DLLMan.Websites) >= 0) then
       begin
-        Self.Text[Self.TextMaxScore2].Text := IntToStr(UDataBase.DataBase.ReadMaxScore(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]));
-        Self.Text[Self.TextMediaScore2].Text := IntToStr(UDataBase.DataBase.ReadAverageScore(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]));
-        Self.Text[Self.TextScore].Text := UTF8Encode(UDllManager.DLLMan.Websites[UIni.Ini.ShowWebScore].Name);
-        Self.Text[Self.TextScoreUser].Text := UDataBase.DataBase.ReadUser_Score(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, UIni.Ini.PlayerLevel[0]);
+        Self.Text[Self.TextOnlineScore1].Text := IntToStr(UDataBase.DataBase.ReadMaxScore(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, 0));
+        Self.Text[Self.TextOnlineScore2].Text := IntToStr(UDataBase.DataBase.ReadMaxScore(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, 1));
+        Self.Text[Self.TextOnlineScore3].Text := IntToStr(UDataBase.DataBase.ReadMaxScore(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, 2));
+        Self.Text[Self.TextUserOnlineScore1].Text := UDataBase.DataBase.ReadUser_Score(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, 0);
+        Self.Text[Self.TextUserOnlineScore2].Text := UDataBase.DataBase.ReadUser_Score(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, 1);
+        Self.Text[Self.TextUserOnlineScore3].Text := UDataBase.DataBase.ReadUser_Score(Song.Artist, Song.Title, DllMan.Websites[UIni.Ini.ShowWebScore].ID, 2);
       end;
       //show local score, web score and captions
-      Self.SetRangeVisibilityText((UIni.Ini.ShowScores = 2) or (Self.Text[Self.TextMaxScoreLocal].Text <> '0'), [Self.TextMaxScoreLocal, Self.TextScoreUserLocal]);
-      Self.SetRangeVisibilityText((UIni.Ini.ShowScores = 2) or (Self.Text[Self.TextMaxScore2].Text <> '0'), [Self.TextMaxScore2, Self.TextScoreUser]);
-      Self.SetRangeVisibilityText(Self.Text[Self.TextMaxScoreLocal].Visible or Self.Text[Self.TextMaxScore2].Visible, [Self.TextScore, Self.TextMediaScore]);
+      Self.SetRangeVisibilityText(
+        (UIni.Ini.ShowScores = 2) or (Self.Text[Self.TextLocalScore1].Text <> '0'),
+        [Self.TextUserLocalScore1, Self.TextLocalScore3]
+      );
+      Self.Text[Self.TextMyScores].Visible := Self.Text[Self.TextUserLocalScore1].Visible;
+      Self.SetRangeVisibilityText(
+        (UIni.Ini.ShowScores = 2) or ((Self.Text[Self.TextOnlineScore1].Text <> '0') and (Self.Text[Self.TextUserOnlineScore1].Text <> '')),
+        [Self.TextUserOnlineScore1, Self.TextOnlineScore3]
+      );
+      Self.Text[Self.TextWebsite].Visible := Self.Text[Self.TextUserOnlineScore1].Visible;
     end
     else
-      Self.SetRangeVisibilityText(false, [Self.TextMaxScore, Self.TextScoreUserLocal]);
+      Self.SetRangeVisibilityText(false, [Self.TextMyScores, Self.TextOnlineScore3]);
   end;
   case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
     smRoulette: Self.SetRouletteScroll();
@@ -2064,12 +2062,11 @@ begin
         Caption := Format(ULanguage.Language.Translate('PLAYLIST_CATTEXT'), [UPlaylist.PlayListMan.SetPlayList(StrToInt(Id)).Name]);
       end;
     else //search using Id as string to found or show all songs if is empty
-      Caption := IfThen(Id = '', '', ULanguage.Language.Translate('SONG_JUMPTO_TYPE_DESC')+' '+Id);
       if (UIni.Ini.Tabs = 1) and (USongs.CatSongs.CatNumShow > -2) then //move to correct category after leave it or after OnShow if the category is in the middle of the list
         Position := IfThen(USongs.CatSongs.CatNumShow > -1, USongs.CatSongs.CatNumShow - 1, Round(Self.SongTarget));
 
       USongs.CatSongs.SetFilter(Id, sfAll);
-    end;
+  end;
   Self.Text[Self.TextCat].Text := Caption;
   Self.SkipTo(Position, true);
 end;
@@ -2130,7 +2127,7 @@ var
   VS: integer;
 begin
   //Sel3 := 0;
-  if (NumSongs > 0) and not MakeMedley then
+  if (NumSongs > 0) then
   begin
     VS := Length(getVisibleMedleyArr(MinSource));
     if VS < NumSongs then
@@ -2144,22 +2141,15 @@ begin
     begin
       AddSong(GetNextSongNr(MinSource));
     end;
-  end else if not MakeMedley then //start this song
+  end
+  else //start this song
   begin
     SetLength(PlaylistMedley.Song, 1);
     PlaylistMedley.Song[0] := Interaction;
     PlaylistMedley.NumMedleySongs := 1;
-  end
-  else if MakeMedley then
-  begin
-    if (CatSongs.Song[Interaction].Medley.Source >= MinSource) then
-    begin
-      AddSong(Interaction);
-      PlaylistMedley.NumMedleySongs := Length(PlaylistMedley.Song);
-    end;
   end;
 
-  if (Mode = smNormal) and not MakeMedley then
+  if Self.Mode = smNormal then
   begin
     Mode := smMedley;
 
@@ -2176,27 +2166,6 @@ begin
          else
            ScreenSongMenu.MenuShow(SM_Main);
        end;}
-    end;
-  end
-  else if MakeMedley then
-  begin
-    if PlaylistMedley.NumMedleySongs = NumSongs then
-    begin
-      Mode := smMedley;
-      Self.StopPreview();
-
-      //TODO: how about case 2? menu for medley mode?
-      case Ini.OnSongClick of
-        0: FadeTo(@ScreenSing);
-        1: SelectPlayers;
-        2: FadeTo(@ScreenSing);
-        {2: begin
-          if (CatSongs.CatNumShow = -3) then
-            ScreenSongMenu.MenuShow(SM_Playlist)
-          else
-            ScreenSongMenu.MenuShow(SM_Main);
-        end;}
-      end;
     end;
   end;
 end;

@@ -174,8 +174,8 @@ type
 
       Texture_ProgressBar: TTexture;
 
-      List_MD5Song: widestring;
-      Receive_List: array[0..2] of widestring;
+      List_MD5Song: string;
+      Receive_List: array[0..2] of string;
       Actual_Level: integer;
       Position_Receive_List: array[0..2] of integer;
 
@@ -900,7 +900,9 @@ var
   J, Update: integer;
   DeleteSongLevel: array [0..2] of boolean;
 begin
-
+  DeleteSongLevel[0] := false;
+  DeleteSongLevel[1] := false;
+  DeleteSongLevel[2] := false;
   if not(CatSongs.Song[Index_Song].Main) then
   begin
     Actual_Song := Actual_Song + 1;
@@ -1051,8 +1053,7 @@ begin
   Text_WebSituation := IntToStr(Actual_Web) + '/' + IntToStr(Num_Webs);
   Text_SongSituation := Language.Translate('SCORE_DOWNLOAD_RECEIVE_LIST');
 
-  Receive_List[Actual_Level] := '';
-  Receive_List[Actual_Level] := DllMan.WebsiteDownloadScore(List_MD5Song, Actual_Level + 1);
+  Receive_List[Actual_Level] := DllMan.WebsiteDownloadScore(widestring(List_MD5Song), Actual_Level + 1);
 
   if (Receive_List[Actual_Level] = '0') then
   begin

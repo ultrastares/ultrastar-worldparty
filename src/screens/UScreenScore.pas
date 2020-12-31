@@ -158,7 +158,6 @@ type
       StaticLevel:          array[1..UIni.IMaxPlayerCount] of integer;
       StaticLevelRound:     array[1..UIni.IMaxPlayerCount] of integer;
 
-      Animation:            real;
       Voice:                integer;
 
       TextScore_ActualValue:  array[1..UIni.IMaxPlayerCount] of integer;
@@ -167,8 +166,6 @@ type
 
       ButtonSend: array[1..UIni.IMaxPlayerCount] of integer;
       CurrentRound:          integer;
-      StaticNavigate:       integer;
-      TextNavigate:         integer;
 
       procedure RefreshTexts;
       procedure ResetScores;
@@ -247,7 +244,6 @@ procedure SendScore(SendInfo: TSendInfo; Website: integer);
 var
   LoginInfo: TLoginInfo;
   SendStatus: integer;
-  EncryptPassword: widestring;
 begin
 
   // Encrypt Password (with username and password)
@@ -257,10 +253,7 @@ begin
   DllMan.LoadWebsite(Website);
 
   if (ScreenPopUpSendScore.SelectValueU = High(ScreenPopUpSendScore.IUsername)) then
-  begin
-    EncryptPassword := DllMan.WebsiteEncryptPassword(LoginInfo);
-    SendInfo.Password := EncryptPassword;
-  end;
+    SendInfo.Password := DllMan.WebsiteEncryptPassword(LoginInfo);
 
   SendStatus := DllMan.WebsiteSendScore(SendInfo);
 
@@ -279,7 +272,6 @@ end;
 procedure SaveScore(SendInfo: TSendInfo; Website: integer);
 var
   LoginInfo: TLoginInfo;
-  EncryptPassword: widestring;
   ScoreFile: TextFile;
   EncryptText: string;
   WebName: UTF8String;
@@ -291,10 +283,7 @@ begin
   DllMan.LoadWebsite(Website);
 
   if (ScreenPopUpSendScore.SelectValueU = High(ScreenPopUpSendScore.IUsername)) then
-  begin
-    EncryptPassword := DllMan.WebsiteEncryptPassword(LoginInfo);
-    SendInfo.Password := EncryptPassword;
-  end;
+    SendInfo.Password := DllMan.WebsiteEncryptPassword(LoginInfo);
 
   WebName := UDataBase.DataBase.NetworkUser[Website].Website;
 
@@ -358,15 +347,6 @@ begin
   Result := true;
   if (PressedDown) then
   begin
-    // check normal keys
-    case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-        begin
-          Result := false;
-          Exit;
-        end;
-    end;
-
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -472,7 +452,6 @@ end;
 
 function TScreenScore.ParseMouse(MouseButton: Integer; BtnDown: Boolean; X, Y: integer): boolean;
 var
-  min_y, max_y, min_x, max_x: real;
   button_s: integer;
 begin
   Result := True;
@@ -485,11 +464,6 @@ begin
   else
     button_s := ButtonSend[3];
   end;
-
-  min_x := Button[button_s].X;
-  min_y := Button[button_s].Y;
-  max_x := Button[button_s].X + Button[button_s].W;
-  max_y := Button[button_s].Y + Button[button_s].H;
 
   // transfer mousecords to the 800x600 raster we use to draw
   X := Round((X / (Screen^.w / Screens)) * RenderW);
@@ -580,10 +554,9 @@ begin
           PlayerNum2 := PlayerNum + 2;
         end;
 
-        4..6: begin
+        else //4..6
           PlayerNum := P - 3;
           PlayerNum2 := PlayerNum + 3;
-        end;
       end;
 
       for I := 0 to High(PlayerStatic[P]) do
@@ -634,10 +607,9 @@ begin
           PlayerNum2 := PlayerNum + 2;
         end;
 
-        4..6: begin
+        else // 4..6
           PlayerNum := P - 3;
           PlayerNum2 := PlayerNum + 3;
-        end;
       end;
 
       for I := 0 to High(PlayerBoxTextures[P]) do
@@ -651,10 +623,9 @@ begin
             StaticNum := StaticBoxLight[P];
             ThemeStatic := Theme.Score.StaticBoxLight[P];
           end;
-          2: begin
+          else //2
             StaticNum := StaticBoxDark[P];
             ThemeStatic := Theme.Score.StaticBoxDark[P];
-          end;
         end;
         // copy current statics texture to texture for screen 1
         PlayerBoxTextures[P, I, 1].Tex := Statics[StaticNum].Texture;
@@ -692,7 +663,7 @@ end;
 //TODO: adapt for players 7 to 12
 procedure TScreenScore.SwapToScreen(Screen: integer);
 var
-  P, I, J, Max: integer;
+  P, I, Max: integer;
   Col: TRGB;
 begin
 
@@ -824,7 +795,6 @@ var
   Player:  integer;
   Counter: integer;
   I: integer;
-  Col: TRGB;
   R, G, B: real;
   Col2: integer;
   ArrayStartModifier: integer;
@@ -910,7 +880,6 @@ begin
     aPlayerScoreScreenTextures[Player].Score_NoteBarRound_Lightest := Tex_Score_NoteBarRound_Lightest[Player];
   end;
 
-  //TODO: adapt for players 7 to 12
   // avatars
   case PlayersPlay of
     1: ArrayStartModifier := 0;
@@ -959,9 +928,6 @@ begin
     Statics[AvatarStatic[I + ArrayStartModifier]].Visible := true;
     AvatarStaticRef[I]:=AvatarStatic[I + ArrayStartModifier];
   end;
-
-  StaticNavigate := AddStatic(Theme.Score.StaticNavigate);
-  TextNavigate := AddText(Theme.Score.TextNavigate);
 
   if (PlayersPlay <= 3) or (Screens = 2) then
     LoadSwapTextures;
@@ -1093,7 +1059,6 @@ var
   P: integer;  // player
   I: integer;
   V: array[1..UIni.IMaxPlayerCount] of boolean; // visibility array
-  ArrayStartModifier: integer;
 begin
   if not Assigned(UGraphic.ScreenPopupSendScore) then //load the screens only the first time
   begin
@@ -1117,13 +1082,6 @@ begin
     StartPreview;
     for P := 0 to PlayersPlay - 1 do
       Player[P] := PlaylistMedley.Stats[CurrentRound].Player[P];
-
-    Statics[StaticNavigate].Visible := true;
-    Text[TextNavigate].Visible := true;
-  end else
-  begin
-    Statics[StaticNavigate].Visible := false;
-    Text[TextNavigate].Visible := false;
   end;
 
   MapPlayersToPosition;
@@ -1132,7 +1090,6 @@ begin
   Text[TextTitle].Text       := CurrentSong.Title;
   Text[TextArtistTitle].Text := CurrentSong.Artist + ' - ' + CurrentSong.Title;
 
-  //TODO: adapt for players 7 to 12
   // set visibility
   case PlayersPlay of
     1:  begin
@@ -1183,6 +1140,13 @@ begin
             V[6] := true;
           end;
         end;
+    else
+      V[1] := false;
+      V[2] := false;
+      V[3] := false;
+      V[4] := false;
+      V[5] := false;
+      V[6] := false;
   end;
 
   for P := 1 to UIni.IMaxPlayerCount do
@@ -1587,28 +1551,34 @@ begin
   // let's get the points according to the bar we draw
   // score array starts at 0, which means the score for player 1 is in score[0]
   // EaseOut_Step is the actual step in the raising process, like the 20iest step of EaseOut_MaxSteps
-  if (BarType = sbtScore) then
-  begin
-    Score        := Player[PlayerNumber - 1].ScoreInt;
-    RaiseStep    := BarScore_EaseOut_Step;
-    BarStartPosY := Theme.Score.StaticBackLevel[ThemeIndex].Y + MaxHeight;
-  end
-  else if (BarType = sbtLine) then
-  begin
-    Score        := Player[PlayerNumber - 1].ScoreLineInt;
-    RaiseStep    := BarPhrase_EaseOut_Step;
-    BarStartPosY := Theme.Score.StaticBackLevel[ThemeIndex].Y - aPlayerScoreScreenDatas[PlayerNumber].BarScore_ActualHeight + MaxHeight;
-  end
-  else if (BarType = sbtGolden) then
-  begin
-    Score        := Player[PlayerNumber - 1].ScoreGoldenInt;
-    RaiseStep    := BarGolden_EaseOut_Step;
-    BarStartPosY := Theme.Score.StaticBackLevel[ThemeIndex].Y - aPlayerScoreScreenDatas[PlayerNumber].BarScore_ActualHeight - aPlayerScoreScreenDatas[PlayerNumber].BarLine_ActualHeight + MaxHeight;
+  case BarType of
+    sbtScore:
+      begin
+        Score := Player[PlayerNumber - 1].ScoreInt;
+        RaiseStep := BarScore_EaseOut_Step;
+        BarStartPosY := Theme.Score.StaticBackLevel[ThemeIndex].Y + MaxHeight;
+      end;
+    sbtLine:
+      begin
+        Score := Player[PlayerNumber - 1].ScoreLineInt;
+        RaiseStep := BarPhrase_EaseOut_Step;
+        BarStartPosY := Theme.Score.StaticBackLevel[ThemeIndex].Y - aPlayerScoreScreenDatas[PlayerNumber].BarScore_ActualHeight + MaxHeight;
+      end;
+    sbtGolden:
+      begin
+        Score := Player[PlayerNumber - 1].ScoreGoldenInt;
+        RaiseStep := BarGolden_EaseOut_Step;
+        BarStartPosY := Theme.Score.StaticBackLevel[ThemeIndex].Y - aPlayerScoreScreenDatas[PlayerNumber].BarScore_ActualHeight - aPlayerScoreScreenDatas[PlayerNumber].BarLine_ActualHeight + MaxHeight;
+      end;
+    else
+      Score := 0;
+      RaiseStep := 0;
+      BarStartPosY := 0;
   end;
-
   // the height dependend of the score
   Height2Reach := (Score / MAX_SONG_SCORE) * MaxHeight;
 
+  NewHeight := 0;
   if (aPlayerScoreScreenDatas[PlayerNumber].Bar_Actual_Height < Height2Reach) then
   begin
     // Check http://proto.layer51.com/d.aspx?f=400 for more info on easing functions
@@ -1706,23 +1676,29 @@ var
   EaseOut_Step:     real;
   ActualScoreValue: integer;
 begin
-  if (ScoreType = sbtScore) then
-  begin
-    EaseOut_Step     := BarScore_EaseOut_Step;
-    ActualScoreValue := TextScore_ActualValue[PlayerNumber];
-    ScoreReached     := Player[PlayerNumber-1].ScoreInt;
-  end;
-  if (ScoreType = sbtLine) then
-  begin
-    EaseOut_Step     := BarPhrase_EaseOut_Step;
-    ActualScoreValue := TextPhrase_ActualValue[PlayerNumber];
-    ScoreReached     := Player[PlayerNumber-1].ScoreLineInt;
-  end;
-  if (ScoreType = sbtGolden) then
-  begin
-    EaseOut_Step     := BarGolden_EaseOut_Step;
-    ActualScoreValue := TextGolden_ActualValue[PlayerNumber];
-    ScoreReached     := Player[PlayerNumber-1].ScoreGoldenInt;
+  case ScoreType of
+    sbtScore:
+      begin
+        EaseOut_Step := BarScore_EaseOut_Step;
+        ActualScoreValue := TextScore_ActualValue[PlayerNumber];
+        ScoreReached := Player[PlayerNumber-1].ScoreInt;
+      end;
+    sbtLine:
+      begin
+        EaseOut_Step := BarPhrase_EaseOut_Step;
+        ActualScoreValue := TextPhrase_ActualValue[PlayerNumber];
+        ScoreReached := Player[PlayerNumber-1].ScoreLineInt;
+      end;
+    sbtGolden:
+      begin
+        EaseOut_Step := BarGolden_EaseOut_Step;
+        ActualScoreValue := TextGolden_ActualValue[PlayerNumber];
+        ScoreReached := Player[PlayerNumber-1].ScoreGoldenInt;
+      end;
+    else
+      EaseOut_Step := 0;
+      ActualScoreValue := 0;
+      ScoreReached := 0;
   end;
 
   // EaseOut_Step is the actual step in the raising process, like the 20iest step of EaseOut_MaxSteps
@@ -1798,6 +1774,7 @@ var
   select:   integer;
   changed:  boolean;
 begin
+  select := 0;
   //When Music Preview is activated -> then change music
   if (Ini.PreviewVolume <> 0) then
   begin
@@ -1853,15 +1830,15 @@ begin
 end;
 
 procedure TScreenScore.StartVoice;
-var
-  changed:  boolean;
-  files:    array of string;
-  I:        integer;
+// var
+  // changed:  boolean;
+  // files:    array of string;
+  // I:        integer;
 
 begin
   //Music.Close;
   //ScreenSong.SongIndex := -1;
-  changed := false;
+  //changed := false;
 
   // not implement voice yet
   {

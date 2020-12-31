@@ -37,13 +37,12 @@ uses
 type
   TScreenOptionsGame = class(TMenu)
     private
-      Language, SongMenu: integer;
+      Language, SongMenu: integer; static;
       procedure ReloadScreen();
       procedure ReloadScreens();
     protected
       // interaction IDs
       ButtonExitIID: integer;
-      SelectJoyPad: integer;
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -68,15 +67,6 @@ begin
   Result := true;
   if PressedDown then
   begin // Key Down
-    // check normal keys
-    case UCS4UpperCase(CharCode) of
-      Ord('Q'):
-        begin
-          Result := false;
-          Exit;
-        end;
-    end;
-
     // check special keys
     case PressedKey of
       SDLK_ESCAPE,
@@ -96,9 +86,7 @@ begin
             if Self.SelInteraction = 6 then //rebuild songs arrays with new config
             begin
               UIni.Ini.Save();
-              FreeAndNil(UGraphic.ScreenSong);
-              USongs.CatSongs := TCatSongs.Create();
-              USongs.Songs := TSongs.Create();
+              UGraphic.ScreenMain.ReloadSongs(false);
             end;
 
             AudioPlayback.PlaySound(SoundLib.Option);
@@ -125,8 +113,8 @@ begin
   Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectTabs, UIni.Ini.Tabs, UIni.Switch, 'OPTION_VALUE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectSorting, UIni.Ini.Sorting, UIni.ISorting, 'OPTION_VALUE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectShowScores, UIni.Ini.ShowScores, UIni.IShowScores, 'OPTION_VALUE_');
+  Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectSingScores, UIni.Ini.SingScores, UIni.ISingScores, 'OPTION_VALUE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectFindUnsetMedley, UIni.Ini.FindUnsetMedley, UIni.Switch, 'OPTION_VALUE_');
-  SelectJoyPad := Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectJoypad, UIni.Ini.Joypad, UIni.IJoypad, 'OPTION_VALUE_');
   Self.AddButton(UThemes.Theme.OptionsGame.ButtonExit);
 end;
 
@@ -141,7 +129,7 @@ end;
 // Reload all screens, after Language changed or screen song after songmenu, sorting or tabs changed
 procedure TScreenOptionsGame.ReloadScreens();
 begin
-  UIni.Ini.Save;
+  UIni.Ini.Save();
   if (Self.SongMenu <> UIni.Ini.SongMenu) then
   begin
     UThemes.Theme.ThemeSongLoad();
@@ -166,16 +154,16 @@ end;
 
 procedure TScreenOptionsGame.ReloadScreen();
 begin
-  ULanguage.Language.ChangeLanguage(ILanguage[Ini.Language]);
+  ULanguage.Language.ChangeLanguage(ILanguage[UIni.Ini.Language]);
   UThemes.Theme.OptionsGame.SelectLanguage.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_LANGUAGE');
   UThemes.Theme.OptionsGame.SelectSongMenu.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SONGMENU');
   UThemes.Theme.OptionsGame.SelectDuets.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_DUETS');
   UThemes.Theme.OptionsGame.SelectTabs.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_TABS');
   UThemes.Theme.OptionsGame.SelectSorting.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SORTING');
   UThemes.Theme.OptionsGame.SelectShowScores.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SHOWSCORES');
-  UThemes.Theme.OptionsGame.SelectFindUnsetMedley.Text := ULanguage.Language.Translate('SING_SONG_SELECTION_LEGEND_MEDLEYC');
-  UThemes.Theme.OptionsGame.SelectJoypad.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_JOYPAD_SUPPORT');
-  UThemes.Theme.OptionsGame.ButtonExit.Text[0].Text := ULanguage.Language.Translate('SING_OPTIONS_EXIT');
+  UThemes.Theme.OptionsGame.SelectSingScores.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SINGSCORES');
+  UThemes.Theme.OptionsGame.SelectFindUnsetMedley.Text := ULanguage.Language.Translate('C_MEDLEYC');
+  UThemes.Theme.OptionsGame.ButtonExit.Text[0].Text := ULanguage.Language.Translate('C_BACK');
   UGraphic.ScreenOptionsGame.Free();
   UGraphic.ScreenOptionsGame := TScreenOptionsGame.Create();
 end;

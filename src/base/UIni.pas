@@ -104,7 +104,7 @@ type
       // Players or Teams colors
       SingColor:      array[0..(IMaxPlayerCount-1)] of integer;
 
-      Name:           array[0..15] of UTF8String;
+      Name: array[0..(IMaxPlayerCount-1)] of UTF8String;
       PlayerColor:    array[0..(IMaxPlayerCount-1)] of integer;
       TeamColor:      array[0..2] of integer;
 
@@ -214,10 +214,6 @@ type
       JukeboxTimebarMode:    integer;
       FindUnsetMedley: integer;
 
-      // Controller
-      Joypad:         integer;
-      Mouse:          integer;
-
       // WebCam
       WebCamID:         integer;
       WebcamResolution: integer;
@@ -267,13 +263,13 @@ type
       procedure ClearCustomResolutions();
 
   end;
-
 var
   Ini:         TIni;
   IResolution: TUTF8StringDynArray;
   IResolutionFullScreen: TUTF8StringDynArray;
   IResolutionCustom: TUTF8StringDynArray;
   ILanguage:   TUTF8StringDynArray;
+  LanguageIso: array of UTF8String;
   ITheme:      TUTF8StringDynArray;
 
 {*
@@ -352,7 +348,7 @@ const
   ILyricsAlpha: array[0..19] of UTF8String = ('0.05', '0.10', '0.15', '0.20', '0.25', '0.30', '0.35', '0.40', '0.45', '0.50', '0.55', '0.60', '0.65', '0.70', '0.75', '0.80', '0.85', '0.90', '0.95', '1.00');
 
   //for lyric colors
-  ILine:             array[0..2] of UTF8String = ('Sing', 'Actual', 'Next');
+  ILine:             array[0..2] of UTF8String = ('Sing', 'Top', 'Bottom');
   IProperty: array[0..1] of UTF8String = ('Fill', 'Outline');
   LineColor: array[0..21] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
   LineInactiveColor: array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
@@ -380,10 +376,6 @@ const
 
   ILineBonus:     array[0..1] of UTF8String = ('Off', 'On');
   IPartyPopup:    array[0..1] of UTF8String = ('Off', 'On');
-
-  IJoypad:        array[0..1] of UTF8String = ('Off', 'On');
-  IMouse:         array[0..2] of UTF8String = ('Off', 'System', 'Game');
-  IMouseLegacy:         array[0..2] of UTF8String = ('Off', 'Hardware Cursor', 'Software Cursor'); // use to convert old config option to new
 
   ISingTimebarMode:    array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
   IJukeboxTimebarMode: array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
@@ -423,6 +415,13 @@ var
 implementation
 
 uses
+  gettext,
+  {$IFDEF MSWINDOWS}
+  Windows,
+  {$ELSE}
+  Unix,
+  {$ENDIF}
+  math,
   StrUtils,
   sdl2,
   UCommandLine,
@@ -703,21 +702,16 @@ end;
 procedure TIni.LoadPaths(IniFile: TCustomIniFile);
 var
   PathStrings: TStringList;
-  I:           integer;
+  I: integer;
 begin
-  PathStrings := TStringList.Create;
+  UPathUtils.InitializeSongPaths();
+  PathStrings := TStringList.Create();
   IniFile.ReadSection('Directories', PathStrings);
-
-  // Load song-paths
-  for I := 0 to PathStrings.Count-1 do
-  begin
+  for I := 0 to PathStrings.Count - 1 do
     if (Pos('SONGDIR', UpperCase(PathStrings[I])) = 1) then
-    begin
-      AddSongPath(Path(IniFile.ReadString('Directories', PathStrings[I], '')));
-    end;
-  end;
+      UPathUtils.AddSongPath(UPath.Path(IniFile.ReadString('Directories', PathStrings[I], '')));
 
-  PathStrings.Free;
+  PathStrings.Free();
 end;
 
 procedure TIni.LoadThemes(IniFile: TCustomIniFile);
@@ -887,8 +881,10 @@ end;
 procedure TIni.Load();
 var
   IniFile: TMemIniFile;
-  I:       integer;
+  I: integer;
   IShowWebScore: array of UTF8String;
+  LanguageIsoCode: integer;
+  Lang, FallbackLang: string;
 begin
   GamePath := Platform.GetGameUserPath;
 
@@ -930,10 +926,10 @@ begin
   // Difficulty
   Difficulty := ReadArrayIndex(IDifficulty, IniFile, 'Game', 'Difficulty', IGNORE_INDEX, 'Easy');
 
-  // Language
-  Language := ReadArrayIndex(ILanguage, IniFile, 'Game', 'Language', IGNORE_INDEX, 'English');
-  if Language < 0 then Language := GetArrayIndex(ILanguage, 'English'); // Default to english
-  if Language < 0 then Language := 0; // Default to first available
+  //if language is unset try to find system language or load english at default
+  GetLanguageIDs(Lang, FallbackLang);
+  LanguageIsoCode := GetArrayIndex(LanguageIso, IfThen(Length(Lang) = 2, Lang, Copy(FallbackLang, 1, 2)));
+  Language := ReadArrayIndex(ILanguage, IniFile, 'Game', 'Language', IGNORE_INDEX, ILanguage[IfThen(LanguageIsoCode > -1, LanguageIsoCode, GetArrayIndex(LanguageIso, 'en'))]);
 
   // SongMenu
   SongMenu := ReadArrayIndex(ISongMenuMode, IniFile, 'Game', 'SongMenu', Ord(smChessboard));
@@ -1101,16 +1097,6 @@ begin
   // SyncTo
   SyncTo := ReadArrayIndex(ISyncTo, IniFile, 'Advanced', 'SyncTo', Ord(stMusic));
 
-  // Joypad
-  Joypad := ReadArrayIndex(IJoypad, IniFile, 'Controller', 'Joypad', 0);
-
-  // Mouse
-  Mouse := ReadArrayIndex(IMouse, IniFile, 'Controller', 'Mouse', 2);
-  if Mouse < 0 then // try finding legacy option
-  begin
-    Mouse := ReadArrayIndex(IMouseLegacy, IniFile, 'Controller', 'Mouse', 2);
-  end;
-
   // SingTimebarMode
   SingTimebarMode := ReadArrayIndex(ISingTimebarMode, IniFile, 'Advanced', 'SingTimebarMode', IGNORE_INDEX, 'Remaining');
 
@@ -1141,8 +1127,6 @@ end;
 procedure TIni.Save;
 var
   IniFile: TIniFile;
-  HexColor: string;
-  C: TRGB;
 begin
   try
   begin
@@ -1176,9 +1160,6 @@ begin
   // Show Scores
   IniFile.WriteString('Game', 'ShowScores', IShowScores[ShowScores]);
   IniFile.WriteString('Game', 'FindUnsetMedley', Switch[Self.FindUnsetMedley]);
-
-  // Joypad
-  IniFile.WriteString('Controller', 'Joypad', IJoypad[Joypad]);
 
   // MaxFramerate
   IniFile.WriteInteger('Graphics', 'MaxFramerate', MaxFramerate);
@@ -1317,9 +1298,6 @@ begin
 
   //SyncTo
   IniFile.WriteString('Advanced', 'SyncTo', ISyncTo[SyncTo]);
-
-  // Mouse
-  IniFile.WriteString('Controller', 'Mouse', IMouse[Mouse]);
 
   // SingTimebarMode
   IniFile.WriteString('Advanced', 'SingTimebarMode', ISingTimebarMode[SingTimebarMode]);

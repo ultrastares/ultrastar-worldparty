@@ -138,10 +138,9 @@ type
   end;
 
   TReplayGain_Bass = class(TReplayGain)
-    private
-      procedure Init(); override;
     public
-      class function CanEnable(): boolean; override; static;
+      procedure Init(); override;
+      class function CanEnable(): boolean; override;
 
       function GetType: DWORD; override;
       function GetPriority: LongInt; override;
@@ -724,7 +723,6 @@ end;
 function TAudioPlayback_Bass.EnumDevices(): boolean;
 var
   BassDeviceID: DWORD;
-  DeviceIndex: integer;
   Device: TBassOutputDevice;
   DeviceInfo: BASS_DEVICEINFO;
 begin
