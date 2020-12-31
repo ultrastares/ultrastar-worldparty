@@ -166,8 +166,6 @@ type
 
       ButtonSend: array[1..UIni.IMaxPlayerCount] of integer;
       CurrentRound:          integer;
-      StaticNavigate:       integer;
-      TextNavigate:         integer;
 
       procedure RefreshTexts;
       procedure ResetScores;
@@ -931,9 +929,6 @@ begin
     AvatarStaticRef[I]:=AvatarStatic[I + ArrayStartModifier];
   end;
 
-  StaticNavigate := AddStatic(Theme.Score.StaticNavigate);
-  TextNavigate := AddText(Theme.Score.TextNavigate);
-
   if (PlayersPlay <= 3) or (Screens = 2) then
     LoadSwapTextures;
 
@@ -1087,13 +1082,6 @@ begin
     StartPreview;
     for P := 0 to PlayersPlay - 1 do
       Player[P] := PlaylistMedley.Stats[CurrentRound].Player[P];
-
-    Statics[StaticNavigate].Visible := true;
-    Text[TextNavigate].Visible := true;
-  end else
-  begin
-    Statics[StaticNavigate].Visible := false;
-    Text[TextNavigate].Visible := false;
   end;
 
   MapPlayersToPosition;

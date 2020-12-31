@@ -759,9 +759,6 @@ type
     StaticLevelRound:       array[1..UIni.IMaxPlayerCount] of TThemeStatic;
 
     ButtonSend:  array[1..UIni.IMaxPlayerCount] of TThemeButton;
-
-    StaticNavigate:   TThemeStatic;
-    TextNavigate:     TThemeText;
   end;
 
   TThemeTop5 = class(TThemeBasic)
@@ -1979,9 +1976,6 @@ begin
       // Send Button's
       for I := 1 to 3 do
          ThemeLoadButton(Score.ButtonSend[I], 'ScoreButtonSend' + IntToStr(I));
-
-      ThemeLoadStatic(Score.StaticNavigate, 'ScoreStaticNavigate');
-      ThemeLoadText(Score.TextNavigate, 'ScoreTextNavigate');
 
       // Top5
       ThemeLoadBasic(Top5, 'Top5');
