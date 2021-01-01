@@ -46,5 +46,5 @@ ppaslink.sh
 /game/config.ini
 /game/*.db
 /game/*.log
-/game/WorldParty
+/game/WorldParty*
 /game/webs/*

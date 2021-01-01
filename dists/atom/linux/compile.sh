@@ -5,28 +5,27 @@ then
     echo "Not implemented"
     exit
 fi
-if [ $2 != "execute" ]
+if [[ $2 =~ debug ]]
 then
-    processor=$(uname -m)
-    platform=$(uname -s)
-    target=../build/fpc-$processor-${platform,,}/
-    if [ $2 == "compile" ] || [ $2 == "compile-execute" ]
-    then
-        name=WorldParty
-        parameters=-O4 -Xs
-    else
-        name=WorldPartyDebug
-        parameters=-g -gl -dDEBUG_MODE -Si -Sg -Sc -v0Binwe
-    fi
+    name=WorldPartyDebug
+    parameters="-g -gl -dDEBUG_MODE"
+else
+    name=WorldParty
+    parameters="-O4 -Xs"
+fi
+if [[ $2 =~ compile ]]
+then
+    target=../build/fpc-$(uname -m)-$(uname -s)/
     rm -rf $target ../game/$name
     mkdir -p $target
-    fpc WorldParty.dpr -FE../game -FU$target -o$name
+    fpc WorldParty.dpr -FE../game -FU$target $parameters -o$name
     if [ -f $target/link.res ]
     then
         mv $target/link.res ../res/
     fi
 fi
-if [ -f ../game/$name ] && [ $2 != "compile" ] && [ $2 != "compile-debug" ]
+if [ -f ../game/$name ] && [[ $2 =~ execute ]]
 then
     ../game/$name -Benchmark
 fi
+echo $2
