@@ -283,8 +283,8 @@ function HasJoyStick: boolean;
 
 procedure OnJoystickPollEvent(Event: TSDL_event);
 
-function ifthen(val:boolean;const iftrue:TJoyButtonState; const iffalse:TJoyButtonState = bsReleased): TJoyButtonState; inline; overload;
-function ifthen(val:boolean;const iftrue:TSDL_KeyCode; const iffalse:TSDL_KeyCode = 0): TSDL_KeyCode; inline; overload;
+function ifthen(val:boolean;const iftrue:TJoyButtonState; const iffalse:TJoyButtonState = bsReleased): TJoyButtonState; {$IFDEF HasInline}inline;{$ENDIF} overload;
+function ifthen(val:boolean;const iftrue:TSDL_KeyCode; const iffalse:TSDL_KeyCode = 0): TSDL_KeyCode; {$IFDEF HasInline}inline;{$ENDIF} overload;
 
 function MouseRepeatHandlerFunc(Data: Pointer): integer; cdecl;// forward;
 
