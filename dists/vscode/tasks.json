@@ -168,6 +168,34 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "Execute debug without compile",
+            "type": "shell",
+            "windows": {
+                "command": "dists/atom/windows/compile.bat . execute-debug"
+            },
+            "linux": {
+                "command": "dists/atom/linux/compile.sh . execute-debug"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": {
+                "owner": "external",
+                "pattern": {
+                    "regexp": "^([\\w]+\\.(p|pp|pas))\\((\\d+)\\,(\\d+)\\)\\s(Fatal|Error|Warning|Note):(.*)",
+                    "file": 1,
+                    "line": 3,
+                    "column": 4,
+                    "message": 6
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }

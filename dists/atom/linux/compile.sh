@@ -10,20 +10,23 @@ then
     processor=$(uname -m)
     platform=$(uname -s)
     target=../build/fpc-$processor-${platform,,}/
-    rm -rf ../game/WorldParty* $target
-    mkdir -p $target
-    if [ $2 == "compile-debug" ] || [ $2 == "compile-debug-execute" ]
+    if [ $2 == "compile" ] || [ $2 == "compile-execute" ]
     then
-        fpc WorldParty.dpr -FE../game -FU$target -g -gl -dDEBUG_MODE -Si -Sg -Sc -v0Binwe
+        name=WorldParty
+        parameters=-O4 -Xs
     else
-        fpc WorldParty.dpr -FE../game -FU$target -O4 -Xs
+        name=WorldPartyDebug
+        parameters=-g -gl -dDEBUG_MODE -Si -Sg -Sc -v0Binwe
     fi
+    rm -rf $target ../game/$name
+    mkdir -p $target
+    fpc WorldParty.dpr -FE../game -FU$target -o$name
     if [ -f $target/link.res ]
     then
         mv $target/link.res ../res/
     fi
 fi
-if [ -f ../game/WorldParty ]
+if [ -f ../game/$name ] && [ $2 != "compile" ] && [ $2 != "compile-debug" ]
 then
-    ../game/WorldParty -Benchmark if [ $2 == "compile-debug-execute" ] then -Debug fi
+    ../game/$name -Benchmark
 fi

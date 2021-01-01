@@ -26,6 +26,11 @@
         "args": "Compile execute"
     },
     {
+        "key": "F11",
+        "command": "workbench.action.tasks.runTask",
+        "args": "Execute debug without compile"
+    },
+    {
         "key": "ctrl+F11",
         "command": "workbench.action.tasks.runTask",
         "args": "Execute without compile"
