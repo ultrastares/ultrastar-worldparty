@@ -3570,7 +3570,7 @@ end;
 
 procedure TTheme.ThemeSongLoad;
 var
-  I, C: integer;
+  C: integer;
   prefix, TempString: string;
 begin
   prefix := '';
