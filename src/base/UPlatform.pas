@@ -1,8 +1,8 @@
 {*
     UltraStar WorldParty - Karaoke Game
-	
-	UltraStar WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -48,7 +48,6 @@ type
     procedure Halt; virtual;
 
     function GetLogPath:        IPath; virtual; abstract;
-    function GetMusicPath:      IPath; virtual; abstract;
     function GetGameSharedPath: IPath; virtual; abstract;
     function GetGameUserPath:   IPath; virtual; abstract;
   end;
@@ -73,7 +72,7 @@ uses
 
 // I modified it to use the Platform_singleton in this location (in the implementation)
 // so that this variable can NOT be overwritten from anywhere else in the application.
-// the accessor function platform, emulates all previous calls to work the same way.  
+// the accessor function platform, emulates all previous calls to work the same way.
 var
   Platform_singleton: TPlatform;
 
