@@ -7,13 +7,6 @@ Thumbs.db
 *.~*
 *.log
 
-# lazarus/FPC project files
-*.o*
-*.ppu
-*.a
-*.dcu
-*.rsj
-
 # intermediates
 /build/
 Makefile
