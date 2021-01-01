@@ -8,22 +8,22 @@
     {
         "key": "F9",
         "command": "workbench.action.tasks.runTask",
-        "args": "Compile"
+        "args": "Compile debug"
     },
     {
         "key": "ctrl+F9",
         "command": "workbench.action.tasks.runTask",
-        "args": "Compile debug"
+        "args": "Compile"
     },
     {
         "key": "F10",
         "command": "workbench.action.tasks.runTask",
-        "args": "Compile execute"
+        "args": "Compile debug execute"
     },
     {
         "key": "ctrl+F10",
         "command": "workbench.action.tasks.runTask",
-        "args": "Compile debug execute"
+        "args": "Compile execute"
     },
     {
         "key": "ctrl+F11",

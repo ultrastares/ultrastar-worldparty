@@ -1113,7 +1113,7 @@ begin
         end;
         PKT_STATUS_FLAG_EMPTY:
         begin
-          SilenceDuration := PDouble(fPacketQueue.GetStatusInfo(fAudioPaket))^;
+          SilenceDuration := 0; //FIXME idk why but info return nill PDouble(fPacketQueue.GetStatusInfo(fAudioPaket))^;
           fAudioPaketSilence := Round(SilenceDuration * fFormatInfo.SampleRate) * fFormatInfo.FrameSize;
           fPacketQueue.FreeStatusInfo(fAudioPaket);
         end
