@@ -1,8 +1,8 @@
 {*
     UltraStar WorldParty - Karaoke Game
-	
-	UltraStar WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,10 +16,10 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
- 
+
 unit UPlatformLinux;
 
 interface
@@ -45,7 +45,7 @@ type
       function GetHomeDir(): IPath;
     public
       procedure Init; override;
-      
+
       function GetLogPath        : IPath; override;
       function GetGameSharedPath : IPath; override;
       function GetGameUserPath   : IPath; override;
@@ -74,8 +74,8 @@ end;
  * - It is local if it was not installed and directly executed from
  *   within the game folder. In this case resources (themes, language-files)
  *   reside in the directory of the executable.
- * - It is global if the game was installed (e.g. to /usr/bin) and
- *   the resources are in a separate folder (e.g. /usr/share/WorldParty)
+ * - It is global if the game was installed (e.g. to /usr/games) and
+ *   the resources are in a separate folder (e.g. /usr/share/ultrastar-worldparty)
  *   which name is stored in the INSTALL_DATADIR constant in paths.inc.
  *
  * Sets UseLocalDirs to true if the game is executed locally, false otherwise.
@@ -115,7 +115,7 @@ begin
   if UseLocalDirs then
     Result := GetExecutionDir()
   else
-    Result := GetHomeDir().Append('.WorldParty', pdAppend);
+    Result := GetHomeDir().Append('.ultrastar-worldparty', pdAppend);
 end;
 
 {**
