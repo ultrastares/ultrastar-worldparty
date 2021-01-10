@@ -7,13 +7,6 @@ Thumbs.db
 *.~*
 *.log
 
-# lazarus/FPC project files
-*.o*
-*.ppu
-*.a
-*.dcu
-*.rsj
-
 # intermediates
 /build/
 Makefile
@@ -53,5 +46,5 @@ ppaslink.sh
 /game/config.ini
 /game/*.db
 /game/*.log
-/game/WorldParty
+/game/WorldParty*
 /game/webs/*

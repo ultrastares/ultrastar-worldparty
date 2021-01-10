@@ -275,7 +275,6 @@ var
   SDL_ModState: word;
   PressedKeyEncoded: UTF8String;
   Song: USong.TSong;
-  WebList: string;
 begin
   Result := true;
 
@@ -1502,7 +1501,7 @@ function TScreenSong.Draw: boolean;
 var
   dx:         real;
   dt:         real;
-  I, J:       integer;
+  I:       integer;
   Increment: real;
 begin
   Result := true;

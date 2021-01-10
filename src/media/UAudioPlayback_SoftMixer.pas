@@ -1,8 +1,8 @@
 {*
     UltraStar WorldParty - Karaoke Game
-	
-	UltraStar WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -110,6 +110,8 @@ type
 
       procedure AddSoundEffect(Effect: TSoundEffect);    override;
       procedure RemoveSoundEffect(Effect: TSoundEffect); override;
+      procedure AddSoundFX(FX: TSoundFX); override;
+      procedure RemoveSoundFX(FX: TSoundFX); override;
   end;
 
   TAudioMixerStream = class
@@ -442,7 +444,7 @@ begin
   SrcFormatInfo := SourceStream.GetAudioFormatInfo();
   DstFormatInfo := GetAudioFormatInfo();
 
-  // TODO: selection should not be done here, use a factory (TAudioConverterFactory) instead 
+  // TODO: selection should not be done here, use a factory (TAudioConverterFactory) instead
   Converter := TAudioConverter_SDL.Create();
 
   Result := Converter.Init(SrcFormatInfo, DstFormatInfo);
@@ -517,7 +519,7 @@ begin
   FadeInTime := 0;
 
   LastReadSize := 0;
-  
+
   Mixer := Engine.GetMixer();
   if (Mixer <> nil) then
     Mixer.RemoveStream(Self);
@@ -604,7 +606,7 @@ begin
   // sanity check for the source-stream
   if (not assigned(SourceStream)) then
     Exit;
-  
+
   SkipOutputCount := 0;
   SkipSourceCount := 0;
   FillCount := 0;
@@ -803,7 +805,7 @@ begin
     Move(SampleBuffer[0], Data, ByteCount);
   end;
   UnlockSampleBuffer();
-  
+
   Result := ByteCount div SizeOf(TPCMStereoSample);
 end;
 
@@ -940,7 +942,7 @@ begin
     FlushBuffers();
 
     AvgSyncDiff := -1;
-    
+
     UnlockSampleBuffer();
   end;
 end;
@@ -987,6 +989,13 @@ begin
   UnlockSampleBuffer();
 end;
 
+procedure TGenericPlaybackStream.AddSoundFX(FX: TSoundFX);
+begin
+end;
+
+procedure TGenericPlaybackStream.RemoveSoundFX(FX: TSoundFX);
+begin
+end;
 
 { TGenericVoiceStream }
 
