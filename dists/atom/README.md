@@ -5,7 +5,9 @@ To compile UltraStar WorldParty using Atom editor developed by Github (https://a
 - Pascal language support in Atom (language-pascal https://atom.io/packages/language-pascal) to syntax highlighting.
 - Atom Build package (atom-build https://github.com/noseglid/atom-build) to compile (and optionally execute) the project.
 
-You must also have installed Free Pascal in your system (https://www.freepascal.org).
+You must also have installed Free Pascal in your system (https://www.freepascal.org). In Debian/Ubuntu you can do it using `sudo apt install fp-compiler-3.2.0`.
+
+And finally, if you are in Debian/Ubuntu, you must execute './install.sh' to get the dependencies, compile and add a shorcut to execute the game. On other systems you must do the same manually.
 
 After install all things you must copy, depend of your system, the .atom-build.json file to the root project path. Restart Atom and now you can press:
 - F9 to compile
