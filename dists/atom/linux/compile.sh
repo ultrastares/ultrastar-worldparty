@@ -18,6 +18,7 @@ then
     if [[ $2 =~ snap ]] && [ ! -f config-linux.inc ]
     then
         cp ../dists/linux/config-ubuntu.inc config-linux.inc
+        cp ../dists/linux/paths-ubuntu.inc paths.inc
     fi
     target=../build/fpc-$(uname -m)-$(uname -s)/
     rm -rf $target ../game/$name
