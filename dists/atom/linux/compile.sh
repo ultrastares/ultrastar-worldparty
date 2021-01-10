@@ -15,6 +15,10 @@ else
 fi
 if [[ $2 =~ compile ]]
 then
+    if [[ $2 =~ snap ]] && [ ! -f config-linux.inc ]
+    then
+        cp ../dists/linux/config-ubuntu.inc config-linux.inc
+    fi
     target=../build/fpc-$(uname -m)-$(uname -s)/
     rm -rf $target ../game/$name
     mkdir -p $target
