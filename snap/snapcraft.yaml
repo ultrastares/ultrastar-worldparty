@@ -9,6 +9,9 @@ description: |
   Fun singing your favorite songs!
 grade: stable
 confinement: strict
+architectures:
+  - build-on: amd64
+    run-on: [amd64, arm64, armhf]
 layout:
   /etc/alsa:
     bind: $SNAP/etc/alsa
