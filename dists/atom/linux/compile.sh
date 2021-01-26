@@ -15,8 +15,13 @@ else
 fi
 if [[ $2 =~ compile ]]
 then
-    if [[ $2 =~ snap ]] && [ ! -f config-linux.inc ]
+    if [[ $2 =~ snap ]]
     then
+        if [ -f config-linux.inc ]
+        then
+            mv config-linux.inc config-linux-install.inc
+            mv paths.inc paths-install.inc
+        fi
         cp ../dists/linux/config-ubuntu.inc config-linux.inc
         cp ../dists/linux/paths-ubuntu.inc paths.inc
     fi
@@ -27,6 +32,14 @@ then
     if [ -f $target/link.res ]
     then
         mv $target/link.res ../res/
+    fi
+    if [ -f config-linux-install.inc ]
+    then
+        mv config-linux-install.inc config-linux.inc
+        mv paths-install.inc paths.inc
+    else
+        rm config-linux.inc
+        rm paths.inc
     fi
 fi
 if [ -f ../game/$name ] && [[ $2 =~ execute ]]

@@ -1,0 +1,211 @@
+name: ultrastar-worldparty
+title: UltraStar WorldParty
+base: core20
+version: "20.12"
+license: GPL-3.0
+summary: A free and open source karaoke game
+description: |
+  It allows up to six players to sing along with music using microphones in order to score points, depending on the pitch of the voice and the rhythm of singing.
+  Fun singing your favorite songs!
+grade: stable
+confinement: strict
+layout:
+  /etc/alsa:
+    bind: $SNAP/etc/alsa
+  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib:
+    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib
+  /usr/share/alsa:
+    bind: $SNAP/usr/share/alsa
+  /usr/share/libdrm:
+    bind: $SNAP/usr/share/libdrm
+  /usr/share/ultrastar-worldparty:
+    bind: $SNAP/usr/share/ultrastar-worldparty
+apps:
+  ultrastar-worldparty:
+    command: usr/games/ultrastar-worldparty
+    command-chain: [snap/command-chain/alsa-launch]
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/mesa:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/mesa-gl:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/xorg:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio/
+      LIBGL_DRIVERS_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+    desktop: dists/linux/ultrastar-worldparty.desktop
+    plugs:
+      - alsa
+      - audio-playback
+      - audio-record
+      - bluetooth-control
+      - bluez
+      - camera
+      - home
+      - joystick
+      - opengl
+      - pulseaudio
+      - network
+      - raw-usb
+      - removable-media
+      - x11
+  ultrastar-worldparty-debug:
+    command: usr/games/ultrastar-worldparty-debug
+    command-chain: [snap/command-chain/alsa-launch]
+    environment:
+      LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/mesa:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/mesa-gl:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/xorg:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio/
+      LIBGL_DRIVERS_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+    plugs:
+      - alsa
+      - audio-playback
+      - audio-record
+      - bluetooth-control
+      - bluez
+      - camera
+      - home
+      - joystick
+      - opengl
+      - pulseaudio
+      - network
+      - raw-usb
+      - removable-media
+      - x11
+parts:
+  alsa-mixin:
+    plugin: dump
+    source: https://github.com/diddlesnaps/snapcraft-alsa.git
+    source-subdir: snapcraft-assets
+    build-packages:
+      - libasound2-dev
+    stage-packages:
+      - libasound2
+      - libasound2-plugins
+      - yad
+  desktop-glib-only:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: glib-only
+    plugin: make
+    build-packages:
+      - libglib2.0-dev
+    stage-packages:
+      - libglib2.0-bin
+  ultrastar-worldparty:
+    after:
+      - alsa-mixin
+      - desktop-glib-only
+    build-packages:
+      - fpc
+      - libavformat-dev
+      - libfreetype6-dev
+      - libopencv-highgui-dev
+      - libportmidi-dev
+      - liblua5.3-dev
+      - libsdl2-image-dev
+      - libsqlite3-dev
+      - libswscale-dev
+    organize:
+      ultrastar-worldparty: usr/games
+      ultrastar-worldparty-debug: usr/games
+    override-build: |
+      $SNAPCRAFT_PART_BUILD/dists/atom/linux/compile.sh . compile-snap
+      $SNAPCRAFT_PART_BUILD/dists/atom/linux/compile.sh . compile-snap-debug
+      mkdir -p $SNAPCRAFT_PART_BUILD/usr/share/icons/hicolor/256x256/apps
+      cp $SNAPCRAFT_PART_BUILD/game/resources/icons/WorldParty.png $SNAPCRAFT_PART_BUILD/usr/share/icons/hicolor/256x256/apps/ultrastar-worldparty.png
+      snapcraftctl build
+    override-prime: |
+      snapcraftctl prime
+      cd $SNAPCRAFT_PRIME/game
+      mkdir -p $SNAPCRAFT_PRIME/usr/games $SNAPCRAFT_PRIME/usr/share/ultrastar-worldparty
+      cp WorldParty $SNAPCRAFT_PRIME/usr/games/ultrastar-worldparty
+      cp WorldPartyDebug $SNAPCRAFT_PRIME/usr/games/ultrastar-worldparty-debug
+      cp -r avatars covers fonts languages plugins resources sounds themes visuals $SNAPCRAFT_PRIME/usr/share/ultrastar-worldparty
+    plugin: dump
+    source: ../..
+    stage-packages:
+      - libaom0
+      - libasound2
+      - libasyncns0
+      - libavcodec58
+      - libavformat58
+      - libavutil56
+      - libbluray2
+      - libcairo-gobject2
+      - libcairo2
+      - libchromaprint1
+      - libcodec2-0.9
+      - libdatrie1
+      - libdrm2
+      - libflac8
+      - libfontconfig1
+      - libfreetype6
+      - libfribidi0
+      - libgdk-pixbuf2.0-0
+      - libgme0
+      - libgomp1
+      - libgl1-mesa-dri
+      - libglu1-mesa
+      - libgraphite2-3
+      - libgsm1
+      - libharfbuzz0b
+      - libicu66
+      - libjbig0
+      - libjpeg-turbo8
+      - liblua5.3-0
+      - libmp3lame0
+      - libmpg123-0
+      - libnuma1
+      - libogg0
+      - libopenjp2-7
+      - libopenmpt0
+      - libopus0
+      - libpango-1.0-0
+      - libpangocairo-1.0-0
+      - libpangoft2-1.0-0
+      - libpixman-1-0
+      - libpng16-16
+      - libpulse0
+      - librsvg2-2
+      - libsdl2-2.0-0
+      - libsdl2-image-2.0-0
+      - libshine3
+      - libsnappy1v5
+      - libsndfile1
+      - libsoxr0
+      - libspeex1
+      - libssh-gcrypt-4
+      - libswresample3
+      - libswscale5
+      - libthai0
+      - libtheora0
+      - libtiff5
+      - libtwolame0
+      - libva-drm2
+      - libva-x11-2
+      - libva2
+      - libvdpau1
+      - libvorbis0a
+      - libvorbisenc2
+      - libvorbisfile3
+      - libvpx6
+      - libwavpack1
+      - libwayland-client0
+      - libwayland-cursor0
+      - libwayland-egl1
+      - libwebp6
+      - libwebpmux3
+      - libx11-6
+      - libx264-155
+      - libx265-179
+      - libxau6
+      - libxcb-render0
+      - libxcb-shm0
+      - libxcb1
+      - libxcursor1
+      - libxdmcp6
+      - libxext6
+      - libxfixes3
+      - libxi6
+      - libxinerama1
+      - libxkbcommon0
+      - libxml2
+      - libxrandr2
+      - libxrender1
+      - libxss1
+      - libxvidcore4
+      - libxxf86vm1
+      - libzvbi0
+      - ocl-icd-libopencl1
