@@ -48,3 +48,7 @@ ppaslink.sh
 /game/*.log
 /game/WorldParty*
 /game/webs/*
+
+#linux
+*.snap
+*.deb

@@ -122,25 +122,8 @@ end;
  * Returns the user's home directory terminated by a path delimiter
  *}
 function TPlatformLinux.GetHomeDir(): IPath;
-var
-  PasswdEntry: PPasswd;
 begin
-  Result := PATH_NONE;
-
-  // try to retrieve the info from passwd
-  PasswdEntry := FpGetpwuid(FpGetuid());
-  if (PasswdEntry <> nil) then
-    Result := Path(PasswdEntry.pw_dir);
-  // fallback if passwd does not contain the path
-  if (Result.IsUnset) then
-    Result := Path(GetEnvironmentVariable('HOME'));
-  // add trailing path delimiter (normally '/')
-  if (Result.IsSet) then
-    Result := Result.AppendPathDelim();
-
-  // GetUserDir() is another function that returns a user path.
-  // It uses env-var HOME or a fallback to a temp-dir.
-  //Result := GetUserDir();
+  Result := Path(GetUserDir()).AppendPathDelim();
 end;
 
 end.
