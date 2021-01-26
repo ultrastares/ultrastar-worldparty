@@ -114,7 +114,7 @@ parts:
       cp WorldPartyDebug $SNAPCRAFT_PRIME/usr/games/ultrastar-worldparty-debug
       cp -r avatars covers fonts languages plugins resources sounds themes visuals $SNAPCRAFT_PRIME/usr/share/ultrastar-worldparty
     plugin: dump
-    source: ../..
+    source: .
     stage-packages:
       - libaom0
       - libasound2
