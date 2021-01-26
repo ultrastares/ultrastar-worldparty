@@ -9,6 +9,9 @@ description: |
   Fun singing your favorite songs!
 grade: stable
 confinement: strict
+architectures:
+  - build-on: amd64
+    run-on: [amd64, arm64, armhf]
 layout:
   /etc/alsa:
     bind: $SNAP/etc/alsa
@@ -114,7 +117,7 @@ parts:
       cp WorldPartyDebug $SNAPCRAFT_PRIME/usr/games/ultrastar-worldparty-debug
       cp -r avatars covers fonts languages plugins resources sounds themes visuals $SNAPCRAFT_PRIME/usr/share/ultrastar-worldparty
     plugin: dump
-    source: ../..
+    source: .
     stage-packages:
       - libaom0
       - libasound2
