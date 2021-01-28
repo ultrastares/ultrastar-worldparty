@@ -23,6 +23,7 @@ if not %2==execute if not %2==execute-debug (
     )
 )
 if not %2==compile if not %2==compile-debug (
-    if exist ..\game\%name%.exe  start "" ../game/%name% -Benchmark
+    if not %2==compile-execute if not %2==execute if exist ..\game\WorldPartyDebug.exe start ""  ..\game\WorldPartyDebug.exe -Benchmark
+    if not %2==compile-debug-execute if not %2==execute-debug if exist ..\game\WorldParty.exe start ""  ..\game\WorldParty.exe -Benchmark
 )
 echo %2
