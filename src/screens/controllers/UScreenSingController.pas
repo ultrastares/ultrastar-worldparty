@@ -209,6 +209,8 @@ uses
 
 const
   MAX_MESSAGE = 3;
+  MedleyFadeIn = 8;
+  MedleyFadeOut = 2;
 
 // method for input parsing. if false is returned, getnextwindow
 // should be checked to know the next window to load;
@@ -776,7 +778,7 @@ begin
 
   // start music
   if ScreenSong.Mode = smMedley then
-    AudioPlayback.FadeIn(CurrentSong.Medley.FadeIn_time, 1.0)
+    AudioPlayback.FadeIn(MedleyFadeIn, 1.0)
   else
     AudioPlayback.Play();
 
@@ -1019,16 +1021,14 @@ begin
       Text[screenSingViewRef.SongNameText].Text := CurrentSong.Artist + ' - ' + CurrentSong.Title;
 
     //medley start and end timestamps
-    StartNote := FindNote(CurrentSong.Medley.StartBeat - round(CurrentSong.BPM*CurrentSong.Medley.FadeIn_time/60));
+    StartNote := FindNote(CurrentSong.Medley.StartBeat - round(CurrentSong.BPM * MedleyFadeIn / 60));
     MedleyStart := GetTimeFromBeat(CurrentSong.Lines[0].Line[StartNote.line].Note[0].Start);
 
     //check Medley-Start
-    if (MedleyStart+CurrentSong.Medley.FadeIn_time*0.5>GetTimeFromBeat(CurrentSong.Medley.StartBeat)) then
-      MedleyStart := GetTimeFromBeat(CurrentSong.Medley.StartBeat) - CurrentSong.Medley.FadeIn_time;
-    if MedleyStart<0 then
-      MedleyStart := 0;
+    if MedleyStart + MedleyFadeIn * 0.5 > GetTimeFromBeat(CurrentSong.Medley.StartBeat) then
+      MedleyStart := Max(0, GetTimeFromBeat(CurrentSong.Medley.StartBeat) - MedleyFadeIn);
 
-    MedleyEnd := GetTimeFromBeat(CurrentSong.Medley.EndBeat) + CurrentSong.Medley.FadeOut_time;
+    MedleyEnd := GetTimeFromBeat(CurrentSong.Medley.EndBeat) + MedleyFadeOut;
   end;
 
   {*

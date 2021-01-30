@@ -66,8 +66,6 @@ type
     Source:       TMedleySource;  //source of the information
     StartBeat:    integer;        //start beat of medley
     EndBeat:      integer;        //end beat of medley
-    FadeIn_time:  real;           //FadeIn-Time in seconds
-    FadeOut_time: real;           //FadeOut-Time in seconds
   end;
 
   TScore = record
@@ -186,10 +184,6 @@ uses
   UPathUtils,
   USongs,
   UNote;   //needed for Player
-
-const
-  DEFAULT_FADE_IN_TIME = 8;   // for medley fade-in
-  DEFAULT_FADE_OUT_TIME = 2;  // for medley fade-out
 
 constructor TSongOptions.Create(RatioAspect, Width, Height, Position, Alpha: integer;
                 SingFillColor, ActualFillColor, NextFillColor, SingOutlineColor, ActualOutlineColor, NextOutlineColor: string);
@@ -773,13 +767,7 @@ begin
     end;
 
     if (MedleyFlags and 6) = 6 then
-    begin
-      Self.Medley.Source := msTag;
-
-      //calculate fade time
-      Self.Medley.FadeIn_time := DEFAULT_FADE_IN_TIME;
-      Self.Medley.FadeOut_time := DEFAULT_FADE_OUT_TIME;
-    end
+      Self.Medley.Source := msTag
     else
       Self.Medley.Source := msNone;
   end;
@@ -997,13 +985,7 @@ begin
     end;
 
     if found_end then
-    begin
       Self.Medley.Source := msCalculated;
-
-      //calculate fade time
-      Self.Medley.FadeIn_time := DEFAULT_FADE_IN_TIME;
-      Self.Medley.FadeOut_time := DEFAULT_FADE_OUT_TIME;
-    end;
   end;
 
   //set PreviewStart if not set
