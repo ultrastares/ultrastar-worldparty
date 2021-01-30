@@ -225,7 +225,7 @@ begin
             PlayerNames[PlayerIndex] := Button[PlayerName].Text[0].Text;
           end
           else
-            ParseInput(SDLK_ESCAPE, CharCode, PressedDown);
+            Self.ParseInput(SDLK_ESCAPE, CharCode, PressedDown);
         end;
       SDLK_ESCAPE :
           if Self.OpenedInOptions then
@@ -238,7 +238,12 @@ begin
             Exit();
 
           if Self.SelInteraction in [6, 7] then
-            ParseInput(SDLK_ESCAPE, CharCode, PressedDown);
+            if Self.OpenedInOptions then
+              Self.FadeTo(@UGraphic.ScreenOptions, UMusic.SoundLib.Back)
+            else if UIni.Ini.OnSongClick = 0 then
+              Self.FadeTo(@UGraphic.ScreenSong)
+            else
+              Self.FadeTo(@UGraphic.ScreenSing);
         end;
 
       // Up and Down could be done at the same time,
