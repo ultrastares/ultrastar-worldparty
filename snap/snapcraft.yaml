@@ -11,7 +11,8 @@ grade: stable
 confinement: strict
 architectures:
   - build-on: amd64
-    run-on: [amd64, arm64, armhf]
+  - build-on: arm64
+  - build-on: armhf
 layout:
   /etc/alsa:
     bind: $SNAP/etc/alsa
