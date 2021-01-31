@@ -164,9 +164,9 @@ begin
   UThemes.Theme.OptionsGame.SelectSingScores.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SINGSCORES');
   UThemes.Theme.OptionsGame.SelectFindUnsetMedley.Text := ULanguage.Language.Translate('C_MEDLEYC');
   UThemes.Theme.OptionsGame.ButtonExit.Text[0].Text := ULanguage.Language.Translate('C_BACK');
-  UGraphic.ScreenOptionsGame.Free();
+  FreeAndNil(UGraphic.ScreenOptionsGame);
   UGraphic.ScreenOptionsGame := TScreenOptionsGame.Create();
-  UGraphic.ScreenOptionsGame.OnShow(); //needed for start video background only
+  UGraphic.ScreenOptionsGame.Background.OnShow();
 end;
 
 end.
