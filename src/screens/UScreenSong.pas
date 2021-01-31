@@ -2141,6 +2141,8 @@ begin
       AddSong(GetNextSongNr(MinSource));
     end;
   end
+  else if USongs.CatSongs.Song[Self.Interaction].Medley.Source = msNone then
+    Exit
   else //start this song
   begin
     SetLength(PlaylistMedley.Song, 1);

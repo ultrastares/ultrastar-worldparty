@@ -164,7 +164,7 @@ begin
       SDLK_LEFT:
         InteractPrev;
       SDLK_F5:
-        Self.ReloadSongs();
+        Self.ReloadSongs(false);
     end;
   end
 end;
@@ -210,8 +210,6 @@ begin
     Self.Text[Self.TextProgressSongs].Text := ProgressSong.Folder+': '+IntToStr(ProgressSong.Total)+'\n\n'+ProgressSong.FolderProcessed
   else if not Self.Text[Self.TextDescriptionLong].Visible then //after finish song loading, return to normal mode and close popup
   begin
-    FreeAndNil(UGraphic.ScreenSong);
-    UGraphic.ScreenSong := TScreenSong.Create();
     if Self.ReturnToSongScreenAfterLoadSongs then
     begin
       Self.ReturnToSongScreenAfterLoadSongs := false;
@@ -259,22 +257,27 @@ end;
 function TScreenMain.CheckSongs(): boolean;
 begin
   Result := false;
-  if USongs.Songs.GetLoadProgress().Folder <> '' then
-    UGraphic.ScreenPopupError.ShowPopup(Language.Translate('ERROR_LOADING_SONGS'))
-  else if Songs.SongList.Count = 0 then
-    UGraphic.ScreenPopupError.ShowPopup(Language.Translate('ERROR_NO_SONGS'))
+  if not USongs.Songs.GetLoadProgress().Finished then
+    UGraphic.ScreenPopupError.ShowPopup(ULanguage.Language.Translate('ERROR_LOADING_SONGS'))
+  else if USongs.Songs.SongList.Count = 0 then
+    UGraphic.ScreenPopupError.ShowPopup(ULanguage.Language.Translate('ERROR_NO_SONGS'))
   else
     Result := true;
 end;
 
 procedure TScreenMain.ReloadSongs(ScreenReturn: boolean = true);
 begin
-  UIni.Ini.Load();
-  FreeAndNil(USongs.CatSongs);
-  FreeAndNil(USongs.Songs);
-  USongs.CatSongs := TCatSongs.Create();
-  USongs.Songs := TSongs.Create();
-  Self.ReturnToSongScreenAfterLoadSongs := ScreenReturn;
+  if USongs.Songs.GetLoadProgress().Finished then
+  begin
+    UIni.Ini.Load();
+    FreeAndNil(USongs.CatSongs);
+    FreeAndNil(USongs.Songs);
+    USongs.CatSongs := TCatSongs.Create();
+    USongs.Songs := TSongs.Create();
+    Self.ReturnToSongScreenAfterLoadSongs := ScreenReturn;
+  end
+  else
+    UGraphic.ScreenPopupError.ShowPopup(ULanguage.Language.Translate('ERROR_LOADING_SONGS'))
 end;
 
 end.

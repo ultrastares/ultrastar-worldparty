@@ -40,7 +40,7 @@ type
     protected
       procedure SetPlaylistsItems();
     public
-      constructor Create; override;
+      constructor CreateExtra(); override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure OnShow; override;
   end;
@@ -133,7 +133,7 @@ begin
   end;
 end;
 
-constructor TScreenPartyOptions.Create;
+constructor TScreenPartyOptions.CreateExtra();
 begin
   Self.PlayList := 0;
   Self.PlayListItems := 0;

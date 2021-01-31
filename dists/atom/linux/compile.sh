@@ -37,9 +37,6 @@ then
     then
         mv config-linux-install.inc config-linux.inc
         mv paths-install.inc paths.inc
-    else
-        rm config-linux.inc
-        rm paths.inc
     fi
 fi
 if [ -f ../game/$name ] && [[ $2 =~ execute ]]

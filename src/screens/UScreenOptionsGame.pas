@@ -166,6 +166,7 @@ begin
   UThemes.Theme.OptionsGame.ButtonExit.Text[0].Text := ULanguage.Language.Translate('C_BACK');
   UGraphic.ScreenOptionsGame.Free();
   UGraphic.ScreenOptionsGame := TScreenOptionsGame.Create();
+  UGraphic.ScreenOptionsGame.OnShow(); //needed for start video background only
 end;
 
 end.

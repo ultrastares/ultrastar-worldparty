@@ -610,6 +610,7 @@ type
       Back:    TAudioPlaybackStream;
       Option:  TAudioPlaybackStream;
       BGMusic: TAudioPlaybackStream;
+      BeatClick: TAudioPlaybackStream;
 
       constructor Create();
       destructor Destroy(); override;
@@ -983,6 +984,7 @@ begin
   Back    := AudioPlayback.OpenSound(SoundPath.Append('back sound.mp3'));
   Option  := AudioPlayback.OpenSound(SoundPath.Append('option sound.mp3'));
   BGMusic := AudioPlayback.OpenSound(SoundPath.Append('background track.mp3'));
+  BeatClick := UMusic.AudioPlayback.OpenSound(UPathUtils.SoundPath.Append('beat click.mp3'));
 
   if (BGMusic <> nil) then
     BGMusic.Loop := True;
@@ -994,6 +996,7 @@ begin
   FreeAndNil(Back);
   FreeAndNil(Option);
   FreeAndNil(BGMusic);
+  FreeAndNil(BeatClick);
 end;
 
 (* TODO

@@ -284,8 +284,7 @@ begin
   if not (CurrentSong.isDuet) or (PlayersPlay = 1) then
   begin
     if (Ini.BeatClick = 1) and ((LyricsState.CurrentBeatC + 4) mod 4 = 0) then //FIXME after remove resolution and notesgap use 4 as default...
-    begin
-    end;
+      UMusic.AudioPlayback.PlaySound(UMusic.SoundLib.BeatClick);
 
     for Count := 0 to CurrentSong.Lines[0].Line[CurrentSong.Lines[0].Current].HighNote do
     begin
@@ -294,6 +293,7 @@ begin
       begin
         // click assist
         if Ini.ClickAssist = 1 then
+          UMusic.AudioPlayback.PlaySound(UMusic.SoundLib.BeatClick);
 
         // drum machine
         (*

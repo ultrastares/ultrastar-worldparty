@@ -43,6 +43,7 @@ type
       procedure SetPlaylistsItems(); //sets playlist and playlist items slider
     public
       constructor Create(); override;
+      constructor CreateExtra(); virtual;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure OnShow(); override;
   end;
@@ -136,6 +137,11 @@ end;
 constructor TScreenJukeboxPlaylist.Create();
 begin
   inherited;
+  Self.CreateExtra();
+end;
+
+constructor TScreenJukeboxPlaylist.CreateExtra();
+begin
   Self.LoadFromTheme(UThemes.Theme.JukeboxPlaylist);
   Self.SelectPlayList := Self.AddSelectSlide(UThemes.Theme.JukeboxPlaylist.SelectPlayList, Self.PlayList, [
     ULanguage.Language.Translate('PARTY_PLAYLIST_ALL'),
