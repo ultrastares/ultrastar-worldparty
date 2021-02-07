@@ -203,11 +203,12 @@ end;
 
 function USWPVersionStr(): string;
 begin
-  Result :=
-    USWP_STRING + ' ' +
-    IntToStr(USWP_VERSION_MAJOR) + '.' +
-    IntToStr(USWP_VERSION_MINOR) +
+  Result := Format('%s %d.%.2d%s', [
+    USWP_STRING,
+    USWP_VERSION_MAJOR,
+    USWP_VERSION_MINOR,
     IfThen(USWP_VERSION_STATE <> '', ' '+USWP_VERSION_STATE)
+  ]);
 end;
 
 end.
