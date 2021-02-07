@@ -124,8 +124,8 @@ const
   (*
    * Current version of UltraStar WorldParty
    *)
-   USWP_VERSION_MAJOR   = 20;
-   USWP_VERSION_MINOR   = 12;
+   USWP_VERSION_MAJOR   = 21;
+   USWP_VERSION_MINOR   = 2;
    USWP_VERSION_RELEASE = '';
    USWP_VERSION_STATE   = '';
    USWP_STRING = 'UltraStar WorldParty';
