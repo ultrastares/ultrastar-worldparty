@@ -121,7 +121,7 @@ type
       function AddButton(ThemeButton: TThemeButton): integer; overload;
       function AddButton(X, Y, W, H: real; const TexName: IPath): integer; overload;
       function AddButton(X, Y, W, H, ColR, ColG, ColB, Int, DColR, DColG, DColB, DInt: real; const TexName: IPath; Typ: TTextureType; Reflection: boolean; ReflectionSpacing, DeSelectReflectionSpacing: real): integer; overload;
-      procedure ClearButtons;
+      procedure ClearButtons();
       procedure AddButtonText(AddX, AddY: real; const AddText: UTF8String); overload;
       procedure AddButtonText(AddX, AddY: real; ColR, ColG, ColB: real; const AddText: UTF8String); overload;
       procedure AddButtonText(AddX, AddY: real; ColR, ColG, ColB: real; Font: integer; Size: integer; Align: integer; const AddText: UTF8String); overload;
@@ -969,16 +969,14 @@ begin
 
   // button collection mod
   Button[Result].Parent := 0;
-
-  // adds interaction
-  AddInteraction(iButton, Result);
-  Interaction := 0;
+  Self.AddInteraction(iButton, Result);
 end;
 
-procedure TMenu.ClearButtons;
+procedure TMenu.ClearButtons();
 begin
-  Setlength(Button, 0);
-  SetLength(Interactions, 0);
+  Setlength(Self.Button, 0);
+  SetLength(Self.Interactions, 0);
+  Self.SelInteraction := -1;
 end;
 
 // method to draw our tmenu and all his child buttons
