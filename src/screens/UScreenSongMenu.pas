@@ -762,8 +762,7 @@ begin
                 UIni.Ini.Tabs := SelectValue1;
                 UIni.Ini.ShowDuets := IfThen(SelectValue3 = 1, 0, 1);
                 UIni.Ini.Save();
-                UGraphic.ScreenSong.Refresh(UIni.Ini.Sorting, UIni.Ini.Tabs = 1, UIni.Ini.ShowDuets = 1);
-                UGraphic.ScreenSong.SetSubselection();
+                UGraphic.ScreenSong.OnShow();
                 Visible := false;
               end;
             7:

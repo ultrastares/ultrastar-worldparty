@@ -29,6 +29,7 @@ apps:
     command: usr/games/ultrastar-worldparty
     command-chain: [snap/command-chain/alsa-launch]
     environment:
+      LC_ALL: C.UTF-8
       LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/mesa:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/mesa-gl:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/xorg:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio/
       LIBGL_DRIVERS_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
     desktop: dists/linux/ultrastar-worldparty.desktop
@@ -51,6 +52,7 @@ apps:
     command: usr/games/ultrastar-worldparty-debug
     command-chain: [snap/command-chain/alsa-launch]
     environment:
+      LC_ALL: C.UTF-8
       LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/mesa:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/mesa-gl:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/xorg:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio/
       LIBGL_DRIVERS_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
     plugs:
