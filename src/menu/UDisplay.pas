@@ -165,7 +165,7 @@ const
     time in milliseconds }
   CURSOR_FADE_IN_TIME = 500;      // seconds the fade in effect lasts
   CURSOR_FADE_OUT_TIME = 2000;    // seconds the fade out effect lasts
-  CURSOR_AUTOHIDE_TIME = 5000;   // seconds until auto fade out starts if there is no mouse movement
+  CURSOR_AUTOHIDE_TIME = 2000;   // seconds until auto fade out starts if there is no mouse movement
 
 implementation
 
@@ -530,7 +530,7 @@ var
   DrawX: double;
 begin
   Alpha := 0;
-  if (Screens = 1) or ((ScreenAct - 1) = (Round(Cursor_X+16) div RenderW)) then
+  if (Screens = 1) or ((ScreenAct - 1) = (Round(Cursor_X) div RenderW)) then
   begin // draw software cursor
     Ticks := SDL_GetTicks;
 
@@ -549,14 +549,14 @@ begin
         if (Cursor_LastMove + CURSOR_FADE_IN_TIME <= Ticks) then
           Cursor_Fade := false
         else
-          Alpha := sin((Ticks - Cursor_LastMove) * 0.5 * pi / CURSOR_FADE_IN_TIME) * 0.7;
+          Alpha := sin((Ticks - Cursor_LastMove) * 0.5 * pi / CURSOR_FADE_IN_TIME) * 1;
       end
       else
       begin //fade out
         if (Cursor_LastMove + CURSOR_FADE_OUT_TIME <= Ticks) then
           Cursor_Fade := false
         else
-          Alpha := cos((Ticks - Cursor_LastMove) * 0.5 * pi / CURSOR_FADE_OUT_TIME) * 0.7;
+          Alpha := cos((Ticks - Cursor_LastMove) * 0.5 * pi / CURSOR_FADE_OUT_TIME) * 1;
       end;
     end;
 
@@ -564,7 +564,7 @@ begin
     if not Cursor_Fade then
     begin
       if Cursor_Visible then
-        Alpha := 0.7 // alpha when cursor visible and not fading
+        Alpha := 1 // alpha when cursor visible and not fading
       else
         Alpha := 0;  // alpha when cursor is hidden
     end;
@@ -584,13 +584,13 @@ begin
         glVertex2f(DrawX, Cursor_Y);
 
         glTexCoord2f(0, 1);
-        glVertex2f(DrawX, Cursor_Y + 32);
+        glVertex2f(DrawX, Cursor_Y + 18);
 
         glTexCoord2f(1, 1);
-        glVertex2f(DrawX + 32, Cursor_Y + 32);
+        glVertex2f(DrawX + 14, Cursor_Y + 18);
 
         glTexCoord2f(1, 0);
-        glVertex2f(DrawX + 32, Cursor_Y);
+        glVertex2f(DrawX + 14, Cursor_Y);
       glEnd;
 
       glDisable(GL_BLEND);
