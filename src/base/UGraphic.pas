@@ -436,14 +436,14 @@ NoDoubledResolution:
   begin
     Log.LogStatus('Set Video Mode...   Fullscreen', 'SDL_SetVideoMode');
     CurrentWindowMode := Mode_Fullscreen;
-    screen := SDL_CreateWindow('UltraStar Deluxe loading...',
+    screen := SDL_CreateWindow('UltraStar WorldParty is loading...',
               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, W, H, SDL_WINDOW_OPENGL or SDL_WINDOW_FULLSCREEN or SDL_WINDOW_RESIZABLE);
   end
   else
   begin
     Log.LogStatus('Set Video Mode...   Windowed', 'SDL_SetVideoMode');
     CurrentWindowMode := Mode_Windowed;
-    screen := SDL_CreateWindow('UltraStar Deluxe loading...',
+    screen := SDL_CreateWindow('UltraStar WorldParty is loading...',
               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, W, H, SDL_WINDOW_OPENGL or SDL_WINDOW_RESIZABLE);
   end;
 
