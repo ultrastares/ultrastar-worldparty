@@ -38,6 +38,7 @@ type
   TScreenOptionsGame = class(TMenu)
     private
       Language, SongMenu: integer; static;
+      LanguageDesc, SongMenuDesc, DuetsDesc, TabsDesc, SortingDesc, ShowScoresDesc, SingScoresDesc, MedleyCDesc: integer;
       procedure ReloadScreen();
       procedure ReloadScreens();
     protected
@@ -116,6 +117,15 @@ begin
   Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectSingScores, UIni.Ini.SingScores, UIni.ISingScores, 'OPTION_VALUE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsGame.SelectFindUnsetMedley, UIni.Ini.FindUnsetMedley, UIni.Switch, 'OPTION_VALUE_');
   Self.AddButton(UThemes.Theme.OptionsGame.ButtonExit);
+  
+  LanguageDesc := Self.AddText(UThemes.Theme.OptionsGame.LanguageDesc);
+  SongMenuDesc := Self.AddText(UThemes.Theme.OptionsGame.SongMenuDesc);
+  DuetsDesc := Self.AddText(UThemes.Theme.OptionsGame.DuetsDesc);
+  TabsDesc := Self.AddText(UThemes.Theme.OptionsGame.TabsDesc);
+  SortingDesc := Self.AddText(UThemes.Theme.OptionsGame.SortingDesc);
+  ShowScoresDesc := Self.AddText(UThemes.Theme.OptionsGame.ShowScoresDesc);
+  SingScoresDesc := Self.AddText(UThemes.Theme.OptionsGame.SingScoresDesc);
+  MedleyCDesc := Self.AddText(UThemes.Theme.OptionsGame.MedleyCDesc);
 end;
 
 procedure TScreenOptionsGame.OnShow;
@@ -164,6 +174,15 @@ begin
   UThemes.Theme.OptionsGame.SelectSingScores.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SINGSCORES');
   UThemes.Theme.OptionsGame.SelectFindUnsetMedley.Text := ULanguage.Language.Translate('C_MEDLEYC');
   UThemes.Theme.OptionsGame.ButtonExit.Text[0].Text := ULanguage.Language.Translate('C_BACK');
+
+  UThemes.Theme.OptionsGame.LanguageDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_LANGUAGE_DESC');
+  UThemes.Theme.OptionsGame.SongMenuDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SONGMENU_DESC');
+  UThemes.Theme.OptionsGame.DuetsDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_DUETS_DESC');
+  UThemes.Theme.OptionsGame.TabsDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_TABS_DESC');
+  UThemes.Theme.OptionsGame.SortingDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SORTING_DESC');
+  UThemes.Theme.OptionsGame.ShowScoresDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SHOWSCORES_DESC');
+  UThemes.Theme.OptionsGame.SingScoresDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_SINGSCORES_DESC');
+  UThemes.Theme.OptionsGame.MedleyCDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GAME_MEDLEYC_DESC');
   FreeAndNil(UGraphic.ScreenOptionsGame);
   UGraphic.ScreenOptionsGame := TScreenOptionsGame.Create();
   UGraphic.ScreenOptionsGame.Background.OnShow();

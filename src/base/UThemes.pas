@@ -799,6 +799,16 @@ type
     SelectSingScores: TThemeSelectSlide;
     SelectFindUnsetMedley: TThemeSelectSlide;
     ButtonExit:TThemeButton;
+	
+    LanguageDesc:       TThemeText;
+    SongMenuDesc:       TThemeText;
+    DuetsDesc:          TThemeText;
+    TabsDesc:           TThemeText;
+    SortingDesc:        TThemeText;
+    ShowScoresDesc:     TThemeText;
+    SingScoresDesc:     TThemeText;
+    MedleyCDesc:        TThemeText;
+	
   end;
 
   TThemeOptionsGraphics = class(TThemeBasic)
@@ -2018,6 +2028,15 @@ begin
       Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectFindUnsetMedley, 'OptionsGameSelectFindUnsetMedley');
       Self.ThemeLoadButton(Self.OptionsGame.ButtonExit, 'OptionsGameButtonExit');
 
+      ThemeLoadText(OptionsGame.LanguageDesc, 'OptionsGameLanguageDesc');
+      ThemeLoadText(OptionsGame.SongMenuDesc, 'OptionsGameSongMenuDesc');
+      ThemeLoadText(OptionsGame.DuetsDesc, 'OptionsGameDuetsDesc');
+      ThemeLoadText(OptionsGame.TabsDesc, 'OptionsGameTabsDesc');
+      ThemeLoadText(OptionsGame.SortingDesc, 'OptionsGameSortingDesc');
+      ThemeLoadText(OptionsGame.ShowScoresDesc, 'OptionsGameShowScoresDesc');
+      ThemeLoadText(OptionsGame.SingScoresDesc, 'OptionsGameSingScoresDesc');
+      ThemeLoadText(OptionsGame.MedleyCDesc, 'OptionsGameMedleyCDesc');
+	  
       // Options Graphics
       ThemeLoadBasic(OptionsGraphics, 'OptionsGraphics');
 
@@ -2633,7 +2652,7 @@ begin
   Self.ReadProperty(Name, 'Z', 0, ThemeSelectS.Z);
   Self.ReadProperty(Name, 'W', 0, ThemeSelectS.W);
   Self.ReadProperty(Name, 'H', 0, ThemeSelectS.H);
-  Self.ReadProperty(Name, 'TextSize', 30, ThemeSelectS.TextSize);
+  Self.ReadProperty(Name, 'TextSize', 13, ThemeSelectS.TextSize);
   Self.ReadProperty(Name, 'SkipX', 0, ThemeSelectS.SkipX);
   Self.ReadProperty(Name, 'SBGW', 400, ThemeSelectS.SBGW);
 
