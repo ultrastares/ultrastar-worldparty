@@ -6,7 +6,7 @@ license: GPL-3.0
 summary: A free and open source karaoke game
 description: |
   It allows up to six players to sing along with music using microphones in order to score points, depending on the pitch of the voice and the rhythm of singing.
-  Fun singing your favorite songs!
+  You can use a gamepad to navigate and a webcam to see how you enjoy with your friends and your favorite songs.
 grade: stable
 confinement: strict
 architectures:
@@ -34,16 +34,13 @@ apps:
       LIBGL_DRIVERS_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
     desktop: dists/linux/ultrastar-worldparty.desktop
     plugs:
-      - alsa
       - audio-playback
       - audio-record
-      - bluetooth-control
       - bluez
       - camera
       - home
       - joystick
       - opengl
-      - pulseaudio
       - network
       - raw-usb
       - removable-media
@@ -56,16 +53,13 @@ apps:
       LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/mesa:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/mesa-gl:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/xorg:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio/
       LIBGL_DRIVERS_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
     plugs:
-      - alsa
       - audio-playback
       - audio-record
-      - bluetooth-control
       - bluez
       - camera
       - home
       - joystick
       - opengl
-      - pulseaudio
       - network
       - raw-usb
       - removable-media
