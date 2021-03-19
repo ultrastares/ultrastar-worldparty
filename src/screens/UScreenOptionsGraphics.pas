@@ -48,6 +48,8 @@ type
       ResolutionEmpty:     integer; // not used, only to prevent changing original by-ref passed variable
 
       OldWindowMode:       integer;
+	  
+      FullscreenDesc, ResolutionDesc, ScreenFadeDesc, EffectSingDesc, VisualizerDesc, MovieSizeDesc: integer;
 
       procedure UpdateWindowMode;
       procedure UpdateResolution;
@@ -130,8 +132,22 @@ begin
   AddSelectSlide(Theme.OptionsGraphics.SelectEffectSing, UIni.Ini.EffectSing, UIni.IEffectSing, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsGraphics.SelectVisualizer, UIni.Ini.VisualizerOption, UIni.IVisualizer, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsGraphics.SelectMovieSize, UIni.Ini.MovieSize, ['HALF', 'FULL_VID', 'FULL_VID_BG'], 'OPTION_VALUE_');
-
   AddButton(Theme.OptionsGraphics.ButtonExit);
+
+  FullscreenDesc := Self.AddText(UThemes.Theme.OptionsGraphics.FullscreenDesc);
+  ResolutionDesc := Self.AddText(UThemes.Theme.OptionsGraphics.ResolutionDesc);
+  EffectSingDesc := Self.AddText(UThemes.Theme.OptionsGraphics.ScreenFadeDesc);
+  EffectSingDesc := Self.AddText(UThemes.Theme.OptionsGraphics.EffectSingDesc);
+  VisualizerDesc := Self.AddText(UThemes.Theme.OptionsGraphics.VisualizerDesc);
+  MovieSizeDesc  := Self.AddText(UThemes.Theme.OptionsGraphics.MovieSizeDesc);
+  
+  //UThemes.Theme.OptionsGraphics.FullscreenDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GRAPHICS_FULLSCREEN_DESC');
+  //UThemes.Theme.OptionsGraphics.ResolutionDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GRAPHICS_RESOLUTION_DESC');
+  //UThemes.Theme.OptionsGraphics.ScreenFadeDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GRAPHICS_SCREENFADE_DESC');
+  //UThemes.Theme.OptionsGraphics.EffectSingDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GRAPHICS_EFFECTSING_DESC');
+  //UThemes.Theme.OptionsGraphics.VisualizerDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GRAPHICS_VISUALIZER_DESC');
+  //UThemes.Theme.OptionsGraphics.MovieSizeDesc.Text  := ULanguage.Language.Translate('SING_OPTIONS_GRAPHICS_MOVIESIZE_DESC');
+
 end;
 
 procedure TScreenOptionsGraphics.OnShow;

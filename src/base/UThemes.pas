@@ -790,35 +790,43 @@ type
   end;
 
   TThemeOptionsGame = class(TThemeBasic)
-    SelectLanguage: TThemeSelectSlide;
-    SelectSongMenu: TThemeSelectSlide;
-    SelectDuets: TThemeSelectSlide;
-    SelectTabs: TThemeSelectSlide;
-    SelectSorting: TThemeSelectSlide;
-    SelectShowScores: TThemeSelectSlide;
-    SelectSingScores: TThemeSelectSlide;
+    SelectLanguage:        TThemeSelectSlide;
+    SelectSongMenu:        TThemeSelectSlide;
+    SelectDuets:           TThemeSelectSlide;
+    SelectTabs:            TThemeSelectSlide;
+    SelectSorting:         TThemeSelectSlide;
+    SelectShowScores:      TThemeSelectSlide;
+    SelectSingScores:      TThemeSelectSlide;
     SelectFindUnsetMedley: TThemeSelectSlide;
-    ButtonExit:TThemeButton;
+    ButtonExit:            TThemeButton;
 	
-    LanguageDesc:       TThemeText;
-    SongMenuDesc:       TThemeText;
-    DuetsDesc:          TThemeText;
-    TabsDesc:           TThemeText;
-    SortingDesc:        TThemeText;
-    ShowScoresDesc:     TThemeText;
-    SingScoresDesc:     TThemeText;
-    MedleyCDesc:        TThemeText;
+    LanguageDesc:          TThemeText;
+    SongMenuDesc:          TThemeText;
+    DuetsDesc:             TThemeText;
+    TabsDesc:              TThemeText;
+    SortingDesc:           TThemeText;
+    ShowScoresDesc:        TThemeText;
+    SingScoresDesc:        TThemeText;
+    MedleyCDesc:           TThemeText;
 	
   end;
 
   TThemeOptionsGraphics = class(TThemeBasic)
-    SelectFullscreen:       TThemeSelectSlide;
-    SelectResolution:       TThemeSelectSlide;
-    SelectEffectSing:     	TThemeSelectSlide;
-    SelectScreenFade:     	TThemeSelectSlide;
-    SelectVisualizer:       TThemeSelectSlide;
-    SelectMovieSize:        TThemeSelectSlide;
-    ButtonExit:             TThemeButton;
+    SelectFullscreen:   TThemeSelectSlide;
+    SelectResolution:   TThemeSelectSlide;
+    SelectEffectSing:   TThemeSelectSlide;
+    SelectScreenFade:   TThemeSelectSlide;
+    SelectVisualizer:   TThemeSelectSlide;
+    SelectMovieSize:    TThemeSelectSlide;
+    ButtonExit:         TThemeButton;
+
+    FullscreenDesc:     TThemeText;
+    ResolutionDesc:     TThemeText;
+    EffectSingDesc:     TThemeText;
+    ScreenFadeDesc:     TThemeText;
+    VisualizerDesc:     TThemeText;
+    MovieSizeDesc:      TThemeText;
+
   end;
 
   TThemeOptionsSound = class(TThemeBasic)
@@ -2018,35 +2026,42 @@ begin
       // Options Game
       ThemeLoadBasic(OptionsGame, 'OptionsGame');
 
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectLanguage, 'OptionsGameSelectSlideLanguage');
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSongMenu, 'OptionsGameSelectSongMenu');
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectDuets, 'OptionsGameSelectDuets');
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectTabs, 'OptionsGameSelectTabs');
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSorting, 'OptionsGameSelectSlideSorting');
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectShowScores, 'OptionsGameSelectShowScores');
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSingScores, 'OptionsGameSelectSingScores');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectLanguage,        'OptionsGameSelectSlideLanguage');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSongMenu,        'OptionsGameSelectSongMenu');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectDuets,           'OptionsGameSelectDuets');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectTabs,            'OptionsGameSelectTabs');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSorting,         'OptionsGameSelectSlideSorting');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectShowScores,      'OptionsGameSelectShowScores');
+      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSingScores,      'OptionsGameSelectSingScores');
       Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectFindUnsetMedley, 'OptionsGameSelectFindUnsetMedley');
-      Self.ThemeLoadButton(Self.OptionsGame.ButtonExit, 'OptionsGameButtonExit');
+      Self.ThemeLoadButton(Self.OptionsGame.ButtonExit,                 'OptionsGameButtonExit');
 
-      ThemeLoadText(OptionsGame.LanguageDesc, 'OptionsGameLanguageDesc');
-      ThemeLoadText(OptionsGame.SongMenuDesc, 'OptionsGameSongMenuDesc');
-      ThemeLoadText(OptionsGame.DuetsDesc, 'OptionsGameDuetsDesc');
-      ThemeLoadText(OptionsGame.TabsDesc, 'OptionsGameTabsDesc');
-      ThemeLoadText(OptionsGame.SortingDesc, 'OptionsGameSortingDesc');
+      ThemeLoadText(OptionsGame.LanguageDesc,   'OptionsGameLanguageDesc');
+      ThemeLoadText(OptionsGame.SongMenuDesc,   'OptionsGameSongMenuDesc');
+      ThemeLoadText(OptionsGame.DuetsDesc,      'OptionsGameDuetsDesc');
+      ThemeLoadText(OptionsGame.TabsDesc,       'OptionsGameTabsDesc');
+      ThemeLoadText(OptionsGame.SortingDesc,    'OptionsGameSortingDesc');
       ThemeLoadText(OptionsGame.ShowScoresDesc, 'OptionsGameShowScoresDesc');
       ThemeLoadText(OptionsGame.SingScoresDesc, 'OptionsGameSingScoresDesc');
-      ThemeLoadText(OptionsGame.MedleyCDesc, 'OptionsGameMedleyCDesc');
+      ThemeLoadText(OptionsGame.MedleyCDesc,    'OptionsGameMedleyCDesc');
 	  
       // Options Graphics
       ThemeLoadBasic(OptionsGraphics, 'OptionsGraphics');
 
       ThemeLoadSelectSlide(OptionsGraphics.SelectFullscreen,   'OptionsGraphicsSelectFullscreen');
       ThemeLoadSelectSlide(OptionsGraphics.SelectResolution,   'OptionsGraphicsSelectSlideResolution');
-      ThemeLoadSelectSlide(OptionsGraphics.SelectScreenFade,    'OptionsGraphicsSelectScreenFade');
-      ThemeLoadSelectSlide(OptionsGraphics.SelectEffectSing,    'OptionsGraphicsSelectEffectSing');
+      ThemeLoadSelectSlide(OptionsGraphics.SelectScreenFade,   'OptionsGraphicsSelectScreenFade');
+      ThemeLoadSelectSlide(OptionsGraphics.SelectEffectSing,   'OptionsGraphicsSelectEffectSing');
       ThemeLoadSelectSlide(OptionsGraphics.SelectVisualizer,   'OptionsGraphicsSelectVisualizer');
       ThemeLoadSelectSlide(OptionsGraphics.SelectMovieSize,    'OptionsGraphicsSelectMovieSize');
       ThemeLoadButton(OptionsGraphics.ButtonExit,              'OptionsGraphicsButtonExit');
+
+      ThemeLoadText(OptionsGraphics.FullscreenDesc,            'OptionsGraphicsFullscreenDesc');
+      ThemeLoadText(OptionsGraphics.ResolutionDesc,            'OptionsGraphicsResolutionDesc');
+      ThemeLoadText(OptionsGraphics.ScreenFadeDesc,            'OptionsGraphicsScreenFadeDesc');
+      ThemeLoadText(OptionsGraphics.EffectSingDesc,            'OptionsGraphicsEffectSingDesc');
+      ThemeLoadText(OptionsGraphics.VisualizerDesc,            'OptionsGraphicsVisualizerDesc');
+      ThemeLoadText(OptionsGraphics.MovieSizeDesc,             'OptionsGraphicsMovieSizeDesc');
 
       // Options Sound
       ThemeLoadBasic(OptionsSound, 'OptionsSound');
