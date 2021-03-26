@@ -830,14 +830,23 @@ type
   end;
 
   TThemeOptionsSound = class(TThemeBasic)
+    SelectSlideVoicePassthrough: TThemeSelectSlide;
     SelectBackgroundMusic:       TThemeSelectSlide;
     SelectClickAssist:           TThemeSelectSlide;
     SelectBeatClick:             TThemeSelectSlide;
+    SelectSlideMusicAutoGain:    TThemeSelectSlide;
     SelectSlidePreviewVolume:    TThemeSelectSlide;
     SelectSlidePreviewFading:    TThemeSelectSlide;
-    SelectSlideVoicePassthrough: TThemeSelectSlide;
-    SelectSlideMusicAutoGain:    TThemeSelectSlide;
     ButtonExit:                  TThemeButton;
+
+    VoicePassthroughDesc:        TThemeText;
+    BackgroundMusicDesc:         TThemeText;
+    ClickAssistDesc:             TThemeText;
+    BeatClickDesc:               TThemeText;
+    MusicAutoGainDesc:           TThemeText;
+    PreviewVolumeDesc:           TThemeText;
+    PreviewFadingDesc:           TThemeText;
+  
   end;
 
   TThemeOptionsLyrics = class(TThemeBasic)
@@ -2012,7 +2021,6 @@ begin
       ThemeLoadButton(Options.ButtonGame,        'OptionsButtonGame');
       ThemeLoadButton(Options.ButtonGraphics,    'OptionsButtonGraphics');
       ThemeLoadButton(Options.ButtonSound,       'OptionsButtonSound');
-
       ThemeLoadButton(Options.ButtonLyrics,      'OptionsButtonLyrics');
       ThemeLoadButton(Options.ButtonThemes,      'OptionsButtonThemes');
       ThemeLoadButton(Options.ButtonMicrophones, 'OptionsButtonMicrophones');
@@ -2065,17 +2073,23 @@ begin
 
       // Options Sound
       ThemeLoadBasic(OptionsSound, 'OptionsSound');
-
+	  
+      ThemeLoadSelectSlide(OptionsSound.SelectSlideVoicePassthrough, 'OptionsSoundSelectVoicePassthrough');
       ThemeLoadSelectSlide(OptionsSound.SelectBackgroundMusic,       'OptionsSoundSelectBackgroundMusic');
       ThemeLoadSelectSlide(OptionsSound.SelectClickAssist,           'OptionsSoundSelectClickAssist');
       ThemeLoadSelectSlide(OptionsSound.SelectBeatClick,             'OptionsSoundSelectBeatClick');
-      //Song Preview
       ThemeLoadSelectSlide(OptionsSound.SelectSlidePreviewVolume,    'OptionsSoundSelectSlidePreviewVolume');
       ThemeLoadSelectSlide(OptionsSound.SelectSlidePreviewFading,    'OptionsSoundSelectSlidePreviewFading');
-      ThemeLoadSelectSlide(OptionsSound.SelectSlideVoicePassthrough, 'OptionsSoundSelectVoicePassthrough');
       ThemeLoadSelectSlide(OptionsSound.SelectSlideMusicAutoGain,    'OptionsSoundSelectSlideMusicAutoGain');
+      ThemeLoadButton(OptionsSound.ButtonExit,                       'OptionsSoundButtonExit');
 
-      ThemeLoadButton(OptionsSound.ButtonExit, 'OptionsSoundButtonExit');
+      ThemeLoadText(OptionsSound.VoicePassthroughDesc,        'OptionsSoundVoicePassthroughDesc');
+      ThemeLoadText(OptionsSound.BackgroundMusicDesc,         'OptionsSoundBackgroundMusicDesc');
+      ThemeLoadText(OptionsSound.ClickAssistDesc,             'OptionsSoundClickAssistDesc');
+      ThemeLoadText(OptionsSound.BeatClickDesc,               'OptionsSoundBeatClickDesc');
+      ThemeLoadText(OptionsSound.MusicAutoGainDesc,           'OptionsSoundMusicAutoGainDesc');
+      ThemeLoadText(OptionsSound.PreviewVolumeDesc,           'OptionsSoundPreviewVolumeDesc');
+      ThemeLoadText(OptionsSound.PreviewFadingDesc,           'OptionsSoundPreviewFadingDesc');
 
       // Options Lyrics
       ThemeLoadBasic(OptionsLyrics, 'OptionsLyrics');

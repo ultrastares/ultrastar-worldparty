@@ -141,13 +141,6 @@ begin
   VisualizerDesc := Self.AddText(UThemes.Theme.OptionsGraphics.VisualizerDesc);
   MovieSizeDesc  := Self.AddText(UThemes.Theme.OptionsGraphics.MovieSizeDesc);
   
-  //UThemes.Theme.OptionsGraphics.FullscreenDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GRAPHICS_FULLSCREEN_DESC');
-  //UThemes.Theme.OptionsGraphics.ResolutionDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GRAPHICS_RESOLUTION_DESC');
-  //UThemes.Theme.OptionsGraphics.ScreenFadeDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GRAPHICS_SCREENFADE_DESC');
-  //UThemes.Theme.OptionsGraphics.EffectSingDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GRAPHICS_EFFECTSING_DESC');
-  //UThemes.Theme.OptionsGraphics.VisualizerDesc.Text := ULanguage.Language.Translate('SING_OPTIONS_GRAPHICS_VISUALIZER_DESC');
-  //UThemes.Theme.OptionsGraphics.MovieSizeDesc.Text  := ULanguage.Language.Translate('SING_OPTIONS_GRAPHICS_MOVIESIZE_DESC');
-
 end;
 
 procedure TScreenOptionsGraphics.OnShow;

@@ -42,6 +42,7 @@ uses
 type
   TScreenOptionsSound = class(TMenu)
   public
+    VoicePassthroughDesc, BackgroundMusicDesc, ClickAssistDesc, BeatClickDesc, MusicAutoGainDesc, PreviewVolumeDesc, PreviewFadingDesc : integer;
     constructor Create; override;
     function ParseInput(PressedKey: Cardinal; CharCode: UCS4Char;
       PressedDown: boolean): boolean; override;
@@ -147,6 +148,14 @@ begin
   AddSelectSlide(Theme.OptionsSound.SelectSlidePreviewFading, UIni.Ini.PreviewFading, IPreviewFadingTranslated);
 
   AddButton(Theme.OptionsSound.ButtonExit);
+
+  VoicePassthroughDesc      := Self.AddText(UThemes.Theme.OptionsSound.VoicePassthroughDesc);
+  BackgroundMusicDesc       := Self.AddText(UThemes.Theme.OptionsSound.BackgroundMusicDesc);
+  ClickAssistDesc           := Self.AddText(UThemes.Theme.OptionsSound.ClickAssistDesc);
+  BeatClickDesc             := Self.AddText(UThemes.Theme.OptionsSound.BeatClickDesc);
+  MusicAutoGainDesc         := Self.AddText(UThemes.Theme.OptionsSound.MusicAutoGainDesc);
+  PreviewVolumeDesc         := Self.AddText(UThemes.Theme.OptionsSound.PreviewVolumeDesc);
+  PreviewFadingDesc         := Self.AddText(UThemes.Theme.OptionsSound.PreviewFadingDesc);
 
   Interaction := 0;
 end;
