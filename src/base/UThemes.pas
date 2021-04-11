@@ -850,23 +850,35 @@ type
   end;
 
   TThemeOptionsLyrics = class(TThemeBasic)
-    SelectMode: TThemeSelectSlide;
+    SelectMode:         TThemeSelectSlide;
     SelectModeProperty: TThemeSelectSlide;
-    SelectFont: TThemeSelectSlide;
-    SelectEffect: TThemeSelectSlide;
+    SelectFont:         TThemeSelectSlide;
+    SelectEffect:       TThemeSelectSlide;
     SelectTransparency: TThemeSelectSlide;
-    SelectLines: TThemeSelectSlide;
-    SelectProperty: TThemeSelectSlide;
-    SelectColor: TThemeSelectSlide;
-    SelectR: TThemeSelectSlide;
-    SelectG: TThemeSelectSlide;
-    SelectB: TThemeSelectSlide;
-    PointerR: TThemeStatic;
-    PointerG: TThemeStatic;
-    PointerB: TThemeStatic;
-    TexColor: TThemeStatic;
-    LyricBar: TThemeLyricBar;
-    ButtonExit: TThemeButton;
+    SelectLines:        TThemeSelectSlide;
+    SelectProperty:     TThemeSelectSlide;
+    SelectColor:        TThemeSelectSlide;
+    SelectR:            TThemeSelectSlide;
+    SelectG:            TThemeSelectSlide;
+    SelectB:            TThemeSelectSlide;
+    PointerR:           TThemeStatic;
+    PointerG:           TThemeStatic;
+    PointerB:           TThemeStatic;
+    TexColor:           TThemeStatic;
+    LyricBar:           TThemeLyricBar;
+    ButtonExit:         TThemeButton;
+
+    ModeDesc:           TThemeText;
+    StavesDesc:         TThemeText;
+    PositionDesc:       TThemeText;
+    FontDesc:           TThemeText;
+    EffectDesc:         TThemeText;
+    TransparencyDesc:   TThemeText;
+    LineDesc:           TThemeText;
+    PropertyDesc:       TThemeText;
+    ColorDesc:          TThemeText;
+    ModePropertyDesc:   TThemeText;
+
   end;
 
   TThemeOptionsThemes = class(TThemeBasic)
@@ -2094,24 +2106,34 @@ begin
       // Options Lyrics
       ThemeLoadBasic(OptionsLyrics, 'OptionsLyrics');
 
-      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectMode, 'OptionsLyricsSelectMode');
-      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectModeProperty, 'OptionsLyricsSelectModeProperty');
-      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectFont, 'OptionsLyricsSelectFont');
-      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectEffect, 'OptionsLyricsSelectEffect');
+      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectMode,         'OptionsLyricsSelectMode');
+      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectFont,         'OptionsLyricsSelectFont');
+      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectEffect,       'OptionsLyricsSelectEffect');
       Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectTransparency, 'OptionsLyricsSelectTransparency');
-      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectLines, 'OptionsLyricsSelectLines');
-      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectProperty, 'OptionsLyricsSelectProperty');
-      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectColor, 'OptionsLyricsSelectColor');
-      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectR, 'OptionsLyricsSelectR');
-      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectG, 'OptionsLyricsSelectG');
-      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectB, 'OptionsLyricsSelectB');
-      Self.ThemeLoadStatic(Self.OptionsLyrics.PointerR, 'OptionsLyricsPointerR');
-      Self.ThemeLoadStatic(Self.OptionsLyrics.PointerG, 'OptionsLyricsPointerG');
-      Self.ThemeLoadStatic(Self.OptionsLyrics.PointerB, 'OptionsLyricsPointerB');
-      Self.ThemeLoadStatic(Self.OptionsLyrics.TexColor, 'OptionsLyricsColor');
-      Self.ThemeLoadLyricBar(Self.OptionsLyrics.LyricBar, 'OptionsLyricsUpperBar');
-      Self.ThemeLoadButton(OptionsLyrics.ButtonExit, 'OptionsLyricsButtonExit');
+      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectLines,        'OptionsLyricsSelectLines');
+      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectModeProperty, 'OptionsLyricsSelectModeProperty');
+      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectProperty,     'OptionsLyricsSelectProperty');
+      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectColor,        'OptionsLyricsSelectColor');
+      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectR,            'OptionsLyricsSelectR');
+      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectG,            'OptionsLyricsSelectG');
+      Self.ThemeLoadSelectSlide(Self.OptionsLyrics.SelectB,            'OptionsLyricsSelectB');
+      Self.ThemeLoadStatic(Self.OptionsLyrics.PointerR,                'OptionsLyricsPointerR');
+      Self.ThemeLoadStatic(Self.OptionsLyrics.PointerG,                'OptionsLyricsPointerG');
+      Self.ThemeLoadStatic(Self.OptionsLyrics.PointerB,                'OptionsLyricsPointerB');
+      Self.ThemeLoadStatic(Self.OptionsLyrics.TexColor,                'OptionsLyricsColor');
+      Self.ThemeLoadLyricBar(Self.OptionsLyrics.LyricBar,              'OptionsLyricsUpperBar');
+      Self.ThemeLoadButton(OptionsLyrics.ButtonExit,                   'OptionsLyricsButtonExit');
 
+      ThemeLoadText(OptionsLyrics.ModeDesc,          'OptionsLyricsModeDesc');
+      ThemeLoadText(OptionsLyrics.StavesDesc,        'OptionsLyricsStavesDesc');
+      ThemeLoadText(OptionsLyrics.PositionDesc,      'OptionsLyricsPositionDesc');
+      ThemeLoadText(OptionsLyrics.FontDesc,          'OptionsLyricsFontDesc');
+      ThemeLoadText(OptionsLyrics.EffectDesc,        'OptionsLyricsEffectDesc');
+      ThemeLoadText(OptionsLyrics.TransparencyDesc,  'OptionsLyricsTransparencyDesc');
+      ThemeLoadText(OptionsLyrics.LineDesc,          'OptionsLyricsLineDesc');
+      ThemeLoadText(OptionsLyrics.PropertyDesc,      'OptionsLyricsPropertyDesc');
+      ThemeLoadText(OptionsLyrics.ColorDesc,         'OptionsLyricsColorDesc');
+	  
       // Options Themes
       ThemeLoadBasic(OptionsThemes, 'OptionsThemes');
 

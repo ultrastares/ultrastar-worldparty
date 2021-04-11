@@ -38,18 +38,9 @@ type
   TScreenOptionsLyrics = class(TMenu)
     protected
       Lyrics: TLyricEngine;
-      SelectModeProperty: integer;
-      SelectFont: integer;
-      SelectEffect: integer;
-      SelectTransparency: integer;
-      SelectLines: integer;
-      SelectProperty: integer;
-      SelectColor: integer;
-      SelectMode: integer;
-      TexColor: integer;
-      Red: integer;
-      Green: integer;
-      Blue: integer;
+      SelectModeProperty, SelectFont, SelectEffect, SelectTransparency, SelectLines, SelectProperty, SelectColor, SelectMode: integer;
+      ModePropertyDesc, FontDesc, EffectDesc, TransparencyDesc, LineDesc, PropertyDesc, ColorDesc, ModeDesc, StavesDesc, PositionDesc: integer;      
+      TexColor, Red, Green, Blue: integer;
       PointerStart: integer;
       SingColor: string;
       SingOutlineColor: string;
@@ -104,6 +95,18 @@ begin
   Self.TexColor := Self.AddStatic(UThemes.Theme.OptionsLyrics.TexColor);
   Self.AddButton(UThemes.Theme.OptionsLyrics.ButtonExit);
   Self.SetModeValues();
+
+  ModeDesc            := Self.AddText(UThemes.Theme.OptionsLyrics.ModeDesc);
+  StavesDesc          := Self.AddText(UThemes.Theme.OptionsLyrics.StavesDesc);
+  PositionDesc        := Self.AddText(UThemes.Theme.OptionsLyrics.PositionDesc);
+  FontDesc            := Self.AddText(UThemes.Theme.OptionsLyrics.FontDesc);
+  EffectDesc          := Self.AddText(UThemes.Theme.OptionsLyrics.EffectDesc);
+  TransparencyDesc    := Self.AddText(UThemes.Theme.OptionsLyrics.TransparencyDesc);
+  LineDesc            := Self.AddText(UThemes.Theme.OptionsLyrics.LineDesc);
+  PropertyDesc        := Self.AddText(UThemes.Theme.OptionsLyrics.PropertyDesc);
+  ColorDesc           := Self.AddText(UThemes.Theme.OptionsLyrics.ColorDesc);
+  ModePropertyDesc    := Self.AddText(UThemes.Theme.OptionsLyrics.ModePropertyDesc);
+
 
   //add lyric lines
   Self.Lyrics := TLyricEngine.Create(UThemes.Theme.OptionsLyrics.LyricBar, -1);
@@ -331,7 +334,7 @@ begin
   begin
     Self.SelectModeProperty := UIni.Ini.JukeboxOffset;
     Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectModeProperty, 0, UIni.JukeboxOffsetLyric, Self.SelectModeProperty);
-    Self.SelectsS[0].Text.Text := ULanguage.Language.Translate('JUKEBOX_SONGOPTIONS_LYRIC_POSITION');
+    Self.SelectsS[0].Text.Text := ULanguage.Language.Translate('SING_OPTIONS_LYRICS_POSITION');
     Self.SelectsS[1].SelectedOption := UIni.Ini.JukeboxFont;
     Self.SelectsS[2].SelectedOption := UIni.Ini.JukeboxEffect;
     Self.SelectsS[3].SelectedOption := UIni.Ini.JukeboxTransparency;
