@@ -460,16 +460,16 @@ begin
     IBlue[I]  := IntToStr(I);
   end;
 
-  GreyScaleColor[0] := ULanguage.Language.Translate('OPTION_VALUE_BLACK');
-  GreyScaleColor[1] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +3';
-  GreyScaleColor[2] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +2';
-  GreyScaleColor[3] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' +1';
-  GreyScaleColor[4] := ULanguage.Language.Translate('OPTION_VALUE_GRAY');
-  GreyScaleColor[5] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -1';
-  GreyScaleColor[6] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -2';
-  GreyScaleColor[7] := ULanguage.Language.Translate('OPTION_VALUE_GRAY') + ' -3';
-  GreyScaleColor[8] := ULanguage.Language.Translate('OPTION_VALUE_WHITE');
-  GreyScaleColor[9] := ULanguage.Language.Translate('OPTION_VALUE_OTHER');
+  GreyScaleColor[0] := ULanguage.Language.Translate('C_COLOR_BLACK');
+  GreyScaleColor[1] := ULanguage.Language.Translate('C_COLOR_GRAY') + ' +3';
+  GreyScaleColor[2] := ULanguage.Language.Translate('C_COLOR_GRAY') + ' +2';
+  GreyScaleColor[3] := ULanguage.Language.Translate('C_COLOR_GRAY') + ' +1';
+  GreyScaleColor[4] := ULanguage.Language.Translate('C_COLOR_GRAY');
+  GreyScaleColor[5] := ULanguage.Language.Translate('C_COLOR_GRAY') + ' -1';
+  GreyScaleColor[6] := ULanguage.Language.Translate('C_COLOR_GRAY') + ' -2';
+  GreyScaleColor[7] := ULanguage.Language.Translate('C_COLOR_GRAY') + ' -3';
+  GreyScaleColor[8] := ULanguage.Language.Translate('C_COLOR_WHITE');
+  GreyScaleColor[9] := ULanguage.Language.Translate('C_COLOR_OTHER');
 
   // Network
   IAutoModeTranslated[0]         := ULanguage.Language.Translate('OPTION_VALUE_OFF');
@@ -1017,7 +1017,7 @@ begin
   VoicePassthrough := ReadArrayIndex(IVoicePassthrough, IniFile, 'Sound', 'VoicePassthrough', 0);
 
   // ReplayGain aka MusicAutoGain
-  MusicAutoGain := ReadArrayIndex(IMusicAutoGain, IniFile, 'Sound', 'MusicAutoGain', 0);
+  MusicAutoGain := ReadArrayIndex(IMusicAutoGain, IniFile, 'Sound', 'MusicAutoGain', 2);
 
   SoundFont := IniFile.ReadString('Sound', 'SoundFont', '');
 
