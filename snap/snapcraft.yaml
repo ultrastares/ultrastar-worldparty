@@ -22,7 +22,7 @@ description: |
    - The network to connect to UltraStar España to download or send scores.
 
   ERRORS
-  If you find a problem and receive an error message with extrange numbers and letters, you must use the debug executable and repeat the steps to reproduce it and get an human readable message.
+  If you find a problem and receive an error message with strange numbers and letters, you must use the debug executable and repeat the steps to reproduce it and get an human readable message.
   To do it put in your terminal: snap run ultrastar-worldparty-debug. 
   After this please report the error in our GitHub https://github.com/ultrastares/ultrastar-worldparty or in the forum of our website https://ultrastar-es.org/foro 
 
