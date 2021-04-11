@@ -6,7 +6,29 @@ license: GPL-3.0
 summary: A free and open source karaoke game
 description: |
   It allows up to six players to sing along with music using microphones in order to score points, depending on the pitch of the voice and the rhythm of singing.
-  You can use a gamepad to navigate and a webcam to see how you enjoy with your friends and your favorite songs.
+
+  ABOUT US
+  This game is developed by the UltraStar España team. You can found in our website https://ultrastar-es.org thousand of songs, info and help about it. 
+  If you want follow the develop of the next version please visit our GitHub https://github.com/ultrastares/ultrastar-worldparty
+  
+  CONFIGURATION
+  You can found in the snap folder ~/snap/ultrastar-worldparty/current/.ultrastar-worldparty the config.ini or the default song folder or the playlist folder.
+  To add another song folder use the SongDir1 option in the config.ini, all paths of your home or your system default mount folders (i.e. /media in *ubuntu distros) are allowed.
+  
+  PERMISSIONS
+  The game has enabled permissions to access to some parts of your computer. The most important are:
+   - The USB or Bluetooth to use a wired or wireless microphone, gamepad, joystick or keyboard.
+   - The webcam to see your image as the background while you are singing instead of the original song video.
+   - The network to connect to UltraStar España to download or send scores.
+
+  ERRORS
+  If you found a problem and receive an error message with extrange numbers and letters, you must use the debug executable and repeat the steps to reproduce it and get an human readable message.
+  To do it put in your terminal: snap run ultrastar-worldparty-debug. 
+  Later of this please report the error in our GitHub https://github.com/ultrastares/ultrastar-worldparty or in the forum of our website https://ultrastar-es.org/foro 
+
+  SUPPORT
+  If you have a support question please search your question in our forum https://ultrastar-es.org/foro or create a new thread if you can't found it.
+  It's a Spanish forum and if you know our language is perfect, but we can answer in English and some collaborators can do it in French but the others are preferable.
 grade: stable
 confinement: strict
 architectures:
