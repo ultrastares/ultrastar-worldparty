@@ -886,6 +886,10 @@ type
     SelectSkin:         TThemeSelectSlide;
     SelectColor:        TThemeSelectSlide;
     ButtonExit:         TThemeButton;
+	
+    ThemeDesc:        TThemeText;
+    SkinDesc:         TThemeText;
+    ColorDesc:        TThemeText;
   end;
 
   TThemeOptionsMicrophones = class(TThemeBasic)
@@ -2142,6 +2146,10 @@ begin
       ThemeLoadSelectSlide(OptionsThemes.SelectColor, 'OptionsThemesSelectColor');
       ThemeLoadButton(OptionsThemes.ButtonExit,       'OptionsThemesButtonExit');
 
+      ThemeLoadText(OptionsThemes.ThemeDesc,          'OptionsThemesThemeDesc');
+      ThemeLoadText(OptionsThemes.SkinDesc,           'OptionsThemesSkinDesc');
+      ThemeLoadText(OptionsThemes.ColorDesc,          'OptionsThemesColorDesc');
+	  
       // Options Microphones
       ThemeLoadBasic(OptionsMicrophones, 'OptionsMicrophones');
 

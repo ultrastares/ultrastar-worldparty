@@ -44,10 +44,9 @@ type
     private
       procedure ReloadTheme;
     public
-      ActualTheme:  Integer;
-      ActualSkin:   Integer;
-      ActualColor:  Integer;
-      SkinSelect: integer;
+      ActualTheme, ActualSkin, ActualColor:  Integer;
+      SkinSelect: Integer;
+      ThemeDesc, SkinDesc, ColorDesc: Integer;
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure InteractInc; override;
@@ -144,6 +143,9 @@ begin
 
   AddButton(Theme.OptionsThemes.ButtonExit);
 
+  ThemeDesc  := Self.AddText(UThemes.Theme.OptionsThemes.ThemeDesc);
+  SkinDesc   := Self.AddText(UThemes.Theme.OptionsThemes.SkinDesc);
+  ColorDesc  := Self.AddText(UThemes.Theme.OptionsThemes.ColorDesc);
 end;
 
 procedure TScreenOptionsThemes.ReloadTheme;
