@@ -84,6 +84,8 @@ type
       SourceVolume: single;
       NextVolumePollTime: cardinal;
 
+      SoundCardDesc, InputDesc, ChannelDesc, ThresholdDesc, MicBoostDesc: integer; 
+	
       procedure StartPreview;
       procedure StopPreview;
       procedure UpdateInputDevice;
@@ -208,9 +210,7 @@ end;
 
 constructor TScreenOptionsMicrophones.Create;
 var
-  DeviceIndex:  integer;
-  SourceIndex:  integer;
-  ChannelIndex: integer;
+  DeviceIndex, SourceIndex, ChannelIndex, PlayerIndex: integer;
   InputDevice: TAudioInputDevice;
   InputDeviceCfg: PInputDeviceConfig;
   ChannelTheme: ^TThemeSelectSlide;
@@ -257,10 +257,8 @@ begin
     SelectInputSourceID := AddSelectSlide(Theme.OptionsMicrophones.SelectSlideInput, InputDeviceCfg.Input, InputSourceNames);
 
     // add space for source volume bar
-    WidgetYPos := Theme.OptionsMicrophones.SelectSlideInput.Y +
-                  Theme.OptionsMicrophones.SelectSlideInput.H +
-                  SourceBarsTotalHeight;
-
+    WidgetYPos := Theme.OptionsMicrophones.SelectSlideChannel.Y;
+				  
     // find max. channel count of all devices
     MaxChannelCount := 0;
     for DeviceIndex := 0 to High(AudioInputProcessor.DeviceList) do
@@ -274,6 +272,10 @@ begin
     SetLength(SelectSlideChannelTheme, MaxChannelCount);
 
     ChannelPlayer[0] := ULanguage.Language.Translate('OPTION_VALUE_OFF');
+    for PlayerIndex := 1 to UIni.IMaxPlayerCount do
+	    ChannelPlayer[PlayerIndex] := ULanguage.Language.Translate('C_PLAYER') + ' ' + IntToStr(PlayerIndex);
+
+
     for ChannelIndex := 0 to MaxChannelCount-1 do
     begin
       // copy reference slide
@@ -286,7 +288,7 @@ begin
       // calc size of next slide (add space for bars)
       WidgetYPos := WidgetYPos + ChannelTheme.H + ChannelBarsTotalHeight;
       // append channel index to name
-      ChannelTheme.Text := ChannelTheme.Text + IntToStr(ChannelIndex+1);
+      ChannelTheme.Text := ULanguage.Language.Translate('SING_OPTIONS_MICROPHONES_CHANNEL') + ' ' + IntToStr(ChannelIndex+1);
 
       // show/hide widgets depending on whether the channel exists
       if (ChannelIndex < Length(InputDeviceCfg.ChannelToPlayerMap)) then
@@ -321,6 +323,12 @@ begin
     ExitButtonIID := MaxChannelCount + 4
   else
     ExitButtonIID := 2;
+	
+  SoundCardDesc      := Self.AddText(UThemes.Theme.OptionsMicrophones.SoundCardDesc);
+  InputDesc          := Self.AddText(UThemes.Theme.OptionsMicrophones.InputDesc);
+  ChannelDesc        := Self.AddText(UThemes.Theme.OptionsMicrophones.ChannelDesc);
+  ThresholdDesc      := Self.AddText(UThemes.Theme.OptionsMicrophones.ThresholdDesc);
+  MicBoostDesc       := Self.AddText(UThemes.Theme.OptionsMicrophones.MicBoostDesc);
 
   // set focus
   Interaction := 0;
@@ -504,15 +512,6 @@ begin
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
 
-  // draw black background-rect
-  glColor4f(0, 0, 0, 0.8);
-  glBegin(GL_QUADS);
-    glVertex2f(x1, y1);
-    glVertex2f(x2, y1);
-    glVertex2f(x2, y2);
-    glVertex2f(x1, y2);
-  glEnd();
-
   VolBarInnerWidth := Trunc(Width - 2*VolBarInnerHSpacing);
 
   // TODO: if no volume is available, show some info (a blue bar maybe)
@@ -656,7 +655,7 @@ var
   ToneStringMaxWidth: real;
   ToneStringCenterXOffset: real;
 const
-  PitchBarInnerHSpacing = 2;
+  PitchBarInnerHSpacing = 3;
   PitchBarInnerVSpacing = 1;
 begin
   // calc tone pitch
@@ -723,7 +722,7 @@ begin
 
   // initialize font
   // TODO: what about reflection, italic etc.?
-  SetFontSize(ToneStringHeight);
+  SetFontSize(ToneStringHeight/2);
 
   // center
   // Note: for centering let us assume that G#4 has the max. horizontal extent
@@ -732,8 +731,9 @@ begin
   ToneStringCenterXOffset := (ToneStringMaxWidth-ToneStringWidth) / 2;
 
   // draw
-  SetFontPos(x-ToneStringWidth-ToneStringCenterXOffset, y-ToneStringHeight/2);
-  glColor3f(0, 0, 0);
+
+  SetFontPos(x-20, y);
+  glColor3f(1, 1, 1);
   glPrint(ToneString);
 end;
 

@@ -380,7 +380,7 @@ const
   ISingTimebarMode:    array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
   IJukeboxTimebarMode: array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
 
-  // Recording options
+  // Microphone options
   IChannelPlayer: array[0..6] of UTF8String = ('Off', '1', '2', '3', '4', '5', '6');
   IMicBoost:      array[0..3] of UTF8String = ('Off', '+6dB', '+12dB', '+18dB');
 
@@ -664,7 +664,7 @@ begin
   RecordKeys.Free();
 
   // MicBoost
-  MicBoost := ReadArrayIndex(IMicBoost, IniFile, 'Record', 'MicBoost', IGNORE_INDEX, 'Off');
+  MicBoost := ReadArrayIndex(IMicBoost, IniFile, 'Record', 'MicBoost', 1);
   // Threshold
   ThresholdIndex := ReadArrayIndex(IThreshold, IniFile, 'Record', 'Threshold', 1);
 end;
