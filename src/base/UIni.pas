@@ -123,7 +123,7 @@ type
       Difficulty:     integer;
       Language:       integer;
       SongMenu:       integer;
-      ShowDuets: integer;
+      ShowDuets:      integer;
       Tabs:           integer;
       Sorting:        integer;
       ShowScores:     integer;
@@ -131,34 +131,34 @@ type
 
 
       // Graphics
-      MaxFramerate: integer;
-      Screens:        integer;
-      Split:          integer;
-      Resolution:     integer;             // Resolution for windowed mode
-      ResolutionFullscreen:     integer;   // Resolution for real fullscreen (changing Video mode)
-      EffectSing:     integer;
-      ScreenFade:     integer;
-      VisualizerOption: integer;
-      FullScreen:     integer;
-      TextureSize:    integer;
-      SingWindow:     integer;
+      MaxFramerate:         integer;
+      Screens:              integer;
+      Split:                integer;
+      Resolution:           integer;   // Resolution for windowed mode
+      ResolutionFullscreen: integer;   // Resolution for real fullscreen (changing Video mode)
+      EffectSing:           integer;
+      ScreenFade:           integer;
+      VisualizerOption:     integer;
+      FullScreen:           integer;
+      TextureSize:          integer;
+      SingWindow:           integer;
       // not used
-      //Spectrum:       integer;
-      //Spectrograph:   integer;
-      MovieSize:      integer;
-      VideoPreview:   integer;
-      VideoEnabled:   integer;
+      //Spectrum:           integer;
+      //Spectrograph:       integer;
+      MovieSize:            integer;
+      VideoPreview:         integer;
+      VideoEnabled:         integer;
 
       // Sound
-      MicBoost:       integer;
-      ClickAssist:    integer;
-      BeatClick:      integer;
-      SavePlayback:   integer;
-      ThresholdIndex: integer;
+      MicBoost:                   integer;
+      ClickAssist:                integer;
+      BeatClick:                  integer;
+      SavePlayback:               integer;
+      ThresholdIndex:             integer;
       AudioOutputBufferSizeIndex: integer;
-      VoicePassthrough: integer;
-      MusicAutoGain:  integer;
-      SoundFont:      string;
+      VoicePassthrough:           integer;
+      MusicAutoGain:              integer;
+      SoundFont:                  string;
 
       SyncTo: integer;
 
@@ -167,34 +167,34 @@ type
       PreviewFading:  integer;
 
       //lyrics
-      NoteLines: integer;
-      LyricsFont: integer;
-      LyricsEffect: integer;
-      LyricsTransparency: integer;
-      LyricsSingColor: string;
-      LyricsSingOutlineColor: string;
-      LyricsCurrentColor: string;
+      NoteLines:                 integer;
+      LyricsFont:                integer;
+      LyricsEffect:              integer;
+      LyricsTransparency:        integer;
+      LyricsSingColor:           string;
+      LyricsSingOutlineColor:    string;
+      LyricsCurrentColor:        string;
       LyricsCurrentOutlineColor: string;
-      LyricsNextColor: string;
-      LyricsNextOutlineColor: string;
+      LyricsNextColor:           string;
+      LyricsNextOutlineColor:    string;
 
       // Jukebox
-      JukeboxOffset: integer;
-      JukeboxSongMenu: integer;
-      JukeboxFont: integer;
-      JukeboxEffect: integer;
-      JukeboxTransparency: integer;
-      JukeboxSingColor: string;
-      JukeboxSingOutlineColor: string;
-      JukeboxCurrentColor: string;
+      JukeboxOffset:              integer;
+      JukeboxSongMenu:            integer;
+      JukeboxFont:                integer;
+      JukeboxEffect:              integer;
+      JukeboxTransparency:        integer;
+      JukeboxSingColor:           string;
+      JukeboxSingOutlineColor:    string;
+      JukeboxCurrentColor:        string;
       JukeboxCurrentOutlineColor: string;
-      JukeboxNextColor: string;
-      JukeboxNextOutlineColor: string;
+      JukeboxNextColor:           string;
+      JukeboxNextOutlineColor:    string;
 
       // Themes
-      Theme:          integer;
-      Skin:         integer;
-      Color:          integer;
+      Theme:                 integer;
+      Skin:                  integer;
+      Color:                 integer;
       BackgroundMusicOption: integer;
 
       // Record
@@ -202,17 +202,17 @@ type
 
       // Advanced
 
-	  Debug:          integer;
-      Oscilloscope:   integer;
-      AskBeforeDel:   integer;
-      OnSongClick:    integer;
-      LineBonus:      integer;
-      PartyPopup:     integer;
-      SingScores:     integer;
-      TopScores:      integer;
-      SingTimebarMode:       integer;
-      JukeboxTimebarMode:    integer;
-      FindUnsetMedley: integer;
+      Debug:              integer;
+      Oscilloscope:       integer;
+      AskBeforeExit:      integer;
+      OnSongClick:        integer;
+      LineBonus:          integer;
+      PartyPopup:         integer;
+      SingScores:         integer;
+      TopScores:          integer;
+      SingTimebarMode:    integer;
+      JukeboxTimebarMode: integer;
+      FindUnsetMedley:    integer;
 
       // WebCam
       WebCamID:         integer;
@@ -277,51 +277,51 @@ var
  *}
 
 const
-  IDifficulty:  array[0..2] of UTF8String = ('Easy', 'Medium', 'Hard');
-  Switch: array[0..1] of UTF8String = ('Off', 'On');
-  ISorting:      array[0..8] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade');
-  ISongMenuMode: array[0..6] of UTF8String = ('Roulette', 'Chessboard', 'Carousel', 'Slot Machine', 'Slide', 'List', 'Mosaic');
+  IDifficulty:        array[0..2] of UTF8String = ('Easy', 'Medium', 'Hard');
+  Switch:             array[0..1] of UTF8String = ('Off', 'On');
+  ISorting:           array[0..8] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade');
+  ISongMenuMode:      array[0..6] of UTF8String = ('Roulette', 'Chessboard', 'Carousel', 'Slot Machine', 'Slide', 'List', 'Mosaic');
 
 type
   TSortingType = (sEdition, sGenre, sLanguage, sFolder, sTitle, sArtist, sArtist2, sYear, sDecade);
 
 const
-  IShowScores:       array[0..2] of UTF8String  = ('Off', 'When exists', 'On');
+  IShowScores:        array[0..2] of UTF8String  = ('Off', 'When exists', 'On');
 
-  IDebug:            array[0..1] of UTF8String  = ('Off', 'On');
+  IDebug:             array[0..1] of UTF8String  = ('Off', 'On');
 
-  IScreens:          array[0..1] of UTF8String  = ('1', '2');
-  ISplit:            array[0..1] of UTF8String  = ('Off', 'On');
-  IFullScreen:       array[0..2] of UTF8String  = ('Off', 'On', 'Borderless');
-  IVisualizer:       array[0..3] of UTF8String  = ('Off', 'WhenNoVideo', 'WhenNoVideoAndImage', 'On');
+  IScreens:           array[0..1] of UTF8String  = ('1', '2');
+  ISplit:             array[0..1] of UTF8String  = ('Off', 'On');
+  IFullScreen:        array[0..2] of UTF8String  = ('Off', 'On', 'Borderless');
+  IVisualizer:        array[0..3] of UTF8String  = ('Off', 'WhenNoVideo', 'WhenNoVideoAndImage', 'On');
 
-  IBackgroundMusic:  array[0..1] of UTF8String  = ('Off', 'On');
+  IBackgroundMusic:   array[0..1] of UTF8String  = ('Off', 'On');
 
-  ITextureSize:      array[0..3] of UTF8String  = ('64', '128', '256', '512');
-  ITextureSizeVals:  array[0..3] of integer     = ( 64,   128,   256,   512);
+  ITextureSize:       array[0..3] of UTF8String  = ('64', '128', '256', '512');
+  ITextureSizeVals:   array[0..3] of integer     = ( 64,   128,   256,   512);
 
-  ISingWindow:       array[0..1] of UTF8String  = ('Small', 'Big');
+  ISingWindow:        array[0..1] of UTF8String  = ('Small', 'Big');
 
   //SingBar Mod
-  IOscilloscope:     array[0..1] of UTF8String  = ('Off', 'On');
+  IOscilloscope:      array[0..1] of UTF8String  = ('Off', 'On');
 
-  ISpectrum:         array[0..1] of UTF8String  = ('Off', 'On');
-  ISpectrograph:     array[0..1] of UTF8String  = ('Off', 'On');
-  IMovieSize:        array[0..2] of UTF8String  = ('Half', 'Full [Vid]', 'Full [BG+Vid]');
-  IVideoPreview:     array[0..1] of UTF8String  = ('Off', 'On');
-  IVideoEnabled:     array[0..1] of UTF8String  = ('Off', 'On');
+  ISpectrum:          array[0..1] of UTF8String  = ('Off', 'On');
+  ISpectrograph:      array[0..1] of UTF8String  = ('Off', 'On');
+  IMovieSize:         array[0..2] of UTF8String  = ('Half', 'Full [Vid]', 'Full [BG+Vid]');
+  IVideoPreview:      array[0..1] of UTF8String  = ('Off', 'On');
+  IVideoEnabled:      array[0..1] of UTF8String  = ('Off', 'On');
 
-  IClickAssist:      array[0..1] of UTF8String  = ('Off', 'On');
-  IBeatClick:        array[0..1] of UTF8String  = ('Off', 'On');
-  ISavePlayback:     array[0..1] of UTF8String  = ('Off', 'On');
+  IClickAssist:       array[0..1] of UTF8String  = ('Off', 'On');
+  IBeatClick:         array[0..1] of UTF8String  = ('Off', 'On');
+  ISavePlayback:      array[0..1] of UTF8String  = ('Off', 'On');
 
-  IThreshold:        array[0..3] of UTF8String  = ('5%', '10%', '15%', '20%');
-  IThresholdVals:    array[0..3] of single  = (0.05, 0.10,  0.15,  0.20);
+  IThreshold:         array[0..3] of UTF8String  = ('5%', '10%', '15%', '20%');
+  IThresholdVals:     array[0..3] of single  = (0.05, 0.10,  0.15,  0.20);
 
-  IVoicePassthrough: array[0..1] of UTF8String  = ('Off', 'On');
+  IVoicePassthrough:  array[0..1] of UTF8String  = ('Off', 'On');
 
-  IMusicAutoGain:        array[0..3] of UTF8String  = ('Off', 'Soft', 'Medium', 'Hard');
-  IMusicAutoGainVals:    array[0..3] of integer  = (-1, 0, 1, 2);
+  IMusicAutoGain:     array[0..3] of UTF8String  = ('Off', 'Soft', 'Medium', 'Hard');
+  IMusicAutoGainVals: array[0..3] of integer  = (-1, 0, 1, 2);
 
 
 const
@@ -343,62 +343,62 @@ const
   IPreviewFading:             array[0..5] of UTF8String  = ('Off', '1 Sec', '2 Secs', '3 Secs', '4 Secs', '5 Secs');
   IPreviewFadingVals:         array[0..5] of integer     = ( 0,     1,       2,        3,        4,        5      );
 
-  ILyricsFont:    array[0..2] of UTF8String = ('Plain', 'OLine1', 'OLine2');
-  ILyricsEffect:  array[0..4] of UTF8String = ('Simple', 'Zoom', 'Slide', 'Ball', 'Shift');
-  ILyricsAlpha: array[0..19] of UTF8String = ('0.05', '0.10', '0.15', '0.20', '0.25', '0.30', '0.35', '0.40', '0.45', '0.50', '0.55', '0.60', '0.65', '0.70', '0.75', '0.80', '0.85', '0.90', '0.95', '1.00');
+  ILyricsFont:                array[0..2] of UTF8String = ('Plain', 'OLine1', 'OLine2');
+  ILyricsEffect:              array[0..4] of UTF8String = ('Simple', 'Zoom', 'Slide', 'Ball', 'Shift');
+  ILyricsAlpha:               array[0..19] of UTF8String = ('0.05', '0.10', '0.15', '0.20', '0.25', '0.30', '0.35', '0.40', '0.45', '0.50', '0.55', '0.60', '0.65', '0.70', '0.75', '0.80', '0.85', '0.90', '0.95', '1.00');
 
   //for lyric colors
-  ILine:             array[0..2] of UTF8String = ('Sing', 'Top', 'Bottom');
-  IProperty: array[0..1] of UTF8String = ('Fill', 'Outline');
-  LineColor: array[0..21] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
-  LineInactiveColor: array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
-  OutlineColor: array[0..2] of UTF8String = ('Black', 'White', 'Other');
+  ILine:                      array[0..2] of UTF8String = ('Sing', 'Top', 'Bottom');
+  IProperty:                  array[0..1] of UTF8String = ('Fill', 'Outline');
+  LineColor:                  array[0..21] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black', 'Turquoise', 'Salmon', 'GreenYellow', 'Lavender', 'Beige', 'Teal', 'Orchid', 'SteelBlue', 'Plum', 'Chocolate', 'Gold', 'Other');
+  LineInactiveColor:          array[0..9] of UTF8String = ('Black', 'Gray +3', 'Gray +2', 'Gray +1', 'Gray', 'Gray -1', 'Gray -2', 'Gray -3', 'White', 'Other');
+  OutlineColor:               array[0..2] of UTF8String = ('Black', 'White', 'Other');
 
   IHexSingColor: array[0..21] of UTF8String = ('0096FF', '3FBF3F', 'FF3FC0', 'DC0000', 'B43FE6', 'FF9000', 'FFFF00', 'D7006F', 'C07F1F', '000000', '00FFE6', 'FF7F66', '99FF66', 'CCCCFF', 'FFE6CC', '339999', '9900CC', '336699', 'FF99FF', '8A5C2E', 'FFCC33', '');
   IHexGrayColor: array[0..9] of UTF8String = ('000000', '202020', '404040', '606060', '808080', 'A0A0A0', 'C0C0C0', 'D6D6D6', 'FFFFFF', '');
   IHexOColor:    array[0..2] of UTF8String = ('000000', 'FFFFFF', '');
 
-  IJukeboxSongMenu: array[0..1] of UTF8String = ('Off', 'On');
+  IJukeboxSongMenu:   array[0..1] of UTF8String = ('Off', 'On');
   JukeboxOffsetLyric: array [0..100] of UTF8String = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49',
                                                         '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100');
-  IColor:         array[0..9] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black');
+  IColor:             array[0..9] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black');
 
   // Advanced
-  IEffectSing:    array[0..1] of UTF8String = ('Off', 'On');
-  IScreenFade:    array[0..1] of UTF8String = ('Off', 'On');
-  IAskbeforeDel:  array[0..1] of UTF8String = ('Off', 'On');
-  ISingScores:    array[0..1] of UTF8String = ('Off', 'On');
-  ITopScores:    array[0..1] of UTF8String = ('All', 'Player');
-  IOnSongClick:   array[0..2] of UTF8String = ('Sing', 'Select Players', 'Open Menu');
+  IEffectSing:         array[0..1] of UTF8String = ('Off', 'On');
+  IScreenFade:         array[0..1] of UTF8String = ('Off', 'On');
+  IAskBeforeExit:      array[0..1] of UTF8String = ('Off', 'On');
+  ISingScores:         array[0..1] of UTF8String = ('Off', 'On');
+  ITopScores:          array[0..1] of UTF8String = ('All', 'Player');
+  IOnSongClick:        array[0..2] of UTF8String = ('Sing', 'Select Players', 'Open Menu');
   sStartSing = 0;
   sSelectPlayer = 1;
   sOpenMenu = 2;
 
-  ILineBonus:     array[0..1] of UTF8String = ('Off', 'On');
-  IPartyPopup:    array[0..1] of UTF8String = ('Off', 'On');
+  ILineBonus:          array[0..1] of UTF8String = ('Off', 'On');
+  IPartyPopup:         array[0..1] of UTF8String = ('Off', 'On');
 
   ISingTimebarMode:    array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
   IJukeboxTimebarMode: array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
 
   // Microphone options
-  IChannelPlayer: array[0..6] of UTF8String = ('Off', '1', '2', '3', '4', '5', '6');
-  IMicBoost:      array[0..3] of UTF8String = ('Off', '+6dB', '+12dB', '+18dB');
+  IChannelPlayer:      array[0..6] of UTF8String = ('Off', '1', '2', '3', '4', '5', '6');
+  IMicBoost:           array[0..3] of UTF8String = ('Off', '+6dB', '+12dB', '+18dB');
 
   // Webcam
-  IWebcamResolution: array[0..5] of UTF8String = ('160x120', '176x144', '320x240', '352x288', '640x480', '800x600');
-  IWebcamFPS:        array[0..8] of UTF8String = ('10', '12', '15', '18', '20', '22', '25', '28', '30');
-  IWebcamFlip:       array[0..1] of UTF8String = ('Off', 'On');
+  IWebcamResolution:   array[0..5] of UTF8String = ('160x120', '176x144', '320x240', '352x288', '640x480', '800x600');
+  IWebcamFPS:          array[0..8] of UTF8String = ('10', '12', '15', '18', '20', '22', '25', '28', '30');
+  IWebcamFlip:         array[0..1] of UTF8String = ('Off', 'On');
 
 {*
  * Translated options
  *}
 
 var
-  GreyScaleColor: array[0..9] of UTF8String;
+  GreyScaleColor:             array[0..9] of UTF8String;
   // Network
   ISendNameTranslated:        array[0..1] of UTF8String = ('Off', 'On');
   IAutoModeTranslated:        array[0..2] of UTF8String = ('Off', 'Send', 'Guardar');
-  IAutoPlayerTranslated: array[0..6] of UTF8String = ('Player 1', 'Player 2', 'Player 3', 'Player 4', 'Player 5', 'Player 6', 'All');
+  IAutoPlayerTranslated:      array[0..6] of UTF8String = ('Player 1', 'Player 2', 'Player 3', 'Player 4', 'Player 5', 'Player 6', 'All');
   IAutoScoreEasyTranslated:   array of UTF8String;
   IAutoScoreMediumTranslated: array of UTF8String;
   IAutoScoreHardTranslated:   array of UTF8String;
@@ -749,16 +749,16 @@ begin
 
   // standard fallback resolutions
   SetLength(IResolution, 27);
-  IResolution[0] := '640x480'; // VGA
-  IResolution[1] := '720x480'; // SDTV 480i, EDTV 480p [TV]
-  IResolution[2] := '720x576'; // SDTV 576i, EDTV 576p [TV]
-  IResolution[3] := '768x576'; // SDTV 576i, EDTV 576p [TV]
-  IResolution[4] := '800x600'; // SVGA
-  IResolution[5] := '960x540'; // Quarter FHD
-  IResolution[6] := '1024x768'; // XGA
-  IResolution[7] := '1152x666';
-  IResolution[8] := '1152x864'; // XGA+
-  IResolution[9] := '1280x720'; // WXGA-H
+  IResolution[0]  := '640x480'; // VGA
+  IResolution[1]  := '720x480'; // SDTV 480i, EDTV 480p [TV]
+  IResolution[2]  := '720x576'; // SDTV 576i, EDTV 576p [TV]
+  IResolution[3]  := '768x576'; // SDTV 576i, EDTV 576p [TV]
+  IResolution[4]  := '800x600'; // SVGA
+  IResolution[5]  := '960x540'; // Quarter FHD
+  IResolution[6]  := '1024x768'; // XGA
+  IResolution[7]  := '1152x666';
+  IResolution[8]  := '1152x864'; // XGA+
+  IResolution[9]  := '1280x720'; // WXGA-H
   IResolution[10] := '1280x800'; // WXGA
   IResolution[11] := '1280x960'; // WXGA
   IResolution[12] := '1280x1024'; // SXGA
@@ -1076,8 +1076,8 @@ begin
   // EffectSing
   EffectSing := ReadArrayIndex(IEffectSing, IniFile, 'Advanced', 'EffectSing', IGNORE_INDEX, 'On');
 
-  // AskbeforeDel
-  AskBeforeDel := ReadArrayIndex(IAskbeforeDel, IniFile, 'Advanced', 'AskbeforeDel', IGNORE_INDEX, 'On');
+  // AskBeforeExit
+  AskBeforeExit := ReadArrayIndex(IAskBeforeExit, IniFile, 'Advanced', 'AskBeforeExit', IGNORE_INDEX, 'On');
 
   // OnSongClick
   OnSongClick := ReadArrayIndex(IOnSongClick, IniFile, 'Advanced', 'OnSongClick', IGNORE_INDEX, 'Sing');
@@ -1278,8 +1278,8 @@ begin
   // Oscilloscope
   IniFile.WriteString('Advanced', 'Oscilloscope', IOscilloscope[Oscilloscope]);
 
-  //AskbeforeDel
-  IniFile.WriteString('Advanced', 'AskbeforeDel', IAskbeforeDel[AskBeforeDel]);
+  //AskBeforeExit
+  IniFile.WriteString('Advanced', 'AskBeforeExit', IAskBeforeExit[AskBeforeExit]);
 
   //OnSongClick
   IniFile.WriteString('Advanced', 'OnSongClick', IOnSongClick[OnSongClick]);

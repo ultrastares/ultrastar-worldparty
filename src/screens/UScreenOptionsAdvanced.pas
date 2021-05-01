@@ -45,6 +45,7 @@ type
    protected
       // interaction IDs
 	  ButtonExitIID: integer;
+	  DebugDesc, OscilloscopeDesc, OnSongClickDesc, AskBeforeExitDesc, PartyPopupDesc, TopScoresDesc: integer;
 
     public
       constructor Create; override;
@@ -114,11 +115,18 @@ begin
   AddSelectSlide(Theme.OptionsAdvanced.SelectDebug, UIni.Ini.Debug, UIni.IDebug, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsAdvanced.SelectOscilloscope, UIni.Ini.Oscilloscope, UIni.IOscilloscope, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsAdvanced.SelectOnSongClick, UIni.Ini.OnSongClick, UIni.IOnSongClick, 'OPTION_VALUE_');
-  AddSelectSlide(Theme.OptionsAdvanced.SelectAskbeforeDel, UIni.Ini.AskBeforeDel, UIni.IAskbeforeDel, 'OPTION_VALUE_');
+  AddSelectSlide(Theme.OptionsAdvanced.SelectAskBeforeExit, UIni.Ini.AskBeforeExit, UIni.IAskBeforeExit, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsAdvanced.SelectPartyPopup, UIni.Ini.PartyPopup, UIni.IPartyPopup, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsAdvanced.SelectTopScores, UIni.Ini.TopScores, UIni.ITopScores, 'OPTION_VALUE_');
 
   AddButton(Theme.OptionsAdvanced.ButtonExit);
+
+  DebugDesc         := Self.AddText(UThemes.Theme.OptionsAdvanced.DebugDesc);
+  OscilloscopeDesc  := Self.AddText(UThemes.Theme.OptionsAdvanced.OscilloscopeDesc);
+  OnSongClickDesc   := Self.AddText(UThemes.Theme.OptionsAdvanced.OnSongClickDesc);
+  AskBeforeExitDesc := Self.AddText(UThemes.Theme.OptionsAdvanced.AskBeforeExitDesc);
+  PartyPopupDesc    := Self.AddText(UThemes.Theme.OptionsAdvanced.PartyPopupDesc);
+  TopScoresDesc     := Self.AddText(UThemes.Theme.OptionsAdvanced.TopScoresDesc);
 
   Interaction := 0;
 end;

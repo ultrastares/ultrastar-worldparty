@@ -345,7 +345,7 @@ end;
 procedure DoQuit;
 begin
   // if question option is enabled then show exit popup
-  if (Ini.AskbeforeDel = 1) then
+  if (Ini.AskBeforeExit = 1) then
   begin
     Display.CurrentScreen^.CheckFadeTo(nil,'MSG_QUIT_USWP');
   end

@@ -910,11 +910,18 @@ type
   TThemeOptionsAdvanced = class(TThemeBasic)
     SelectDebug:          TThemeSelectSlide;
     SelectOscilloscope:   TThemeSelectSlide;
-    SelectAskbeforeDel:   TThemeSelectSlide;
+    SelectAskBeforeExit:  TThemeSelectSlide;
     SelectOnSongClick:    TThemeSelectSlide;
     SelectPartyPopup:     TThemeSelectSlide;
     SelectTopScores:      TThemeSelectSlide;
     ButtonExit:           TThemeButton;
+
+    DebugDesc:            TThemeText;
+    OscilloscopeDesc:     TThemeText;
+    OnSongClickDesc:      TThemeText;
+    AskBeforeExitDesc:    TThemeText;
+    PartyPopupDesc:       TThemeText;
+    TopScoresDesc:        TThemeText;
   end;
 
   TThemeOptionsNetwork = class(TThemeBasic)
@@ -2178,11 +2185,18 @@ begin
       ThemeLoadSelectSlide(OptionsAdvanced.SelectDebug,      	'OptionsAdvancedSelectDebug');
       ThemeLoadSelectSlide(OptionsAdvanced.SelectOscilloscope,  'OptionsAdvancedSelectOscilloscope');
       ThemeLoadSelectSlide(OptionsAdvanced.SelectOnSongClick,   'OptionsAdvancedSelectSlideOnSongClick');
-      ThemeLoadSelectSlide(OptionsAdvanced.SelectAskbeforeDel,  'OptionsAdvancedSelectAskbeforeDel');
+      ThemeLoadSelectSlide(OptionsAdvanced.SelectAskBeforeExit, 'OptionsAdvancedSelectAskBeforeExit');
       ThemeLoadSelectSlide(OptionsAdvanced.SelectPartyPopup,    'OptionsAdvancedSelectPartyPopup');
       ThemeLoadSelectSlide(OptionsAdvanced.SelectTopScores,     'OptionsAdvancedSelectTopScores');
       ThemeLoadButton     (OptionsAdvanced.ButtonExit,          'OptionsAdvancedButtonExit');
 
+      ThemeLoadText(OptionsAdvanced.DebugDesc,                  'OptionsAdvancedDebugDesc');
+      ThemeLoadText(OptionsAdvanced.OscilloscopeDesc,           'OptionsAdvancedOscilloscopeDesc');
+      ThemeLoadText(OptionsAdvanced.OnSongClickDesc,            'OptionsAdvancedOnSongClickDesc');
+      ThemeLoadText(OptionsAdvanced.AskBeforeExitDesc,          'OptionsAdvancedAskBeforeExitDesc');
+      ThemeLoadText(OptionsAdvanced.PartyPopupDesc,             'OptionsAdvancedPartyPopupDesc');
+      ThemeLoadText(OptionsAdvanced.TopScoresDesc,              'OptionsAdvancedTopScoresDesc');
+	  
       //Options Network
       ThemeLoadBasic(OptionsNetwork, 'OptionsNetwork');
 
