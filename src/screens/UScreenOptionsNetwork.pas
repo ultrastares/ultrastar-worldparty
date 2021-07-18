@@ -334,16 +334,16 @@ begin
             end
             else
             begin
-              if (SDL_ModState and (KMOD_LCTRL or KMOD_RCTRL) <> 0) and (SelectsS[SelInteraction].SelectOptInt + 99 < 9999) then
+              if (SDL_ModState and (KMOD_LCTRL or KMOD_RCTRL) <> 0) and (SelectsS[SelInteraction].SelectOptInt + 9 < 9999) then
               begin
-                SelectsS[SelInteraction].SelectOptInt := SelectsS[SelInteraction].SelectOptInt + 99;
+                SelectsS[SelInteraction].SelectOptInt := SelectsS[SelInteraction].SelectOptInt + 9;
                 InteractInc;
               end
               else
               begin
-                if (SelectsS[SelInteraction].SelectOptInt + 10 < 9999) then
+                if (SelectsS[SelInteraction].SelectOptInt + 99 < 9999) then
                 begin
-                  SelectsS[SelInteraction].SelectOptInt := SelectsS[SelInteraction].SelectOptInt + 10;
+                  SelectsS[SelInteraction].SelectOptInt := SelectsS[SelInteraction].SelectOptInt + 99;
                   InteractInc;
                 end;
               end;
@@ -388,16 +388,16 @@ begin
             end
             else
             begin
-              if (SDL_ModState and (KMOD_LCTRL or KMOD_RCTRL) <> 0) and (SelectsS[SelInteraction].SelectOptInt - 99 > 0) then
+              if (SDL_ModState and (KMOD_LCTRL or KMOD_RCTRL) <> 0) and (SelectsS[SelInteraction].SelectOptInt - 9 > 0) then
               begin
-                SelectsS[SelInteraction].SelectOptInt := SelectsS[SelInteraction].SelectOptInt - 99;
+                SelectsS[SelInteraction].SelectOptInt := SelectsS[SelInteraction].SelectOptInt - 9;
                 InteractDec;
               end
               else
               begin
-                if (SelectsS[SelInteraction].SelectOptInt - 9 >= 0) then
+                if (SelectsS[SelInteraction].SelectOptInt - 99 >= 0) then
                 begin
-                  SelectsS[SelInteraction].SelectOptInt := SelectsS[SelInteraction].SelectOptInt - 9;
+                  SelectsS[SelInteraction].SelectOptInt := SelectsS[SelInteraction].SelectOptInt - 99;
                   InteractDec;
                 end;
               end
