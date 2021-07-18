@@ -925,17 +925,26 @@ type
   end;
 
   TThemeOptionsNetwork = class(TThemeBasic)
-    SelectWebsite:        TThemeSelectSlide;
-    SelectUsername:       TThemeSelectSlide;
-    SelectSendName:       TThemeSelectSlide;
-    SelectAutoMode:       TThemeSelectSlide;
-    SelectAutoPlayer:     TThemeSelectSlide;
+    SelectWebsite:         TThemeSelectSlide;
+    SelectUsername:        TThemeSelectSlide;
+    SelectSendName:        TThemeSelectSlide;
+    SelectAutoMode:        TThemeSelectSlide;
+    SelectAutoPlayer:      TThemeSelectSlide;
     SelectAutoScoreEasy:   TThemeSelectSlide;
     SelectAutoScoreMedium: TThemeSelectSlide;
     SelectAutoScoreHard:   TThemeSelectSlide;
-    TextInsertUser:       TThemeText;
-    ButtonInsert:         TThemeButton;
-    ButtonExit:           TThemeButton;
+    TextInsertUser:        TThemeText;
+    ButtonInsert:          TThemeButton;
+    ButtonDelete:          TThemeButton;
+    ButtonExit:            TThemeButton;
+
+    WebsiteDesc:           TThemeText;
+    UsernameDesc:          TThemeText;
+    SendNameDesc:          TThemeText;
+    AutoModeDesc:          TThemeText;
+    AutoPlayerDesc:        TThemeText;
+    AutoScoreEasyDesc:     TThemeText;
+	
   end;
 
   TThemeOptionsWebcam = class(TThemeBasic)
@@ -2200,18 +2209,26 @@ begin
       //Options Network
       ThemeLoadBasic(OptionsNetwork, 'OptionsNetwork');
 
-      ThemeLoadSelectSlide(OptionsNetwork.SelectWebsite,       'OptionsNetworkSelectWebsite');
-      ThemeLoadSelectSlide(OptionsNetwork.SelectUsername,      'OptionsNetworkSelectUsername');
-      ThemeLoadSelectSlide(OptionsNetwork.SelectSendName,      'OptionsNetworkSelectSendSaveName');
-      ThemeLoadSelectSlide(OptionsNetwork.SelectAutoMode,      'OptionsNetworkSelectAutoMode');
+      ThemeLoadSelectSlide(OptionsNetwork.SelectWebsite,         'OptionsNetworkSelectWebsite');
+      ThemeLoadSelectSlide(OptionsNetwork.SelectUsername,        'OptionsNetworkSelectUsername');
+      ThemeLoadSelectSlide(OptionsNetwork.SelectSendName,        'OptionsNetworkSelectSendSaveName');
+      ThemeLoadSelectSlide(OptionsNetwork.SelectAutoMode,        'OptionsNetworkSelectAutoMode');
       ThemeLoadSelectSlide(OptionsNetwork.SelectAutoPlayer,      'OptionsNetworkSelectAutoPlayer');
       ThemeLoadSelectSlide(OptionsNetwork.SelectAutoScoreEasy,   'OptionsNetworkSelectAutoScoreEasy');
       ThemeLoadSelectSlide(OptionsNetwork.SelectAutoScoreMedium, 'OptionsNetworkSelectAutoScoreMedium');
       ThemeLoadSelectSlide(OptionsNetwork.SelectAutoScoreHard,   'OptionsNetworkSelectAutoScoreHard');
-      ThemeLoadText(OptionsNetwork.TextInsertUser, 'OptionsNetworkTextInsertUser');
+      ThemeLoadText(OptionsNetwork.TextInsertUser,               'OptionsNetworkTextInsertUser');
 
-      ThemeLoadButton(OptionsNetwork.ButtonInsert,          'OptionsNetworkButtonInsert');
-      ThemeLoadButton(OptionsNetwork.ButtonExit,          'OptionsNetworkButtonExit');
+      ThemeLoadText(OptionsNetwork.WebsiteDesc,                  'OptionsNetworkWebsiteDesc');
+      ThemeLoadText(OptionsNetwork.UsernameDesc,                 'OptionsNetworkUsernameDesc');
+      ThemeLoadText(OptionsNetwork.SendNameDesc,                 'OptionsNetworkSendSaveNameDesc');
+      ThemeLoadText(OptionsNetwork.AutoModeDesc,                 'OptionsNetworkAutoModeDesc');
+      ThemeLoadText(OptionsNetwork.AutoPlayerDesc,               'OptionsNetworkAutoPlayerDesc');
+      ThemeLoadText(OptionsNetwork.AutoScoreEasyDesc,            'OptionsNetworkAutoScoreEasyDesc');
+
+      ThemeLoadButton(OptionsNetwork.ButtonInsert,               'OptionsNetworkButtonInsert');
+      ThemeLoadButton(OptionsNetwork.ButtonDelete,               'OptionsNetworkButtonDelete');
+      ThemeLoadButton(OptionsNetwork.ButtonExit,                 'OptionsNetworkButtonExit');
 
       //Options Webcam
       ThemeLoadBasic(OptionsWebcam, 'OptionsWebcam');

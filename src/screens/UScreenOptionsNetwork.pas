@@ -47,6 +47,7 @@ uses
 
 type
   TScreenOptionsNetwork = class(TMenu)
+    WebsiteDesc, UsernameDesc, SendNameDesc, AutoModeDesc, AutoPlayerDesc, AutoScoreEasyDesc: integer;
     CurrentUserIndex: integer;
     CurrentWebsiteIndex: integer;
     CurrentUserSendNameIndex: integer;
@@ -65,6 +66,7 @@ type
     EncryptPassword: UTF8String;
 
     InsertButton: integer;
+	DeleteButton: integer;
 
     public
       constructor Create; override;
@@ -74,6 +76,8 @@ type
       procedure UpdateUsernameSettings;
       procedure UpdateSettings;
       procedure DeleteUser;
+	  procedure HideElements;
+	  procedure ShowElements;
   end;
 
 implementation
@@ -276,7 +280,15 @@ begin
 
           if (SelInteraction = 9) then
             ScreenPopupInsertUser.ShowPopup(Format(Language.Translate('MSG_INSERT_USER_TITLE'), [DataBase.NetworkUser[CurrentWebsiteIndex].Website]), Language.Translate('MSG_INSERT_USER_DESC'), OnNewUser, nil);
-        end;
+
+
+          if (SelInteraction = 10) then
+            begin
+            if (High(DataBase.NetworkUser[CurrentWebsiteIndex].UserList) >= 0) then
+            ScreenPopupCheck.ShowPopup(Format(Language.Translate('SING_OPTIONS_NETWORK_DELETE_PLAYER'), [DataBase.NetworkUser[CurrentWebsiteIndex].UserList[CurrentUserIndex].Username,DataBase.NetworkUser[CurrentWebsiteIndex].Website]), OnDeleteUser, nil, false);
+            end;
+	
+        end;	
       SDLK_DOWN:
         begin
           if (SelInteraction = 8) then
@@ -329,9 +341,9 @@ begin
               end
               else
               begin
-                if (SelectsS[SelInteraction].SelectOptInt + 9 < 9999) then
+                if (SelectsS[SelInteraction].SelectOptInt + 10 < 9999) then
                 begin
-                  SelectsS[SelInteraction].SelectOptInt := SelectsS[SelInteraction].SelectOptInt + 9;
+                  SelectsS[SelInteraction].SelectOptInt := SelectsS[SelInteraction].SelectOptInt + 10;
                   InteractInc;
                 end;
               end;
@@ -347,7 +359,7 @@ begin
         end;
       SDLK_LEFT:
         begin
-          if (SelInteraction = 9) then
+          if (SelInteraction = 9) or (SelInteraction = 10) then
             Interaction := 8;
 
           if (SelInteraction >= 0) and (SelInteraction < 5) then
@@ -451,12 +463,20 @@ begin
     AddSelectSlide(Theme.OptionsNetwork.SelectAutoScoreMedium, CurrentUserScoreMediumIndex, IAutoScoreMediumTranslated);
     AddSelectSlide(Theme.OptionsNetwork.SelectAutoScoreHard, CurrentUserScoreHardIndex, IAutoScoreHardTranslated);
 
+    WebsiteDesc       := Self.AddText(UThemes.Theme.OptionsNetwork.WebsiteDesc);
+    UsernameDesc      := Self.AddText(UThemes.Theme.OptionsNetwork.UsernameDesc);
+    SendNameDesc      := Self.AddText(UThemes.Theme.OptionsNetwork.SendNameDesc);
+    AutoModeDesc      := Self.AddText(UThemes.Theme.OptionsNetwork.AutoModeDesc);
+    AutoPlayerDesc    := Self.AddText(UThemes.Theme.OptionsNetwork.AutoPlayerDesc);
+    AutoScoreEasyDesc := Self.AddText(UThemes.Theme.OptionsNetwork.AutoScoreEasyDesc);
+	
     Theme.OptionsNetwork.TextInsertUser.Text := Language.Translate('SING_OPTIONS_NETWORK_INSERT_USER_INFO');
     TextInsertUser_Warning := AddText(Theme.OptionsNetwork.TextInsertUser);
 
     AddButton(Theme.OptionsNetwork.ButtonExit);
 
     InsertButton := AddButton(Theme.OptionsNetwork.ButtonInsert);
+	DeleteButton := AddButton(Theme.OptionsNetwork.ButtonDelete);
 
     Interaction := 0;
   end;
@@ -477,6 +497,8 @@ begin
   begin
     // Not Show Text Insert User
     Text[TextInsertUser_Warning].Visible := false;
+	
+	ShowElements;
 
     SelectsS[0].SetSelectOpt(CurrentWebsiteIndex);
     SelectsS[1].SetSelectOpt(CurrentUserIndex);
@@ -499,6 +521,8 @@ begin
 
     // Text Insert User
     Text[TextInsertUser_Warning].Visible := true;
+	
+	HideElements;
   end;
 
   Interaction := 0;
@@ -532,6 +556,7 @@ begin
     for I := 1 to 7 do
       SelectsS[I].Visible := true;
     UpdateUsernameSettings;
+	ShowElements;
   end
   else
   begin
@@ -540,6 +565,8 @@ begin
 
     for I := 1 to 7 do
       SelectsS[I].Visible := false;
+	  
+	HideElements;
   end;
 
 end;
@@ -570,17 +597,21 @@ begin
   // Hide SelectS Auto Score when Auto Mode is OFF
   if (SelectsS[3].SelectedOption = 0) then
   begin
-    SelectsS[4].Visible := false;
-    SelectsS[5].Visible := false;
-    SelectsS[6].Visible := false;
-    SelectsS[7].Visible := false;
+    SelectsS[4].Visible             := false;
+    SelectsS[5].Visible             := false;
+    SelectsS[6].Visible             := false;
+    SelectsS[7].Visible             := false;
+    Text[AutoPlayerDesc].Visible    := false;
+    Text[AutoScoreEasyDesc].Visible := false;
   end
   else
   begin
-    SelectsS[4].Visible := true;
-    SelectsS[5].Visible := true;
-    SelectsS[6].Visible := true;
-    SelectsS[7].Visible := true;
+    SelectsS[4].Visible             := true;
+    SelectsS[5].Visible             := true;
+    SelectsS[6].Visible             := true;
+    SelectsS[7].Visible             := true;
+    Text[AutoPlayerDesc].Visible    := true;
+    Text[AutoScoreEasyDesc].Visible := true;
   end
 
 end;
@@ -622,9 +653,35 @@ begin
     Text[TextInsertUser_Warning].Visible := true;
     for I := 1 to 7 do
       SelectsS[I].Visible := false;
+
+    HideElements;
+	
     Interaction := 0;
   end;
 
 end;
 
+//Hide elements when there is no users registred
+procedure TScreenOptionsNetwork.HideElements;
+begin
+    Button[DeleteButton].Visible    := false;
+    Text[WebsiteDesc].Visible       := false;
+    Text[UsernameDesc].Visible      := false;
+    Text[SendNameDesc].Visible      := false;
+    Text[AutoModeDesc].Visible      := false;
+    Text[AutoPlayerDesc].Visible    := false;
+    Text[AutoScoreEasyDesc].Visible := false;
+end;
+
+//Show elements when there are no users registred
+procedure TScreenOptionsNetwork.ShowElements;
+begin
+    Button[DeleteButton].Visible    := true;
+    Text[WebsiteDesc].Visible       := true;
+    Text[UsernameDesc].Visible      := true;
+    Text[SendNameDesc].Visible      := true;
+    Text[AutoModeDesc].Visible      := true;
+//    Text[AutoPlayerDesc].Visible    := true;
+//    Text[AutoScoreEasyDesc].Visible := true;
+end;
 end.
