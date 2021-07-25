@@ -43,14 +43,9 @@ type
     private
       PreVisualization: boolean;
 
-      ID: integer;
-      Resolution: integer;
-      FPS: integer;
-      Flip: integer;
-      Brightness: integer;
-      Saturation: integer;
-      Hue: integer;
-      Effect: integer;
+      ID, Resolution, FPS, Flip, Brightness, Saturation, Hue, Effect: integer;  
+      IDDesc, ResolutionDesc, FPSDesc, FlipDesc, BrightnessDesc, SaturationDesc, HueDesc, EffectDesc, PrevisualizacionDesc: integer;
+  
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -176,19 +171,27 @@ begin
   WebcamsIDs[0] := Language.Translate('OPTION_VALUE_OFF');
   WebcamsIDs[1] := '0';
   WebcamsIDs[2] := '1';
-  ID := AddSelectSlide(Theme.OptionsWebcam.SelectWebcam, UIni.Ini.WebCamID, WebcamsIDs);
-  Resolution := AddSelectSlide(Theme.OptionsWebcam.SelectResolution, UIni.Ini.WebcamResolution, IWebcamResolution);
-  FPS := AddSelectSlide(Theme.OptionsWebcam.SelectFPS, UIni.Ini.WebCamFPS, IWebcamFPS);
-  Flip := AddSelectSlide(Theme.OptionsWebcam.SelectFlip, UIni.Ini.WebCamFlip, IWebcamFlip, 'OPTION_VALUE_');
-  Brightness := AddSelectSlide(Theme.OptionsWebcam.SelectBrightness, UIni.Ini.WebCamBrightness, IWebcamBrightness);
-  Saturation := AddSelectSlide(Theme.OptionsWebcam.SelectSaturation, UIni.Ini.WebCamSaturation, IWebcamSaturation);
-  Hue := AddSelectSlide(Theme.OptionsWebcam.SelectHue, UIni.Ini.WebCamHue, IWebcamHue);
-  Effect := AddSelectSlide(Theme.OptionsWebcam.SelectEffect, UIni.Ini.WebCamEffect, IWebcamEffectTranslated, 'SING_OPTIONS_WEBCAM_EFFECT_');
+  ID          := AddSelectSlide(Theme.OptionsWebcam.SelectWebcam, UIni.Ini.WebCamID, WebcamsIDs);
+  Resolution  := AddSelectSlide(Theme.OptionsWebcam.SelectResolution, UIni.Ini.WebcamResolution, IWebcamResolution);
+  FPS         := AddSelectSlide(Theme.OptionsWebcam.SelectFPS, UIni.Ini.WebCamFPS, IWebcamFPS);
+  Flip        := AddSelectSlide(Theme.OptionsWebcam.SelectFlip, UIni.Ini.WebCamFlip, IWebcamFlip, 'OPTION_VALUE_');
+  Brightness  := AddSelectSlide(Theme.OptionsWebcam.SelectBrightness, UIni.Ini.WebCamBrightness, IWebcamBrightness);
+  Saturation  := AddSelectSlide(Theme.OptionsWebcam.SelectSaturation, UIni.Ini.WebCamSaturation, IWebcamSaturation);
+  Hue         := AddSelectSlide(Theme.OptionsWebcam.SelectHue, UIni.Ini.WebCamHue, IWebcamHue);
+  Effect      := AddSelectSlide(Theme.OptionsWebcam.SelectEffect, UIni.Ini.WebCamEffect, IWebcamEffectTranslated, 'SING_OPTIONS_WEBCAM_EFFECT_');
 
   AddButton(Theme.OptionsWebcam.ButtonPreVisualization);
-
   AddButton(Theme.OptionsWebcam.ButtonExit);
 
+  IDDesc                := Self.AddText(UThemes.Theme.OptionsWebcam.IDDesc);
+  ResolutionDesc        := Self.AddText(UThemes.Theme.OptionsWebcam.ResolutionDesc);
+  FPSDesc               := Self.AddText(UThemes.Theme.OptionsWebcam.FPSDesc);
+  FlipDesc              := Self.AddText(UThemes.Theme.OptionsWebcam.FlipDesc);
+  BrightnessDesc        := Self.AddText(UThemes.Theme.OptionsWebcam.BrightnessDesc);
+  SaturationDesc        := Self.AddText(UThemes.Theme.OptionsWebcam.SaturationDesc);
+  HueDesc               := Self.AddText(UThemes.Theme.OptionsWebcam.HueDesc);
+  EffectDesc            := Self.AddText(UThemes.Theme.OptionsWebcam.EffectDesc);
+  
   Interaction := 0;
 
   // new tests
@@ -308,13 +311,13 @@ begin
     glBegin(GL_QUADS);
 
       glTexCoord2f(0, 0);
-      glVertex2f(800,  0);
+      glVertex2f(760, 415);
       glTexCoord2f(0, Webcam.TextureCam.TexH);
-      glVertex2f(800,  600);
-      glTexCoord2f( Webcam.TextureCam.TexW, Webcam.TextureCam.TexH);
-      glVertex2f(0, 600);
-      glTexCoord2f( Webcam.TextureCam.TexW, 0);
-      glVertex2f(0, 0);
+      glVertex2f(760, 530);
+      glTexCoord2f(Webcam.TextureCam.TexW, Webcam.TextureCam.TexH);
+      glVertex2f(620, 530);
+      glTexCoord2f(Webcam.TextureCam.TexW, 0);
+      glVertex2f(620, 415);
 
     glEnd;
     glDisable(GL_TEXTURE_2D);
