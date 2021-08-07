@@ -38,6 +38,7 @@ type
   TScreenOptionsLyrics = class(TMenu)
     protected
       Lyrics: TLyricEngine;
+	  Title: integer;
       SelectModeProperty, SelectFont, SelectEffect, SelectTransparency, SelectLines, SelectProperty, SelectColor, SelectMode: integer;
       ModePropertyDesc, FontDesc, EffectDesc, TransparencyDesc, LineDesc, PropertyDesc, ColorDesc, ModeDesc, StavesDesc, PositionDesc: integer;      
       TexColor, Red, Green, Blue: integer;
@@ -77,6 +78,8 @@ var
 begin
   inherited Create();
 
+  Title := Self.AddText(UThemes.Theme.OptionsLyrics.Title);
+  
   Self.LoadFromTheme(UThemes.Theme.OptionsLyrics);
   Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectModeProperty, Self.SelectModeProperty, UIni.Switch, 'PARTY_MODE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectFont, Self.SelectFont, UIni.ILyricsFont, 'OPTION_VALUE_');
@@ -317,33 +320,42 @@ procedure TScreenOptionsLyrics.SetModeValues();
 begin
   if Self.SelectMode = 0 then
   begin
-    Self.SelectModeProperty := UIni.Ini.NoteLines;
+    Self.SelectModeProperty           := UIni.Ini.NoteLines;
     Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectModeProperty, 0, UIni.Switch, Self.SelectModeProperty, 'OPTION_VALUE_');
-    Self.SelectsS[0].Text.Text := ULanguage.Language.Translate('SING_OPTIONS_LYRICS_NOTELINES');
-    Self.SelectsS[1].SelectedOption := UIni.Ini.LyricsFont;
-    Self.SelectsS[2].SelectedOption := UIni.Ini.LyricsEffect;
-    Self.SelectsS[3].SelectedOption := UIni.Ini.LyricsTransparency;
-    Self.SingColor := UIni.Ini.LyricsSingColor;
-    Self.SingOutlineColor := UIni.Ini.LyricsSingOutlineColor;
-    Self.CurrentColor := UIni.Ini.LyricsCurrentColor;
-    Self.CurrentOutlineColor := UIni.Ini.LyricsCurrentOutlineColor;
-    Self.NextColor := UIni.Ini.LyricsNextColor;
-    Self.NextOutlineColor := UIni.Ini.LyricsNextOutlineColor;
+    Self.SelectsS[0].Text.Text        := ULanguage.Language.Translate('SING_OPTIONS_LYRICS_NOTELINES');
+    Self.SelectsS[1].SelectedOption   := UIni.Ini.LyricsFont;
+    Self.SelectsS[2].SelectedOption   := UIni.Ini.LyricsEffect;
+    Self.SelectsS[3].SelectedOption   := UIni.Ini.LyricsTransparency;
+    Self.SingColor                    := UIni.Ini.LyricsSingColor;
+    Self.SingOutlineColor             := UIni.Ini.LyricsSingOutlineColor;
+    Self.CurrentColor                 := UIni.Ini.LyricsCurrentColor;
+    Self.CurrentOutlineColor          := UIni.Ini.LyricsCurrentOutlineColor;
+    Self.NextColor                    := UIni.Ini.LyricsNextColor;
+    Self.NextOutlineColor             := UIni.Ini.LyricsNextOutlineColor;
+    Self.Text[Title].Visible          := true;
+    Self.Text[StavesDesc].Visible     := true;
+    Self.Text[PositionDesc].Visible   := false;
+    Self.Text[PropertyDesc].Visible   := false;
+
   end
   else
   begin
-    Self.SelectModeProperty := UIni.Ini.JukeboxOffset;
+    Self.SelectModeProperty           := UIni.Ini.JukeboxOffset;
     Self.UpdateSelectSlideOptions(UThemes.Theme.OptionsLyrics.SelectModeProperty, 0, UIni.JukeboxOffsetLyric, Self.SelectModeProperty);
-    Self.SelectsS[0].Text.Text := ULanguage.Language.Translate('SING_OPTIONS_LYRICS_POSITION');
-    Self.SelectsS[1].SelectedOption := UIni.Ini.JukeboxFont;
-    Self.SelectsS[2].SelectedOption := UIni.Ini.JukeboxEffect;
-    Self.SelectsS[3].SelectedOption := UIni.Ini.JukeboxTransparency;
-    Self.SingColor := UIni.Ini.JukeboxSingColor;
-    Self.SingOutlineColor := UIni.Ini.JukeboxSingOutlineColor;
-    Self.CurrentColor := UIni.Ini.JukeboxCurrentColor;
-    Self.CurrentOutlineColor := UIni.Ini.JukeboxCurrentOutlineColor;
-    Self.NextColor := UIni.Ini.JukeboxNextColor;
-    Self.NextOutlineColor := UIni.Ini.JukeboxNextOutlineColor;
+    Self.SelectsS[0].Text.Text        := ULanguage.Language.Translate('SING_OPTIONS_LYRICS_POSITION');
+    Self.SelectsS[1].SelectedOption   := UIni.Ini.JukeboxFont;
+    Self.SelectsS[2].SelectedOption   := UIni.Ini.JukeboxEffect;
+    Self.SelectsS[3].SelectedOption   := UIni.Ini.JukeboxTransparency;
+    Self.SingColor                    := UIni.Ini.JukeboxSingColor;
+    Self.SingOutlineColor             := UIni.Ini.JukeboxSingOutlineColor;
+    Self.CurrentColor                 := UIni.Ini.JukeboxCurrentColor;
+    Self.CurrentOutlineColor          := UIni.Ini.JukeboxCurrentOutlineColor;
+    Self.NextColor                    := UIni.Ini.JukeboxNextColor;
+    Self.NextOutlineColor             := UIni.Ini.JukeboxNextOutlineColor;
+    Self.Text[StavesDesc].Visible     := false;
+    Self.Text[PositionDesc].Visible   := true;
+    Self.Text[PropertyDesc].Visible   := true;
+	
   end;
   Self.SetColor();
 end;

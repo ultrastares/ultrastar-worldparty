@@ -868,6 +868,8 @@ type
     LyricBar:           TThemeLyricBar;
     ButtonExit:         TThemeButton;
 
+    Title:              TThemeText;
+	
     ModeDesc:           TThemeText;
     StavesDesc:         TThemeText;
     PositionDesc:       TThemeText;
@@ -2158,6 +2160,8 @@ begin
       Self.ThemeLoadStatic(Self.OptionsLyrics.TexColor,                'OptionsLyricsColor');
       Self.ThemeLoadLyricBar(Self.OptionsLyrics.LyricBar,              'OptionsLyricsUpperBar');
       Self.ThemeLoadButton(OptionsLyrics.ButtonExit,                   'OptionsLyricsButtonExit');
+
+      ThemeLoadText(OptionsLyrics.Title,             'OptionsLyricsTitle');
 
       ThemeLoadText(OptionsLyrics.ModeDesc,          'OptionsLyricsModeDesc');
       ThemeLoadText(OptionsLyrics.StavesDesc,        'OptionsLyricsStavesDesc');
