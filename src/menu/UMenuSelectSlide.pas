@@ -188,6 +188,10 @@ begin
   SBGDInt := 1;
   Self.Tex_SelectS_ArrowL := UTexture.Texture.LoadTexture('Select_ArrowLeft', TEXTURE_TYPE_TRANSPARENT, 0);
   Self.Tex_SelectS_ArrowR := UTexture.Texture.LoadTexture('Select_ArrowRight', TEXTURE_TYPE_TRANSPARENT, 0);
+  Self.Tex_SelectS_ArrowL.W :=15;
+  Self.Tex_SelectS_ArrowL.H :=17;
+  Self.Tex_SelectS_ArrowR.W :=15;
+  Self.Tex_SelectS_ArrowR.H :=17;
 end;
 
 procedure TSelectSlide.SetSelect(Value: boolean);
