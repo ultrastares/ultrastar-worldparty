@@ -62,7 +62,7 @@ uses
   UGraphic,
   UDatabase,
   ULanguage,
-  UScreenOptionsGame,
+  UScreenOptionsGeneral,
   UScreenOptionsGraphics,
   UScreenOptionsSound,
   UScreenOptionsLyrics,
@@ -95,10 +95,10 @@ begin
               Self.FadeTo(@UGraphic.ScreenMain, UMusic.SoundLib.Back);
             1:
               begin
-                if not Assigned(UGraphic.ScreenOptionsGame) then
-                  UGraphic.ScreenOptionsGame := TScreenOptionsGame.Create();
+                if not Assigned(UGraphic.ScreenOptionsGeneral) then
+                  UGraphic.ScreenOptionsGeneral := TScreenOptionsGeneral.Create();
 
-                Screen := @UGraphic.ScreenOptionsGame;
+                Screen := @UGraphic.ScreenOptionsGeneral;
               end;
             2:
               begin
@@ -189,7 +189,7 @@ begin
   LoadFromTheme(Theme.Options);
 
   Self.AddButton(UThemes.Theme.Options.ButtonExit);
-  Self.AddButton(UThemes.Theme.Options.ButtonGame);
+  Self.AddButton(UThemes.Theme.Options.ButtonGeneral);
   Self.AddButton(UThemes.Theme.Options.ButtonGraphics);
   Self.AddButton(UThemes.Theme.Options.ButtonSound);
   Self.AddButton(UThemes.Theme.Options.ButtonLyrics);

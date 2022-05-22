@@ -46,7 +46,7 @@ uses
   UScreenMain,
   UScreenPlayerSelector,
   UScreenOptions,
-  UScreenOptionsGame,
+  UScreenOptionsGeneral,
   UScreenOptionsGraphics,
   UScreenOptionsSound,
   UScreenOptionsLyrics,
@@ -137,7 +137,7 @@ var
   ScreenScore:        TScreenScore;
   ScreenTop5:         TScreenTop5;
   ScreenOptions:          TScreenOptions;
-  ScreenOptionsGame:      TScreenOptionsGame;
+  ScreenOptionsGeneral:      TScreenOptionsGeneral;
   ScreenOptionsGraphics:  TScreenOptionsGraphics;
   ScreenOptionsSound:     TScreenOptionsSound;
   ScreenOptionsLyrics:    TScreenOptionsLyrics;
@@ -708,7 +708,7 @@ begin
   FreeAndNil(ScreenSong);
   FreeAndNil(ScreenScore);
   FreeAndNil(ScreenOptions);
-  FreeAndNil(ScreenOptionsGame);
+  FreeAndNil(ScreenOptionsGeneral);
   FreeAndNil(ScreenOptionsGraphics);
   FreeAndNil(ScreenOptionsSound);
   FreeAndNil(ScreenOptionsLyrics);

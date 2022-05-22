@@ -773,7 +773,7 @@ type
   end;
 
   TThemeOptions = class(TThemeBasic)
-    ButtonGame:        TThemeButton;
+    ButtonGeneral:     TThemeButton;
     ButtonGraphics:    TThemeButton;
     ButtonSound:       TThemeButton;
     ButtonLyrics:      TThemeButton;
@@ -789,7 +789,7 @@ type
     Description:          array[0..10] of UTF8String;
   end;
 
-  TThemeOptionsGame = class(TThemeBasic)
+  TThemeOptionsGeneral = class(TThemeBasic)
     SelectLanguage:        TThemeSelectSlide;
     SelectSongMenu:        TThemeSelectSlide;
     SelectDuets:           TThemeSelectSlide;
@@ -1304,7 +1304,7 @@ type
     Score:            TThemeScore;
     Top5:             TThemeTop5;
     Options:          TThemeOptions;
-    OptionsGame:      TThemeOptionsGame;
+    OptionsGeneral:   TThemeOptionsGeneral;
     OptionsGraphics:  TThemeOptionsGraphics;
     OptionsSound:     TThemeOptionsSound;
     OptionsLyrics:    TThemeOptionsLyrics;
@@ -1654,8 +1654,8 @@ begin
       Main.DescriptionLong[2] := Language.Translate('SING_JUKEBOX_DESC');
       Main.Description[3] := Language.Translate('SING_STATS');
       Main.DescriptionLong[3] := Language.Translate('SING_STATS_DESC');
-      Main.Description[4] := Language.Translate('SING_GAME_OPTIONS');
-      Main.DescriptionLong[4] := Language.Translate('SING_GAME_OPTIONS_DESC');
+      Main.Description[4] := Language.Translate('SING_OPTIONS');
+      Main.DescriptionLong[4] := Language.Translate('SING_OPTIONS_DESC');
       Main.Description[5] := Language.Translate('SING_EXIT');
       Main.DescriptionLong[5] := Language.Translate('SING_EXIT_DESC');
       Main.Description[6] := Language.Translate('SING_ABOUT');
@@ -2067,7 +2067,7 @@ begin
       // Options
       ThemeLoadBasic(Options, 'Options');
 
-      ThemeLoadButton(Options.ButtonGame,        'OptionsButtonGame');
+      ThemeLoadButton(Options.ButtonGeneral,     'OptionsButtonGeneral');
       ThemeLoadButton(Options.ButtonGraphics,    'OptionsButtonGraphics');
       ThemeLoadButton(Options.ButtonSound,       'OptionsButtonSound');
       ThemeLoadButton(Options.ButtonLyrics,      'OptionsButtonLyrics');
@@ -2080,27 +2080,27 @@ begin
       ThemeLoadButton(Options.ButtonExit,        'OptionsButtonExit');
 
       ThemeLoadText(Options.TextDescription, 'OptionsTextDescription');
-      // Options Game
-      ThemeLoadBasic(OptionsGame, 'OptionsGame');
+      // Options General
+      ThemeLoadBasic(OptionsGeneral, 'OptionsGeneral');
 
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectLanguage,        'OptionsGameSelectSlideLanguage');
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSongMenu,        'OptionsGameSelectSongMenu');
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectDuets,           'OptionsGameSelectDuets');
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectTabs,            'OptionsGameSelectTabs');
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSorting,         'OptionsGameSelectSlideSorting');
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectShowScores,      'OptionsGameSelectShowScores');
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectSingScores,      'OptionsGameSelectSingScores');
-      Self.ThemeLoadSelectSlide(Self.OptionsGame.SelectFindUnsetMedley, 'OptionsGameSelectFindUnsetMedley');
-      Self.ThemeLoadButton(Self.OptionsGame.ButtonExit,                 'OptionsGameButtonExit');
+      Self.ThemeLoadSelectSlide(Self.OptionsGeneral.SelectLanguage,        'OptionsGeneralSelectSlideLanguage');
+      Self.ThemeLoadSelectSlide(Self.OptionsGeneral.SelectSongMenu,        'OptionsGeneralSelectSongMenu');
+      Self.ThemeLoadSelectSlide(Self.OptionsGeneral.SelectDuets,           'OptionsGeneralSelectDuets');
+      Self.ThemeLoadSelectSlide(Self.OptionsGeneral.SelectTabs,            'OptionsGeneralSelectTabs');
+      Self.ThemeLoadSelectSlide(Self.OptionsGeneral.SelectSorting,         'OptionsGeneralSelectSlideSorting');
+      Self.ThemeLoadSelectSlide(Self.OptionsGeneral.SelectShowScores,      'OptionsGeneralSelectShowScores');
+      Self.ThemeLoadSelectSlide(Self.OptionsGeneral.SelectSingScores,      'OptionsGeneralSelectSingScores');
+      Self.ThemeLoadSelectSlide(Self.OptionsGeneral.SelectFindUnsetMedley, 'OptionsGeneralSelectFindUnsetMedley');
+      Self.ThemeLoadButton(Self.OptionsGeneral.ButtonExit,                 'OptionsGeneralButtonExit');
 
-      ThemeLoadText(OptionsGame.LanguageDesc,   'OptionsGameLanguageDesc');
-      ThemeLoadText(OptionsGame.SongMenuDesc,   'OptionsGameSongMenuDesc');
-      ThemeLoadText(OptionsGame.DuetsDesc,      'OptionsGameDuetsDesc');
-      ThemeLoadText(OptionsGame.TabsDesc,       'OptionsGameTabsDesc');
-      ThemeLoadText(OptionsGame.SortingDesc,    'OptionsGameSortingDesc');
-      ThemeLoadText(OptionsGame.ShowScoresDesc, 'OptionsGameShowScoresDesc');
-      ThemeLoadText(OptionsGame.SingScoresDesc, 'OptionsGameSingScoresDesc');
-      ThemeLoadText(OptionsGame.MedleyCDesc,    'OptionsGameMedleyCDesc');
+      ThemeLoadText(OptionsGeneral.LanguageDesc,   'OptionsGeneralLanguageDesc');
+      ThemeLoadText(OptionsGeneral.SongMenuDesc,   'OptionsGeneralSongMenuDesc');
+      ThemeLoadText(OptionsGeneral.DuetsDesc,      'OptionsGeneralDuetsDesc');
+      ThemeLoadText(OptionsGeneral.TabsDesc,       'OptionsGeneralTabsDesc');
+      ThemeLoadText(OptionsGeneral.SortingDesc,    'OptionsGeneralSortingDesc');
+      ThemeLoadText(OptionsGeneral.ShowScoresDesc, 'OptionsGeneralShowScoresDesc');
+      ThemeLoadText(OptionsGeneral.SingScoresDesc, 'OptionsGeneralSingScoresDesc');
+      ThemeLoadText(OptionsGeneral.MedleyCDesc,    'OptionsGeneralMedleyCDesc');
 	  
       // Options Graphics
       ThemeLoadBasic(OptionsGraphics, 'OptionsGraphics');
@@ -3874,7 +3874,7 @@ begin
   Self.Score := TThemeScore.Create();
   Self.Top5 := TThemeTop5.Create();
   Self.Options := TThemeOptions.Create();
-  Self.OptionsGame := TThemeOptionsGame.Create();
+  Self.OptionsGeneral := TThemeOptionsGeneral.Create();
   Self.OptionsGraphics := TThemeOptionsGraphics.Create();
   Self.OptionsSound := TThemeOptionsSound.Create();
   Self.OptionsLyrics := TThemeOptionsLyrics.Create();

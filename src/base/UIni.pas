@@ -118,7 +118,7 @@ type
       //Filename of the opened iniFile
       Filename:       IPath;
 
-      // Game
+      // General
       Players:        integer;
       Difficulty:     integer;
       Language:       integer;
@@ -921,29 +921,29 @@ begin
     NameTemplate[I] := IniFile.ReadString('NameTemplate', 'Name'+IntToStr(I+1), 'Template'+IntToStr(I+1));
 
   // Players
-  Players := ReadArrayIndex(IPlayers, IniFile, 'Game', 'Players', 0);
+  Players := ReadArrayIndex(IPlayers, IniFile, 'General', 'Players', 0);
 
   // Difficulty
-  Difficulty := ReadArrayIndex(IDifficulty, IniFile, 'Game', 'Difficulty', IGNORE_INDEX, 'Easy');
+  Difficulty := ReadArrayIndex(IDifficulty, IniFile, 'General', 'Difficulty', IGNORE_INDEX, 'Easy');
 
   //if language is unset try to find system language or load english at default
   GetLanguageIDs(Lang, FallbackLang);
   LanguageIsoCode := GetArrayIndex(LanguageIso, IfThen(Length(Lang) = 2, Lang, Copy(FallbackLang, 1, 2)));
-  Language := ReadArrayIndex(ILanguage, IniFile, 'Game', 'Language', IGNORE_INDEX, ILanguage[IfThen(LanguageIsoCode > -1, LanguageIsoCode, GetArrayIndex(LanguageIso, 'en'))]);
+  Language := ReadArrayIndex(ILanguage, IniFile, 'General', 'Language', IGNORE_INDEX, ILanguage[IfThen(LanguageIsoCode > -1, LanguageIsoCode, GetArrayIndex(LanguageIso, 'en'))]);
 
   // SongMenu
-  SongMenu := ReadArrayIndex(ISongMenuMode, IniFile, 'Game', 'SongMenu', Ord(smChessboard));
+  SongMenu := ReadArrayIndex(ISongMenuMode, IniFile, 'General', 'SongMenu', Ord(smChessboard));
 
   // Tabs
-  ShowDuets := Self.ReadArrayIndex(Switch, IniFile, 'Game', 'ShowDuets', 1);
-  Self.Tabs := Self.ReadArrayIndex(Switch, IniFile, 'Game', 'Tabs', 0);
-  Self.FindUnsetMedley := ReadArrayIndex(Switch, IniFile, 'Game', 'FindUnsetMedley', 0);
+  ShowDuets := Self.ReadArrayIndex(Switch, IniFile, 'General', 'ShowDuets', 1);
+  Self.Tabs := Self.ReadArrayIndex(Switch, IniFile, 'General', 'Tabs', 0);
+  Self.FindUnsetMedley := ReadArrayIndex(Switch, IniFile, 'General', 'FindUnsetMedley', 0);
 
   // Song Sorting
-  Sorting := ReadArrayIndex(ISorting, IniFile, 'Game', 'Sorting', Ord(sTitle));
+  Sorting := ReadArrayIndex(ISorting, IniFile, 'General', 'Sorting', Ord(sTitle));
 
   // Show Score
-  ShowScores := ReadArrayIndex(IShowScores, IniFile, 'Game', 'ShowScores', IGNORE_INDEX, 'On');
+  ShowScores := ReadArrayIndex(IShowScores, IniFile, 'General', 'ShowScores', IGNORE_INDEX, 'On');
 
   // Read Users Info (Network)
   DataBase.ReadUsers;
@@ -962,7 +962,7 @@ begin
     SetLength(IShowWebScore, Length(DLLMan.Websites));
     for I:= 0 to High(DllMan.Websites) do
       IShowWebScore[I] := DllMan.Websites[I].Name;
-    ShowWebScore := ReadArrayIndex(IShowWebScore, IniFile, 'Game', 'ShowWebScore', 0);
+    ShowWebScore := ReadArrayIndex(IShowWebScore, IniFile, 'General', 'ShowWebScore', 0);
     if (ShowWebScore = -1) then
       ShowWebScore := 0;
   end;
@@ -1139,27 +1139,27 @@ begin
   IniFile := TIniFile.Create(Filename.ToNative);
 
   // Players
-  IniFile.WriteString('Game', 'Players', IPlayers[Players]);
+  IniFile.WriteString('General', 'Players', IPlayers[Players]);
 
   // Difficulty
-  IniFile.WriteString('Game', 'Difficulty', IDifficulty[Difficulty]);
+  IniFile.WriteString('General', 'Difficulty', IDifficulty[Difficulty]);
 
   // Language
-  IniFile.WriteString('Game', 'Language', ILanguage[Language]);
+  IniFile.WriteString('General', 'Language', ILanguage[Language]);
 
-  IniFile.WriteString('Game', 'ShowDuets', Switch[Self.ShowDuets]);
+  IniFile.WriteString('General', 'ShowDuets', Switch[Self.ShowDuets]);
   // Tabs
-  IniFile.WriteString('Game', 'Tabs', Switch[Tabs]);
+  IniFile.WriteString('General', 'Tabs', Switch[Tabs]);
 
   // SongMenu
-  IniFile.WriteString('Game', 'SongMenu', ISongMenuMode[Ord(SongMenu)]);
+  IniFile.WriteString('General', 'SongMenu', ISongMenuMode[Ord(SongMenu)]);
 
   // Sorting
-  IniFile.WriteString('Game', 'Sorting', ISorting[Sorting]);
+  IniFile.WriteString('General', 'Sorting', ISorting[Sorting]);
 
   // Show Scores
-  IniFile.WriteString('Game', 'ShowScores', IShowScores[ShowScores]);
-  IniFile.WriteString('Game', 'FindUnsetMedley', Switch[Self.FindUnsetMedley]);
+  IniFile.WriteString('General', 'ShowScores', IShowScores[ShowScores]);
+  IniFile.WriteString('General', 'FindUnsetMedley', Switch[Self.FindUnsetMedley]);
 
   // MaxFramerate
   IniFile.WriteInteger('Graphics', 'MaxFramerate', MaxFramerate);
@@ -1351,7 +1351,7 @@ begin
     IniFile := TIniFile.Create(Filename.ToNative);
 
     // Difficulty
-    IniFile.WriteString('Game', 'Difficulty', IDifficulty[Difficulty]);
+    IniFile.WriteString('General', 'Difficulty', IDifficulty[Difficulty]);
 
     IniFile.Free;
   end;
@@ -1381,7 +1381,7 @@ begin
     IniFile := TIniFile.Create(Filename.ToNative);
 
     // ShowWebScore
-    IniFile.WriteString('Game', 'ShowWebScore', DllMan.Websites[ShowWebScore].Name);
+    IniFile.WriteString('General', 'ShowWebScore', DllMan.Websites[ShowWebScore].Name);
 
     IniFile.Free;
   end;
@@ -1503,7 +1503,7 @@ begin
     IniFile := TIniFile.Create(Filename.ToNative);
 
     // Players
-    IniFile.WriteString('Game', 'Players', IPlayers[Players]);
+    IniFile.WriteString('General', 'Players', IPlayers[Players]);
 
     IniFile.Free;
   end;
