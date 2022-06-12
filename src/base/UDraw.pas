@@ -845,8 +845,8 @@ var
   LyricEngine: TLyricEngine;
   Col: TRGB;
 const
-  BarWidth  = 17; // width  of the lyric helper bar
-  BarHeight = 20; // height of the lyric helper bar
+  BarWidth  = 15; // width  of the lyric helper bar
+  BarHeight = 17; // height of the lyric helper bar
   BarMoveLimit = 40; // max. number of beats remaining before the bar starts to move
 begin
   // get current lyrics line and the time in beats of its first note
