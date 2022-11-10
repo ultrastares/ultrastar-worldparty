@@ -179,8 +179,15 @@ type
       LyricsNextOutlineColor:    string;
 
       // Jukebox
+      JukeboxSongMenu:        integer;
+      JukeboxTimebarMode:     integer;
+      JukeboxRepeatSongList : integer;
+      JukeboxRandomMode:      integer;
+      JukeboxOrderMode:       integer;
+      JukeboxShowLyrics:      integer;
+
+      // JukeboxLyrics 
       JukeboxOffset:              integer;
-      JukeboxSongMenu:            integer;
       JukeboxFont:                integer;
       JukeboxEffect:              integer;
       JukeboxTransparency:        integer;
@@ -211,7 +218,6 @@ type
       SingScores:         integer;
       TopScores:          integer;
       SingTimebarMode:    integer;
-      JukeboxTimebarMode: integer;
       FindUnsetMedley:    integer;
 
       // WebCam
@@ -242,6 +248,10 @@ type
       procedure SaveNumberOfPlayers();
       procedure SaveSingTimebarMode();
       procedure SaveJukeboxTimebarMode();
+      procedure SaveJukeboxRepeatSongList();
+      procedure SaveJukeboxRandomMode();
+      procedure SaveJukeboxOrderMode();
+      procedure SaveJukeboxShowLyrics();
 
       { Sets resolution.
         @return (@true when resolution was added, @false otherwise) }
@@ -358,10 +368,17 @@ const
   IHexGrayColor: array[0..9] of UTF8String = ('000000', '202020', '404040', '606060', '808080', 'A0A0A0', 'C0C0C0', 'D6D6D6', 'FFFFFF', '');
   IHexOColor:    array[0..2] of UTF8String = ('000000', 'FFFFFF', '');
 
-  IJukeboxSongMenu:   array[0..1] of UTF8String = ('Off', 'On');
   JukeboxOffsetLyric: array [0..100] of UTF8String = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49',
                                                         '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99', '100');
   IColor:             array[0..9] of UTF8String = ('Blue', 'Green', 'Pink', 'Red', 'Violet', 'Orange', 'Yellow', 'Magenta', 'Brown', 'Black');
+
+  // Jukebox
+  IJukeboxSongMenu:       array[0..1] of UTF8String = ('Off', 'On');
+  IJukeboxTimebarMode:    array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
+  IJukeboxRepeatSongList: array[0..1] of UTF8String = ('Off', 'On');
+  IJukeboxRandomMode:     array[0..1] of UTF8String = ('Off', 'On');
+  IJukeboxOrderMode:      array[0..8] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade');
+  IJukeboxShowLyrics:     array[0..1] of UTF8String = ('Off', 'On');
 
   // Advanced
   IEffectSing:         array[0..1] of UTF8String = ('Off', 'On');
@@ -378,7 +395,6 @@ const
   IPartyPopup:         array[0..1] of UTF8String = ('Off', 'On');
 
   ISingTimebarMode:    array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
-  IJukeboxTimebarMode: array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
 
   // Microphone options
   IChannelPlayer:      array[0..6] of UTF8String = ('Off', '1', '2', '3', '4', '5', '6');
@@ -1034,17 +1050,24 @@ begin
   Self.LyricsNextOutlineColor := IniFile.ReadString('Lyrics', 'NextOutlineColor', IHexOColor[0]);
 
   // Jukebox
-  Self.JukeboxOffset := IniFile.ReadInteger('Jukebox', 'Position', 100);
-  Self.JukeboxFont := ReadArrayIndex(ILyricsFont, IniFile, 'Jukebox', 'Font', 2);
-  Self.JukeboxEffect := ReadArrayIndex(ILyricsEffect, IniFile, 'Jukebox', 'Effect', 2);
-  Self.JukeboxTransparency := ReadArrayIndex(ILyricsAlpha, IniFile, 'Jukebox', 'Transparency', 19);
-  Self.JukeboxSingColor := IniFile.ReadString('Jukebox', 'SingColor', IHexSingColor[7]);
-  Self.JukeboxSingOutlineColor := IniFile.ReadString('Jukebox', 'SingOutlineColor', IHexOColor[0]);
-  Self.JukeboxCurrentColor := IniFile.ReadString('Jukebox', 'CurrentColor', IHexGrayColor[6]);
-  Self.JukeboxCurrentOutlineColor := IniFile.ReadString('Jukebox', 'CurrentOutlineColor', IHexOColor[0]);
-  Self.JukeboxNextColor := IniFile.ReadString('Jukebox', 'NextColor', IHexGrayColor[5]);
-  Self.JukeboxNextOutlineColor := IniFile.ReadString('Jukebox', 'NextOutlineColor', IHexOColor[0]);
-  Self.JukeboxSongMenu := ReadArrayIndex(IJukeboxSongMenu, IniFile, 'Jukebox', 'SongMenu', IGNORE_INDEX, 'On');
+  Self.JukeboxSongMenu := ReadArrayIndex(IJukeboxSongMenu, IniFile, 'Jukebox', 'JukeboxSongMenu', IGNORE_INDEX, 'Off');
+  Self.JukeboxTimebarMode := ReadArrayIndex(IJukeboxTimebarMode, IniFile, 'Jukebox', 'JukeboxTimebarMode', IGNORE_INDEX, 'Current');
+  Self.JukeboxRepeatSongList := ReadArrayIndex(IJukeboxRepeatSongList, IniFile, 'Jukebox', 'JukeboxRepeatSongList', IGNORE_INDEX, 'Off');
+  Self.JukeboxRandomMode := ReadArrayIndex(IJukeboxRandomMode, IniFile, 'Jukebox', 'JukeboxRandomMode', IGNORE_INDEX, 'Off');
+  Self.JukeboxOrderMode := ReadArrayIndex(IJukeboxOrderMode, IniFile, 'Jukebox', 'JukeboxOrderMode', Ord(sTitle));
+  Self.JukeboxShowLyrics := ReadArrayIndex(IJukeboxShowLyrics, IniFile, 'Jukebox', 'JukeboxShowLyrics', IGNORE_INDEX, 'On');
+
+  // JukeboxLyrics
+  Self.JukeboxOffset := IniFile.ReadInteger('JukeboxLyrics', 'Position', 100);
+  Self.JukeboxFont := ReadArrayIndex(ILyricsFont, IniFile, 'JukeboxLyrics', 'Font', 2);
+  Self.JukeboxEffect := ReadArrayIndex(ILyricsEffect, IniFile, 'JukeboxLyrics', 'Effect', 2);
+  Self.JukeboxTransparency := ReadArrayIndex(ILyricsAlpha, IniFile, 'JukeboxLyrics', 'Transparency', 19);
+  Self.JukeboxSingColor := IniFile.ReadString('JukeboxLyrics', 'SingColor', IHexSingColor[7]);
+  Self.JukeboxSingOutlineColor := IniFile.ReadString('JukeboxLyrics', 'SingOutlineColor', IHexOColor[0]);
+  Self.JukeboxCurrentColor := IniFile.ReadString('JukeboxLyrics', 'CurrentColor', IHexGrayColor[6]);
+  Self.JukeboxCurrentOutlineColor := IniFile.ReadString('JukeboxLyrics', 'CurrentOutlineColor', IHexOColor[0]);
+  Self.JukeboxNextColor := IniFile.ReadString('JukeboxLyrics', 'NextColor', IHexGrayColor[5]);
+  Self.JukeboxNextOutlineColor := IniFile.ReadString('JukeboxLyrics', 'NextOutlineColor', IHexOColor[0]);
 
   // DefaultEncoding
   DefaultEncoding := ParseEncoding(IniFile.ReadString('Lyrics', 'Encoding', ''), encAuto);
@@ -1100,9 +1123,6 @@ begin
   // SingTimebarMode
   SingTimebarMode := ReadArrayIndex(ISingTimebarMode, IniFile, 'Advanced', 'SingTimebarMode', IGNORE_INDEX, 'Remaining');
 
-  // JukeboxTimebarMode
-  JukeboxTimebarMode := ReadArrayIndex(IJukeboxTimebarMode, IniFile, 'Advanced', 'JukeboxTimebarMode', IGNORE_INDEX, 'Current');
-
   // WebCam
   WebCamID := IniFile.ReadInteger('Webcam', 'ID', 0);
   WebCamResolution := ReadArrayIndex(IWebcamResolution, IniFile, 'Webcam', 'Resolution', IGNORE_INDEX, '320x240');
@@ -1115,7 +1135,7 @@ begin
   WebCamHue := ReadArrayIndex(IWebcamHue, IniFile, 'Webcam', 'Hue', IGNORE_INDEX, '0');
   WebCamEffect := IniFile.ReadInteger('Webcam', 'Effect', 0);
 
-  JukeboxSongMenu := ReadArrayIndex(IJukeboxSongMenu, IniFile, 'Jukebox', 'SongMenu', IGNORE_INDEX, 'On');
+//  JukeboxSongMenu := ReadArrayIndex(IJukeboxSongMenu, IniFile, 'Jukebox', 'JukeboxSongMenu', IGNORE_INDEX, 'On');
 
   LoadPaths(IniFile);
 
@@ -1246,17 +1266,17 @@ begin
   IniFile.WriteString('Lyrics', 'NextColor', Self.LyricsNextColor);
   IniFile.WriteString('Lyrics', 'NextOutlineColor', Self.LyricsNextOutlineColor);
 
-  // Jukebox
-  IniFile.WriteInteger('Jukebox', 'Position', Self.JukeboxOffset);
-  IniFile.WriteString('Jukebox', 'Font', ILyricsFont[Self.JukeboxFont]);
-  IniFile.WriteString('Jukebox', 'Effect', ILyricsEffect[Self.JukeboxEffect]);
-  IniFile.WriteString('Jukebox', 'Transparency', ILyricsAlpha[Self.JukeboxTransparency]);
-  IniFile.WriteString('Jukebox', 'SingColor', Self.JukeboxSingColor);
-  IniFile.WriteString('Jukebox', 'SingOutlineColor', Self.JukeboxSingOutlineColor);
-  IniFile.WriteString('Jukebox', 'CurrentColor', Self.JukeboxCurrentColor);
-  IniFile.WriteString('Jukebox', 'CurrentOutlineColor', Self.JukeboxCurrentOutlineColor);
-  IniFile.WriteString('Jukebox', 'NextColor', Self.JukeboxNextColor);
-  IniFile.WriteString('Jukebox', 'NextOutlineColor', Self.JukeboxNextOutlineColor);
+  // JukeboxLyrics
+  IniFile.WriteInteger('JukeboxLyrics', 'Position', Self.JukeboxOffset);
+  IniFile.WriteString('JukeboxLyrics', 'Font', ILyricsFont[Self.JukeboxFont]);
+  IniFile.WriteString('JukeboxLyrics', 'Effect', ILyricsEffect[Self.JukeboxEffect]);
+  IniFile.WriteString('JukeboxLyrics', 'Transparency', ILyricsAlpha[Self.JukeboxTransparency]);
+  IniFile.WriteString('JukeboxLyrics', 'SingColor', Self.JukeboxSingColor);
+  IniFile.WriteString('JukeboxLyrics', 'SingOutlineColor', Self.JukeboxSingOutlineColor);
+  IniFile.WriteString('JukeboxLyrics', 'CurrentColor', Self.JukeboxCurrentColor);
+  IniFile.WriteString('JukeboxLyrics', 'CurrentOutlineColor', Self.JukeboxCurrentOutlineColor);
+  IniFile.WriteString('JukeboxLyrics', 'NextColor', Self.JukeboxNextColor);
+  IniFile.WriteString('JukeboxLyrics', 'NextOutlineColor', Self.JukeboxNextOutlineColor);
 
   //Encoding default
   IniFile.WriteString('Lyrics', 'Encoding', EncodingName(DefaultEncoding));
@@ -1302,8 +1322,13 @@ begin
   // SingTimebarMode
   IniFile.WriteString('Advanced', 'SingTimebarMode', ISingTimebarMode[SingTimebarMode]);
 
-  // JukeboxTimebarMode
-  IniFile.WriteString('Advanced', 'JukeboxTimebarMode', IJukeboxTimebarMode[JukeboxTimebarMode]);
+  // Jukebox
+  IniFile.WriteString('Jukebox', 'JukeboxSongMenu', IJukeboxSongMenu[JukeboxSongMenu]);
+  IniFile.WriteString('Jukebox', 'JukeboxTimebarMode', IJukeboxTimebarMode[JukeboxTimebarMode]);
+  IniFile.WriteString('Jukebox', 'JukeboxRepeatSongList', IJukeboxRepeatSongList[JukeboxRepeatSongList]);
+  IniFile.WriteString('Jukebox', 'JukeboxRandomMode', IJukeboxRandomMode[JukeboxRandomMode]);
+  IniFile.WriteString('Jukebox', 'JukeboxOrderMode', IJukeboxOrderMode[JukeboxOrderMode]);
+  IniFile.WriteString('Jukebox', 'JukeboxShowLyrics', IJukeboxShowLyrics[JukeboxShowLyrics]);
 
   // Directories (add a template if section is missing)
   // Note: Value must be ' ' and not '', otherwise no key is generated on Linux
@@ -1365,7 +1390,7 @@ begin
   begin
     IniFile := TIniFile.Create(Filename.ToNative);
 
-    IniFile.WriteString('Jukebox', 'SongMenu', IJukeboxSongMenu[JukeboxSongMenu]);
+    IniFile.WriteString('Jukebox', 'JukeboxSongMenu', IJukeboxSongMenu[JukeboxSongMenu]);
 
     IniFile.Free;
   end;
@@ -1533,12 +1558,72 @@ begin
     IniFile := TIniFile.Create(Filename.ToNative);
 
     // Players
-    IniFile.WriteString('Advanced', 'JukeboxTimebarMode', IJukeboxTimebarMode[JukeboxTimebarMode]);
+    IniFile.WriteString('Jukebox', 'JukeboxTimebarMode', IJukeboxTimebarMode[JukeboxTimebarMode]);
 
     IniFile.Free;
   end;
 end;
 
+procedure TIni.SaveJukeboxRepeatSongList;
+var
+  IniFile: TIniFile;
+begin
+  if not Filename.IsReadOnly() then
+  begin
+    IniFile := TIniFile.Create(Filename.ToNative);
+
+    // Players
+    IniFile.WriteString('Jukebox', 'JukeboxRepeatSongList', IJukeboxRepeatSongList[JukeboxRepeatSongList]);
+
+    IniFile.Free;
+  end;
+end;
+
+
+procedure TIni.SaveJukeboxRandomMode;
+var
+  IniFile: TIniFile;
+begin
+  if not Filename.IsReadOnly() then
+  begin
+    IniFile := TIniFile.Create(Filename.ToNative);
+
+    // Players
+    IniFile.WriteString('Jukebox', 'JukeboxRandomMode', IJukeboxRandomMode[JukeboxRandomMode]);
+
+    IniFile.Free;
+  end;
+end;
+
+procedure TIni.SaveJukeboxOrderMode;
+var
+  IniFile: TIniFile;
+begin
+  if not Filename.IsReadOnly() then
+  begin
+    IniFile := TIniFile.Create(Filename.ToNative);
+
+    // Players
+    IniFile.WriteString('Jukebox', 'JukeboxOrderMode', IJukeboxOrderMode[JukeboxOrderMode]);
+
+    IniFile.Free;
+  end;
+end;
+
+procedure TIni.SaveJukeboxShowLyrics;
+var
+  IniFile: TIniFile;
+begin
+  if not Filename.IsReadOnly() then
+  begin
+    IniFile := TIniFile.Create(Filename.ToNative);
+
+    // Players
+    IniFile.WriteString('Jukebox', 'JukeboxShowLyrics', IJukeboxShowLyrics[JukeboxShowLyrics]);
+
+    IniFile.Free;
+  end;
+end;
 
 function TIni.SetResolution(ResolutionString: string; RemoveCurrent: boolean; NoSave: boolean): boolean;
   var
