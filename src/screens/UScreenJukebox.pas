@@ -575,6 +575,13 @@ begin
     end;
   end;
 
+  if (RandomMode) then
+    RandomList();
+
+  if (OrderMode) then
+    SongListSort(OrderType);
+
+  
   Button[JukeboxFindSong].Text[0].Text := '';
 
   Button[JukeboxLyric].SetSelect(ShowLyrics);
@@ -807,6 +814,7 @@ begin
             Button[JukeboxSongListFixPin].SetSelect(SongListVisibleFix);
           end;
 
+          // Change time
           if InRegion(X, Y, Statics[JukeboxStaticTimeProgress].GetMouseOverArea) then
           begin
             Time := ((X - Statics[JukeboxStaticTimeProgress].Texture.X) * LyricsState.TotalTime)/(Statics[JukeboxStaticTimeProgress].Texture.W);
@@ -814,6 +822,7 @@ begin
             ChangeTime(Time);
           end;
 
+          // Repeat song list
           if InRegion(X, Y, Button[JukeboxRepeatSongList].GetMouseOverArea) then
           begin
             RepeatSongList := not RepeatSongList;
@@ -826,16 +835,20 @@ begin
             Ini.SaveJukeboxRepeatSongList();
           end;
 
+          // Change order
           if InRegion(X, Y, Button[JukeboxSongListOrder].GetMouseOverArea) then
           begin
+            OrderMode := true;
             ChangeOrderList();
           end;
 
+          // Random function
           if InRegion(X, Y, Button[JukeboxRandomSongList].GetMouseOverArea) then
           begin
             RandomList();
           end;
 
+          // Show lyrics
           if InRegion(X, Y, Button[JukeboxLyric].GetMouseOverArea) then
           begin
             ShowLyrics := not ShowLyrics;
@@ -848,12 +861,14 @@ begin
             Ini.SaveJukeboxShowLyrics();
           end;
 
+          // Pause
           if InRegion(X, Y, Button[JukeboxPlayPause].GetMouseOverArea) then
           begin
             Pause;
             Button[JukeboxPlayPause].SetSelect(Paused);
           end;
 
+          // Find area
           if InRegion(X, Y, Button[JukeboxFindSong].GetMouseOverArea) then
           begin
             FindSongList := not FindSongList;
@@ -1159,7 +1174,6 @@ begin
   end;
 
   RandomMode := false;
-  OrderMode := true;
 
   Ini.JukeboxRandomMode := 0; 
   Ini.SaveJukeboxRandomMode();
@@ -1489,6 +1503,7 @@ begin
 
           if (SongListVisible) and (SDL_ModState = KMOD_LCTRL) then
           begin
+            OrderMode := true;
             ChangeOrderList();
             Exit;
           end;
