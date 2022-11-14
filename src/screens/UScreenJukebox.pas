@@ -1126,6 +1126,7 @@ var
   I, RValueI, RValueE: integer;
   tmp: integer;
 begin
+  Randomize();
   LastTick := SDL_GetTicks();
 
   Button[JukeboxRandomSongList].SetSelect(true);
