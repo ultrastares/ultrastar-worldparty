@@ -335,16 +335,16 @@ begin
 
         SetLength(ISelections1, 2);
 
-        ISelections1[0] := ULanguage.Language.Translate('SING_OPTIONS_GAME_TABS')+': '+ULanguage.Language.Translate('C_NO');
-        ISelections1[1] := ULanguage.Language.Translate('SING_OPTIONS_GAME_TABS')+': '+ULanguage.Language.Translate('C_YES');
+        ISelections1[0] := ULanguage.Language.Translate('SING_OPTIONS_GENERAL_TABS')+': '+ULanguage.Language.Translate('C_NO');
+        ISelections1[1] := ULanguage.Language.Translate('SING_OPTIONS_GENERAL_TABS')+': '+ULanguage.Language.Translate('C_YES');
 
         SetLength(ISelections2, Length(UIni.ISorting));
         For I := 0 to High(UIni.ISorting) do
-          ISelections2[I] := ULanguage.Language.Translate('SING_OPTIONS_GAME_SORTING')+': '+ULanguage.Language.Translate('OPTION_VALUE_'+UIni.ISorting[I]);
+          ISelections2[I] := ULanguage.Language.Translate('SING_OPTIONS_GENERAL_SORTING')+': '+ULanguage.Language.Translate('OPTION_VALUE_'+UIni.ISorting[I]);
 
         SetLength(ISelections3, 2);
-        ISelections3[0] := ULanguage.Language.Translate('SING_OPTIONS_GAME_DUETS')+': '+ULanguage.Language.Translate('C_YES');
-        ISelections3[1] := ULanguage.Language.Translate('SING_OPTIONS_GAME_DUETS')+': '+ULanguage.Language.Translate('C_NO');
+        ISelections3[0] := ULanguage.Language.Translate('SING_OPTIONS_GENERAL_DUETS')+': '+ULanguage.Language.Translate('C_YES');
+        ISelections3[1] := ULanguage.Language.Translate('SING_OPTIONS_GENERAL_DUETS')+': '+ULanguage.Language.Translate('C_NO');
 
         SelectValue1 := UIni.Ini.Tabs;
         SelectValue2 := UIni.Ini.Sorting;
