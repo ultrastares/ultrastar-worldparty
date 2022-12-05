@@ -233,7 +233,7 @@ const
   Party_Players_Max = 4;
 
   { amount of jokers each team gets at the beginning of the game }
-  PartyJokers = 5;
+  PartyJokers = 3;
 
   { to indicate that element (mode) should set randomly in ARounds array }
   Party_Round_Random = -1;
