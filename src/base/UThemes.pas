@@ -1022,6 +1022,7 @@ type
     Button4: TThemeButton;
     Button5: TThemeButton;
     Button6: TThemeButton;
+    Button7: TThemeButton;
     SelectSlide1: TThemeSelectSlide;
     SelectSlide2: TThemeSelectSlide;
     SelectSlide3: TThemeSelectSlide;
@@ -2316,6 +2317,7 @@ begin
       ThemeLoadButton(SongMenu.Button4, 'SongMenuButton4');
       ThemeLoadButton(SongMenu.Button5, 'SongMenuButton5');
       ThemeLoadButton(SongMenu.Button6, 'SongMenuButton6');
+      ThemeLoadButton(SongMenu.Button7, 'SongMenuButton7');
       ThemeLoadSelectSlide(SongMenu.SelectSlide1, 'SongMenuSelectSlide1');
       ThemeLoadSelectSlide(SongMenu.SelectSlide2, 'SongMenuSelectSlide2');
       ThemeLoadSelectSlide(SongMenu.SelectSlide3, 'SongMenuSelectSlide3');

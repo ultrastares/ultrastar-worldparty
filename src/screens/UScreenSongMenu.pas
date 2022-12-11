@@ -102,6 +102,7 @@ uses
   UPlaylist,
   USong,
   USongs,
+  UAudioPlaybackBase,
   UUnicodeUtils;
 
 function TScreenSongMenu.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
@@ -208,6 +209,10 @@ begin
   AddButton(Theme.SongMenu.Button6);
   if (Length(Button[5].Text) = 0) then
     AddButtonText(14, 20, 'Button 6');
+	
+  AddButton(Theme.SongMenu.Button7);
+  if (Length(Button[6].Text) = 0) then
+    AddButtonText(14, 20, 'Button 7');
 
   Interaction := 0;
 end;
@@ -252,6 +257,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := ((Length(PlaylistMedley.Song) > 0) or (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone));
+        Button[6].Visible := true;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -264,6 +270,7 @@ begin
         Button[3].Selectable := true;
         Button[4].Selectable := true;
         Button[5].Selectable := true;
+        Button[6].Selectable := true;
 
         Button[0].Text[0].Text := Language.Translate('C_SELECT_THIS_SONG');
         Button[1].Text[0].Text := Language.Translate('C_SORT_SONGS');
@@ -271,6 +278,7 @@ begin
         Button[3].Text[0].Text := Language.Translate('C_SEARCH_NEW_SONGS');
         Button[4].Text[0].Text := Language.Translate('C_OPEN_PLAYLIST');
         Button[5].Text[0].Text := Language.Translate('C_SING_MEDLEY');
+        Button[6].Text[0].Text := Language.Translate('SONG_MENU_MUTE_VOICE');
 
       end;
     SM_Song:
@@ -679,6 +687,7 @@ begin
   end;
 end;
 
+
 procedure TScreenSongMenu.HandleReturn;
 begin
   case CurMenu of
@@ -698,6 +707,11 @@ begin
               MenuShow(SM_Playlist_Load);
           8: // button 6
               MenuShow(SM_Medley);
+		  9: //button 7
+		     begin
+                 UAudioPlaybackBase.ToggleVoiceRemoval();
+                 Visible := false;
+             end;
         end;
       end;
 
