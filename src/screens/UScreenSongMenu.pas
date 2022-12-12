@@ -87,6 +87,8 @@ var
   ISelections3: array of UTF8String;
   SelectValue3: integer;
 
+  vocal_remover_activated: boolean;
+
 implementation
 
 uses
@@ -278,7 +280,10 @@ begin
         Button[3].Text[0].Text := Language.Translate('C_SEARCH_NEW_SONGS');
         Button[4].Text[0].Text := Language.Translate('C_OPEN_PLAYLIST');
         Button[5].Text[0].Text := Language.Translate('C_SING_MEDLEY');
-        Button[6].Text[0].Text := Language.Translate('SONG_MENU_MUTE_VOICE');
+		If (vocal_remover_activated) then
+           Button[6].Text[0].Text := Language.Translate('SONG_MENU_RESUME_VOICE')
+		else
+		   Button[6].Text[0].Text := Language.Translate('SONG_MENU_MUTE_VOICE');
 
       end;
     SM_Song:
@@ -292,6 +297,7 @@ begin
         Button[3].Visible := false;
         Button[4].Visible := true;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -317,6 +323,7 @@ begin
         Button[3].Visible := false;
         Button[4].Visible := false;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -337,6 +344,7 @@ begin
         Self.Button[3].Visible := true;
         Self.Button[4].Visible := true;
         Self.Button[5].Visible := false;
+		Self.Button[6].Visible := false;
         Self.SelectsS[0].Visible := true;
         Self.SelectsS[1].Visible := true;
         Self.SelectsS[2].Visible := true;
@@ -378,6 +386,7 @@ begin
         Button[3].Visible := false;
         Button[4].Visible := false;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -399,6 +408,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -440,6 +450,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -463,6 +474,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := false;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -485,6 +497,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -532,6 +545,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := false;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -552,6 +566,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := false;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -574,6 +589,7 @@ begin
         Button[3].Visible := True;
         Button[4].Visible := false;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := False;
         SelectsS[1].Visible := False;
@@ -614,6 +630,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := true;
         SelectsS[1].Visible := true;
@@ -672,6 +689,7 @@ begin
         Button[3].Visible := false;
         Button[4].Visible := false;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -711,6 +729,10 @@ begin
 		     begin
                  UAudioPlaybackBase.ToggleVoiceRemoval();
                  Visible := false;
+				 if (vocal_remover_activated) then
+                       vocal_remover_activated := false
+				 else 
+				       vocal_remover_activated := true;
              end;
         end;
       end;
