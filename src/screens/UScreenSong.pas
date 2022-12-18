@@ -573,7 +573,7 @@ begin
               Self.EnableSearch(false);
 
             case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
-              smList: //current song in list mode
+              smList, smCompactList: //current song in list mode
                 if
                   (X > UThemes.Theme.Song.ListCover.X)
                   and (X < UThemes.Theme.Song.ListCover.X + UThemes.Theme.Song.ListCover.W)
@@ -626,7 +626,7 @@ begin
     );
     B := Round(Self.SongTarget);
     case UIni.TSongMenuMode(UIni.Ini.SongMenu) of
-      smList:
+      smList, smCompactList:
         if
           (X >= UThemes.Theme.Song.ListCover.X)
           and (X < UThemes.Theme.Song.ListCover.X + UThemes.Theme.Song.ListCover.W)
@@ -759,7 +759,7 @@ begin
 
   Self.MainCover := Self.AddStatic(UThemes.Theme.Song.MainCover);
 
-  Num := IfThen(UIni.TSongMenuMode(UIni.Ini.SongMenu) = smList, UThemes.Theme.Song.Cover.Rows, 0);
+  Num := IfThen(UIni.TSongMenuMode(UIni.Ini.SongMenu) in [smList, smCompactList], UThemes.Theme.Song.Cover.Rows, 0);
 
   SetLength(StaticList, Num);
   for I := 0 to Num - 1 do
@@ -1335,33 +1335,40 @@ begin
           Alpha := 0.7;
           Self.StaticsList[I].Texture.TexNum := Self.StaticsList[I].TextureDeSelect.TexNum;
         end;
-        Self.StaticsList[I].Visible := true;
-        Self.Statics[ListVideoIcon[I]].Texture.Alpha := Alpha;
-        Self.Statics[ListVideoIcon[I]].Visible := USongs.CatSongs.Song[B].Video.IsSet;
-        Self.Statics[ListMedleyIcon[I]].Texture.Alpha := Alpha;
-        Self.Statics[ListMedleyIcon[I]].Visible := (USongs.CatSongs.Song[B].Medley.Source = msTag) and not CatSongs.Song[Interaction].isDuet;
-        Self.Statics[ListCalcMedleyIcon[I]].Texture.Alpha := Alpha;
-        Self.Statics[ListCalcMedleyIcon[I]].Visible := (USongs.CatSongs.Song[B].Medley.Source = msCalculated) and not CatSongs.Song[Interaction].isDuet;
-        Self.Statics[ListDuetIcon[I]].Texture.Alpha := Alpha;
-        Self.Statics[ListDuetIcon[I]].Visible := USongs.CatSongs.Song[B].isDuet;
-        Self.Statics[ListRapIcon[I]].Texture.Alpha := Alpha;
-        Self.Statics[ListRapIcon[I]].Visible := USongs.CatSongs.Song[B].hasRap;
-        Self.Statics[ListCreatorIcon[I]].Texture.Alpha := Alpha;
-        Self.Statics[ListCreatorIcon[I]].Visible := USongs.CatSongs.Song[B].Creator <> '';
-        Self.Statics[ListFixerIcon[I]].Texture.Alpha := Alpha;
-        Self.Statics[ListFixerIcon[I]].Visible := USongs.CatSongs.Song[B].Fixer <> '';
-        Self.Statics[Self.ListUnvalidatedIcon[I]].Texture.Alpha := Alpha;
-        Self.Statics[Self.ListUnvalidatedIcon[I]].Visible := USongs.CatSongs.Song[B].Validated;
+        if UIni.TSongMenuMode(UIni.Ini.SongMenu) = smList then
+        begin
+          Self.StaticsList[I].Visible := true;
+          Self.Statics[ListVideoIcon[I]].Texture.Alpha := Alpha;
+          Self.Statics[ListVideoIcon[I]].Visible := USongs.CatSongs.Song[B].Video.IsSet;
+          Self.Statics[ListMedleyIcon[I]].Texture.Alpha := Alpha;
+          Self.Statics[ListMedleyIcon[I]].Visible := (USongs.CatSongs.Song[B].Medley.Source = msTag) and not CatSongs.Song[Interaction].isDuet;
+          Self.Statics[ListCalcMedleyIcon[I]].Texture.Alpha := Alpha;
+          Self.Statics[ListCalcMedleyIcon[I]].Visible := (USongs.CatSongs.Song[B].Medley.Source = msCalculated) and not CatSongs.Song[Interaction].isDuet;
+          Self.Statics[ListDuetIcon[I]].Texture.Alpha := Alpha;
+          Self.Statics[ListDuetIcon[I]].Visible := USongs.CatSongs.Song[B].isDuet;
+          Self.Statics[ListRapIcon[I]].Texture.Alpha := Alpha;
+          Self.Statics[ListRapIcon[I]].Visible := USongs.CatSongs.Song[B].hasRap;
+          Self.Statics[ListCreatorIcon[I]].Texture.Alpha := Alpha;
+          Self.Statics[ListCreatorIcon[I]].Visible := USongs.CatSongs.Song[B].Creator <> '';
+          Self.Statics[ListFixerIcon[I]].Texture.Alpha := Alpha;
+          Self.Statics[ListFixerIcon[I]].Visible := USongs.CatSongs.Song[B].Fixer <> '';
+          Self.Statics[Self.ListUnvalidatedIcon[I]].Texture.Alpha := Alpha;
+          Self.Statics[Self.ListUnvalidatedIcon[I]].Visible := USongs.CatSongs.Song[B].Validated;
+          Self.Text[ListTextArtist[I]].Alpha := Alpha;
+          Self.Text[ListTextArtist[I]].Text := USongs.CatSongs.Song[B].Artist;
+          Self.Text[ListTextTitle[I]].Alpha := Alpha;
+          Self.Text[ListTextTitle[I]].Text := USongs.CatSongs.Song[B].Title;
+          Self.Text[ListTextYear[I]].Alpha := Alpha;
+          Self.Text[ListTextYear[I]].Text := IfThen(USongs.CatSongs.Song[B].Year <> 0, IntToStr(USongs.CatSongs.Song[B].Year), '');
+          Self.Text[ListTextCreator[I]].Alpha := Alpha;
+          Self.Text[ListTextCreator[I]].Text := USongs.CatSongs.Song[B].Creator;
+          Self.Text[ListTextFixer[I]].Alpha := Alpha;
+          Self.Text[ListTextFixer[I]].Text := USongs.CatSongs.Song[B].Fixer;
+        end
+        else
+          Self.Text[ListTextArtist[I]].Text := USongs.CatSongs.Song[B].Artist + ' - ' + USongs.CatSongs.Song[B].Title;
+
         Self.Text[ListTextArtist[I]].Alpha := Alpha;
-        Self.Text[ListTextArtist[I]].Text := USongs.CatSongs.Song[B].Artist;
-        Self.Text[ListTextTitle[I]].Alpha := Alpha;
-        Self.Text[ListTextTitle[I]].Text := USongs.CatSongs.Song[B].Title;
-        Self.Text[ListTextYear[I]].Alpha := Alpha;
-        Self.Text[ListTextYear[I]].Text := IfThen(USongs.CatSongs.Song[B].Year <> 0, IntToStr(USongs.CatSongs.Song[B].Year), '');
-        Self.Text[ListTextCreator[I]].Alpha := Alpha;
-        Self.Text[ListTextCreator[I]].Text := USongs.CatSongs.Song[B].Creator;
-        Self.Text[ListTextFixer[I]].Alpha := Alpha;
-        Self.Text[ListTextFixer[I]].Text := USongs.CatSongs.Song[B].Fixer;
       end
       else
         Self.UnloadCover(B);
@@ -1516,7 +1523,7 @@ begin
 
   FadeMessage();
 
-  if Self.IsScrolling and not ((TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smMosaic])) then
+  if Self.IsScrolling and not ((TSongMenuMode(Ini.SongMenu) in [smChessboard, smList, smCompactList, smMosaic])) then
   begin
     dx := SongTarget - SongCurrent;
     dt := TimeSkip * 7;
@@ -1593,7 +1600,7 @@ begin
             X := X - Increment / 2;
           end;
         end;
-      smList, smMosaic: //wait a bit to start song preview like scroll modes
+      smList, smCompactList, smMosaic: //wait a bit to start song preview like scroll modes
         if (Self.PreviewOpened = -1) and (Self.CoverTime > 0.2) then
           Self.StartPreview();
     end;
@@ -1893,7 +1900,7 @@ begin
 
   Self.SetRangeVisibilityStatic(VisibilityNoList, [0, 2]); //0 arrow, 1 song info panel and 2 only for smChessboard down arrow
   Self.SetRangeVisibilityStatic(VisibilityNoList, [Self.CalcMedleyIcon, Self.UnvalidatedIcon]); //icons
-  Self.Statics[Self.MainCover].Visible := Visibility and (UIni.TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smList, smMosaic]);
+  Self.Statics[Self.MainCover].Visible := Visibility and (UIni.TSongMenuMode(UIni.Ini.SongMenu) in [smChessboard, smList, smCompactList, smMosaic]);
   Self.Text[Self.TextArtist].Visible := VisibilityNoList;
   Self.Text[Self.TextNoSongs].Visible := not Visibility;
   Self.Text[Self.TextNumber].Visible := Visibility;
@@ -1914,6 +1921,7 @@ begin
     Self.Statics[Self.ListRapIcon[I]].Visible := false;
     Self.Statics[Self.ListVideoIcon[I]].Visible := false;
     Self.Statics[Self.ListCreatorIcon[I]].Visible := false;
+    Self.Statics[Self.ListFixerIcon[I]].Visible := false;
     Self.Statics[Self.ListUnvalidatedIcon[I]].Visible := false;
   end;
   if Visibility then
@@ -1929,7 +1937,7 @@ begin
       Self.Statics[Self.CreatorIcon].Visible := Song.Creator <> '';
       Self.Statics[Self.FixerIcon].Visible := Song.Fixer <> '';
       Self.Statics[Self.UnvalidatedIcon].Visible := false; //not Song.Validated;
-      Self.Text[Self.TextArtist].Text := Song.Artist; //not visible on smList
+      Self.Text[Self.TextArtist].Text := IfThen(UIni.TSongMenuMode(UIni.Ini.SongMenu) = smCompactList, '', Song.Artist);
       Self.Text[Self.TextYear].Text := IfThen(Song.Year <> 0, IntToStr(Song.Year), '');
       Self.Text[Self.TextCreator].Text := Song.Creator;
       Self.Text[Self.TextFixer].Text := Song.Fixer;
@@ -2035,7 +2043,7 @@ begin
     smCarousel: Self.SetCarouselScroll();
     smSlotMachine: Self.SetSlotMachineScroll();
     smSlide: Self.SetSlideScroll();
-    smList: Self.SetListScroll();
+    smList, smCompactList: Self.SetListScroll();
   end;
 end;
 

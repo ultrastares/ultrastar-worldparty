@@ -799,7 +799,7 @@ type
     SelectSingScores:      TThemeSelectSlide;
     SelectFindUnsetMedley: TThemeSelectSlide;
     ButtonExit:            TThemeButton;
-	
+
     LanguageDesc:          TThemeText;
     SongMenuDesc:          TThemeText;
     DuetsDesc:             TThemeText;
@@ -808,7 +808,7 @@ type
     ShowScoresDesc:        TThemeText;
     SingScoresDesc:        TThemeText;
     MedleyCDesc:           TThemeText;
-	
+
   end;
 
   TThemeOptionsGraphics = class(TThemeBasic)
@@ -846,7 +846,7 @@ type
     MusicAutoGainDesc:           TThemeText;
     PreviewVolumeDesc:           TThemeText;
     PreviewFadingDesc:           TThemeText;
-  
+
   end;
 
   TThemeOptionsLyrics = class(TThemeBasic)
@@ -869,7 +869,7 @@ type
     ButtonExit:         TThemeButton;
 
     Title:              TThemeText;
-	
+
     ModeDesc:           TThemeText;
     StavesDesc:         TThemeText;
     PositionDesc:       TThemeText;
@@ -888,7 +888,7 @@ type
     SelectSkin:         TThemeSelectSlide;
     SelectColor:        TThemeSelectSlide;
     ButtonExit:         TThemeButton;
-	
+
     ThemeDesc:          TThemeText;
     SkinDesc:           TThemeText;
     ColorDesc:          TThemeText;
@@ -946,7 +946,7 @@ type
     AutoModeDesc:          TThemeText;
     AutoPlayerDesc:        TThemeText;
     AutoScoreEasyDesc:     TThemeText;
-	
+
   end;
 
   TThemeOptionsWebcam = class(TThemeBasic)
@@ -2102,7 +2102,7 @@ begin
       ThemeLoadText(OptionsGeneral.ShowScoresDesc, 'OptionsGeneralShowScoresDesc');
       ThemeLoadText(OptionsGeneral.SingScoresDesc, 'OptionsGeneralSingScoresDesc');
       ThemeLoadText(OptionsGeneral.MedleyCDesc,    'OptionsGeneralMedleyCDesc');
-	  
+
       // Options Graphics
       ThemeLoadBasic(OptionsGraphics, 'OptionsGraphics');
 
@@ -2123,7 +2123,7 @@ begin
 
       // Options Sound
       ThemeLoadBasic(OptionsSound, 'OptionsSound');
-	  
+
       ThemeLoadSelectSlide(OptionsSound.SelectSlideVoicePassthrough, 'OptionsSoundSelectVoicePassthrough');
       ThemeLoadSelectSlide(OptionsSound.SelectBackgroundMusic,       'OptionsSoundSelectBackgroundMusic');
       ThemeLoadSelectSlide(OptionsSound.SelectClickAssist,           'OptionsSoundSelectClickAssist');
@@ -2173,7 +2173,7 @@ begin
       ThemeLoadText(OptionsLyrics.LineDesc,          'OptionsLyricsLineDesc');
       ThemeLoadText(OptionsLyrics.PropertyDesc,      'OptionsLyricsPropertyDesc');
       ThemeLoadText(OptionsLyrics.ColorDesc,         'OptionsLyricsColorDesc');
-	  
+
       // Options Themes
       ThemeLoadBasic(OptionsThemes, 'OptionsThemes');
 
@@ -2185,7 +2185,7 @@ begin
       ThemeLoadText(OptionsThemes.ThemeDesc,          'OptionsThemesThemeDesc');
       ThemeLoadText(OptionsThemes.SkinDesc,           'OptionsThemesSkinDesc');
       ThemeLoadText(OptionsThemes.ColorDesc,          'OptionsThemesColorDesc');
-	  
+
       // Options Microphones
       ThemeLoadBasic(OptionsMicrophones, 'OptionsMicrophones');
 
@@ -2201,7 +2201,7 @@ begin
       ThemeLoadText(OptionsMicrophones.ChannelDesc,                'OptionsMicrophonesChannelDesc');
       ThemeLoadText(OptionsMicrophones.ThresholdDesc,              'OptionsMicrophonesThresholdDesc');
       ThemeLoadText(OptionsMicrophones.MicBoostDesc,               'OptionsMicrophonesMicBoostDesc');
-	  
+
       //Options Advanced
       ThemeLoadBasic(OptionsAdvanced, 'OptionsAdvanced');
 
@@ -2219,7 +2219,7 @@ begin
       ThemeLoadText(OptionsAdvanced.AskBeforeExitDesc,          'OptionsAdvancedAskBeforeExitDesc');
       ThemeLoadText(OptionsAdvanced.PartyPopupDesc,             'OptionsAdvancedPartyPopupDesc');
       ThemeLoadText(OptionsAdvanced.TopScoresDesc,              'OptionsAdvancedTopScoresDesc');
-	  
+
       //Options Network
       ThemeLoadBasic(OptionsNetwork, 'OptionsNetwork');
 
@@ -2258,7 +2258,7 @@ begin
 
       ThemeLoadButton(OptionsWebcam.ButtonPreVisualization,      'OptionsWebcamButtonPreVisualization');
       ThemeLoadButton(OptionsWebcam.ButtonExit,                  'OptionsWebcamButtonExit');
-	  
+
       ThemeLoadText(OptionsWebcam.IDDesc,               'OptionsWebcamIDDesc');
       ThemeLoadText(OptionsWebcam.ResolutionDesc,       'OptionsWebcamResolutionDesc');
       ThemeLoadText(OptionsWebcam.FPSDesc,              'OptionsWebcamFPSDesc');
@@ -3726,6 +3726,7 @@ begin
     smSlotMachine: prefix := 'SlotMachine';
     smSlide: prefix := 'Slide';
     smList: prefix := 'List';
+    smCompactList: prefix := 'CompactList';
     smMosaic: prefix := 'Mosaic';
   end;
   // Song
@@ -3770,7 +3771,7 @@ begin
   Self.ReadProperty('Song'+prefix+'Cover', 'ZoomThumbW', 0, Self.Song.Cover.ZoomThumbW);
   Self.ReadProperty('Song'+prefix+'Cover', 'ZoomThumbH', 0, Self.Song.Cover.ZoomThumbH);
 
-  if (TSongMenuMode(Ini.SongMenu) = smList) then
+  if TSongMenuMode(Ini.SongMenu) in [smList, smCompactList] then
   begin
     Self.SetInheritance('Song'+prefix+'SelectSong');
     Self.ReadProperty('Song'+prefix+'SelectSong', 'X', 300, Self.Song.ListCover.X);

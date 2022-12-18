@@ -82,7 +82,7 @@ type
 
   TVisualizerOption      = (voOff, voWhenNoVideo, voWhenNoVideoAndImage, voOn);
   TBackgroundMusicOption = (bmoOff, bmoOn);
-  TSongMenuMode = ( smRoulette, smChessboard, smCarousel, smSlotMachine, smSlide, smList, smMosaic);
+  TSongMenuMode = (smRoulette, smChessboard, smCarousel, smSlotMachine, smSlide, smList, smCompactList, smMosaic);
 
   TIni = class
     private
@@ -186,7 +186,7 @@ type
       JukeboxOrderMode:       integer;
       JukeboxShowLyrics:      integer;
 
-      // JukeboxLyrics 
+      // JukeboxLyrics
       JukeboxOffset:              integer;
       JukeboxFont:                integer;
       JukeboxEffect:              integer;
@@ -290,7 +290,7 @@ const
   IDifficulty:        array[0..2] of UTF8String = ('Easy', 'Medium', 'Hard');
   Switch:             array[0..1] of UTF8String = ('Off', 'On');
   ISorting:           array[0..8] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade');
-  ISongMenuMode:      array[0..6] of UTF8String = ('Roulette', 'Chessboard', 'Carousel', 'Slot Machine', 'Slide', 'List', 'Mosaic');
+  ISongMenuMode: array[0..7] of UTF8String = ('Roulette', 'Chessboard', 'Carousel', 'Slot Machine', 'Slide', 'List', 'Compact list', 'Mosaic');
 
 type
   TSortingType = (sEdition, sGenre, sLanguage, sFolder, sTitle, sArtist, sArtist2, sYear, sDecade);
