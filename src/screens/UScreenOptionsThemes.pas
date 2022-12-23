@@ -79,13 +79,13 @@ begin
           AudioPlayback.PlaySound(SoundLib.Back);
 
           // select theme button in new created options screen
-          ScreenOptions.Interaction := 4;
+          ScreenOptions.Interaction := 5;
 
           FadeTo(@ScreenOptions);
         end;
       SDLK_RETURN:
         begin
-          if SelInteraction = 3 then
+          if Self.Interaction = 3 then
           begin
             Ini.Save;
             AudioPlayback.PlaySound(SoundLib.Back);
@@ -102,7 +102,7 @@ begin
         InteractPrev;
       SDLK_RIGHT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 2) then
+          if (Self.Interaction >= 0) and (Self.Interaction <= 2) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractInc;
@@ -110,7 +110,7 @@ begin
         end;
       SDLK_LEFT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 2) then
+          if (Self.Interaction >= 0) and (Self.Interaction <= 2) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractDec;
@@ -148,23 +148,27 @@ begin
   ColorDesc  := Self.AddText(UThemes.Theme.OptionsThemes.ColorDesc);
 end;
 
-procedure TScreenOptionsThemes.ReloadTheme;
+procedure TScreenOptionsThemes.ReloadTheme();
+var
+  CurrentInteraction: integer;
 begin
-  if Self.SelInteraction = 0 then
+  if Self.Interaction = 0 then
   begin
     UpdateSelectSlideOptions(UThemes.Theme.OptionsThemes.SelectSkin, Self.SkinSelect, UThemes.Theme.Themes[UIni.Ini.Theme].Skins, UIni.Ini.Skin);
     UIni.Ini.Skin := GetArrayIndex(UThemes.Theme.Themes[UIni.Ini.Theme].Skins, UThemes.Theme.Themes[UIni.Ini.Theme].DefaultSkin);
   end;
 
-  if Self.SelInteraction < 2 then
+  if Self.Interaction < 2 then
     UIni.Ini.Color := Skin.GetDefaultColor();
 
+  CurrentInteraction := Self.Interaction;
   UGraphic.UnLoadScreens();
   UThemes.Theme.LoadTheme(UIni.Ini.Theme, UIni.Ini.Color);
   UGraphic.LoadScreens();
   UGraphic.ScreenOptions := TScreenOptions.Create();
   UGraphic.ScreenOptionsThemes := TScreenOptionsThemes.Create();
   UGraphic.ScreenOptionsThemes.OnShow(); //to show video background
+  UGraphic.ScreenOptionsThemes.Interaction := CurrentInteraction;
 end;
 
 end.
