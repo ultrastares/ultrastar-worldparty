@@ -501,10 +501,8 @@ begin
                 CurNotePoints := (MaxSongPoints / CurrentSong.Lines[CP].ScoreValue) * ScoreFactor[CurrentLineFragment.NoteType];
 
                 case CurrentLineFragment.NoteType of
-                  ntNormal:    CurrentPlayer.Score       := CurrentPlayer.Score       + CurNotePoints;
-                  ntGolden:    CurrentPlayer.ScoreGolden := CurrentPlayer.ScoreGolden + CurNotePoints;
-                  ntRap:       CurrentPlayer.Score       := CurrentPlayer.Score       + CurNotePoints;
-                  ntRapGolden: CurrentPlayer.ScoreGolden := CurrentPlayer.ScoreGolden + CurNotePoints;
+                  ntNormal, ntRap: CurrentPlayer.Score := CurrentPlayer.Score + CurNotePoints;
+                  ntGolden, ntRapGolden: CurrentPlayer.ScoreGolden := CurrentPlayer.ScoreGolden + CurNotePoints;
                 end;
 
                 // a problem if we use floor instead of round is that a score of

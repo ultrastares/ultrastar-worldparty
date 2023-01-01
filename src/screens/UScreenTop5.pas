@@ -68,6 +68,7 @@ type
 implementation
 
 uses
+  Math,
   UDataBase,
   UGraphic,
   UMain,
@@ -92,33 +93,15 @@ begin
             Fadeout := true;
           end;
         end;
-      SDLK_RIGHT:
+      SDLK_RIGHT, SDLK_UP:
         begin
           inc(DifficultyShow);
-          if (DifficultyShow>2) then
-            DifficultyShow:=0;
-          DrawScores(DifficultyShow);
+          Self.DrawScores(IfThen(DifficultyShow > Length(UIni.IDifficulty), 0, DifficultyShow));
         end;
-      SDLK_LEFT:
+      SDLK_LEFT, SDLK_DOWN:
         begin
           dec(DifficultyShow);
-          if (DifficultyShow<0) then
-            DifficultyShow:=2;
-          DrawScores(DifficultyShow);
-        end;
-      SDLK_UP:
-        begin
-          inc(DifficultyShow);
-          if (DifficultyShow>2) then
-            DifficultyShow:=0;
-          DrawScores(DifficultyShow);
-        end;
-      SDLK_DOWN:
-        begin
-          dec(DifficultyShow);
-          if (DifficultyShow<0) then
-            DifficultyShow:=2;
-          DrawScores(DifficultyShow);
+          Self.DrawScores(IfThen(DifficultyShow < 0, Length(UIni.IDifficulty), DifficultyShow));
         end;
       SDLK_SYSREQ:
         begin
