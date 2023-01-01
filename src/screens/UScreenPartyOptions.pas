@@ -84,7 +84,7 @@ begin
           // restart time
           //if (ScreenSong.Mode = smPartyTournament) then
           //  ScreenSong.CurrentPartyTime := 0;
-
+          UIni.Ini.SaveLevel();
           case Self.Playlist of
             0: ;
             1:
