@@ -88,15 +88,15 @@ begin
         begin
           if Interaction = 0 then
           begin
-            //Next Page
-            SetPage(Page+1);
+            //Previous Page
+            if (Page > 0) then
+              SetPage(Page-1);
           end;
 
           if Interaction = 1 then
           begin
-            //Previous Page
-            if (Page > 0) then
-              SetPage(Page-1);
+            //Next Page
+            SetPage(Page+1);
           end;
 
           if Interaction = 2 then
@@ -148,13 +148,13 @@ begin
 
   LoadFromTheme(Theme.StatDetail);
 
-  AddButton(Theme.StatDetail.ButtonNext);
-  if (Length(Button[0].Text)=0) then
-    AddButtonText(14, 20, Language.Translate('STAT_NEXT'));
-
   AddButton(Theme.StatDetail.ButtonPrev);
-  if (Length(Button[1].Text)=0) then
+  if (Length(Button[0].Text)=0) then
     AddButtonText(14, 20, Language.Translate('STAT_PREV'));
+
+  AddButton(Theme.StatDetail.ButtonNext);
+  if (Length(Button[1].Text)=0) then
+    AddButtonText(14, 20, Language.Translate('STAT_NEXT'));
 
   AddButton(Theme.StatDetail.ButtonReverse);
   if (Length(Button[2].Text)=0) then

@@ -87,6 +87,8 @@ var
   ISelections3: array of UTF8String;
   SelectValue3: integer;
 
+  vocal_remover_activated: boolean;
+
 implementation
 
 uses
@@ -102,6 +104,7 @@ uses
   UPlaylist,
   USong,
   USongs,
+  UAudioPlaybackBase,
   UUnicodeUtils;
 
 function TScreenSongMenu.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
@@ -208,6 +211,10 @@ begin
   AddButton(Theme.SongMenu.Button6);
   if (Length(Button[5].Text) = 0) then
     AddButtonText(14, 20, 'Button 6');
+	
+  AddButton(Theme.SongMenu.Button7);
+  if (Length(Button[6].Text) = 0) then
+    AddButtonText(14, 20, 'Button 7');
 
   Interaction := 0;
 end;
@@ -252,6 +259,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := ((Length(PlaylistMedley.Song) > 0) or (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone));
+        Button[6].Visible := true;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -264,6 +272,7 @@ begin
         Button[3].Selectable := true;
         Button[4].Selectable := true;
         Button[5].Selectable := true;
+        Button[6].Selectable := true;
 
         Button[0].Text[0].Text := Language.Translate('C_SELECT_THIS_SONG');
         Button[1].Text[0].Text := Language.Translate('C_SORT_SONGS');
@@ -271,6 +280,10 @@ begin
         Button[3].Text[0].Text := Language.Translate('C_SEARCH_NEW_SONGS');
         Button[4].Text[0].Text := Language.Translate('C_OPEN_PLAYLIST');
         Button[5].Text[0].Text := Language.Translate('C_SING_MEDLEY');
+		If (vocal_remover_activated) then
+           Button[6].Text[0].Text := Language.Translate('SONG_MENU_RESUME_VOICE')
+		else
+		   Button[6].Text[0].Text := Language.Translate('SONG_MENU_MUTE_VOICE');
 
       end;
     SM_Song:
@@ -284,6 +297,7 @@ begin
         Button[3].Visible := false;
         Button[4].Visible := true;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -309,6 +323,7 @@ begin
         Button[3].Visible := false;
         Button[4].Visible := false;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -329,22 +344,23 @@ begin
         Self.Button[3].Visible := true;
         Self.Button[4].Visible := true;
         Self.Button[5].Visible := false;
+		Self.Button[6].Visible := false;
         Self.SelectsS[0].Visible := true;
         Self.SelectsS[1].Visible := true;
         Self.SelectsS[2].Visible := true;
 
         SetLength(ISelections1, 2);
 
-        ISelections1[0] := ULanguage.Language.Translate('SING_OPTIONS_GAME_TABS')+': '+ULanguage.Language.Translate('C_NO');
-        ISelections1[1] := ULanguage.Language.Translate('SING_OPTIONS_GAME_TABS')+': '+ULanguage.Language.Translate('C_YES');
+        ISelections1[0] := ULanguage.Language.Translate('SING_OPTIONS_GENERAL_TABS')+': '+ULanguage.Language.Translate('C_NO');
+        ISelections1[1] := ULanguage.Language.Translate('SING_OPTIONS_GENERAL_TABS')+': '+ULanguage.Language.Translate('C_YES');
 
         SetLength(ISelections2, Length(UIni.ISorting));
         For I := 0 to High(UIni.ISorting) do
-          ISelections2[I] := ULanguage.Language.Translate('SING_OPTIONS_GAME_SORTING')+': '+ULanguage.Language.Translate('OPTION_VALUE_'+UIni.ISorting[I]);
+          ISelections2[I] := ULanguage.Language.Translate('SING_OPTIONS_GENERAL_SORTING')+': '+ULanguage.Language.Translate('OPTION_VALUE_'+UIni.ISorting[I]);
 
         SetLength(ISelections3, 2);
-        ISelections3[0] := ULanguage.Language.Translate('SING_OPTIONS_GAME_DUETS')+': '+ULanguage.Language.Translate('C_YES');
-        ISelections3[1] := ULanguage.Language.Translate('SING_OPTIONS_GAME_DUETS')+': '+ULanguage.Language.Translate('C_NO');
+        ISelections3[0] := ULanguage.Language.Translate('SING_OPTIONS_GENERAL_DUETS')+': '+ULanguage.Language.Translate('C_YES');
+        ISelections3[1] := ULanguage.Language.Translate('SING_OPTIONS_GENERAL_DUETS')+': '+ULanguage.Language.Translate('C_NO');
 
         SelectValue1 := UIni.Ini.Tabs;
         SelectValue2 := UIni.Ini.Sorting;
@@ -370,6 +386,7 @@ begin
         Button[3].Visible := false;
         Button[4].Visible := false;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -391,6 +408,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -432,6 +450,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -455,6 +474,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := false;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -477,6 +497,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -524,6 +545,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := false;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -544,6 +566,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := false;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -566,6 +589,7 @@ begin
         Button[3].Visible := True;
         Button[4].Visible := false;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := False;
         SelectsS[1].Visible := False;
@@ -606,6 +630,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := true;
         SelectsS[1].Visible := true;
@@ -664,6 +689,7 @@ begin
         Button[3].Visible := false;
         Button[4].Visible := false;
         Button[5].Visible := false;
+		Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -678,6 +704,7 @@ begin
       end;
   end;
 end;
+
 
 procedure TScreenSongMenu.HandleReturn;
 begin
@@ -698,6 +725,15 @@ begin
               MenuShow(SM_Playlist_Load);
           8: // button 6
               MenuShow(SM_Medley);
+		  9: //button 7
+		     begin
+                 UAudioPlaybackBase.ToggleVoiceRemoval();
+                 Visible := false;
+				 if (vocal_remover_activated) then
+                       vocal_remover_activated := false
+				 else 
+				       vocal_remover_activated := true;
+             end;
         end;
       end;
 

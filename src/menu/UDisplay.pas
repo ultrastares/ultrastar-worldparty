@@ -163,9 +163,9 @@ const
   FADE_DURATION = 400;
   { constants for software cursor effects
     time in milliseconds }
-  CURSOR_FADE_IN_TIME = 500;      // seconds the fade in effect lasts
-  CURSOR_FADE_OUT_TIME = 2000;    // seconds the fade out effect lasts
-  CURSOR_AUTOHIDE_TIME = 2000;   // seconds until auto fade out starts if there is no mouse movement
+  CURSOR_FADE_IN_TIME = 600;      // seconds the fade in effect lasts
+  CURSOR_FADE_OUT_TIME = 1600;    // seconds the fade out effect lasts
+  CURSOR_AUTOHIDE_TIME = 1600;   // seconds until auto fade out starts if there is no mouse movement
 
 implementation
 
@@ -584,13 +584,13 @@ begin
         glVertex2f(DrawX, Cursor_Y);
 
         glTexCoord2f(0, 1);
-        glVertex2f(DrawX, Cursor_Y + 18);
+        glVertex2f(DrawX, Cursor_Y + 20);
 
         glTexCoord2f(1, 1);
-        glVertex2f(DrawX + 14, Cursor_Y + 18);
+        glVertex2f(DrawX + 15, Cursor_Y + 20);
 
         glTexCoord2f(1, 0);
-        glVertex2f(DrawX + 14, Cursor_Y);
+        glVertex2f(DrawX + 15, Cursor_Y);
       glEnd;
 
       glDisable(GL_BLEND);

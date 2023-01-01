@@ -532,21 +532,21 @@ begin
   Interaction       := 0;
   ActualInteraction := 0;
   ListMin           := 0;
-  RepeatSongList    := false;
-  RandomMode        := false;
+  RepeatSongList    := (Ini.JukeboxRepeatSongList = 1); //false;
+  RandomMode        := (Ini.JukeboxRandomMode = 1); //false;
   OrderMode         := true;
   FindSongList      := false;
   Filter            := '';
-  ShowLyrics        := true;
+  ShowLyrics        := (Ini.JukeboxShowLyrics = 1); //true;
 
   Button[JukeboxSongListOrder].SetSelect(true);
 
-  case (Ini.Sorting) of
+  case (Ini.JukeboxOrderMode) of
     5: begin
          OrderType := 1;
          Button[JukeboxSongListOrder].Text[0].Text := Language.Translate('OPTION_VALUE_ARTIST');
        end;
-    6: begin
+    4: begin
          OrderType := 2;
          Button[JukeboxSongListOrder].Text[0].Text := Language.Translate('OPTION_VALUE_TITLE');
        end;
@@ -568,18 +568,25 @@ begin
       OrderMode := false;
       Button[JukeboxSongListOrder].SetSelect(false);
       try
-      Button[JukeboxSongListOrder].Text[0].Text := Language.Translate('OPTION_VALUE_ARTIST');
+      Button[JukeboxSongListOrder].Text[0].Text := Language.Translate('OPTION_VALUE_LANGUAGE');
       finally
       end;
 
     end;
   end;
 
+  if (RandomMode) then
+    RandomList();
+
+  if (OrderMode) then
+    SongListSort(OrderType);
+
+  
   Button[JukeboxFindSong].Text[0].Text := '';
 
-  Button[JukeboxLyric].SetSelect(true);
-  Button[JukeboxRandomSongList].SetSelect(false);
-  Button[JukeboxRepeatSongList].SetSelect(false);
+  Button[JukeboxLyric].SetSelect(ShowLyrics);
+  Button[JukeboxRandomSongList].SetSelect(RandomMode);
+  Button[JukeboxRepeatSongList].SetSelect(RepeatSongList);
   Button[JukeboxFindSong].SetSelect(false);
   Button[JukeboxPlayPause].SetSelect(false);
   Button[JukeboxFindSong].Text[0].Selected := false;
@@ -798,15 +805,16 @@ begin
             SongListVisibleFix := not SongListVisibleFix;
 
             if (SongListVisibleFix) then
-              Ini.JukeboxSongMenu := 0
+              Ini.JukeboxSongMenu := 1
             else
-              Ini.JukeboxSongMenu := 1;
+              Ini.JukeboxSongMenu := 0;
 
             Ini.SaveJukeboxSongMenu;
 
             Button[JukeboxSongListFixPin].SetSelect(SongListVisibleFix);
           end;
 
+          // Change time
           if InRegion(X, Y, Statics[JukeboxStaticTimeProgress].GetMouseOverArea) then
           begin
             Time := ((X - Statics[JukeboxStaticTimeProgress].Texture.X) * LyricsState.TotalTime)/(Statics[JukeboxStaticTimeProgress].Texture.W);
@@ -814,34 +822,53 @@ begin
             ChangeTime(Time);
           end;
 
+          // Repeat song list
           if InRegion(X, Y, Button[JukeboxRepeatSongList].GetMouseOverArea) then
           begin
             RepeatSongList := not RepeatSongList;
             Button[JukeboxRepeatSongList].SetSelect(RepeatSongList);
+            if (RepeatSongList) then 
+              Ini.JukeboxRepeatSongList := 1 
+            else 
+              Ini.JukeboxRepeatSongList := 0; 
+
+            Ini.SaveJukeboxRepeatSongList();
           end;
 
+          // Change order
           if InRegion(X, Y, Button[JukeboxSongListOrder].GetMouseOverArea) then
           begin
+            OrderMode := true;
             ChangeOrderList();
           end;
 
+          // Random function
           if InRegion(X, Y, Button[JukeboxRandomSongList].GetMouseOverArea) then
           begin
             RandomList();
           end;
 
+          // Show lyrics
           if InRegion(X, Y, Button[JukeboxLyric].GetMouseOverArea) then
           begin
             ShowLyrics := not ShowLyrics;
             Button[JukeboxLyric].SetSelect(ShowLyrics);
+            if (ShowLyrics) then 
+              Ini.JukeboxShowLyrics := 1 
+            else 
+              Ini.JukeboxShowLyrics := 0; 
+
+            Ini.SaveJukeboxShowLyrics();
           end;
 
+          // Pause
           if InRegion(X, Y, Button[JukeboxPlayPause].GetMouseOverArea) then
           begin
             Pause;
             Button[JukeboxPlayPause].SetSelect(Paused);
           end;
 
+          // Find area
           if InRegion(X, Y, Button[JukeboxFindSong].GetMouseOverArea) then
           begin
             FindSongList := not FindSongList;
@@ -1099,6 +1126,7 @@ var
   I, RValueI, RValueE: integer;
   tmp: integer;
 begin
+  Randomize();
   LastTick := SDL_GetTicks();
 
   Button[JukeboxRandomSongList].SetSelect(true);
@@ -1106,6 +1134,9 @@ begin
 
   RandomMode := true;
   OrderMode := false;
+  
+  Ini.JukeboxRandomMode := 1; 
+  Ini.SaveJukeboxRandomMode();
 
   for I := 0 to High(JukeboxVisibleSongs) * 2 do
   begin
@@ -1144,7 +1175,20 @@ begin
   end;
 
   RandomMode := false;
-  OrderMode := true;
+
+  Ini.JukeboxRandomMode := 0; 
+  Ini.SaveJukeboxRandomMode();
+
+  case OrderType of
+    1 : Ini.JukeboxOrderMode := 5; //Artist
+    2 : Ini.JukeboxOrderMode := 4; //Title
+    3 : Ini.JukeboxOrderMode := 0; //Edition
+    4 : Ini.JukeboxOrderMode := 1; //Genre
+    5 : Ini.JukeboxOrderMode := 2; //Language
+    else Ini.JukeboxOrderMode := 5;
+  end;
+
+  Ini.SaveJukeboxOrderMode();
 
   SongListSort(OrderType);
 end;
@@ -1435,6 +1479,12 @@ begin
 
             ShowLyrics := not ShowLyrics;
             Button[JukeboxLyric].SetSelect(ShowLyrics);
+            if (ShowLyrics) then 
+              Ini.JukeboxShowLyrics := 1 
+            else 
+              Ini.JukeboxShowLyrics := 0; 
+
+            Ini.SaveJukeboxShowLyrics();
             Exit;
           end;
         end;
@@ -1454,6 +1504,7 @@ begin
 
           if (SongListVisible) and (SDL_ModState = KMOD_LCTRL) then
           begin
+            OrderMode := true;
             ChangeOrderList();
             Exit;
           end;
@@ -1469,6 +1520,11 @@ begin
 
             RepeatSongList := not RepeatSongList;
             Button[JukeboxRepeatSongList].SetSelect(RepeatSongList);
+            if (RepeatSongList) then 
+              Ini.JukeboxRepeatSongList := 1 
+            else 
+              Ini.JukeboxRepeatSongList := 0; 
+            Ini.SaveJukeboxRepeatSongList();
             Exit;
           end;
         end;
@@ -1919,7 +1975,7 @@ begin
   Log.LogStatus('Begin', 'OnShow');
 
   // songmenu
-  if (Ini.JukeboxSongMenu = 1) then
+  if (Ini.JukeboxSongMenu = 0) then
     SongListVisibleFix := false
   else
     SongListVisibleFix := true;

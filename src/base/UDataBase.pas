@@ -200,6 +200,12 @@ begin
     ScoreDB   := TSQLiteDatabase.Create(Filename.ToUTF8);
     fFilename := Filename;
 
+    if not ScoreDB.TableExists(cUS_Statistics_Info) then
+    begin
+      ScoreDB.ExecSQL('CREATE TABLE IF NOT EXISTS [' + cUS_Statistics_Info + '] ([ResetTime] INTEGER);');
+      ScoreDB.ExecSQL(Format('INSERT INTO [' + cUS_Statistics_Info + '] ([ResetTime]) VALUES(%d);', [DateTimeToUnix(Now())]));
+    end;
+
     // Set version number after creation
     if (GetVersion() = 0) then
       SetVersion(cDBVersion);

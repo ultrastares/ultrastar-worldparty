@@ -127,7 +127,14 @@ begin
               if Self.CheckSongs() then
                 Screen := @UGraphic.ScreenJukeboxPlaylist;
             end;
-            3: //stats
+            3: //about
+            begin
+              if not Assigned(UGraphic.ScreenAbout) then //load the screens only the first time
+                UGraphic.ScreenAbout := TScreenAbout.Create();
+
+              Screen := @UGraphic.ScreenAbout;
+            end;
+            4: //stats
             begin
               if not Assigned(UGraphic.ScreenStatMain) then //load the screens only the first time
                 UGraphic.ScreenStatMain := TScreenStatMain.Create();
@@ -135,22 +142,15 @@ begin
               if Self.CheckSongs() then
                 Screen := @UGraphic.ScreenStatMain;
             end;
-            4: //options
+            5: //options
             begin
               if not Assigned(UGraphic.ScreenOptions) then //load the screens only the first time
                 UGraphic.ScreenOptions := TScreenOptions.Create();
 
               Screen := @UGraphic.ScreenOptions;
             end;
-            5: //exit
+            6: //exit
               Result := false;
-            6: //about
-            begin
-              if not Assigned(UGraphic.ScreenAbout) then //load the screens only the first time
-                UGraphic.ScreenAbout := TScreenAbout.Create();
-
-              Screen := @UGraphic.ScreenAbout;
-            end;
           end;
           if Result and Assigned(Screen) then
             Self.FadeTo(Screen, UMusic.SoundLib.Start);
@@ -190,11 +190,11 @@ begin
   AddButton(Theme.Main.ButtonMulti);
   AddButton(Theme.Main.ButtonJukebox);
 
+  AddButton(Theme.Main.ButtonAbout);
   AddButton(Theme.Main.ButtonStat);
   AddButton(Theme.Main.ButtonOptions);
   AddButton(Theme.Main.ButtonExit);
 
-  AddButton(Theme.Main.ButtonAbout);
   Interaction := 0;
   Self.ReturnToSongScreenAfterLoadSongs := false;
 end;
