@@ -488,6 +488,7 @@ var
   Col: array [1..UIni.IMaxPlayerCount] of TRGB;
   I: integer;
   Color: cardinal;
+  AvatarPlayerTextures: UAvatars.TAvatarPlayerTextures;
 begin
   lastVolume:= -1;
   //too dangerous, a mouse button is quickly pressed by accident
@@ -863,6 +864,7 @@ begin
   ScreenSing.InfoMessageText := ScreenSing.AddText(Theme.Sing.InfoMessageText);
 
   // avatars
+  AvatarPlayerTextures := UAvatars.GetAvatarsList().GetPlayers();
   StaticP1Avatar[0] := ScreenSing.AddStatic(Theme.Sing.StaticP1Avatar);
   ScreenSing.Statics[StaticP1Avatar[0]].Texture := AvatarPlayerTextures[1];
   ScreenSing.Statics[StaticP1Avatar[0]].Texture.X  := Theme.Sing.StaticP1Avatar.X;

@@ -175,14 +175,9 @@ begin
     USongs.CatSongs := TCatSongs.Create();
     USongs.Songs := TSongs.Create(); //in a new thread
 
-    // Theme
     UThemes.Theme.LoadTheme(Ini.Theme, Ini.Color);
-
-    //avatars cache
-    UAvatars.Avatars := TAvatarDatabase.Create();
-
-    // Graphics
     UGraphic.Initialize3D(WindowTitle);
+    UAvatars.SetAvatarsList();
 
     UMusic.InitializeSound();
     UMusic.InitializeVideo();

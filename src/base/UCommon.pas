@@ -118,6 +118,7 @@ procedure FreeAlignedMem(P: pointer);
 function Equals(A, B: string; CaseSensitive: boolean = false): Boolean; overload;
 
 function GetArrayIndex(const SearchArray: array of UTF8String; Value: string; CaseInsensitiv: boolean = false): integer; overload;
+function GetArrayIndex(const SearchArray: array of string; Value: string; CaseInsensitiv: boolean = false): integer; overload;
 function GetArrayIndex(const SearchArray: array of integer; Value: integer): integer; overload;
 
 function ParseResolutionString(const ResolutionString: string; out x, y: integer): boolean;
@@ -632,6 +633,11 @@ begin
       Break;
     end;
   end;
+end;
+
+function GetArrayIndex(const SearchArray: array of string; Value: string; CaseInsensitiv: boolean = false): integer;
+begin
+  Result := GetArrayIndex(SearchArray, Value, CaseInsensitiv);
 end;
 
 (**

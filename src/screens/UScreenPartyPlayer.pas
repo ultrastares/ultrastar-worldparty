@@ -168,13 +168,7 @@ begin
       Party.AddPlayer(I, Button[I * 5 + 1 + J].Text[0].Text);
 
     // no avatar on Party
-    AvatarPlayerTextures[I + 1] := NoAvatarTexture[I + 1];
-
-    Col := GetPlayerColor(Num[I]);
-
-    AvatarPlayerTextures[I + 1].ColR := Col.R;
-    AvatarPlayerTextures[I + 1].ColG := Col.G;
-    AvatarPlayerTextures[I + 1].ColB := Col.B;
+    UAvatars.GetAvatarsList().LoadConfig(true);
   end;
 
 

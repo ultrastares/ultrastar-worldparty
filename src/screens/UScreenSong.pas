@@ -1374,46 +1374,13 @@ end;
 
 procedure TScreenSong.OnShow();
 var
-  Avatar: TAvatar;
-  Col: TRGB;
-  I, J: integer;
+  I: integer;
   Visible: boolean;
 begin
   inherited;
   if not Assigned(UGraphic.ScreenSongMenu) then //load the screens only the first time
   begin
-    //TODO move avatar load to UAvatar
-    UIni.Ini.SingColor := UIni.Ini.PlayerColor; //FIXME remove this variable in all files
-    UNote.PlayersPlay:= UIni.IPlayersVals[UIni.Ini.Players]; //FIXME set this variable is needed to see avatars in scores screen!
-    J := 1;
-    for I := 1 to High(AvatarsList) do
-      if GetArrayIndex(UIni.Ini.PlayerAvatar, UpperCase(MD5Print(MD5File(AvatarsList[I].ToNative())))) <> -1 then
-      begin
-        Avatar := Avatars.FindAvatar(AvatarsList[I]);
-        if (Avatar <> nil) then
-          UAvatars.AvatarPlayerTextures[J] := Avatar.GetTexture()
-        else
-        begin
-          UAvatars.AvatarPlayerTextures[J] := UTexture.Texture.LoadTexture(Skin.GetTextureFileName('NoAvatar_P'+IntToStr(J)), TEXTURE_TYPE_TRANSPARENT, $FFFFFF);
-          Col := UThemes.GetPlayerColor(UIni.Ini.PlayerColor[J]);
-          UAvatars.AvatarPlayerTextures[J].ColR := Col.R;
-          UAvatars.AvatarPlayerTextures[J].ColG := Col.G;
-          UAvatars.AvatarPlayerTextures[J].ColB := Col.B;
-        end;
-        FreeAndNil(Avatar);
-        Inc(J);
-      end;
-
-    for I := J to UIni.IPlayersVals[UIni.Ini.Players] do
-    begin
-        UAvatars.AvatarPlayerTextures[I] := UTexture.Texture.LoadTexture(Skin.GetTextureFileName('NoAvatar_P'+IntToStr(J)), TEXTURE_TYPE_TRANSPARENT, $FFFFFF);
-        Col := UThemes.GetPlayerColor(UIni.Ini.PlayerColor[I - 1]);
-        UAvatars.AvatarPlayerTextures[I].ColR := Col.R;
-        UAvatars.AvatarPlayerTextures[I].ColG := Col.G;
-        UAvatars.AvatarPlayerTextures[I].ColB := Col.B;
-    end;
-    UThemes.LoadPlayersColors();
-    UThemes.Theme.ThemeScoreLoad();
+    UNote.PlayersPlay:= StrToInt(UIni.IPlayers[UIni.Ini.Players]); //FIXME set this variable is needed to see avatars in scores screen!
     UGraphic.ScreenScore := UScreenScore.TScreenScore.Create();
     UGraphic.ScreenSing := UScreenSingController.TScreenSingController.Create();
     UGraphic.ScreenSongMenu := UScreenSongMenu.TScreenSongMenu.Create();
