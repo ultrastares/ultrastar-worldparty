@@ -471,7 +471,12 @@ begin
                 Range := 2 - Ini.Difficulty;
 
               // check if the player hit the correct tone within the tolerated range
-              if (Abs(CurrentLineFragment.Tone - CurrentSound.Tone) <= Range) or (CurrentLineFragment.NoteType = ntRap) or (CurrentLineFragment.NoteType = ntRapGolden) then
+              if
+                (Abs(CurrentLineFragment.Tone - CurrentSound.Tone) <= Range)
+                or (CurrentLineFragment.NoteType = ntRap)
+                or (CurrentLineFragment.NoteType = ntRapGolden)
+                or (UIni.Ini.PlayerLevel[PlayerIndex] = 3)
+              then
               begin
                 // adjust the players tone to the correct one
                 // TODO: do we need to do this?

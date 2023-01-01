@@ -909,7 +909,7 @@ begin
     Text_SongSituation := Language.Translate('SCORE_DOWNLOAD_SONG') + ' ' + IntToStr(Actual_Song) + '/' + IntToStr(Num_Songs);
     Text_WebSituation := IntToStr(Actual_Web) + '/' + IntToStr(Num_Webs);
 
-    for J := 0 to 2 do //for each difficulty level
+    for J := 0 to Length(UIni.IDifficulty) do //for each difficulty level
     begin
 
       if (Position_Receive_List[J] <= Length(Receive_List[J])) then

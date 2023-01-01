@@ -1335,7 +1335,7 @@ begin
       Difficulty := Ini.Difficulty;
 
     case Difficulty of
-      0:
+      0, 3:
         begin
           NotesH[I - 1] := 11; // 9
           NotesW[I - 1] := 6; // 5

@@ -290,7 +290,7 @@ var
  *}
 
 const
-  IDifficulty:        array[0..2] of UTF8String = ('Easy', 'Medium', 'Hard');
+  IDifficulty: array[0..3] of UTF8String = ('Easy', 'Medium', 'Hard', 'Training');
   Switch:             array[0..1] of UTF8String = ('Off', 'On');
   ISorting:           array[0..8] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade');
   ISongMenuMode: array[0..7] of UTF8String = ('Roulette', 'Chessboard', 'Carousel', 'Slot Machine', 'Slide', 'List', 'Compact list', 'Mosaic');

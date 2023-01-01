@@ -137,7 +137,7 @@ type
     DuetNames:  array of UTF8String; // duet singers name
     hasRap: boolean;
 
-    Score:      array[0..2] of array of TScore;
+    Score: array[0..3] of array of TScore;
 
     // these are used when sorting is enabled
     Visible:    boolean; // false if hidden, true if visible

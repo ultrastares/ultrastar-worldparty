@@ -1584,23 +1584,16 @@ begin
       begin
         Send := false;
         TotalScore := player[PlayerIndex - 1].ScoreInt + player[PlayerIndex - 1].ScoreLineInt + player[PlayerIndex - 1].ScoreGoldenInt;
-
-        case (Act_Level) of
-          0: if (TotalScore >= DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoScoreEasy)
-              and (DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoMode = 1)
-              and (DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoPlayer = PlayerIndex - 1) then
-                Send := true;
-
-          1: if (TotalScore >= DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoScoreMedium)
-              and (DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoMode = 1)
-              and (DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoPlayer = PlayerIndex - 1) then
-                Send := true;
-
-          2: if (TotalScore >= DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoScoreHard)
-              and (DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoMode = 1)
-              and (DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoPlayer = PlayerIndex - 1) then
-                Send := true;
-        end;
+        if
+          (UIni.Ini.PlayerLevel[PlayerIndex] <> 3)
+          and (UDatabase.DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoMode = 1)
+          and (UDatabase.DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoPlayer = PlayerIndex - 1)
+        then
+          case (Act_Level) of
+            0: Send := (TotalScore >= DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoScoreEasy);
+            1: Send := (TotalScore >= DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoScoreMedium);
+            2: Send := (TotalScore >= DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoScoreHard);
+          end;
 
         if (Send) then
         begin
@@ -1651,23 +1644,16 @@ begin
       begin
         Save := false;
         TotalScore := player[PlayerIndex - 1].ScoreInt + player[PlayerIndex - 1].ScoreLineInt + player[PlayerIndex - 1].ScoreGoldenInt;
-
-        case (Act_Level) of
-          0: if (TotalScore >= DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoScoreEasy)
-              and (DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoMode = 2)
-              and (DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoPlayer = PlayerIndex - 1) then
-                Save := true;
-
-          1: if (TotalScore >= DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoScoreMedium)
-              and (DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoMode = 2)
-              and (DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoPlayer = PlayerIndex - 1) then
-                Save := true;
-
-          2: if (TotalScore >= DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoScoreHard)
-              and (DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoMode = 2)
-              and (DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoPlayer = PlayerIndex - 1) then
-                Save := true;
-        end;
+        if
+          (UIni.Ini.PlayerLevel[PlayerIndex] <> 3)
+          and (UDataBase.DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoMode = 2)
+          and (UDataBase.DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoPlayer = PlayerIndex - 1)
+        then
+          case (Act_Level) of
+            0: Save := (TotalScore >= DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoScoreEasy);
+            1: Save := (TotalScore >= DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoScoreMedium);
+            2: Save := (TotalScore >= DataBase.NetworkUser[IndexWeb].UserList[IndexUser].AutoScoreHard);
+          end;
 
         if (Save) then
         begin
