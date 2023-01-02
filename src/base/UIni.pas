@@ -414,14 +414,6 @@ const
 
 var
   GreyScaleColor:             array[0..9] of UTF8String;
-  // Network
-  ISendNameTranslated:        array[0..1] of UTF8String = ('Off', 'On');
-  IAutoModeTranslated:        array[0..2] of UTF8String = ('Off', 'Send', 'Guardar');
-  IAutoPlayerTranslated:      array[0..6] of UTF8String = ('Player 1', 'Player 2', 'Player 3', 'Player 4', 'Player 5', 'Player 6', 'All');
-  IAutoScoreEasyTranslated:   array of UTF8String;
-  IAutoScoreMediumTranslated: array of UTF8String;
-  IAutoScoreHardTranslated:   array of UTF8String;
-
   // Webcam
   IWebcamBrightness: array [0..200] of UTF8String;
   IWebcamSaturation: array [0..200] of UTF8String;
@@ -464,7 +456,6 @@ const
 procedure TIni.TranslateOptionValues;
 var
   I: integer;
-  Zeros: string;
 begin
   // Load Languagefile, fallback to config language if param is invalid
   if (Params.Language > -1) and (Params.Language < Length(ILanguage)) then
@@ -489,35 +480,6 @@ begin
   GreyScaleColor[7] := ULanguage.Language.Translate('C_COLOR_GRAY') + ' -3';
   GreyScaleColor[8] := ULanguage.Language.Translate('C_COLOR_WHITE');
   GreyScaleColor[9] := ULanguage.Language.Translate('C_COLOR_OTHER');
-
-  // Network
-  IAutoModeTranslated[0]         := ULanguage.Language.Translate('OPTION_VALUE_OFF');
-  IAutoModeTranslated[1]         := ULanguage.Language.Translate('OPTION_VALUE_SEND');
-  IAutoModeTranslated[2]         := ULanguage.Language.Translate('OPTION_VALUE_SAVE');
-
-  for I:=0 to IMaxPlayerCount-1 do
-    IAutoPlayerTranslated[I]       :=ULanguage.Language.Translate('OPTION_PLAYER_' + IntToStr(I));
-
-  IAutoPlayerTranslated[6] := ULanguage.Language.Translate('OPTION_ALL_PLAYERS');
-
-  SetLength(IAutoScoreEasyTranslated, 10000);
-  SetLength(IAutoScoreMediumTranslated, 10000);
-  SetLength(IAutoScoreHardTranslated, 10000);
-
-  for I := 0 to 9999 do
-  begin
-    case (I) of
-      0..9 : Zeros := '000';
-      10..99 : Zeros := '00';
-      100..999 : Zeros := '0';
-      else Zeros := ''; //1000..9999
-    end;
-
-    IAutoScoreEasyTranslated[I]   := '+' + Zeros + IntToStr(I);
-    IAutoScoreMediumTranslated[I] := '+' + Zeros + IntToStr(I);
-    IAutoScoreHardTranslated[I]   := '+' + Zeros + IntToStr(I);
-  end;
-
 end;
 
 procedure TIni.LoadWebcamSettings(IniFile: TCustomIniFile);

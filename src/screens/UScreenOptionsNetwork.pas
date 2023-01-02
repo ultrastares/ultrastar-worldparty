@@ -83,6 +83,7 @@ type
 implementation
 
 uses
+  lazutf8,
   SysUtils,
   UGraphic,
   ULanguage,
@@ -287,8 +288,7 @@ begin
             if (High(DataBase.NetworkUser[CurrentWebsiteIndex].UserList) >= 0) then
             ScreenPopupCheck.ShowPopup(Format(Language.Translate('SING_OPTIONS_NETWORK_DELETE_PLAYER'), [DataBase.NetworkUser[CurrentWebsiteIndex].UserList[CurrentUserIndex].Username,DataBase.NetworkUser[CurrentWebsiteIndex].Website]), OnDeleteUser, nil, false);
             end;
-	
-        end;	
+        end;
       SDLK_DOWN:
         begin
           if (SelInteraction = 8) then
@@ -418,17 +418,11 @@ end;
 constructor TScreenOptionsNetwork.Create;
 var
   I:  integer;
+  Scores: array[0..9999] of UTF8String;
+  AutoMode: array[0..2] of UTF8String = ('Off', 'Send', 'Save');
+  AutoPlayer: array[0..6] of UTF8String = ('1', '2', '3', '4', '5', '6', 'all');
 begin
   inherited Create;
-
-  CurrentUserIndex := 0;
-  CurrentWebsiteIndex := 0;
-  CurrentUserSendNameIndex := 0;
-  CurrentUserModeIndex := 0;
-  CurrentUserPlayerIndex := 0;
-  CurrentUserScoreEasyIndex := 0;
-  CurrentUserScoreMediumIndex := 0;
-  CurrentUserScoreHardIndex := 0;
 
   LoadFromTheme(Theme.OptionsNetwork);
 
@@ -456,20 +450,21 @@ begin
     end;
     AddSelectSlide(Theme.OptionsNetwork.SelectWebsite, CurrentWebsiteIndex, IWebsite);
     AddSelectSlide(Theme.OptionsNetwork.SelectUsername, CurrentUserIndex, IUsername);
-    AddSelectSlide(Theme.OptionsNetwork.SelectSendName, CurrentUserSendNameIndex, ISendNameTranslated);
-    AddSelectSlide(Theme.OptionsNetwork.SelectAutoMode, CurrentUserModeIndex, IAutoModeTranslated);
-    AddSelectSlide(Theme.OptionsNetwork.SelectAutoPlayer, CurrentUserPlayerIndex, IAutoPlayerTranslated);
-    AddSelectSlide(Theme.OptionsNetwork.SelectAutoScoreEasy, CurrentUserScoreEasyIndex, IAutoScoreEasyTranslated);
-    AddSelectSlide(Theme.OptionsNetwork.SelectAutoScoreMedium, CurrentUserScoreMediumIndex, IAutoScoreMediumTranslated);
-    AddSelectSlide(Theme.OptionsNetwork.SelectAutoScoreHard, CurrentUserScoreHardIndex, IAutoScoreHardTranslated);
+    AddSelectSlide(Theme.OptionsNetwork.SelectSendName, CurrentUserSendNameIndex, UIni.Switch, 'OPTION_VALUE_');
+    Self.AddSelectSlide(UThemes.Theme.OptionsNetwork.SelectAutoMode, Self.CurrentUserModeIndex, AutoMode, 'OPTION_VALUE_');
+    Self.AddSelectSlide(UThemes.Theme.OptionsNetwork.SelectAutoPlayer, Self.CurrentUserPlayerIndex, AutoPlayer, 'OPTION_PLAYER_');
+    for I := 0 to 9999 do
+      Scores[I] := '+' + UTF8PadLeft(IntToStr(I), 4, '0');
 
+    Self.AddSelectSlide(UThemes.Theme.OptionsNetwork.SelectAutoScoreEasy, CurrentUserScoreEasyIndex, Scores);
+    Self.AddSelectSlide(UThemes.Theme.OptionsNetwork.SelectAutoScoreMedium, CurrentUserScoreMediumIndex, Scores);
+    Self.AddSelectSlide(UThemes.Theme.OptionsNetwork.SelectAutoScoreHard, CurrentUserScoreHardIndex, Scores);
     WebsiteDesc       := Self.AddText(UThemes.Theme.OptionsNetwork.WebsiteDesc);
     UsernameDesc      := Self.AddText(UThemes.Theme.OptionsNetwork.UsernameDesc);
     SendNameDesc      := Self.AddText(UThemes.Theme.OptionsNetwork.SendNameDesc);
     AutoModeDesc      := Self.AddText(UThemes.Theme.OptionsNetwork.AutoModeDesc);
     AutoPlayerDesc    := Self.AddText(UThemes.Theme.OptionsNetwork.AutoPlayerDesc);
     AutoScoreEasyDesc := Self.AddText(UThemes.Theme.OptionsNetwork.AutoScoreEasyDesc);
-	
     Theme.OptionsNetwork.TextInsertUser.Text := Language.Translate('SING_OPTIONS_NETWORK_INSERT_USER_INFO');
     TextInsertUser_Warning := AddText(Theme.OptionsNetwork.TextInsertUser);
 
@@ -497,7 +492,7 @@ begin
   begin
     // Not Show Text Insert User
     Text[TextInsertUser_Warning].Visible := false;
-	
+
 	ShowElements;
 
     SelectsS[0].SetSelectOpt(CurrentWebsiteIndex);
@@ -521,7 +516,7 @@ begin
 
     // Text Insert User
     Text[TextInsertUser_Warning].Visible := true;
-	
+
 	HideElements;
   end;
 
@@ -565,7 +560,7 @@ begin
 
     for I := 1 to 7 do
       SelectsS[I].Visible := false;
-	  
+
 	HideElements;
   end;
 
@@ -655,7 +650,7 @@ begin
       SelectsS[I].Visible := false;
 
     HideElements;
-	
+
     Interaction := 0;
   end;
 
