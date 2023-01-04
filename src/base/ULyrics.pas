@@ -93,7 +93,8 @@ type
     public
       // display propertys
       LyricsEffect: TLyricsEffect;
-      Alpha: real;    // alphalevel to fade out at end
+      Alpha: real; // max alpha level
+      CurrentAlpha: real; //current alpha level during fade out or fade in
       LineColor_en:   TRGB;      // Color of words in an enabled line
       LineColor_dis:  TRGB;      // Color of words in a disabled line
       LineColor_act:  TRGB;      // Color of the active word
@@ -441,11 +442,13 @@ end;
  * Draws one LyricLine
  *}
 procedure TLyricEngine.DrawLyricsLine(IsUpperLine: boolean; Beat: real);
+const
+  FadeLength = 300; //beats without sing to fade out/in the lyric
+  FadeSpeed = FadeLength / 20; //speed to fade out/in the lyric
 var
   Position: TThemePosition;
   Line: TLyricLine;
   CurWord:        PLyricWord;     // current word
-  LastWord:       PLyricWord;     // last word in line
   NextWord:       PLyricWord;     // word following current word
   Progress:       real;           // progress of singing the current word
   LyricX, LyricY: real;           // left/top lyric position
@@ -500,7 +503,6 @@ begin
 
     // determine current and last word in this line.
     // If the end of the line is reached use the last word as current word.
-    LastWord := @Line.Words[High(Line.Words)];
     CurWord := @Line.Words[Line.CurWord];
     if (Line.CurWord+1 < Length(Line.Words)) then
       NextWord := @Line.Words[Line.CurWord+1]
@@ -514,42 +516,39 @@ begin
     if (Progress <= 0) then
       Progress := 0;
 
-    // last word of this line finished, but this line did not hide -> fade out
-    if Line.LastLine and
-     (Beat > LastWord^.Start + LastWord^.Length) then
-    begin
-      Alpha := 1 - (Beat - (LastWord^.Start + LastWord^.Length)) / 15;
-      if (Alpha < 0) then
-        Alpha := 0;
-    end;
-
+    //fading out on the last line or during unsung parts that are too long
+    Self.CurrentAlpha := IfThen(
+      (Line.LastLine and (Beat > Line.StartNote + Line.Length)) or (Line.StartNote + Line.Length + FadeLength < Self.LowerLine.StartNote),
+      Max(0, 1 - (Beat - (Line.StartNote + Line.Length)) / FadeSpeed),
+      Self.Alpha
+    );
     // outline color
-    SetOutlineColor(OutlineColor_act.R, OutlineColor_act.G, OutlineColor_act.B, Alpha);
+    SetOutlineColor(OutlineColor_act.R, OutlineColor_act.G, OutlineColor_act.B, Self.CurrentAlpha);
 
     // draw sentence before current word
     if (LyricsEffect in [lfxSimple, lfxBall, lfxShift]) then
       // only highlight current word and not that ones before in this line
-      glColor4f(LineColor_en.R, LineColor_en.G ,LineColor_en.B, Alpha)
+      glColor4f(LineColor_en.R, LineColor_en.G ,LineColor_en.B, Self.CurrentAlpha)
     else
-      glColor4f(LineColor_act.R, LineColor_act.G ,LineColor_act.B, Alpha);
+      glColor4f(LineColor_act.R, LineColor_act.G ,LineColor_act.B, Self.CurrentAlpha);
 
     DrawLyricsWords(Line, LyricX, LyricY, 0, Line.CurWord-1);
 
     // draw rest of sentence (without current word)
-    glColor4f(LineColor_en.R, LineColor_en.G ,LineColor_en.B, Alpha);
+    glColor4f(LineColor_en.R, LineColor_en.G ,LineColor_en.B, Self.CurrentAlpha);
 
     if (NextWord <> nil) then
     begin
 
       // outline color
-      SetOutlineColor(OutlineColor_en.R, OutlineColor_en.G, OutlineColor_en.B, Alpha);
+      SetOutlineColor(OutlineColor_en.R, OutlineColor_en.G, OutlineColor_en.B, Self.CurrentAlpha);
 
       DrawLyricsWords(Line, LyricX + NextWord^.X, LyricY,
                       Line.CurWord+1, High(Line.Words));
     end;
 
     // outline color
-    SetOutlineColor(OutlineColor_act.R, OutlineColor_act.G, OutlineColor_act.B, Alpha);
+    SetOutlineColor(OutlineColor_act.R, OutlineColor_act.G, OutlineColor_act.B, Self.CurrentAlpha);
 
     // draw current word
     if LyricsEffect in [lfxSimple, lfxBall, lfxShift] then
@@ -559,7 +558,7 @@ begin
       else
         WordY := LyricY;
       // change the color of the current word
-      glColor4f(LineColor_act.R, LineColor_act.G ,LineColor_act.B, Alpha);
+      glColor4f(LineColor_act.R, LineColor_act.G ,LineColor_act.B, Self.CurrentAlpha);
 
       DrawLyricsWords(Line, LyricX + CurWord^.X, WordY, Line.CurWord, Line.CurWord);
     end
@@ -573,7 +572,7 @@ begin
                    LyricY + Line.Height/2, 0);
       glScalef(1.0 + (1-Progress) * 0.5, 1.0 + (1-Progress) * 0.5, 1);
 
-      glColor4f(LineColor_act.R, LineColor_act.G ,LineColor_act.B, Alpha);
+      glColor4f(LineColor_act.R, LineColor_act.G ,LineColor_act.B, Self.CurrentAlpha);
 
       DrawLyricsWords(Line, -CurWord^.Width/2, -Line.Height/2, Line.CurWord, Line.CurWord);
 
@@ -597,7 +596,7 @@ begin
 
       glClipPlane(GL_CLIP_PLANE0, @ClipPlaneEq);
       // and draw active left part
-      glColor4f(LineColor_act.R, LineColor_act.G ,LineColor_act.B, Alpha);
+      glColor4f(LineColor_act.R, LineColor_act.G ,LineColor_act.B, Self.CurrentAlpha);
 
       DrawLyricsWords(Line, 0, 0, Line.CurWord, Line.CurWord);
 
@@ -606,7 +605,7 @@ begin
       ClipPlaneEq[3] := -ClipPlaneEq[3];
       glClipPlane(GL_CLIP_PLANE0, @ClipPlaneEq);
       // and draw non-active right part
-      glColor4f(LineColor_en.R, LineColor_en.G ,LineColor_en.B, Alpha);
+      glColor4f(LineColor_en.R, LineColor_en.G ,LineColor_en.B, Self.CurrentAlpha);
 
       DrawLyricsWords(Line, 0, 0, Line.CurWord, Line.CurWord);
 
@@ -619,33 +618,30 @@ begin
     if (LyricsEffect = lfxBall) then
     begin
       DrawBall(LyricX + CurWord^.X + CurWord^.Width * Progress,
-               LyricY - 15 - 15*sin(Progress * Pi), Alpha);
+               LyricY - 15 - 15*sin(Progress * Pi), Self.CurrentAlpha);
     end;
 
   end
-  else
+  else //this section is called if the whole line can be drawn at once and no word is highlighted
   begin
-    // this section is called if the whole line can be drawn at once and no
-    // word is highlighted.
+    if Beat < Line.StartNote - FadeLength then
+      Self.CurrentAlpha := 0;
 
     // enable the upper, disable the lower line
     if (Line = UpperLine) then
     begin
-      // outline color
-      SetOutlineColor(OutlineColor_en.R, OutlineColor_en.G, OutlineColor_en.B, Alpha);
+      if (Self.CurrentAlpha < Self.Alpha) and (Beat < Line.StartNote) then //fade in
+        Self.CurrentAlpha := EnsureRange(1 - (Line.StartNote - Beat) / (FadeSpeed * 6), 0, Self.Alpha);
 
-      glColor4f(LineColor_en.R, LineColor_en.G ,LineColor_en.B, Alpha);
+      SetOutlineColor(OutlineColor_en.R, OutlineColor_en.G, OutlineColor_en.B, Self.CurrentAlpha);
+      glColor4f(LineColor_en.R, LineColor_en.G ,LineColor_en.B, Self.CurrentAlpha);
     end
     else
     begin
-      // outline color
-      SetOutlineColor(OutlineColor_dis.R, OutlineColor_dis.G, OutlineColor_dis.B, Alpha);
-
-      glColor4f(LineColor_dis.R, LineColor_dis.G ,LineColor_dis.B, Alpha);
+      SetOutlineColor(OutlineColor_dis.R, OutlineColor_dis.G, OutlineColor_dis.B, Self.CurrentAlpha);
+      glColor4f(LineColor_dis.R, LineColor_dis.G ,LineColor_dis.B, Self.CurrentAlpha);
     end;
-
     DrawLyricsWords(Line, LyricX, LyricY, 0, High(Line.Words));
-
   end;
 
   // reset
