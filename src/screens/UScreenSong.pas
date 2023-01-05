@@ -303,27 +303,27 @@ begin
 
     SDL_ModState := SDL_GetModState and (KMOD_LSHIFT + KMOD_RSHIFT + KMOD_LCTRL + KMOD_RCTRL + KMOD_LALT  + KMOD_RALT);
     //jump to artist or title letter
-    if Self.FreeListMode() and ((SDL_ModState = KMOD_LCTRL) or (SDL_ModState = KMOD_LALT)) then
+    if
+      Self.FreeListMode()
+      and ((SDL_ModState = KMOD_LCTRL) or (SDL_ModState = KMOD_LALT))
+      and (PressedKey in ([SDLK_a..SDLK_z, SDLK_0..SDLK_9])) then
     begin
-      if (PressedKey in ([SDLK_a..SDLK_z, SDLK_0..SDLK_9])) then
+      PressedKeyEncoded := UUnicodeUtils.UCS4ToUTF8String(PressedKey);
+      for I2 := 0 to 1 do
       begin
-        PressedKeyEncoded := UUnicodeUtils.UCS4ToUTF8String(PressedKey);
-        for I2 := 0 to 1 do
+        I := 0;
+        for Song in USongs.CatSongs.Song do
         begin
-          I := 0;
-          for Song in CatSongs.Song do
+          if
+            Song.Visible
+            and (((I2 = 0) and (I > Self.Interaction)) or ((I2 = 1) and (I < Self.Interaction)))
+            and UUnicodeUtils.UTF8StartsText(PressedKeyEncoded, IfThen(SDL_ModState = KMOD_LCTRL, Song.Title, Song.Artist))
+          then
           begin
-            if
-              Song.Visible
-              and (((I2 = 0) and (I > Interaction)) or ((I2 = 1) and (I < Interaction)))
-              and UUnicodeUtils.UTF8StartsText(PressedKeyEncoded, IfThen(SDL_ModState = KMOD_LCTRL, Song.Title, Song.Artist))
-            then
-            begin
-              Self.SkipTo(I);
-              Exit;
-            end;
-            Inc(I);
+            Self.SkipTo(IfThen(Song.Main, Song.OrderNum, Song.CatNumber) - 1);
+            Exit;
           end;
+          Inc(I);
         end;
       end;
     end;
