@@ -137,15 +137,11 @@ type
       ListTextArtist: array of integer;
       ListTextTitle: array of integer;
       ListTextYear: array of integer;
-      ListTextCreator: array of integer;
-      ListTextFixer: array of integer;
       ListVideoIcon: array of integer;
       ListMedleyIcon: array of integer;
       ListCalcMedleyIcon: array of integer;
       ListDuetIcon: array of integer;
       ListRapIcon: array of integer;
-      ListCreatorIcon: array of integer;
-      ListFixerIcon: array of integer;
       ListUnvalidatedIcon: array of integer;
 
       PlayMidi: boolean;
@@ -678,9 +674,9 @@ begin
   Self.MedleyIcon := Self.AddStatic(UThemes.Theme.Song.MedleyIcon);
   Self.RapIcon := Self.AddStatic(UThemes.Theme.Song.RapIcon);
   Self.VideoIcon := Self.AddStatic(UThemes.Theme.Song.VideoIcon);
+  Self.UnvalidatedIcon := Self.AddStatic(UThemes.Theme.Song.UnvalidatedIcon); //before creator and fixer icons that never hide
   Self.CreatorIcon := Self.AddStatic(UThemes.Theme.Song.CreatorIcon);
   Self.FixerIcon := Self.AddStatic(UThemes.Theme.Song.FixerIcon);
-  Self.UnvalidatedIcon := Self.AddStatic(UThemes.Theme.Song.UnvalidatedIcon);
   Self.SearchIcon := Self.AddStatic(UThemes.Theme.Song.SearchIcon);
   Self.SearchTextPlaceholder := Self.AddText(UThemes.Theme.Song.SearchTextPlaceholder);
   Self.SearchText := Self.AddText(UThemes.Theme.Song.SearchText);
@@ -787,15 +783,11 @@ begin
   SetLength(ListTextArtist, Num);
   SetLength(ListTextTitle, Num);
   SetLength(ListTextYear, Num);
-  SetLength(ListTextCreator, Num);
-  SetLength(ListTextFixer, Num);
   SetLength(ListVideoIcon, Num);
   SetLength(ListMedleyIcon, Num);
   SetLength(ListCalcMedleyIcon, Num);
   SetLength(ListDuetIcon, Num);
   SetLength(ListRapIcon, Num);
-  SetLength(ListCreatorIcon, Num);
-  SetLength(ListFixerIcon, Num);
   SetLength(Self.ListUnvalidatedIcon, Num);
 
   for I := 0 to Num - 1 do
@@ -803,29 +795,21 @@ begin
     Self.ListTextArtist[I] := Self.AddText(UThemes.Theme.Song.TextArtist);
     Self.ListTextTitle[I] := Self.AddText(UThemes.Theme.Song.TextTitle);
     Self.ListTextYear[I] := Self.AddText(UThemes.Theme.Song.TextYear);
-    Self.ListTextCreator[I] := Self.AddText(UThemes.Theme.Song.TextCreator);
-    Self.ListTextFixer[I] := Self.AddText(UThemes.Theme.Song.TextFixer);
     Self.ListVideoIcon[I] := Self.AddStatic(UThemes.Theme.Song.VideoIcon);
     Self.ListMedleyIcon[I] := Self.AddStatic(UThemes.Theme.Song.MedleyIcon);
     Self.ListCalcMedleyIcon[I] := Self.AddStatic(UThemes.Theme.Song.CalculatedMedleyIcon);
     Self.ListDuetIcon[I] := Self.AddStatic(UThemes.Theme.Song.DuetIcon);
     Self.ListRapIcon[I] := Self.AddStatic(UThemes.Theme.Song.RapIcon);
-    Self.ListCreatorIcon[I] := Self.AddStatic(UThemes.Theme.Song.CreatorIcon);
-    Self.ListFixerIcon[I] := Self.AddStatic(UThemes.Theme.Song.FixerIcon);
     Self.ListUnvalidatedIcon[I] := Self.AddStatic(UThemes.Theme.Song.UnvalidatedIcon);
     Padding := I * (UThemes.Theme.Song.ListCover.H + UThemes.Theme.Song.ListCover.Padding);
     Self.Text[Self.ListTextArtist[I]].Y := Self.Text[Self.ListTextArtist[I]].Y + Padding;
     Self.Text[Self.ListTextTitle[I]].Y := Self.Text[Self.ListTextTitle[I]].Y + Padding;
     Self.Text[Self.ListTextYear[I]].Y := Self.Text[Self.ListTextYear[I]].Y + Padding;
-    Self.Text[Self.ListTextCreator[I]].Y := Self.Text[Self.ListTextCreator[I]].Y + Padding;
-    Self.Text[Self.ListTextFixer[I]].Y := Self.Text[Self.ListTextFixer[I]].Y + Padding;
     Self.Statics[Self.ListVideoIcon[I]].Texture.Y := Self.Statics[Self.ListVideoIcon[I]].Texture.Y + Padding;
     Self.Statics[Self.ListMedleyIcon[I]].Texture.Y := Self.Statics[Self.ListMedleyIcon[I]].Texture.Y + Padding;
     Self.Statics[Self.ListCalcMedleyIcon[I]].Texture.Y := Self.Statics[Self.ListCalcMedleyIcon[I]].Texture.Y + Padding;
     Self.Statics[Self.ListDuetIcon[I]].Texture.Y := Self.Statics[Self.ListDuetIcon[I]].Texture.Y + Padding;
     Self.Statics[Self.ListRapIcon[I]].Texture.Y := Self.Statics[Self.ListRapIcon[I]].Texture.Y + Padding;
-    Self.Statics[Self.ListCreatorIcon[I]].Texture.Y := Self.Statics[Self.ListCreatorIcon[I]].Texture.Y + Padding;
-    Self.Statics[Self.ListFixerIcon[I]].Texture.Y := Self.Statics[Self.ListFixerIcon[I]].Texture.Y + Padding;
     Self.Statics[Self.ListUnvalidatedIcon[I]].Texture.Y := Self.Statics[Self.ListUnvalidatedIcon[I]].Texture.Y + Padding;
   end;
 
@@ -1348,10 +1332,6 @@ begin
           Self.Statics[ListDuetIcon[I]].Visible := USongs.CatSongs.Song[B].isDuet;
           Self.Statics[ListRapIcon[I]].Texture.Alpha := Alpha;
           Self.Statics[ListRapIcon[I]].Visible := USongs.CatSongs.Song[B].hasRap;
-          Self.Statics[ListCreatorIcon[I]].Texture.Alpha := Alpha;
-          Self.Statics[ListCreatorIcon[I]].Visible := USongs.CatSongs.Song[B].Creator <> '';
-          Self.Statics[ListFixerIcon[I]].Texture.Alpha := Alpha;
-          Self.Statics[ListFixerIcon[I]].Visible := USongs.CatSongs.Song[B].Fixer <> '';
           Self.Statics[Self.ListUnvalidatedIcon[I]].Texture.Alpha := Alpha;
           Self.Statics[Self.ListUnvalidatedIcon[I]].Visible := USongs.CatSongs.Song[B].Validated;
           Self.Text[ListTextArtist[I]].Alpha := Alpha;
@@ -1360,10 +1340,6 @@ begin
           Self.Text[ListTextTitle[I]].Text := USongs.CatSongs.Song[B].Title;
           Self.Text[ListTextYear[I]].Alpha := Alpha;
           Self.Text[ListTextYear[I]].Text := IfThen(USongs.CatSongs.Song[B].Year <> 0, IntToStr(USongs.CatSongs.Song[B].Year), '');
-          Self.Text[ListTextCreator[I]].Alpha := Alpha;
-          Self.Text[ListTextCreator[I]].Text := USongs.CatSongs.Song[B].Creator;
-          Self.Text[ListTextFixer[I]].Alpha := Alpha;
-          Self.Text[ListTextFixer[I]].Text := USongs.CatSongs.Song[B].Fixer;
         end
         else
           Self.Text[ListTextArtist[I]].Text := USongs.CatSongs.Song[B].Artist + ' - ' + USongs.CatSongs.Song[B].Title;
@@ -1871,7 +1847,7 @@ begin
   Self.Text[Self.TextArtist].Visible := VisibilityNoList;
   Self.Text[Self.TextNoSongs].Visible := not Visibility;
   Self.Text[Self.TextNumber].Visible := Visibility;
-  Self.SetRangeVisibilityText(VisibilityNoList, [Self.TextTitle, Self.TextFixer]);
+  Self.SetRangeVisibilityText(VisibilityNoList, [Self.TextTitle, Self.TextYear]);
   Self.SetRangeVisibility(Visibility and Self.FreeListMode(), [Self.StaticNonParty[0], High(Self.StaticNonParty)], [Self.TextNonParty[0], High(Self.TextNonParty)]); //set legend visibility
   Self.SetRangeVisibility(false, [Self.Static6PlayersDuetSingerP6, Self.Static2PlayersDuetSingerP1], [Self.Text2PlayersDuetSingerP1, Self.Text3PlayersDuetSingerP3]); //hide duets
   for I := 0 to High(Self.StaticsList) do //hide items in smList, too after change from other mode
@@ -1880,20 +1856,20 @@ begin
     Self.Text[Self.ListTextArtist[I]].Text := '';
     Self.Text[Self.ListTextTitle[I]].Text := '';
     Self.Text[Self.ListTextYear[I]].Text := '';
-    Self.Text[Self.ListTextCreator[I]].Text := '';
-    Self.Text[Self.ListTextFixer[I]].Text := '';
     Self.Statics[Self.ListCalcMedleyIcon[I]].Visible := false;
     Self.Statics[Self.ListDuetIcon[I]].Visible := false;
     Self.Statics[Self.ListMedleyIcon[I]].Visible := false;
     Self.Statics[Self.ListRapIcon[I]].Visible := false;
     Self.Statics[Self.ListVideoIcon[I]].Visible := false;
-    Self.Statics[Self.ListCreatorIcon[I]].Visible := false;
-    Self.Statics[Self.ListFixerIcon[I]].Visible := false;
     Self.Statics[Self.ListUnvalidatedIcon[I]].Visible := false;
   end;
   if Visibility then
   begin
     Song := USongs.CatSongs.Song[Self.Interaction];
+    Self.Statics[Self.CreatorIcon].Visible := Song.Creator <> '';
+    Self.Statics[Self.FixerIcon].Visible := Song.Fixer <> '';
+    Self.Text[Self.TextCreator].Text := Song.Creator;
+    Self.Text[Self.TextFixer].Text := Song.Fixer;
     if UIni.TSongMenuMode(UIni.Ini.SongMenu) <> smList then
     begin
       Self.Statics[Self.CalcMedleyIcon].Visible := (Song.Medley.Source = msCalculated) and not Song.isDuet;
@@ -1901,13 +1877,9 @@ begin
       Self.Statics[Self.MedleyIcon].Visible := (Song.Medley.Source = msTag) and not Song.isDuet;
       Self.Statics[Self.RapIcon].Visible := Song.hasRap;
       Self.Statics[Self.VideoIcon].Visible := Song.Video.IsSet;
-      Self.Statics[Self.CreatorIcon].Visible := Song.Creator <> '';
-      Self.Statics[Self.FixerIcon].Visible := Song.Fixer <> '';
       Self.Statics[Self.UnvalidatedIcon].Visible := false; //not Song.Validated;
       Self.Text[Self.TextArtist].Text := IfThen(UIni.TSongMenuMode(UIni.Ini.SongMenu) = smCompactList, '', Song.Artist);
       Self.Text[Self.TextYear].Text := IfThen(Song.Year <> 0, IntToStr(Song.Year), '');
-      Self.Text[Self.TextCreator].Text := Song.Creator;
-      Self.Text[Self.TextFixer].Text := Song.Fixer;
     end;
     if (USongs.CatSongs.CatNumShow = -1) and (UIni.Ini.Tabs = 1) and Self.FreeListMode() then //list of categories
     begin
