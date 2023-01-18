@@ -240,8 +240,6 @@ begin
           if Self.SelInteraction in [6, 7] then
             if Self.OpenedInOptions then
               Self.FadeTo(@UGraphic.ScreenOptions, UMusic.SoundLib.Back)
-            else if UIni.Ini.OnSongClick = 0 then
-              Self.FadeTo(@UGraphic.ScreenSong)
             else
               Self.FadeTo(@UGraphic.ScreenSing);
         end;
