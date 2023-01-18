@@ -1324,12 +1324,21 @@ begin
           Self.StaticsList[I].Visible := true;
           Self.Statics[ListVideoIcon[I]].Texture.Alpha := Alpha;
           Self.Statics[ListVideoIcon[I]].Visible := USongs.CatSongs.Song[B].Video.IsSet;
-          Self.Statics[ListMedleyIcon[I]].Texture.Alpha := Alpha;
-          Self.Statics[ListMedleyIcon[I]].Visible := (USongs.CatSongs.Song[B].Medley.Source = msTag) and not CatSongs.Song[Interaction].isDuet;
-          Self.Statics[ListCalcMedleyIcon[I]].Texture.Alpha := Alpha;
-          Self.Statics[ListCalcMedleyIcon[I]].Visible := (USongs.CatSongs.Song[B].Medley.Source = msCalculated) and not CatSongs.Song[Interaction].isDuet;
-          Self.Statics[ListDuetIcon[I]].Texture.Alpha := Alpha;
-          Self.Statics[ListDuetIcon[I]].Visible := USongs.CatSongs.Song[B].isDuet;
+          if USongs.CatSongs.Song[B].isDuet then
+          begin
+            Self.Statics[Self.ListDuetIcon[I]].Texture.Alpha := Alpha;
+            Self.Statics[Self.ListDuetIcon[I]].Visible := true;
+          end
+          else if USongs.CatSongs.Song[B].Medley.Source = msTag then
+          begin
+            Self.Statics[Self.ListMedleyIcon[I]].Texture.Alpha := Alpha;
+            Self.Statics[Self.ListMedleyIcon[I]].Visible := true;
+          end
+          else if USongs.CatSongs.Song[B].Medley.Source = msCalculated then
+          begin
+            Self.Statics[Self.ListCalcMedleyIcon[I]].Texture.Alpha := Alpha;
+            Self.Statics[Self.ListCalcMedleyIcon[I]].Visible := true;
+          end;
           Self.Statics[ListRapIcon[I]].Texture.Alpha := Alpha;
           Self.Statics[ListRapIcon[I]].Visible := USongs.CatSongs.Song[B].hasRap;
           Self.Statics[Self.ListUnvalidatedIcon[I]].Texture.Alpha := Alpha;
