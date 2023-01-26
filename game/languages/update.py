@@ -52,7 +52,8 @@ def xutf8header():
 
 # buffer english file (always open binary, handle newline uniformly as "\n")
 english = []
-with xopen("English.ini", "rU", encoding="utf8") as f:
+#with xopen("English.ini", "rU", encoding="utf8") as f:
+with xopen("English.ini", "r+", encoding="utf8") as f:
 	for line in f:
 		english.append(line.strip())
 
@@ -64,7 +65,8 @@ def update(lang):
 
 	# buffer translation file (always open binary, handle newline uniformly)
 	translation = []
-	with xopen(lang, "rU", encoding="utf8") as f:
+#	with xopen(lang, "rU", encoding="utf8") as f:
+	with xopen(lang, "r+", encoding="utf8") as f:
 		for line in f:
 			translation.append(line.strip())
 
@@ -75,8 +77,12 @@ def update(lang):
 		if re.search("\[Text\]", line, re.I):
 			outList.append(xutf8header() + "[Text]")
 			continue
-		# ignore comments
+#		# ignore comments
+#		elif re.match("\s*[;#]", line):
+#			continue
+		# copy comments
 		elif re.match("\s*[;#]", line):
+			outList.append(line)
 			continue
 		# copy empty lines
 		elif re.match("\s*$", line):
@@ -166,5 +172,5 @@ else:
 			continue
 		update(ini);
 
-	# update template (do not use an .ini prefix as USDX would load it)
+	# update template (do not use an .ini prefix as USWP would load it)
 	update("Language.new");
