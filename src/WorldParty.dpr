@@ -247,6 +247,7 @@ UVideo                    in 'media\UVideo.pas',
   UScreenOptionsNetwork in 'screens\UScreenOptionsNetwork.pas',
   UScreenOptionsWebcam  in 'screens\UScreenOptionsWebcam.pas',
   UScreenOptionsProfiles  in 'screens\UScreenOptionsProfiles.pas',
+  UScreenOptionsSongdirs  in 'screens\UScreenOptionsSongdirs.pas',
 
   UScreenOpen             in 'screens\UScreenOpen.pas',
   UScreenTop5             in 'screens\UScreenTop5.pas',

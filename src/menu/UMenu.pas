@@ -86,6 +86,7 @@ type
       // interaction
       procedure AddInteraction(Typ, Num: integer);
       procedure SetInteraction(Num: integer); virtual;
+      procedure DelInteraction(Num: integer);
       property Interaction: integer read SelInteraction write SetInteraction;
 
       // procedure load bg, texts, statics and button collections from themebasic
@@ -121,6 +122,7 @@ type
       function AddButton(ThemeButton: TThemeButton): integer; overload;
       function AddButton(X, Y, W, H: real; const TexName: IPath): integer; overload;
       function AddButton(X, Y, W, H, ColR, ColG, ColB, Int, DColR, DColG, DColB, DInt: real; const TexName: IPath; Typ: TTextureType; Reflection: boolean; ReflectionSpacing, DeSelectReflectionSpacing: real): integer; overload;
+      procedure DelButton(Num: integer);
       procedure ClearButtons();
       procedure AddButtonText(AddX, AddY: real; const AddText: UTF8String); overload;
       procedure AddButtonText(AddX, AddY: real; ColR, ColG, ColB: real; const AddText: UTF8String); overload;
@@ -293,6 +295,27 @@ begin
   SetLength(Interactions, IntNum+1);
   Interactions[IntNum].Typ := Typ;
   Interactions[IntNum].Num := Num;
+  Interaction := 0;
+end;
+
+procedure TMenu.DelInteraction(Num: integer);
+var
+  I, IntNum: integer;
+begin
+  IntNum := Length(Interactions);
+  //Shift next buttons
+  if (Num < IntNum) then
+    for I := Num to IntNum - 1 do
+    begin
+      Interactions[I].Typ := Interactions[I + 1].Typ;
+      Interactions[I].Num := Interactions[I + 1].Num;
+    end
+  else 
+    begin
+      Interactions[Num].Typ := 0;
+      Interactions[Num].Num := -1;
+    end;
+  SetLength(Interactions, IntNum-1);
   Interaction := 0;
 end;
 
@@ -970,6 +993,33 @@ begin
   // button collection mod
   Button[Result].Parent := 0;
   Self.AddInteraction(iButton, Result);
+end;
+
+procedure TMenu.DelButton(Num: integer);
+var
+  OldX, OldY: real;
+  I, IntNum: integer;
+begin
+  IntNum := Length(Self.Button) - 1;
+  //Shift next buttons
+  if (Num < IntNum) then
+    for I := Num to IntNum - 1 do
+    begin
+      Self.Button[I].SetH(Self.Button[I + 1].H);
+      Self.Button[I].SetW(Self.Button[I + 1].W);
+      Self.Button[I].Text[0].Style := Self.Button[I + 1].Text[0].Style;
+      Self.Button[I].Text[0].Size := Self.Button[I + 1].Text[0].Size;
+      Self.Button[I].Text[0].Align := Self.Button[I + 1].Text[0].Align;
+      Self.Button[I].Text[0].ColR := Self.Button[I + 1].Text[0].ColR;
+      Self.Button[I].Text[0].ColG := Self.Button[I + 1].Text[0].ColG;
+      Self.Button[I].Text[0].ColB := Self.Button[I + 1].Text[0].ColB;
+      Self.Button[I].Text[0].Text := Self.Button[I + 1].Text[0].Text;
+    end;
+  //Delete last button
+  Self.Button[IntNum] := Nil;
+  SetLength(Self.Button, IntNum);
+  Self.DelInteraction(IntNum);
+  Interaction := 0;
 end;
 
 procedure TMenu.ClearButtons();

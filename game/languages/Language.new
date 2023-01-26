@@ -17,8 +17,7 @@
 ;TODO: SING_STATS=Stats
 ;TODO: SING_STATS_DESC=View the statistics
 
-;TODO: SING_GAME_OPTIONS=Game options
-;TODO: SING_GAME_OPTIONS_DESC=Change game settings
+;TODO: SING_OPTIONS_DESC=Change game settings
 
 ;TODO: SING_EXIT=Quit
 ;TODO: SING_EXIT_DESC=Quit game
@@ -38,16 +37,26 @@
 ;TODO: OPTION_VALUE_EASY=Easy
 ;TODO: OPTION_VALUE_MEDIUM=Medium
 ;TODO: OPTION_VALUE_HARD=Hard
+;TODO: OPTION_VALUE_TRAINING=Training
 
 ;TODO: SING_OPTIONS=Options
 
-;TODO: SING_OPTIONS_GAME_LANGUAGE=Language
-;TODO: SING_OPTIONS_GAME_SONGMENU=Song menu
-;TODO: SING_OPTIONS_GAME_DUETS=Duets
-;TODO: SING_OPTIONS_GAME_TABS=Tabs
-;TODO: SING_OPTIONS_GAME_SORTING=Sorting
-;TODO: SING_OPTIONS_GAME_SHOWSCORES=Show scores
-;TODO: SING_OPTIONS_GAME_SINGSCORES=Scores on singing
+;TODO: SING_OPTIONS_GENERAL_LANGUAGE=Language
+;TODO: SING_OPTIONS_GENERAL_SONGMENU=Song menu
+;TODO: SING_OPTIONS_GENERAL_DUETS=Duets
+;TODO: SING_OPTIONS_GENERAL_TABS=Tabs
+;TODO: SING_OPTIONS_GENERAL_SORTING=Sorting
+;TODO: SING_OPTIONS_GENERAL_SHOWSCORES=Show scores
+;TODO: SING_OPTIONS_GENERAL_SINGSCORES=Scores on singing
+
+;TODO: SING_OPTIONS_GENERAL_LANGUAGE_DESC=Change the language of the game
+;TODO: SING_OPTIONS_GENERAL_SONGMENU_DESC=Select the mode to show the songs
+;TODO: SING_OPTIONS_GENERAL_DUETS_DESC=Show duets on songs
+;TODO: SING_OPTIONS_GENERAL_TABS_DESC=Sort songs in folders
+;TODO: SING_OPTIONS_GENERAL_SORTING_DESC=Sort songs by
+;TODO: SING_OPTIONS_GENERAL_SHOWSCORES_DESC=Show your score in song selection screen
+;TODO: SING_OPTIONS_GENERAL_SINGSCORES_DESC=Show a score box in sing screen
+;TODO: SING_OPTIONS_GENERAL_MEDLEYC_DESC=Detect the song medley automatically if doesn't exist
 
 ;TODO: OPTION_VALUE_ROULETTE=Roulette
 ;TODO: OPTION_VALUE_CHESSBOARD=Chessboard
@@ -80,6 +89,13 @@
 ;TODO: SING_OPTIONS_GRAPHICS_VISUALIZER=Visualization
 ;TODO: SING_OPTIONS_GRAPHICS_MOVIE_SIZE=Movie size
 
+;TODO: SING_OPTIONS_GRAPHICS_FULLSCREEN_DESC=Toggle between full screen or windows mode
+;TODO: SING_OPTIONS_GRAPHICS_RESOLUTION_DESC=Change window size
+;TODO: SING_OPTIONS_GRAPHICS_SCREENFADE_DESC=Add fading effects when changing menus
+;TODO: SING_OPTIONS_GRAPHICS_EFFECTSING_DESC=Add sing effects in golden notes
+;TODO: SING_OPTIONS_GRAPHICS_VISUALIZER_DESC=Replace video with visual effects
+;TODO: SING_OPTIONS_GRAPHICS_MOVIE_SIZE_DESC=Select video size
+
 ;TODO: OPTION_VALUE_BORDERLESS=Borderless
 
 ;TODO: OPTION_VALUE_WHENNOVIDEO=When No Video
@@ -97,10 +113,17 @@
 ;TODO: SING_OPTIONS_SOUND_PREVIEWVOLUME=Preview volume
 ;TODO: SING_OPTIONS_SOUND_PREVIEWFADING=Preview fading
 
+;TODO: SING_OPTIONS_SOUND_VOICEPASSTHROUGH_DESC=Listen to your voice
+;TODO: SING_OPTIONS_SOUND_BACKGROUNDMUSIC_DESC=Listen to the background music
+;TODO: SING_OPTIONS_SOUND_CLICK_ASSIST_DESC=Listen to click on each note
+;TODO: SING_OPTIONS_SOUND_BEAT_CLICK_DESC=Listen to tempo click
+;TODO: SING_OPTIONS_SOUND_MUSICAUTOGAIN_DESC=Normalize songs volume
+;TODO: SING_OPTIONS_SOUND_PREVIEWVOLUME_DESC=Adjust volume in song selection
+;TODO: SING_OPTIONS_SOUND_PREVIEWFADING_DESC=Fade out audio when changing songs
+
 ;TODO: OPTION_VALUE_GAIN_SOFT=Soft
 ;TODO: OPTION_VALUE_GAIN_MEDIUM=Medium
 ;TODO: OPTION_VALUE_GAIN_HARD=Hard
-;TODO: OPTION_VALUE_GAIN_TRANING=Training
 
 ;TODO: OPTION_VALUE_AUTO=Auto
 ;TODO: OPTION_VALUE_SEC=Second
@@ -109,6 +132,28 @@
 ;TODO: SING_OPTIONS_LYRICS_FONT=Font
 ;TODO: SING_OPTIONS_LYRICS_EFFECT=Effect
 ;TODO: SING_OPTIONS_LYRICS_NOTELINES=Staves
+
+;TODO: SING_OPTIONS_LYRICS_ALPHA=Alpha
+;TODO: SING_OPTIONS_LYRICS_LINE=Line
+;TODO: SING_OPTIONS_LYRICS_PROPERTY=Property
+;TODO: SING_OPTIONS_LYRICS_POSITION=Position
+
+;TODO: SING_OPTIONS_LYRICS_MODE_DESC=Toggle between classical or jukebox to customize song lyrics
+;TODO: SING_OPTIONS_LYRICS_STAVES_DESC=Show horizontal lines in sing screen
+;TODO: SING_OPTIONS_LYRICS_POSITION_DESC=Move up or down the position of the lyrics
+;TODO: SING_OPTIONS_LYRICS_FONT_DESC=Sets font thickness
+;TODO: SING_OPTIONS_LYRICS_EFFECT_DESC=Choose the movement of the song lyrics
+;TODO: SING_OPTIONS_LYRICS_TRANSPARENCY_DESC=Sets opacity of the song lyrics
+;TODO: SING_OPTIONS_LYRICS_LINE_DESC=Choose a line to apply the color
+;TODO: SING_OPTIONS_LYRICS_PROPERTY_DESC=Choose the part of the letter you want to customize
+;TODO: SING_OPTIONS_LYRICS_COLOR_DESC=Change the color of song lyrics
+
+;TODO: OPTION_VALUE_TO_SING=Sing
+;TODO: OPTION_VALUE_TOP=Top
+;TODO: OPTION_VALUE_BOTTOM=Bottom
+;TODO: OPTION_VALUE_OTHER=Other
+;TODO: OPTION_VALUE_FILL=Fill
+;TODO: OPTION_VALUE_OUTLINE=Outline
 
 ;TODO: OPTION_VALUE_PLAIN=Stylized
 ;TODO: OPTION_VALUE_OLINE1=With thin edge
@@ -124,23 +169,40 @@
 ;TODO: SING_OPTIONS_THEMES_SKIN=Skin
 ;TODO: SING_OPTIONS_THEMES_COLOR=Color
 
+;TODO: SING_OPTIONS_THEMES_THEME_DESC=The themes change the aspect of icons and distribution of items
+;TODO: SING_OPTIONS_THEMES_SKIN_DESC=Select a wallpaper
+;TODO: SING_OPTIONS_THEMES_COLOR_DESC=Change the color of the items
+
 ;TODO: SING_OPTIONS_MICROPHONES_CARD=Soundcard
 ;TODO: SING_OPTIONS_MICROPHONES_INPUT=Input
-;TODO: SING_OPTIONS_MICROPHONES_CHANNEL=Channel
+;TODO: SING_OPTIONS_MICROPHONES_CHANNEL=Assign microphone
 ;TODO: SING_OPTIONS_MICROPHONES_THRESHOLD=Threshold
 ;TODO: SING_OPTIONS_MICROPHONES_MIC_BOOST=Mic boost
+
+;TODO: SING_OPTIONS_MICROPHONES_SOUNDCARD_DESC=Choose the microphone you want to configure
+;TODO: SING_OPTIONS_MICROPHONES_INPUT_DESC=Select the input where the microphone is connected
+;TODO: SING_OPTIONS_MICROPHONES_CHANNEL_DESC=Assign this microphone to a player
+;TODO: SING_OPTIONS_MICROPHONES_THRESHOLD_DESC=Reduces microphone noise level
+;TODO: SING_OPTIONS_MICROPHONES_MICBOOST_DESC=Increases microphone power
 
 ;TODO: SING_OPTIONS_ADVANCED_DEBUG=Debug
 ;TODO: SING_OPTIONS_ADVANCED_OSCILLOSCOPE=Oscilloscope
 ;TODO: SING_OPTIONS_ADVANCED_ONSONGCLICK=After song select
-;TODO: SING_OPTIONS_ADVANCED_ASKBEFOREDEL=Safety questions
-;TODO: SING_OPTIONS_ADVANCED_PARTYPOPUP=Auto PartyMenu
+;TODO: SING_OPTIONS_ADVANCED_ASKBEFOREEXIT=Safety questions
+;TODO: SING_OPTIONS_ADVANCED_PARTYPOPUP=Party assistant
 ;TODO: SING_OPTIONS_ADVANCED_TOPSCORES=Top Scores
+
+;TODO: SING_OPTIONS_ADVANCED_DEBUG_DESC=Displays the frames per second of the game
+;TODO: SING_OPTIONS_ADVANCED_OSCILLOSCOPE_DESC=Displays a voice signal in sing screen
+;TODO: SING_OPTIONS_ADVANCED_ONSONGCLICK_DESC=Choose what to do after song selection
+;TODO: SING_OPTIONS_ADVANCED_ASKBEFOREEXIT_DESC=Confirm when exiting the game
+;TODO: SING_OPTIONS_ADVANCED_PARTYPOPUP_DESC=Show menu when selecting a song in party mode
+;TODO: SING_OPTIONS_ADVANCED_TOPSCORES_DESC=Displays a player's top 5 scores
 
 ;TODO: OPTION_VALUE_ALL=All
 ;TODO: OPTION_VALUE_PLAYER=Player
 
-;TODO: SING_OPTIONS_NETWORK_INSERT_USER_INFO=Press key "Insert" to add user to this web...
+;TODO: SING_OPTIONS_NETWORK_INSERT_USER_INFO=Synchronize the web account with the game to submit your scores
 ;TODO: SING_OPTIONS_NETWORK_WEBSITE=Website
 ;TODO: SING_OPTIONS_NETWORK_USERNAME=Username
 ;TODO: SING_OPTIONS_NETWORK_PASSWORD=Password
@@ -154,6 +216,13 @@
 ;TODO: SING_OPTIONS_NETWORK_DELETE_PLAYER=Really delete the user %0:s of the website %1:s?
 ;TODO: SING_OPTIONS_NETWORK_LEGEND_INSERT=Insert
 ;TODO: SING_OPTIONS_NETWORK_LEGEND_DELETE=Delete
+
+;TODO: SING_OPTIONS_NETWORK_WEBSITE_DESC=Website where the scores will be sent
+;TODO: SING_OPTIONS_NETWORK_USERNAME_DESC=Registered account
+;TODO: SING_OPTIONS_NETWORK_SEND_SAVE_PLAYER_NAME_DESC=Send your local name
+;TODO: SING_OPTIONS_NETWORK_AUTO_MODE_DESC=Automate scores
+;TODO: SING_OPTIONS_NETWORK_AUTO_PLAYER_DESC=Send this player's scores
+;TODO: SING_OPTIONS_NETWORK_AUTO_SCORE_EASY_DESC=Auto-Send score from this number
 
 ;TODO: OPTION_PLAYER_1=Player 1
 ;TODO: OPTION_PLAYER_2=Player 2
@@ -191,7 +260,7 @@
 ;TODO: SONG_MENU_REFRESH_SCORES_ALL_SONGS=All songs
 ;TODO: SONG_MENU_REFRESH_SCORES_ONLY_SONG=This song
 ;TODO: SONG_MENU_REFRESH_SCORES_REFRESH=Update
-;TODO: SONG_MENU_REFRESH_SCORES_ERROR_CONNECTION=Error connect to the website: %0:s!
+;TODO: SONG_MENU_REFRESH_SCORES_ERROR_CONNECTION=Error connecting to the website: %0:s!
 ;TODO: SONG_MENU_REFRESH_SCORES_ERROR_FILE=File not found: '%0:s [download scores]'!
 
 ;TODO: SONG_SCORE_MAX=Best:
@@ -200,7 +269,7 @@
 ;TODO: SCORE_SEND_DESC=Send score
 ;TODO: SCORE_SEND=Send
 ;TODO: SCORE_SEND_PLAYER=Player
-;TODO: SCORE_SEND_OTHER_USER= Other username
+;TODO: SCORE_SEND_OTHER_USER=Other username
 ;TODO: SCORE_SAVE=Save
 
 ;TODO: SCORE_DOWNLOAD_TITLE=Download
@@ -221,6 +290,15 @@
 ;TODO: SING_OPTIONS_WEBCAM_EFFECT=Effect
 ;TODO: SING_OPTIONS_WEBCAM_PREVIEW=Activate preview
 
+;TODO: SING_OPTIONS_WEBCAM_ID_DESC=Select the webcam you want to use
+;TODO: SING_OPTIONS_WEBCAM_RESOLUTION_DESC=Select an image size for your webcam
+;TODO: SING_OPTIONS_WEBCAM_FPS_DESC=Displays the frames per second of the camera
+;TODO: SING_OPTIONS_WEBCAM_FLIP_DESC=Flip image horizontally
+;TODO: SING_OPTIONS_WEBCAM_BRIGHTNESS_DESC=Adjusts image brightness
+;TODO: SING_OPTIONS_WEBCAM_SATURATION_DESC=Adjusts color intensity
+;TODO: SING_OPTIONS_WEBCAM_HUE_DESC=Image color grade
+;TODO: SING_OPTIONS_WEBCAM_EFFECT_DESC=Apply a filter to the image
+
 ;TODO: SING_OPTIONS_WEBCAM_ENABLE_PREVIEW=Enable preview
 ;TODO: SING_OPTIONS_WEBCAM_DISABLE_PREVIEW=Disable preview
 ;TODO: SING_OPTIONS_WEBCAM_NO_WEBCAM=No webcam found!
@@ -235,25 +313,6 @@
 ;TODO: SING_OPTIONS_WEBCAM_EFFECT_GAUSSIAN_BLUR=Gaussian blur
 ;TODO: SING_OPTIONS_WEBCAM_EFFECT_EQUALIZED=Equalized
 ;TODO: SING_OPTIONS_WEBCAM_EFFECT_ERODE=Erode
-
-;TODO: JUKEBOX_SONGOPTIONS_LYRIC_ALPHA=Transparency
-;TODO: JUKEBOX_SONGOPTIONS_LYRIC_LINE=Line
-;TODO: JUKEBOX_SONGOPTIONS_LYRIC_PROPERTY=Property
-;TODO: JUKEBOX_SONGOPTIONS_LYRIC_COLOR=Color
-;TODO: JUKEBOX_SONGOPTIONS_LYRIC_RGB_RED=Red
-;TODO: JUKEBOX_SONGOPTIONS_LYRIC_RGB_GREEN=Green
-;TODO: JUKEBOX_SONGOPTIONS_LYRIC_RGB_BLUE=Blue
-
-;TODO: JUKEBOX_SONGOPTIONS_LYRIC=Lyric Options
-;TODO: JUKEBOX_SONGOPTIONS_LYRIC_POSITION=Position
-
-;TODO: OPTION_VALUE_TO_SING=Sing
-;TODO: OPTION_VALUE_TOP=Top
-;TODO: OPTION_VALUE_BOTTOM=Bottom
-;TODO: OPTION_VALUE_OTHER=Other
-;TODO: OPTION_VALUE_FILL=Fill
-;TODO: OPTION_VALUE_OUTLINE=Outline
-
 
 ;TODO: SING_LEGEND_SELECT=Select
 ;TODO: SING_LEGEND_NAVIGATE=Navigate
@@ -356,6 +415,8 @@
 ;TODO: SONG_MENU_DELETE_SONG=Delete song
 ;TODO: SONG_MENU_START_MEDLEY=Sing!
 ;TODO: SONG_MENU_START_5_MEDLEY=Sing %0:d songs!
+;TODO: SONG_MENU_MUTE_VOICE=Mute voice
+;TODO: SONG_MENU_RESUME_VOICE=Resume Voice
 
 ;TODO: SONG_MENU_NAME_SORTING=Sort menu
 ;TODO: SONG_MENU_SORTING_APPLY=Apply
@@ -366,7 +427,6 @@
 ;TODO: SONG_SEARCH_DESC=What do you want to sing now?
 
 ;TODO: PARTY_MODE=Party mode
-;TODO: PARTY_DIFFICULTY=Difficulty
 ;TODO: PARTY_PLAYLIST=Playlist Mode
 ;TODO: PARTY_PLAYLIST_ALL=All songs
 ;TODO: PARTY_PLAYLIST_CATEGORY=Folder
@@ -402,7 +462,7 @@
 
 ;TODO: PARTY_ROUND=Round
 ;TODO: PARTY_ROUND_WINNER=Winner
-;TODO: PARTY_NOTPLAYEDYET=Not played yet
+;TODO: PARTY_NOTPLAYEDYET=To be determined
 ;TODO: PARTY_NOBODY=Nobody
 ;TODO: NEXT_ROUND=Next round:
 
@@ -449,20 +509,20 @@
 ;TODO: MODE_BLINDTOTAL_NAME=Total Darkness!
 ;TODO: MODE_BLINDTOTAL_DESC=A duel, but with the notes and the lyrics hidden. Only for the brave!
 
-;TODO: MODE_1000BLIND_NAME = +1000 Blind
-;TODO: MODE_1000BLIND_DESC = Gain a lead of more than 1000 points, but without seeing the notes!
+;TODO: MODE_1000BLIND_NAME=+1000 Blind
+;TODO: MODE_1000BLIND_DESC=Gain a lead of more than 1000 points, but without seeing the notes!
 
-;TODO: MODE_DEAF_NAME = Deaf
-;TODO: MODE_DEAF_DESC = Think you know the notes? Can you sing it without the acompaniment?
+;TODO: MODE_DEAF_NAME=Deaf
+;TODO: MODE_DEAF_DESC=Think you know the notes? Can you sing it without the accompaniment?
 
-;TODO: MODE_BLINDLYRICS_NAME = No Lyrics
-;TODO: MODE_BLINDLYRICS_DESC = Think you know all the lyrics? Sing with the lyrics hidden!
+;TODO: MODE_BLINDLYRICS_NAME=No Lyrics
+;TODO: MODE_BLINDLYRICS_DESC=Think you know all the lyrics? Sing with the lyrics hidden!
 
-;TODO: MODE_500BLIND_NAME = +500 Blind
-;TODO: MODE_500BLIND_DESC = Gain a lead of more than 500 points, but without seeing the notes!
+;TODO: MODE_500BLIND_NAME=+500 Blind
+;TODO: MODE_500BLIND_DESC=Gain a lead of more than 500 points, but without seeing the notes!
 
-;TODO: MODE_SHORTSONG_NAME = Short Song
-;TODO: MODE_SHORTSONG_DESC = A fast-paced 1v1 duel over half the song!
+;TODO: MODE_SHORTSONG_NAME=Short Song
+;TODO: MODE_SHORTSONG_DESC=A fast-paced 1v1 duel over half the song!
 
 ;TODO: MODE_HARDCORE_NAME=Hardcore
 ;TODO: MODE_HARDCORE_DESC=Battle for a three-line lead on your opponent!
@@ -470,7 +530,7 @@
 ;TODO: STAT_MAIN=Statistics
 
 ;TODO: STAT_OVERVIEW_INTRO=%0:s Statistics.  \n Last Reset at %2:.2d.%1:.2d.%3:d
-;TODO: STAT_OVERVIEW_SONG=%0:d Songs(%3:d with Video), whereof %1:d already were played  and %2:d were not played yet.\n The most popular Song is %5:s from %4:s.
+;TODO: STAT_OVERVIEW_SONG=%0:d Songs(%3:d with Video), whereof %1:d already were played and %2:d were not played yet.\n The most popular Song is %5:s from %4:s.
 ;TODO: STAT_OVERVIEW_PLAYER=Since the last Reset there were/was %0:d different Player(s).\n The best Player is %1:s with an average Score of %2:d Points.\n %3:s did the highest Score with %4:d Points.
 
 ;TODO: STAT_FORMAT_DATE=%1:.2d.%0:.2d.%2:d
@@ -481,23 +541,23 @@
 ;TODO: STAT_NEXT=Next page
 ;TODO: STAT_PREV=Previous page
 ;TODO: STAT_REVERSE=Reverse order
-;TODO: STAT_PAGE=Page %0:d of %1:d \n Entries %2:d of %3:d
+;TODO: STAT_PAGE=Page %0:d of %1:d \n\n Entries %2:d of %3:d
 
 ;TODO: STAT_DESC_SCORES=HighScores
 ;TODO: STAT_DESC_SCORES_REVERSED=LowScores
-;TODO: STAT_FORMAT_SCORES=%0:s - %1:d  [%2:s]  %5:s \n (%3:s - %4:s)
+;TODO: STAT_FORMAT_SCORES=%0:s - %1:d  [%2:s]  %5:s \n\n (%3:s - %4:s)
 
 ;TODO: STAT_DESC_SINGERS=Best singers
 ;TODO: STAT_DESC_SINGERS_REVERSED=Worst singers
-;TODO: STAT_FORMAT_SINGERS=%0:s \n Average score: %1:d
+;TODO: STAT_FORMAT_SINGERS=%0:s \n\n Average score: %1:d
 
 ;TODO: STAT_DESC_SONGS=Most popular songs
 ;TODO: STAT_DESC_SONGS_REVERSED=Least popular songs
-;TODO: STAT_FORMAT_SONGS=%0:s - %1:s \n %2:dx sung
+;TODO: STAT_FORMAT_SONGS=%0:s - %1:s \n\n %2:dx sung
 
 ;TODO: STAT_DESC_BANDS=Most popular bands
 ;TODO: STAT_DESC_BANDS_REVERSED=Least popular bands
-;TODO: STAT_FORMAT_BANDS=%0:s \n %1:dx Sung
+;TODO: STAT_FORMAT_BANDS=%0:s \n\n %1:dx Sung
 
 ;TODO: PARTY_SELECT_MODE=Mode
 ;TODO: PARTY_MODE_CLASSIC=Classic
@@ -506,7 +566,7 @@
 ;TODO: PARTY_MODE_TOURNAMENT=Tournament
 ;TODO: PARTY_MODE_JUKEBOX=Jukebox
 
-;TODO: PARTY_MODE_TOURNAMENT_PLAYER_DESC=Insert number and players name
+;TODO: PARTY_MODE_TOURNAMENT_PLAYER_DESC=Insert number of players and their names
 ;TODO: PARTY_MODE_TOURNAMENT_NUMBER_PLAYERS=Number of players
 ;TODO: PARTY_MODE_TOURNAMENT_OPTIONS_DESC=Number of rounds
 ;TODO: PARTY_MODE_TOURNAMENT_ROUNDS_FINAL=Final
@@ -556,18 +616,22 @@
 ;TODO: MSG_QUESTION_TITLE=Question
 ;TODO: MSG_QUIT_USWP=Really leave UltraStar?
 ;TODO: MSG_END_PARTY=Really leave party mode?
+;TODO: MSG_END_SONGDIRS=Exit without saving?
 
 ;TODO: ERROR_NO_SONGS=No songs loaded
 ;TODO: ERROR_NO_PLUGINS=No plugins loaded
 ;TODO: ERROR_LOADING_SONGS=Wait for loading all the songs
 ;TODO: ERROR_CORRUPT_SONG=Song could not be loaded.
 ;TODO: ERROR_CORRUPT_SONG_FILE_NOT_FOUND=Song could not be loaded: File not found
-;TODO: ERROR_CORRUPT_SONG_NO_NOTES=Song could not be loaded: Can''t find any notes
-;TODO: ERROR_CORRUPT_SONG_NO_BREAKS=Song could not be loaded: Can''t find any linebreaks
+;TODO: ERROR_CORRUPT_SONG_NO_NOTES=Song could not be loaded: Can't find any notes
+;TODO: ERROR_CORRUPT_SONG_NO_BREAKS=Song could not be loaded: Can't find any line breaks
 ;TODO: ERROR_CORRUPT_SONG_UNKNOWN_IN_LINE=Song could not be loaded: Error parsing line %0:d
-;TODO: ERROR_PLAYER_DEVICE_ASSIGNMENT=Player %d is assigned to multiple microphones. Please check your microphone options
-;TODO: ERROR_PLAYER_NO_DEVICE_ASSIGNMENT=Player %d is not assigned to a microphone. Please check your microphone options
+;TODO: ERROR_PLAYER_DEVICE_ASSIGNMENT=Player %d is assigned to multiple microphones\n\n Please check your microphone options
+;TODO: ERROR_PLAYER_NO_DEVICE_ASSIGNMENT=Player %d is not assigned to a microphone\n\n Please check your microphone options
 
+;# ---------------------------
+;#  -- COMMON TRANSLATIONS --
+;# ---------------------------
 
 ;TODO: C_ABOUT=About...
 ;TODO: C_ADVANCED=Advanced
@@ -579,6 +643,7 @@
 
 ;TODO: C_CLASSIC=Classic
 ;TODO: C_CHALLENGE=Challenge
+;TODO: C_COLOR=Color
 ;TODO: C_COLOR_BEIGE=Beige
 ;TODO: C_COLOR_BLACK=Black
 ;TODO: C_COLOR_BLUE=Blue
@@ -611,6 +676,11 @@
 ;TODO: C_CONTINUE=Continue
 ;TODO: C_CREATEDBY=Created by
 
+;TODO: C_DELETE_USER=Delete user
+;TODO: C_DIFFICULTY=Difficulty
+;TODO: C_DUET=Duet
+;TODO: C_DUETS=Duets
+
 ;TODO: C_ERROR=Error
 
 ;TODO: C_FIND=Find
@@ -618,9 +688,11 @@
 ;TODO: C_FOLDERS=Folders
 
 ;TODO: C_GAME=Game
+;TODO: C_GENERAL=General
 ;TODO: C_GRAPHICS=Graphics
 
 ;TODO: C_INFORMATION=Information
+;TODO: C_INSERT_USER=Insert user
 ;TODO: C_INTERNET=Internet
 
 ;TODO: C_JOKER=Joker
@@ -631,7 +703,8 @@
 ;TODO: C_LYRICS=Lyrics
 
 ;TODO: C_MEDLEY=Medley
-;TODO: C_MEDLEYC=Medyley calcultated
+;TODO: C_MEDLEYC=Medley calculated
+;TODO: C_MICROPHONE=Microphone
 ;TODO: C_MICROPHONES=Microphones
 ;TODO: C_MODE=Mode
 
@@ -642,6 +715,7 @@
 ;TODO: C_OPEN_PLAYLIST=Open playlist
 ;TODO: C_OPTIONS=Options
 
+;TODO: C_PLAYER=Player
 ;TODO: C_PLAYERS=Players
 ;TODO: C_PLAYLIST=Playlist
 ;TODO: C_PROFILES=Profiles
@@ -660,6 +734,7 @@
 ;TODO: C_SING=Sing
 ;TODO: C_SING_MEDLEY=Sing medley
 ;TODO: C_SONG=Song
+;TODO: C_SONGDIRS=Folders
 ;TODO: C_SONGS=Songs
 ;TODO: C_SORT=Sort
 ;TODO: C_SORT_SONGS=Sort songs

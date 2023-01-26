@@ -255,6 +255,7 @@ type
       procedure SaveJukeboxRandomMode();
       procedure SaveJukeboxOrderMode();
       procedure SaveJukeboxShowLyrics();
+      procedure SaveSongdirs();
 
       { Sets resolution.
         @return (@true when resolution was added, @false otherwise) }
@@ -1553,6 +1554,36 @@ begin
     // Players
     IniFile.WriteString('Jukebox', 'JukeboxShowLyrics', IJukeboxShowLyrics[JukeboxShowLyrics]);
 
+    IniFile.Free;
+  end;
+end;
+
+procedure TIni.SaveSongdirs;
+var
+  I, J: integer;
+  IniFile: TIniFile;
+  CurrentPath: IPath;
+  PathStrings: TStringList;
+begin
+  if not Filename.IsReadOnly() then
+  begin
+    IniFile := TIniFile.Create(Filename.ToNative);
+
+    //Delete all Songdirs in file
+    PathStrings := TStringList.Create();
+    IniFile.ReadSection('Directories', PathStrings);
+    for I := 0 to PathStrings.Count - 1 do
+      if (Pos('SONGDIR', UpperCase(PathStrings[I])) = 1) then
+        IniFile.DeleteKey('Directories', PathStrings[I]);
+
+    // Save new Songdirs
+    for I := 0 to UPathUtils.SongPaths.Count-1 do
+    begin 
+      J := I + 1;
+      CurrentPath := UPathUtils.SongPaths[I] as IPath;
+      IniFile.WriteString('Directories', 'SongDir' + J.ToString(), CurrentPath.GetPath().ToUTF8());
+    end;
+    
     IniFile.Free;
   end;
 end;

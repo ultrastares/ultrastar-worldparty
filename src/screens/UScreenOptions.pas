@@ -72,6 +72,7 @@ uses
   UScreenOptionsNetwork,
   UScreenOptionsWebcam,
   UScreenPlayerSelector,
+  UScreenOptionsSongdirs,
   UWebcam,
   UUnicodeUtils;
 
@@ -167,6 +168,13 @@ begin
                 UGraphic.ScreenPlayerSelector.OpenedInOptions := true;
                 Screen := @UGraphic.ScreenPlayerSelector;
               end;
+            11:
+              begin
+                if not Assigned(UGraphic.ScreenOptionsSongdirs) then
+                  UGraphic.ScreenOptionsSongdirs := TScreenOptionsSongdirs.Create();
+
+                Screen := @UGraphic.ScreenOptionsSongdirs;
+              end;
           end;
           if Assigned(Screen) then
             Self.FadeTo(Screen, UMusic.SoundLib.Start);
@@ -199,6 +207,7 @@ begin
   Self.AddButton(UThemes.Theme.Options.ButtonNetwork);
   Self.AddButton(UThemes.Theme.Options.ButtonWebcam);
   Self.AddButton(UThemes.Theme.Options.ButtonProfiles);
+  Self.AddButton(UThemes.Theme.Options.ButtonSongdirs);
   Self.Interaction := 0;
 end;
 

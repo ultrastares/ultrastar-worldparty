@@ -783,6 +783,7 @@ type
     ButtonNetwork:     TThemeButton;
     ButtonWebcam:      TThemeButton;
     ButtonProfiles:    TThemeButton;
+    ButtonSongdirs:    TThemeButton;
     ButtonExit:        TThemeButton;
 
     TextDescription:      TThemeText;
@@ -974,6 +975,15 @@ type
 
   TThemeOptionsProfiles = class(TThemeBasic)
     ButtonExit:           TThemeButton;
+  end;
+
+  TThemeOptionsSongdirs = class(TThemeBasic)
+    ButtonAdd: TThemeButton;
+    ButtonDelete: TThemeButton;
+    ButtonExit: TThemeButton;
+    ButtonSave: TThemeButton;
+    ButtonSaveRed: TThemeButton;
+    ButtonFolderName: TThemeButton;
   end;
 
   //Error- and Check-Popup
@@ -1314,7 +1324,8 @@ type
     OptionsAdvanced:  TThemeOptionsAdvanced;
     OptionsNetwork:   TThemeOptionsNetwork;
     OptionsWebcam:    TThemeOptionsWebcam;
-	OptionsProfiles:  TThemeOptionsProfiles;
+  	OptionsProfiles:  TThemeOptionsProfiles;
+  	OptionsSongdirs:  TThemeOptionsSongdirs;
     //error and check popup
     ErrorPopup:         TThemeError;
     CheckPopup:         TThemeCheck;
@@ -2078,6 +2089,7 @@ begin
       ThemeLoadButton(Options.ButtonNetwork,     'OptionsButtonNetwork');
       ThemeLoadButton(Options.ButtonWebcam,      'OptionsButtonWebcam');
       ThemeLoadButton(Options.ButtonProfiles,    'OptionsButtonProfiles');
+      ThemeLoadButton(Options.ButtonSongdirs,    'OptionsButtonSongdirs');
       ThemeLoadButton(Options.ButtonExit,        'OptionsButtonExit');
 
       ThemeLoadText(Options.TextDescription, 'OptionsTextDescription');
@@ -2269,8 +2281,17 @@ begin
       ThemeLoadText(OptionsWebcam.EffectDesc,           'OptionsWebcamEffectDesc');
 
       //Options Profiles
-	  ThemeLoadBasic(OptionsProfiles, 'OptionsProfiles');
-	  ThemeLoadButton(OptionsProfiles.ButtonExit,          'OptionsProfilesButtonExit');
+	    ThemeLoadBasic(OptionsProfiles,                   'OptionsProfiles');
+	    ThemeLoadButton(OptionsProfiles.ButtonExit,       'OptionsProfilesButtonExit');
+
+      //Options Songdirs
+	    ThemeLoadBasic(OptionsSongdirs,                         'OptionsSongdirs');
+	    ThemeLoadButton(OptionsSongdirs.ButtonAdd,              'OptionsSongdirsButtonAdd');
+	    ThemeLoadButton(OptionsSongdirs.ButtonDelete,           'OptionsSongdirsButtonDelete');
+	    ThemeLoadButton(OptionsSongdirs.ButtonExit,             'OptionsSongdirsButtonExit');
+	    ThemeLoadButton(OptionsSongdirs.ButtonSave,             'OptionsSongdirsButtonSave');
+	    ThemeLoadButton(OptionsSongdirs.ButtonSaveRed,          'OptionsSongdirsButtonSaveRed');
+	    ThemeLoadButton(OptionsSongdirs.ButtonFolderName,       'OptionsSongdirsButtonFolderName');
 
       //error popup
       ThemeLoadBasic (ErrorPopup, 'ErrorPopup');
@@ -3887,6 +3908,7 @@ begin
   Self.OptionsNetwork := TThemeOptionsNetwork.Create();
   Self.OptionsWebcam := TThemeOptionsWebcam.Create();
   Self.OptionsProfiles := TThemeOptionsProfiles.Create();
+  Self.OptionsSongdirs := TThemeOptionsSongdirs.Create();
   Self.ErrorPopup := TThemeError.Create();
   Self.CheckPopup := TThemeCheck.Create();
   Self.InsertUserPopup := TThemeInsertUser.Create();
