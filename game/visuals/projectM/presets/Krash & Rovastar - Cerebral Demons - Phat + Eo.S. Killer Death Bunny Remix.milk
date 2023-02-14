@@ -1,5 +1,5 @@
 [preset00]
-fRating=5.000000
+fRating=2.000000
 fGammaAdj=1.000000
 fDecay=1.000000
 fVideoEchoZoom=1.000000
@@ -323,7 +323,7 @@ per_frame_26=rot = 0.1;
 per_frame_27=
 per_frame_28=vol=(bass+mid+treb)*0.25;
 per_frame_29=vol=vol*vol;
-per_frame_30=mtime=mtime + vol*0.01;
+per_frame_30=mtime=mtime + vol*0.01*(75/fps);
 per_frame_31=q8=mtime;
 per_frame_32=
 per_frame_33=
