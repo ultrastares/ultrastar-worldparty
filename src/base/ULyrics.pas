@@ -443,8 +443,8 @@ end;
  *}
 procedure TLyricEngine.DrawLyricsLine(IsUpperLine: boolean; Beat: real);
 const
-  FadeLength = 300; //beats without sing to fade out/in the lyric
-  FadeSpeed = FadeLength / 20; //speed to fade out/in the lyric
+  FadeLength = 240; //beats without sing to fade out/in the lyric
+  FadeSpeed = FadeLength / 15; //speed to fade out/in the lyric
 var
   Position: TThemePosition;
   Line: TLyricLine;
