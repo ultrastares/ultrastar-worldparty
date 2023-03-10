@@ -1,10 +1,7 @@
 # Delphi / Pascal OpenGL header translation
 
-- OpenGL version 4.5
-- Header revision 4.5d
+- OpenGL version 4.6
 - Copyright (C) DGL-OpenGL-Portteam -  All Rights Reserved
-- Last update : 2016-01-07
-- Last updater : Sascha Willems
 
 # Supported environments and targets
 - (Win32) Delphi 4 and up
@@ -23,7 +20,7 @@
     - Andrey Gruzdev (Mac OS X patch for XE2 / FPC)
     - Lars Middendorf
     - Martin Waldegger (Mars)
-    - Benjamin Rosseaux (BeRo)   - http://www.0ok.de
+    - Benjamin Rosseaux (BeRo)
 - Additional thanks:
     - sigsegv (libdl.so)
 
@@ -39,10 +36,11 @@
 > "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
 > implied. See the License for the specific language governing
 > rights and limitations under the License.
-
+>
 > Note : If you want to use our header for projects whose licensing is not compatible with the MPL, just ask for a changed license!
 
-# History
+# Old History
+**Refer to the commits for recent changes**
 
 # Version 1.0    
 - Initial Release
@@ -510,9 +508,3 @@ Added a function named RaiseLastOSError including a comment
   - Added GL_OVR_multiview (SW)
   - Added GL_OVR_multiview2 (SW)
   - Added GL_INTEL_framebuffer_CMAA (SW)
-
-# Version 4.5c
-- Conditional define for TRect only for Free Pascal version < 20602 (SW)
-
-# Version 4.5d
-- Removed conditional define for TRect (FPC) due to error Delphi E2026
