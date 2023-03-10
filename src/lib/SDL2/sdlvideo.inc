@@ -275,32 +275,33 @@ const
   {**
    *  Event subtype for window events
    *}
-
-  SDL_WINDOWEVENT_NONE = 0;           {**< Never used *}
-  SDL_WINDOWEVENT_SHOWN = 1;          {**< Window has been shown *}
-  SDL_WINDOWEVENT_HIDDEN = 2;         {**< Window has been hidden *}
-  SDL_WINDOWEVENT_EXPOSED = 3;        {**< Window has been exposed and should be redrawn *}
-  SDL_WINDOWEVENT_MOVED = 4;          {**< Window has been moved to data1; data2 *}
-  SDL_WINDOWEVENT_RESIZED = 5;        {**< Window has been resized to data1xdata2 *}
-  SDL_WINDOWEVENT_SIZE_CHANGED = 6;   {**< The window size has changed; either as a result of an API call or through the system or user changing the window size. *}
-  SDL_WINDOWEVENT_MINIMIZED = 7;      {**< Window has been minimized *}
-  SDL_WINDOWEVENT_MAXIMIZED = 8;      {**< Window has been maximized *}
-  SDL_WINDOWEVENT_RESTORED = 9;       {**< Window has been restored to normal size and position *}
-  SDL_WINDOWEVENT_ENTER = 10;          {**< Window has gained mouse focus *}
-  SDL_WINDOWEVENT_LEAVE = 11;          {**< Window has lost mouse focus *}
-  SDL_WINDOWEVENT_FOCUS_GAINED = 12;   {**< Window has gained keyboard focus *}
-  SDL_WINDOWEVENT_FOCUS_LOST = 13;     {**< Window has lost keyboard focus *}
-  SDL_WINDOWEVENT_CLOSE = 14;          {**< The window manager requests that the window be closed *}
-  SDL_WINDOWEVENT_TAKE_FOCUS = 15;     {**< Window is being offered a focus (should SetWindowInputFocus() on itself or a subwindow, or ignore) *}
-  SDL_WINDOWEVENT_HIT_TEST = 16;       {**< Window had a hit test that wasn't SDL_HITTEST_NORMAL. *}
-
 type
-  TSDL_WindowEventID = DWord;
+  PSDL_WindowEventID = ^TSDL_WindowEventID;
+  TSDL_WindowEventID = type DWord;
+const
+  SDL_WINDOWEVENT_NONE = TSDL_WindowEventID(0);           {**< Never used *}
+  SDL_WINDOWEVENT_SHOWN = TSDL_WindowEventID(1);          {**< Window has been shown *}
+  SDL_WINDOWEVENT_HIDDEN = TSDL_WindowEventID(2);         {**< Window has been hidden *}
+  SDL_WINDOWEVENT_EXPOSED = TSDL_WindowEventID(3);        {**< Window has been exposed and should be redrawn *}
+  SDL_WINDOWEVENT_MOVED = TSDL_WindowEventID(4);          {**< Window has been moved to data1; data2 *}
+  SDL_WINDOWEVENT_RESIZED = TSDL_WindowEventID(5);        {**< Window has been resized to data1xdata2 *}
+  SDL_WINDOWEVENT_SIZE_CHANGED = TSDL_WindowEventID(6);   {**< The window size has changed; either as a result of an API call or through the system or user changing the window size. *}
+  SDL_WINDOWEVENT_MINIMIZED = TSDL_WindowEventID(7);      {**< Window has been minimized *}
+  SDL_WINDOWEVENT_MAXIMIZED = TSDL_WindowEventID(8);      {**< Window has been maximized *}
+  SDL_WINDOWEVENT_RESTORED = TSDL_WindowEventID(9);       {**< Window has been restored to normal size and position *}
+  SDL_WINDOWEVENT_ENTER = TSDL_WindowEventID(10);          {**< Window has gained mouse focus *}
+  SDL_WINDOWEVENT_LEAVE = TSDL_WindowEventID(11);          {**< Window has lost mouse focus *}
+  SDL_WINDOWEVENT_FOCUS_GAINED = TSDL_WindowEventID(12);   {**< Window has gained keyboard focus *}
+  SDL_WINDOWEVENT_FOCUS_LOST = TSDL_WindowEventID(13);     {**< Window has lost keyboard focus *}
+  SDL_WINDOWEVENT_CLOSE = TSDL_WindowEventID(14);          {**< The window manager requests that the window be closed *}
+  SDL_WINDOWEVENT_TAKE_FOCUS = TSDL_WindowEventID(15);     {**< Window is being offered a focus (should SetWindowInputFocus() on itself or a subwindow, or ignore) *}
+  SDL_WINDOWEVENT_HIT_TEST = TSDL_WindowEventID(16);       {**< Window had a hit test that wasn't SDL_HITTEST_NORMAL. *}
+
 
   {**
    *  An opaque handle to an OpenGL context.
    *}
-
+type
   TSDL_GLContext = Pointer;
 
   {**
