@@ -339,12 +339,11 @@ begin
           Webcam.Release;
           fShowWebCam:=false;
         end;
-
         Exit;
       end;
 
       // pause
-      Ord('P'):
+     Ord('P'), Ord(' '):
       begin
         Pause;
         Exit;
@@ -389,11 +388,6 @@ begin
         Finish;
         FadeOut := true;
         AudioPlayback.PlaySound(SoundLib.Back);
-      end;
-
-      SDLK_SPACE:
-      begin
-        Pause;
       end;
 
       SDLK_TAB: // change visualization preset
