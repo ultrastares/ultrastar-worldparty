@@ -691,7 +691,7 @@ begin
   IniFile.ReadSection('Directories', PathStrings);
   for I := 0 to PathStrings.Count - 1 do
     if (Pos('SONGDIR', UpperCase(PathStrings[I])) = 1) then
-      UPathUtils.AddSongPath(UPath.Path(IniFile.ReadString('Directories', PathStrings[I], '')));
+      UPathUtils.AddSongPath(UPath.Path(IniFile.ReadString('Directories', PathStrings[I], '')),false);
 
   PathStrings.Free();
 end;
