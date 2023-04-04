@@ -243,7 +243,7 @@ const
 // ***** Public methods ****** //
 function TScreenSong.FreeListMode: boolean;
 begin
-  Result := (Mode in [smNormal, smPartyTournament, smPartyFree]);
+  Result := (Mode in [smNormal, smPartyTournament, smPartyClassic]);
 end;
 
 // Method for input parsing. If false is returned, GetNextWindow
@@ -343,9 +343,9 @@ begin
         begin
           Self.CloseMessage();
           case Mode of
-            smPartyClassic:
+            smPartyChallenge:
               Self.CheckFadeTo(@ScreenMain,'MSG_END_PARTY');
-            smPartyFree:
+            smPartyClassic:
               Self.FadeTo(@ScreenPartyNewRound);
             smPartyTournament:
               Self.FadeTo(@ScreenPartyTournamentRounds);
@@ -394,7 +394,7 @@ begin
                 end;
               end
               else
-                if (Mode = smPartyClassic) then //PartyMode -> Show Menu
+                if (Mode = smPartyChallenge) then //PartyMode -> Show Menu
                 begin
                   if (Ini.PartyPopup = 1) then
                     ScreenSongMenu.MenuShow(SM_Party_Main)
@@ -402,7 +402,7 @@ begin
                     Party.CallAfterSongSelect;
                 end;
 
-                if (Mode = smPartyFree) then
+                if (Mode = smPartyClassic) then
                 begin
                   Party.CallAfterSongSelect;
                 end;
@@ -464,7 +464,7 @@ begin
         end;
       SDLK_1..SDLK_3: //use teams jokers
         if
-          (Self.Mode = smPartyClassic)
+          (Self.Mode = smPartyChallenge)
           and (High(UParty.Party.Teams) >= PressedKey - SDLK_1)
           and (UParty.Party.Teams[PressedKey - SDLK_1].JokersLeft > 0) then
         begin
@@ -507,10 +507,10 @@ begin
         begin
           I := -1;
           case Self.Mode of
-            smPartyClassic:
+            smPartyChallenge:
               I := SM_Party_Main;
             smPartyTournament,
-            smPartyFree:
+            smPartyClassic:
               I := SM_Party_Free_Main;
             else
               if USongs.CatSongs.GetVisibleSongs() > 0 then
@@ -556,7 +556,7 @@ begin
             Self.EnableSearch(true)
           else
           begin
-            if Self.Mode = smPartyClassic then
+            if Self.Mode = smPartyChallenge then
               for I := 0 to UParty.PartyTeamsMax - 1 do
                 for J := 0 to UParty.PartyJokers - 1 do
                   if
@@ -1409,7 +1409,7 @@ begin
 
   UNote.PlayersPlay := IfThen(UIni.Ini.Players = 4, 6, UIni.Ini.Players + 1);
 
-  Visible := not (Self.Mode = smPartyClassic);
+  Visible := not (Self.Mode = smPartyChallenge);
   Self.Statics[Self.SearchIcon].Visible := Visible;
   Self.Text[Self.SearchTextPlaceholder].Visible := Visible;
   Self.Text[Self.SearchText].Visible := Visible;
@@ -1433,7 +1433,7 @@ begin
   Self.SetJoker();
 
   //Set Visibility of Party Statics and Text
-  Visible := (Mode = smPartyClassic);
+  Visible := (Mode = smPartyChallenge);
   for I := 0 to High(StaticParty) do
     Statics[StaticParty[I]].Visible := Visible;
 
@@ -1710,7 +1710,7 @@ procedure TScreenSong.StartSong;
 begin
   CatSongs.Selected := Interaction;
 
-  if (Mode = smPartyFree) then
+  if (Mode = smPartyClassic) then
     Party.SaveSungPartySong(Interaction);
 
   Self.StopPreview();
@@ -1826,7 +1826,7 @@ begin
     if I <= High(UParty.Party.Teams) then
     begin
       JokersLeft := UParty.Party.Teams[I].JokersLeft;
-      Self.SetRangeVisibilityStatic(Self.Mode = smPartyClassic, [Self.StaticTeamJoker[I][0], Self.StaticTeamJoker[I][JokersLeft - 1]]);
+      Self.SetRangeVisibilityStatic(Self.Mode = smPartyChallenge, [Self.StaticTeamJoker[I][0], Self.StaticTeamJoker[I][JokersLeft - 1]]);
     end;
     if JokersLeft <= UParty.PartyJokers - 1 then
       Self.SetRangeVisibilityStatic(false, [Self.StaticTeamJoker[I][JokersLeft], Self.StaticTeamJoker[I][UParty.PartyJokers - 1]]);

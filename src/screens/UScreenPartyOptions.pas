@@ -35,8 +35,7 @@ uses
 type
   TScreenPartyOptions = class(UScreenJukeboxPlaylist.TScreenJukeboxPlaylist)
     private
-      SelectMode: cardinal;
-      Mode: integer;
+      Mode, ButtonChallenge, ButtonClassic, ButtonTournament: integer;
     protected
       procedure SetPlaylistsItems();
     public
@@ -73,6 +72,11 @@ uses
 function TScreenPartyOptions.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
 begin
   Result := true;
+  
+  if (Interaction = ButtonChallenge)   then Self.Mode := 0;
+  if (Interaction = ButtonClassic)     then Self.Mode := 1;
+  if (Interaction = ButtonTournament)  then Self.Mode := 2;
+   
   if (PressedDown) then
   begin // Key Down
     // check special keys
@@ -102,35 +106,30 @@ begin
           case Self.Mode of
             0:
               begin
-                UGraphic.ScreenSong.Mode := smPartyClassic;
+                UGraphic.ScreenSong.Mode := smPartyChallenge;
                 Self.FadeTo(@ScreenPartyPlayer, UMusic.SoundLib.Start);
               end;
             1:
               begin
-                UGraphic.ScreenSong.Mode := smPartyFree;
+                UGraphic.ScreenSong.Mode := smPartyClassic;
                 Self.FadeTo(@ScreenPartyPlayer, UMusic.SoundLib.Start);
               end;
             2:
               begin
                 if not Assigned(UGraphic.ScreenPartyTournamentRounds) then //load the screens only the first time
                 begin
-                  UGraphic.ScreenPartyTournamentRounds := UScreenPartyTournamentRounds.TScreenPartyTournamentRounds.Create();
-                  UGraphic.ScreenPartyTournamentPlayer := UScreenPartyTournamentPlayer.TScreenPartyTournamentPlayer.Create();
+                  UGraphic.ScreenPartyTournamentRounds  := UScreenPartyTournamentRounds.TScreenPartyTournamentRounds.Create();
+                  UGraphic.ScreenPartyTournamentPlayer  := UScreenPartyTournamentPlayer.TScreenPartyTournamentPlayer.Create();
                   UGraphic.ScreenPartyTournamentOptions := UScreenPartyTournamentOptions.TScreenPartyTournamentOptions.Create();
-                  UGraphic.ScreenPartyTournamentWin := UScreenPartyTournamentWin.TScreenPartyTournamentWin.Create();
+                  UGraphic.ScreenPartyTournamentWin     := UScreenPartyTournamentWin.TScreenPartyTournamentWin.Create();
                 end;
                 UGraphic.ScreenSong.Mode := smPartyTournament;
                 Self.FadeTo(@ScreenPartyTournamentPlayer, UMusic.SoundLib.Start);
               end;
-            // 3:
-            // begin
-            //   UGraphic.ScreenSong.Mode := smPartyChallenge;
-            //   UGraphic.ScreenPopupError.ShowPopup(Language.Translate('PARTY_MODE_NOT_AVAILABLE'));
-            // end;
           end;
         end;
     end;
-  end;
+  end;   
 end;
 
 constructor TScreenPartyOptions.CreateExtra();
@@ -139,7 +138,11 @@ begin
   Self.PlayListItems := 0;
   Self.Mode := 0;
   Self.LoadFromTheme(UThemes.Theme.PartyOptions);
-  Self.SelectMode := Self.AddSelectSlide(UThemes.Theme.PartyOptions.SelectMode, Self.Mode, UThemes.Theme.IMode);
+  
+  ButtonChallenge  := Self.AddButton(UThemes.Theme.PartyOptions.ButtonChallenge);
+  ButtonClassic    := Self.AddButton(UThemes.Theme.PartyOptions.ButtonClassic);
+  ButtonTournament := Self.AddButton(UThemes.Theme.PartyOptions.ButtonTournament);
+   
   Self.AddSelectSlide(UThemes.Theme.PartyOptions.SelectLevel, UIni.Ini.Difficulty, UThemes.Theme.ILevel);
   Self.SelectPlayList := Self.AddSelectSlide(UThemes.Theme.PartyOptions.SelectPlayList, Self.PlayList, [
     ULanguage.Language.Translate('PARTY_PLAYLIST_ALL'),
@@ -175,10 +178,10 @@ begin
   if not Assigned(UGraphic.ScreenPartyNewRound) then //load the screens only the first time
   begin
     UGraphic.ScreenPartyNewRound := UScreenPartyNewRound.TScreenPartyNewRound.Create();
-    UGraphic.ScreenPartyScore := UScreenPartyScore.TScreenPartyScore.Create();
-    UGraphic.ScreenPartyWin := UScreenPartyWin.TScreenPartyWin.Create();
-    UGraphic.ScreenPartyPlayer := UScreenPartyPlayer.TScreenPartyPlayer.Create();
-    UGraphic.ScreenPartyRounds := UScreenPartyRounds.TScreenPartyRounds.Create();
+    UGraphic.ScreenPartyScore    := UScreenPartyScore.TScreenPartyScore.Create();
+    UGraphic.ScreenPartyWin      := UScreenPartyWin.TScreenPartyWin.Create();
+    UGraphic.ScreenPartyPlayer   := UScreenPartyPlayer.TScreenPartyPlayer.Create();
+    UGraphic.ScreenPartyRounds   := UScreenPartyRounds.TScreenPartyRounds.Create();
   end;
   Party.Clear;
 

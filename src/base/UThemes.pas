@@ -1145,13 +1145,12 @@ type
   end;
 
   TThemePartyOptions = class(TThemeBasic)
-    SelectMode:  TThemeSelectSlide;
-    SelectLevel: TThemeSelectSlide;
-    SelectPlayList: TThemeSelectSlide;
+    ButtonChallenge:     TThemeButton;
+    ButtonClassic:       TThemeButton;
+    ButtonTournament:    TThemeButton;
+    SelectLevel:         TThemeSelectSlide;
+    SelectPlayList:      TThemeSelectSlide;
     SelectPlayListItems: TThemeSelectSlide;
-
-    {ButtonNext: TThemeButton;
-    ButtonPrev: TThemeButton;}
   end;
 
   TThemePartyPlayer = class(TThemeBasic)
@@ -2347,7 +2346,9 @@ begin
 
       //Party Options
       ThemeLoadBasic(PartyOptions, 'PartyOptions');
-      ThemeLoadSelectSlide(PartyOptions.SelectMode, 'PartyOptionsSelectMode');
+	  ThemeLoadButton(PartyOptions.ButtonChallenge, 'PartyOptionsButtonChallenge');
+	  ThemeLoadButton(PartyOptions.ButtonClassic, 'PartyOptionsButtonClassic');
+	  ThemeLoadButton(PartyOptions.ButtonTournament, 'PartyOptionsButtonTournament');
       ThemeLoadSelectSlide(PartyOptions.SelectLevel, 'PartyOptionsSelectLevel');
       ThemeLoadSelectSlide(PartyOptions.SelectPlayList, 'PartyOptionsSelectPlayList');
       ThemeLoadSelectSlide(PartyOptions.SelectPlayListItems, 'PartyOptionsSelectPlayListItems');
@@ -2507,12 +2508,6 @@ begin
       ILevel[1] := Language.Translate('OPTION_VALUE_MEDIUM');
       ILevel[2] := Language.Translate('OPTION_VALUE_HARD');
 
-      //Mode Translations
-      //Fill IMode
-      IMode[0] := Language.Translate('PARTY_MODE_CLASSIC');
-      IMode[1] := Language.Translate('PARTY_MODE_CLASSIC_FREE');
-      IMode[2] := Language.Translate('PARTY_MODE_TOURNAMENT');
-      //IMode[3] := Language.Translate('PARTY_MODE_CHALLENGE'); //Hidden for the moment. Check in the future
     end;
   end;
 end;
@@ -3593,14 +3588,6 @@ begin
   ThemeLoadText (PartyNewRound.TextNextPlayer1, 'PartyNewRoundTextNextPlayer1');
   ThemeLoadText (PartyNewRound.TextNextPlayer2, 'PartyNewRoundTextNextPlayer2');
   ThemeLoadText (PartyNewRound.TextNextPlayer3, 'PartyNewRoundTextNextPlayer3');
-
-  ThemeLoadStatic (PartyNewRound.StaticRound1, 'PartyNewRoundStaticRound1');
-  ThemeLoadStatic (PartyNewRound.StaticRound2, 'PartyNewRoundStaticRound2');
-  ThemeLoadStatic (PartyNewRound.StaticRound3, 'PartyNewRoundStaticRound3');
-  ThemeLoadStatic (PartyNewRound.StaticRound4, 'PartyNewRoundStaticRound4');
-  ThemeLoadStatic (PartyNewRound.StaticRound5, 'PartyNewRoundStaticRound5');
-  ThemeLoadStatic (PartyNewRound.StaticRound6, 'PartyNewRoundStaticRound6');
-  ThemeLoadStatic (PartyNewRound.StaticRound7, 'PartyNewRoundStaticRound7');
 
   ThemeLoadText (PartyNewRound.TextScoreTeam1, 'PartyNewRoundTextScoreTeam1');
   ThemeLoadText (PartyNewRound.TextScoreTeam2, 'PartyNewRoundTextScoreTeam2');
