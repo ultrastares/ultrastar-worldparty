@@ -59,7 +59,8 @@ var
 function FindPath(out PathResult: IPath; const RequestedPath: IPath; NeedsWritePermission: boolean): boolean;
 procedure InitializePaths();
 procedure InitializeSongPaths();
-procedure AddSongPath(const Path: IPath);
+procedure AddSongPath(const Path: IPath); overload;
+procedure AddSongPath(const Path: IPath; const bMakeDir: boolean); overload;
 
 implementation
 
@@ -69,7 +70,7 @@ uses
   UCommandLine,
   ULog;
 
-procedure AddSpecialPath(var PathList: IInterfaceList; const Path: IPath);
+procedure AddSpecialPath(var PathList: IInterfaceList; const Path: IPath; const bMakeDir: boolean);
 var
   Index: integer;
   PathAbs, PathTmp: IPath;
@@ -78,8 +79,12 @@ begin
   if (PathList = nil) then
     PathList := TInterfaceList.Create;
 
-  if Path.Equals(PATH_NONE) or not Path.CreateDirectory(true) then
+  if Path.Equals(PATH_NONE) then
     Exit;
+
+  if bMakeDir then
+    if not Path.CreateDirectory(true) then
+      Exit;
 
   PathTmp := Path.GetAbsolutePath();
   PathAbs := PathTmp.AppendPathDelim();
@@ -93,14 +98,12 @@ begin
 
     // check if the new directory is a sub-directory of a previously added one.
     // This is also true, if both paths point to the same directories.
-    if (OldPathAbs.IsChildOf(PathAbs, false) or OldPathAbs.Equals(PathAbs)) then
-    begin
+    if (PathAbs.IsChildOf(OldPathAbs, false) or OldPathAbs.Equals(PathAbs)) then
       // ignore the new path
       Exit;
-    end;
 
     // check if a previously added directory is a sub-directory of the new one.
-    if (PathAbs.IsChildOf(OldPathAbs, false)) then
+    if (OldPathAbs.IsChildOf(PathAbs, false)) then
     begin
       // replace the old with the new one.
       PathList[Index] := PathAbs;
@@ -113,12 +116,17 @@ end;
 
 procedure AddSongPath(const Path: IPath);
 begin
-  AddSpecialPath(SongPaths, Path);
+  AddSongPath(Path, true);
+end;
+
+procedure AddSongPath(const Path: IPath; const bMakeDir: boolean);
+begin
+  AddSpecialPath(SongPaths, Path, bMakeDir);
 end;
 
 procedure AddCoverPath(const Path: IPath);
 begin
-  AddSpecialPath(CoverPaths, Path);
+  AddSpecialPath(CoverPaths, Path, true);
 end;
 
 (**
