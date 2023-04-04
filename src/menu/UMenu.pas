@@ -122,7 +122,8 @@ type
       function AddButton(ThemeButton: TThemeButton): integer; overload;
       function AddButton(X, Y, W, H: real; const TexName: IPath): integer; overload;
       function AddButton(X, Y, W, H, ColR, ColG, ColB, Int, DColR, DColG, DColB, DInt: real; const TexName: IPath; Typ: TTextureType; Reflection: boolean; ReflectionSpacing, DeSelectReflectionSpacing: real): integer; overload;
-      procedure DelButton(Num: integer);
+      procedure DelButton(Num: integer); overload;
+      procedure DelButton(Num: integer; ShiftButton: boolean); overload;
       procedure ClearButtons();
       procedure AddButtonText(AddX, AddY: real; const AddText: UTF8String); overload;
       procedure AddButtonText(AddX, AddY: real; ColR, ColG, ColB: real; const AddText: UTF8String); overload;
@@ -996,29 +997,46 @@ begin
 end;
 
 procedure TMenu.DelButton(Num: integer);
+begin
+  Self.DelButton(Num, false);
+end;
+
+
+procedure TMenu.DelButton(Num: integer; ShiftButton: boolean);
 var
   OldX, OldY: real;
   I, IntNum: integer;
 begin
   IntNum := Length(Self.Button) - 1;
   //Shift next buttons
-  if (Num < IntNum) then
-    for I := Num to IntNum - 1 do
-    begin
-      Self.Button[I].SetH(Self.Button[I + 1].H);
-      Self.Button[I].SetW(Self.Button[I + 1].W);
-      Self.Button[I].Text[0].Style := Self.Button[I + 1].Text[0].Style;
-      Self.Button[I].Text[0].Size := Self.Button[I + 1].Text[0].Size;
-      Self.Button[I].Text[0].Align := Self.Button[I + 1].Text[0].Align;
-      Self.Button[I].Text[0].ColR := Self.Button[I + 1].Text[0].ColR;
-      Self.Button[I].Text[0].ColG := Self.Button[I + 1].Text[0].ColG;
-      Self.Button[I].Text[0].ColB := Self.Button[I + 1].Text[0].ColB;
-      Self.Button[I].Text[0].Text := Self.Button[I + 1].Text[0].Text;
-    end;
-  //Delete last button
-  Self.Button[IntNum] := Nil;
-  SetLength(Self.Button, IntNum);
-  Self.DelInteraction(IntNum);
+  if (ShiftButton) then
+  begin
+    if (Num < IntNum) then
+      for I := Num to IntNum - 1 do
+      begin
+        Self.Button[I].SetH(Self.Button[I + 1].H);
+        Self.Button[I].SetW(Self.Button[I + 1].W);
+        Self.Button[I].Text[0].Style := Self.Button[I + 1].Text[0].Style;
+        Self.Button[I].Text[0].Size := Self.Button[I + 1].Text[0].Size;
+        Self.Button[I].Text[0].Align := Self.Button[I + 1].Text[0].Align;
+        Self.Button[I].Text[0].ColR := Self.Button[I + 1].Text[0].ColR;
+        Self.Button[I].Text[0].ColG := Self.Button[I + 1].Text[0].ColG;
+        Self.Button[I].Text[0].ColB := Self.Button[I + 1].Text[0].ColB;
+        Self.Button[I].Text[0].Text := Self.Button[I + 1].Text[0].Text;
+      end;
+    //Delete last button
+    Self.Button[IntNum] := Nil;
+    SetLength(Self.Button, IntNum);
+    Self.DelInteraction(IntNum);
+  end
+  else
+  begin
+    Self.Button[Num] := Nil;
+    //if last button
+    if (Num = IntNum) then
+      SetLength(Self.Button, Num);
+    Self.DelInteraction(Num);
+  end;
   Interaction := 0;
 end;
 
