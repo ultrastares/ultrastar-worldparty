@@ -978,40 +978,27 @@ type
   end;
 
   TThemeOptionsSongdirs = class(TThemeBasic)
-    ButtonAdd: TThemeButton;
-    ButtonExit: TThemeButton;
-    ButtonFolderName: TThemeButton;
-    ButtonClean: TThemeButton;
-	  FolderButton1: TThemeButton;
-	  FolderNameButton1: TThemeButton;
-	  DelFolderButton1: TThemeButton;
-	  FolderButton2: TThemeButton;
-	  FolderNameButton2: TThemeButton;
-	  DelFolderButton2: TThemeButton;
-	  FolderButton3: TThemeButton;
-	  FolderNameButton3: TThemeButton;
-	  DelFolderButton3: TThemeButton;
-	  FolderButton4: TThemeButton;
-	  FolderNameButton4: TThemeButton;
-	  DelFolderButton4: TThemeButton;
-	  FolderButton5: TThemeButton;
-	  FolderNameButton5: TThemeButton;
-	  DelFolderButton5: TThemeButton;
-	  FolderButton6: TThemeButton;
-	  FolderNameButton6: TThemeButton;
-	  DelFolderButton6: TThemeButton;
-	  FolderButton7: TThemeButton;
-	  FolderNameButton7: TThemeButton;
-	  DelFolderButton7: TThemeButton;
-	  FolderButton8: TThemeButton;
-	  FolderNameButton8: TThemeButton;
-	  DelFolderButton8: TThemeButton;
-	  FolderButton9: TThemeButton;
-	  FolderNameButton9: TThemeButton;
-	  DelFolderButton9: TThemeButton;
-	  FolderButton10: TThemeButton;
-	  FolderNameButton10: TThemeButton;
-	  DelFolderButton10: TThemeButton;
+    ButtonAdd:              TThemeButton;
+    ButtonExit:             TThemeButton;
+    ButtonFolderName:       TThemeButton;
+    FolderButton1:          TThemeButton;
+    FolderNameButton1:      TThemeButton;
+    DelFolderButton1:       TThemeButton;
+    FolderButton2:          TThemeButton;
+    FolderNameButton2:      TThemeButton;
+    DelFolderButton2:       TThemeButton;
+    FolderButton3:          TThemeButton;
+    FolderNameButton3:      TThemeButton;
+    DelFolderButton3:       TThemeButton;
+    FolderButton4:          TThemeButton;
+    FolderNameButton4:      TThemeButton;
+    DelFolderButton4:       TThemeButton;
+    FolderButton5:          TThemeButton;
+    FolderNameButton5:      TThemeButton;
+    DelFolderButton5:       TThemeButton;
+    FolderButton6:          TThemeButton;
+    FolderNameButton6:      TThemeButton;
+    DelFolderButton6:       TThemeButton;
   end;
 
   //Error- and Check-Popup
@@ -2316,7 +2303,6 @@ begin
 	    ThemeLoadButton(OptionsSongdirs.ButtonAdd,              'OptionsSongdirsButtonAdd');
 	    ThemeLoadButton(OptionsSongdirs.ButtonExit,             'OptionsSongdirsButtonExit');
 	    ThemeLoadButton(OptionsSongdirs.ButtonFolderName,       'OptionsSongdirsButtonFolderName');
-	    ThemeLoadButton(OptionsSongdirs.ButtonClean,            'OptionsSongdirsButtonClean');
 	    ThemeLoadButton(OptionsSongdirs.FolderButton1,          'OptionsSongdirsFolderButton1');
 	    ThemeLoadButton(OptionsSongdirs.FolderNameButton1,      'OptionsSongdirsFolderNameButton1');
 	    ThemeLoadButton(OptionsSongdirs.DelFolderButton1,       'OptionsSongdirsDeleteFolderButton1');
@@ -2335,18 +2321,6 @@ begin
 	    ThemeLoadButton(OptionsSongdirs.FolderButton6,          'OptionsSongdirsFolderButton6');
 	    ThemeLoadButton(OptionsSongdirs.FolderNameButton6,      'OptionsSongdirsFolderNameButton6');
 	    ThemeLoadButton(OptionsSongdirs.DelFolderButton6,       'OptionsSongdirsDeleteFolderButton6');
-	    ThemeLoadButton(OptionsSongdirs.FolderButton7,          'OptionsSongdirsFolderButton7');
-	    ThemeLoadButton(OptionsSongdirs.FolderNameButton7,      'OptionsSongdirsFolderNameButton7');
-	    ThemeLoadButton(OptionsSongdirs.DelFolderButton7,       'OptionsSongdirsDeleteFolderButton7');
-	    ThemeLoadButton(OptionsSongdirs.FolderButton8,          'OptionsSongdirsFolderButton8');
-	    ThemeLoadButton(OptionsSongdirs.FolderNameButton8,      'OptionsSongdirsFolderNameButton8');
-	    ThemeLoadButton(OptionsSongdirs.DelFolderButton8,       'OptionsSongdirsDeleteFolderButton8');
-	    ThemeLoadButton(OptionsSongdirs.FolderButton9,          'OptionsSongdirsFolderButton9');
-	    ThemeLoadButton(OptionsSongdirs.FolderNameButton9,      'OptionsSongdirsFolderNameButton9');
-	    ThemeLoadButton(OptionsSongdirs.DelFolderButton9,       'OptionsSongdirsDeleteFolderButton9');
-	    ThemeLoadButton(OptionsSongdirs.FolderButton10,          'OptionsSongdirsFolderButton10');
-	    ThemeLoadButton(OptionsSongdirs.FolderNameButton10,      'OptionsSongdirsFolderNameButton10');
-	    ThemeLoadButton(OptionsSongdirs.DelFolderButton10,       'OptionsSongdirsDeleteFolderButton10');
 
       //error popup
       ThemeLoadBasic (ErrorPopup, 'ErrorPopup');
