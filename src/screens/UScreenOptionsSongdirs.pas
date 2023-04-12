@@ -389,13 +389,16 @@ begin
   Self.SongPathList := TInterfaceList.Create();
   for I := 0 to UPathUtils.SongPaths.Count - 1 do
   begin
-    CurrentPath := UPathUtils.SongPaths[I] as IPath;
-    Self.SongPathList.Add(CurrentPath);
+    If (I < MAX_DIR) then   // Max. Folder
+    begin
+      CurrentPath := UPathUtils.SongPaths[I] as IPath;
+      Self.SongPathList.Add(CurrentPath);
+    end;
   end;
   for I := 0 to Self.SongPathList.Count - 1 do
   begin
-    If (I > MAX_DIR) then   // Max. Folder
-      Exit;
+//    If (I > MAX_DIR) then   // Max. Folder
+//      Exit;
     CurrentPath := Self.SongPathList[I] as IPath;
     if CreateButtons then
     begin
