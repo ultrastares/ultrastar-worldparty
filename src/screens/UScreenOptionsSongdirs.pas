@@ -397,8 +397,6 @@ begin
   end;
   for I := 0 to Self.SongPathList.Count - 1 do
   begin
-//    If (I > MAX_DIR) then   // Max. Folder
-//      Exit;
     CurrentPath := Self.SongPathList[I] as IPath;
     if CreateButtons then
     begin
