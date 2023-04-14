@@ -59,12 +59,13 @@ type
 
     public
       constructor Create; override;
+      function ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure OnShow; override;
       procedure AddFolder(bCreateDir: boolean);
       procedure DelFolder;
       procedure SaveFolders;
-      procedure ShiftFolders(Cur: integer);
+      procedure ShiftFolders(Current: integer);
       procedure ExitSongdirs;
       procedure LoadFolders(CreateButtons: boolean);
   end;
@@ -99,7 +100,47 @@ begin
   begin
     bMakedir := false;
   end;
+  //Clean folder name entry text
+  ScreenOptionsSongdirs.Button[ScreenOptionsSongdirs.FolderName].Text[0].Text := '';
+  ScreenOptionsSongdirs.Button[ScreenOptionsSongdirs.FolderName].Text[1].Visible := true;
   ScreenOptionsSongdirs.AddFolder(bMakedir);
+end;
+
+function TScreenOptionsSongdirs.ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean;
+var
+  I, J: integer;
+begin
+  inherited ParseMouse(MouseButton, BtnDown, X, Y);
+  Self.TransferMouseCords(X, Y);
+  Result := true;
+
+  for I := 1 to Self.NumFolders do
+  begin
+    if InRegion(X, Y, Button[Self.DirButton[I] + 1].GetMouseOverArea) then
+    begin
+      if (Self.CurrentFolderSelected > Self.FolderName) then
+      begin
+        Self.Button[Self.CurrentFolderSelected].SetSelect(false);   // Deselect last selected folder.
+        Self.Button[Self.CurrentFolderSelected + 1].Visible := false;
+      end;
+      Self.CurrentFolderSelected := Self.DirButton[I] + 1;
+      Self.Button[Self.CurrentFolderSelected].SetSelect(true);
+      if (Self.DirButton[1] <> Self.CurrentFolderSelected - 1) then
+        Self.Button[Self.CurrentFolderSelected + 1].Visible := true;
+      if (Length(Self.Button[Self.FolderName].Text[0].Text) = 0) then
+      begin
+        Self.Button[Self.FolderName].Text[1].Visible := true;
+      end;
+      Break;
+    end;
+  end;
+  if InRegion(X, Y, Button[Self.FolderName].GetMouseOverArea) then
+  begin
+    Self.Button[Self.CurrentFolderSelected].SetSelect(false);   // Deselect last selected folder.
+    Self.Button[Self.CurrentFolderSelected + 1].Visible := false;
+    if not Self.bMaxDir then
+      Self.Button[Self.FolderName].Text[1].Visible := false;
+  end;
 end;
 
 function TScreenOptionsSongdirs.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
@@ -163,24 +204,14 @@ begin
               if not Self.fDirname.IsDirectory() then
                 ScreenPopupCheck.ShowPopup('SING_OPTIONS_SONGDIRS_NOTEXIST_FOLDER', @OnFolderNotExist, nil, false)
               else
+              begin
                 Self.AddFolder(false);
+                //Clean folder name entry text
+                Self.Button[Self.FolderName].Text[0].Text := '';
+                Self.Button[Self.FolderName].Text[1].Visible := true;
+                Self.Button[Self.DirButton[1] + 1].SetSelect(true);
+              end;
             end;
-            //Clean folder name entry text
-            Self.Button[Self.FolderName].Text[0].Text := '';
-            Self.Button[Self.FolderName].Text[1].Visible := true;
-          end
-          else // Select a song folder
-          if (Interaction > Self.FolderName) and ((Interaction mod 3) = 1) then
-          begin
-            if (Self.CurrentFolderSelected > Self.AddFolderButton) then
-            begin
-              Self.OldFolderSelected := Self.CurrentFolderSelected;   // Deselect last selected folder.
-              Self.Button[Self.OldFolderSelected].SetSelect(false);
-              Self.Button[Self.OldFolderSelected + 1].Visible := false;
-            end;
-            Self.CurrentFolderSelected := Interaction;
-            Self.Button[Self.CurrentFolderSelected].SetSelect(true);
-            Self.Button[Self.CurrentFolderSelected + 1].Visible := true;  //Show delete folder button
           end
           else // Click on delete song folder button
           if (Interaction > Self.FolderName) and ((Interaction mod 3) = 2) then
@@ -322,7 +353,7 @@ begin
       Self.Button[Self.CurrentFolderSelected + 1].Visible := false;
       Self.Button[Self.CurrentFolderSelected].Text[0].Text := '';
       Self.ShiftFolders(Self.CurrentFolderSelected);
-      Self.CurrentFolderSelected := 0;
+      Self.CurrentFolderSelected := Self.CurrentFolderSelected - 3;
       Self.SongPathList.Delete(I);
       Self.MakeSongPathList[I] := false;
       Dec(Self.NumFolders);
@@ -357,14 +388,14 @@ begin
   UGraphic.ScreenMain.ReloadSongs(false);
 end;
 
-procedure TScreenOptionsSongdirs.ShiftFolders(Cur: integer);
+procedure TScreenOptionsSongdirs.ShiftFolders(Current: integer);
 var
   I: integer;
 begin
-  for I := ((Cur - 1) Div 3) to (Self.NumFolders - 1) do
+  for I := ((Current - 1) Div 3) to (Self.NumFolders - 1) do
     Self.Button[Self.DirButton[I] + 1].Text[0].Text := Self.Button[Self.DirButton[I + 1] + 1].Text[0].Text;
 
-  Self.Button[Cur + 1].Visible := false;
+  Self.Button[Current + 1].Visible := false;
   //Clean and hide last folder button
   I := Self.DirButton[Self.NumFolders];
   Self.Button[I].Visible := false;
