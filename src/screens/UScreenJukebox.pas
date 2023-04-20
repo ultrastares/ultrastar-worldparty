@@ -1417,7 +1417,7 @@ begin
         end;
 
         // pause
-        Ord('P'):
+        Ord('P'), Ord(' '):
         begin
           Pause;
           Exit;
@@ -1600,11 +1600,11 @@ begin
           end;
         end;
 
-        SDLK_SPACE:
-        begin
-          if not (FindSongList) then
-            Pause;
-        end;
+//        SDLK_SPACE:
+//        begin
+//          if not (FindSongList) then
+//            Pause;
+//        end;
 
         SDLK_TAB: // change visualization preset
         begin
