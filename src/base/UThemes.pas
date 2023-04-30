@@ -1169,31 +1169,31 @@ type
   end;
 
   TThemePartyPlayer = class(TThemeBasic)
-    SelectTeams: TThemeSelectSlide;
-    SelectPlayers1: TThemeSelectSlide;
-    SelectPlayers2: TThemeSelectSlide;
-    SelectPlayers3: TThemeSelectSlide;
+    SelectTeams:         TThemeSelectSlide;
+    SelectPlayers1:      TThemeSelectSlide;
+    SelectPlayers2:      TThemeSelectSlide;
+    SelectPlayers3:      TThemeSelectSlide;
 
-    Team1Name: TThemeButton;
-    Player1Name: TThemeButton;
-    Player2Name: TThemeButton;
-    Player3Name: TThemeButton;
-    Player4Name: TThemeButton;
+    Team1Name:           TThemeButton;
+    Player1Name:         TThemeButton;
+    Player2Name:         TThemeButton;
+    Player3Name:         TThemeButton;
+    Player4Name:         TThemeButton;
 
-    Team2Name: TThemeButton;
-    Player5Name: TThemeButton;
-    Player6Name: TThemeButton;
-    Player7Name: TThemeButton;
-    Player8Name: TThemeButton;
+    Team2Name:           TThemeButton;
+    Player5Name:         TThemeButton;
+    Player6Name:         TThemeButton;
+    Player7Name:         TThemeButton;
+    Player8Name:         TThemeButton;
 
-    Team3Name: TThemeButton;
-    Player9Name: TThemeButton;
-    Player10Name: TThemeButton;
-    Player11Name: TThemeButton;
-    Player12Name: TThemeButton;
+    Team3Name:           TThemeButton;
+    Player9Name:         TThemeButton;
+    Player10Name:        TThemeButton;
+    Player11Name:        TThemeButton;
+    Player12Name:        TThemeButton;
+	
+	ButtonContinue:      TThemeButton;
 
-    {ButtonNext: TThemeButton;
-    ButtonPrev: TThemeButton;}
   end;
 
   TThemePartyRounds = class(TThemeBasic)
@@ -2410,6 +2410,8 @@ begin
       ThemeLoadButton(PartyPlayer.Player10Name, 'PartyPlayerPlayer10Name');
       ThemeLoadButton(PartyPlayer.Player11Name, 'PartyPlayerPlayer11Name');
       ThemeLoadButton(PartyPlayer.Player12Name, 'PartyPlayerPlayer12Name');
+
+      ThemeLoadButton(PartyPlayer.ButtonContinue, 'PartyPlayerButtonContinue');
 
       // Party Rounds
       ThemeLoadBasic(PartyRounds, 'PartyRounds');

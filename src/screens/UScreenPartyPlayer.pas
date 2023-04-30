@@ -423,6 +423,8 @@ begin
   Button[ButtonID].Text[0].Writable := true;
 
   Button[Team2Name].Text[0].Selected  := true;
+  
+  AddButton(Theme.PartyPlayer.ButtonContinue); 
 
   Interaction := 0;
 
