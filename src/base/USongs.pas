@@ -362,6 +362,14 @@ begin
     Result := 0;
 end;
 
+function CompareByRecents(Song1, Song2: Pointer): integer;
+begin
+  if (TSong(Song1).Year < TSong(Song2).Year) then
+    Result := 1
+  else
+    Result := 0;
+end;
+
 procedure TSongs.Sort(OrderType: TSortingType);
 var
   CompareFunc: TListSortCompare;
@@ -386,6 +394,8 @@ begin
       CompareFunc := @CompareByYear;
     sDecade: // by Decade
       CompareFunc := @CompareByYear;
+    sRecents: // by Recents
+      CompareFunc := @CompareByRecents;
     else
       Log.LogCritical('Unsupported comparison', 'TSongs.Sort');
       Exit; // suppress warning
@@ -456,6 +466,12 @@ begin
         Songs.Sort(sTitle);
         Songs.Sort(sArtist);
         Songs.Sort(sYear);
+      end;
+    sRecents:
+      begin
+        Songs.Sort(sTitle);
+        Songs.Sort(sArtist);
+        Songs.Sort(sRecents);
       end;
   end; // case
 end;
