@@ -842,6 +842,8 @@ begin
     StaticLevel[Player]          := AddStatic(Theme.Score.StaticLevel[Player]);
     StaticLevelRound[Player]     := AddStatic(Theme.Score.StaticLevelRound[Player]);
 
+    AddButton(Theme.Score.ButtonContinue); 
+
     // ######################
     // Score screen textures
     // ######################

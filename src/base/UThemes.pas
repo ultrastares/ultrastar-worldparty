@@ -759,6 +759,9 @@ type
     StaticLevelRound:       array[1..UIni.IMaxPlayerCount] of TThemeStatic;
 
     ButtonSend:  array[1..UIni.IMaxPlayerCount] of TThemeButton;
+
+	ButtonContinue:      TThemeButton;
+
   end;
 
   TThemeTop5 = class(TThemeBasic)
@@ -3750,6 +3753,8 @@ begin
     ThemeLoadStatic(Score.StaticLevel[I],          'Score' + prefix + 'StaticLevel'          + IntToStr(I));
     ThemeLoadStatic(Score.StaticLevelRound[I],     'Score' + prefix + 'StaticLevelRound'     + IntToStr(I));
     ThemeLoadStatic(Score.StaticRatings[I],        'Score' + prefix + 'StaticRatingPicture'  + IntToStr(I));
+
+    ThemeLoadButton(Score.ButtonContinue,          'ScoreButtonContinue');
   end;
 end;
 
