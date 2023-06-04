@@ -366,25 +366,32 @@ begin
   SelectTeams     := AddSelectSlide(Theme.PartyPlayer.SelectTeams, CountTeams, ITeams);
 
   Team1Name := AddButton(Theme.PartyPlayer.Team1Name);
+  Button[Team1Name].Text[0].Text := ULanguage.Language.Translate('C_TEAM') + ' ' +('1');
   Button[Team1Name].Text[0].Writable := true;
-
+  
   Theme.PartyPlayer.SelectPlayers1.oneItemOnly := true;
   Theme.PartyPlayer.SelectPlayers1.showArrows := true;
   SelectPlayers[0]  := AddSelectSlide(Theme.PartyPlayer.SelectPlayers1, CountPlayer[0], IPlayers);
 
   ButtonID := AddButton(Theme.PartyPlayer.Player1Name);
+  Button[ButtonID].Text[0].Text := ULanguage.Language.Translate('C_PLAYER') + ' ' + ('1');
   Button[ButtonID].Text[0].Writable := true;
 
   ButtonID := AddButton(Theme.PartyPlayer.Player2Name);
+  Button[ButtonID].Text[0].Text := ULanguage.Language.Translate('C_PLAYER') + ' ' +('2');
   Button[ButtonID].Text[0].Writable := true;
 
   ButtonID := AddButton(Theme.PartyPlayer.Player3Name);
+  Button[ButtonID].Text[0].Text := ULanguage.Language.Translate('C_PLAYER') + ' ' +('3');
   Button[ButtonID].Text[0].Writable := true;
 
   ButtonID := AddButton(Theme.PartyPlayer.Player4Name);
+  Button[ButtonID].Text[0].Text := ULanguage.Language.Translate('C_PLAYER') + ' ' +('4');
   Button[ButtonID].Text[0].Writable := true;
 
+
   Team2Name := AddButton(Theme.PartyPlayer.Team2Name);
+  Button[Team2Name].Text[0].Text := ULanguage.Language.Translate('C_TEAM') + ' ' +('2');
   Button[Team2Name].Text[0].Writable := true;
 
   Theme.PartyPlayer.SelectPlayers2.oneItemOnly := true;
@@ -392,18 +399,24 @@ begin
   SelectPlayers[1]  := AddSelectSlide(Theme.PartyPlayer.SelectPlayers2, CountPlayer[1], IPlayers);
 
   ButtonID := AddButton(Theme.PartyPlayer.Player5Name);
+  Button[ButtonID].Text[0].Text := ULanguage.Language.Translate('C_PLAYER') + ' ' +('5');
   Button[ButtonID].Text[0].Writable := true;
 
   ButtonID := AddButton(Theme.PartyPlayer.Player6Name);
+  Button[ButtonID].Text[0].Text := ULanguage.Language.Translate('C_PLAYER') + ' ' +('6');
   Button[ButtonID].Text[0].Writable := true;
 
   ButtonID := AddButton(Theme.PartyPlayer.Player7Name);
+  Button[ButtonID].Text[0].Text := ULanguage.Language.Translate('C_PLAYER') + ' ' +('7');
   Button[ButtonID].Text[0].Writable := true;
 
   ButtonID := AddButton(Theme.PartyPlayer.Player8Name);
+  Button[ButtonID].Text[0].Text := ULanguage.Language.Translate('C_PLAYER') + ' ' +('8');
   Button[ButtonID].Text[0].Writable := true;
 
+
   Team3Name := AddButton(Theme.PartyPlayer.Team3Name);
+  Button[Team3Name].Text[0].Text := ULanguage.Language.Translate('C_TEAM') + ' ' +('3');
   Button[Team3Name].Text[0].Writable := true;
 
   Theme.PartyPlayer.SelectPlayers3.oneItemOnly := true;
@@ -411,15 +424,19 @@ begin
   SelectPlayers[2]  := AddSelectSlide(Theme.PartyPlayer.SelectPlayers3, CountPlayer[2], IPlayers);
 
   ButtonID := AddButton(Theme.PartyPlayer.Player9Name);
+  Button[ButtonID].Text[0].Text := ULanguage.Language.Translate('C_PLAYER') + ' ' +('9');
   Button[ButtonID].Text[0].Writable := true;
 
   ButtonID := AddButton(Theme.PartyPlayer.Player10Name);
+  Button[ButtonID].Text[0].Text := ULanguage.Language.Translate('C_PLAYER') + ' ' +('10');
   Button[ButtonID].Text[0].Writable := true;
 
   ButtonID := AddButton(Theme.PartyPlayer.Player11Name);
+  Button[ButtonID].Text[0].Text := ULanguage.Language.Translate('C_PLAYER') + ' ' +('11');
   Button[ButtonID].Text[0].Writable := true;
 
   ButtonID := AddButton(Theme.PartyPlayer.Player12Name);
+  Button[ButtonID].Text[0].Text := ULanguage.Language.Translate('C_PLAYER') + ' ' +('12');
   Button[ButtonID].Text[0].Writable := true;
 
   Button[Team2Name].Text[0].Selected  := true;
@@ -443,21 +460,6 @@ begin
 
   for I := 0 to 2 do
     Num[I] := NoRepeatColors(Ini.TeamColor[I], I, 1);
-
-  // Templates for Names Mod
-  // for I := 1 to 5 do
-  //   Button[I].Text[0].Text := Ini.Name[I-1];
-
-  // for I := 6 to 9 do
-  //   Button[I].Text[0].Text := Ini.Name[I-2];
-
-  // for I := 11 to 14 do
-  //   Button[I].Text[0].Text := Ini.Name[I-3];
-
-    Self.Button[0].Text[0].Text := UIni.Ini.NameTeam[0];
-    Self.Button[5].Text[0].Text := UIni.Ini.NameTeam[1];
-    Self.Button[10].Text[0].Text := UIni.Ini.NameTeam[2];
-    // Templates for Names Mod end
 
   Party.Clear;
 
