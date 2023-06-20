@@ -1023,7 +1023,7 @@ begin
     if (BtnDown) and (MouseButton = SDL_BUTTON_LEFT) then
     begin
       if InRegion(X, Y, Button[JukeboxSongMenuPlayPause].GetMouseOverArea) then
-        Result := ParseInput(SDLK_SPACE, 0, true);
+        Result := ParseInput(0, UTF8ToUCS4String('P')[0], true);
 
       if InRegion(X, Y, Button[JukeboxSongMenuPrevious].GetMouseOverArea) then
         Result := ParseInput(SDLK_LEFT, 0, true);
@@ -1313,7 +1313,7 @@ begin
           begin
             Log.LogStatus('decided to switch to video', 'UScreenSing.ParseInput');
             fShowBackground := false;
-		    fShowWebCam := false;
+            fShowWebCam := false;
             fCurrentVideo := nil;
             fShowVisualization := false;
             fCurrentVideo := fVideoClip;
@@ -1327,7 +1327,7 @@ begin
             begin //switch to Background only
               Log.LogStatus('decided to switch to background', 'UScreenSing.ParseInput');
               fShowBackground := true;
-			  fShowWebCam := false;
+              fShowWebCam := false;
               fCurrentVideo := nil;
               fShowVisualization := false;
               Log.LogStatus('finished switching to background', 'UScreenSing.ParseInput');
@@ -1336,7 +1336,7 @@ begin
             begin //Video is currently visible, change to visualization
               Log.LogStatus('decided to switch to visualization', 'UScreenSing.ParseInput');
               fShowVisualization := true;
-			  fShowWebCam := false;
+              fShowWebCam := false;
               fCurrentVideo := Visualization.Open(PATH_NONE);
               fCurrentVideo.play;
               Log.LogStatus('finished switching to visualization', 'UScreenSing.ParseInput');
@@ -1346,34 +1346,34 @@ begin
         end;
 
         // show Webcam
-      Ord('W'):
-      begin
-        if (fShowWebCam = false) then
+        Ord('W'):
         begin
-          fCurrentVideo := nil;
-          fShowVisualization := false;
-          fShowBackground := false;
-          Webcam.Restart;
-          if (Webcam.Capture = nil) then
+          if (fShowWebCam = false) then
           begin
-            fShowWebCam := false;
-            fShowBackground := true;
-            ScreenPopupError.ShowPopup(Language.Translate('SING_OPTIONS_WEBCAM_NO_WEBCAM'))
+            fCurrentVideo := nil;
+            fShowVisualization := false;
+            fShowBackground := false;
+            Webcam.Restart;
+            if (Webcam.Capture = nil) then
+            begin
+              fShowWebCam := false;
+              fShowBackground := true;
+              ScreenPopupError.ShowPopup(Language.Translate('SING_OPTIONS_WEBCAM_NO_WEBCAM'))
+            end
+            else
+              fShowWebCam := true;
+          //  ChangeEffectLastTick := SDL_GetTicks;
+          //  SelectsS[WebcamParamsSlide].Visible := true;
+          //  LastTickFrame := SDL_GetTicks;
           end
           else
-            fShowWebCam := true;
-        //  ChangeEffectLastTick := SDL_GetTicks;
-        //  SelectsS[WebcamParamsSlide].Visible := true;
-        //  LastTickFrame := SDL_GetTicks;
-        end
-        else
-        begin
-          Webcam.Release;
-          fShowWebCam:=false;
-        end;
+          begin
+            Webcam.Release;
+            fShowWebCam:=false;
+          end;
 
-        Exit;
-      end;
+          Exit;
+        end;
 
         // allow search for songs
         Ord('J'):
@@ -1419,7 +1419,7 @@ begin
         // pause
         Ord('P'), Ord(' '):
         begin
-          Pause;
+          Pause();
           Exit;
         end;
 
@@ -1599,12 +1599,6 @@ begin
             ScreenPopupCheck.ShowPopup('MSG_END_JUKEBOX',  @OnEscapeJukebox, nil, false)
           end;
         end;
-
-//        SDLK_SPACE:
-//        begin
-//          if not (FindSongList) then
-//            Pause;
-//        end;
 
         SDLK_TAB: // change visualization preset
         begin
@@ -2036,7 +2030,7 @@ begin
   LyricsState.Start(true);
 
   // start music
-    AudioPlayback.Play();
+  AudioPlayback.Play();
 
   // start timer
   CountSkipTimeSet;
