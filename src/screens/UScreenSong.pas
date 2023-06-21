@@ -196,6 +196,7 @@ type
       function FreeListMode: boolean;
       procedure SelectRandomSong(RandomCategory: boolean = false);
       procedure ColorizeJokers;
+      procedure RefreshPreview;
       //procedure PartyTimeLimit;
 
       //procedures for Menu
@@ -1813,6 +1814,13 @@ begin
     end;
     Self.SkipTo(0);
   end;
+end;
+
+{ Refresh Preview of actual song }
+procedure TScreenSong.RefreshPreview();
+begin
+  Self.StopPreview();
+  Self.StartPreview();
 end;
 
 { Set joker visibility }

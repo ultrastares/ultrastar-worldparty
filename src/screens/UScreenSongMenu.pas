@@ -725,15 +725,16 @@ begin
               MenuShow(SM_Playlist_Load);
           8: // button 6
               MenuShow(SM_Medley);
-		  9: //button 7
-		     begin
-                 UAudioPlaybackBase.ToggleVoiceRemoval();
-                 Visible := false;
-				 if (vocal_remover_activated) then
-                       vocal_remover_activated := false
-				 else 
-				       vocal_remover_activated := true;
-             end;
+          9: //button 7
+              begin
+                UAudioPlaybackBase.ToggleVoiceRemoval();
+                Visible := false;
+                if (vocal_remover_activated) then
+                  vocal_remover_activated := false
+                else 
+                  vocal_remover_activated := true;
+                UGraphic.ScreenSong.RefreshPreview();
+              end;
         end;
       end;
 
