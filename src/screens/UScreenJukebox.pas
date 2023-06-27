@@ -1842,6 +1842,10 @@ begin
       fCurrentVideo.Pause;
 
     Paused := false;
+
+    // song info
+    LastTickChangeSong := SDL_GetTicks();
+    DrawSongInfo();
   end;
 
   Button[JukeboxSongMenuPlayPause].SetSelect(Paused);
@@ -2332,7 +2336,6 @@ begin
   if (not(SongListVisible) and not(ScreenJukeboxOptions.Visible) and (ScreenAct = 1)) or (ScreenAct = 2) then
   begin
     CurrentTick := SDL_GetTicks() - LastTickChangeSong;
-
     if (CurrentTick < MAX_TIME_SONGDESC) then
       Alpha := 0
     else
