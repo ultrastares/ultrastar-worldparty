@@ -1,5 +1,5 @@
 ﻿UltraStar WorldParty
-Copyright (C) 2010-2021 by the following:
+Copyright (C) 2010-2023 by the following:
 
 "Zup3r_vock"
 "Daniel20"
@@ -12,6 +12,7 @@ Translations:
 Hungarian: Warez^XTS
 Italian:   skream
 French:    ctariel
+German:    ReneSchimmelpfennig
 
 If you have contributed to this project then you deserve to be on this
 list.  Contact us and we'll add you.
