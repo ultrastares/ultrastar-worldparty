@@ -1274,8 +1274,8 @@ begin
     case ButtonId of
       SDL_CONTROLLER_BUTTON_A: Key := SDLK_RETURN;
       SDL_CONTROLLER_BUTTON_B: Key := SDLK_ESCAPE;
-      SDL_CONTROLLER_BUTTON_Y: Key := SDLK_m;
-      SDL_CONTROLLER_BUTTON_X: Key := SDLK_r;
+      SDL_CONTROLLER_BUTTON_Y: Key := SDLK_F10;
+      SDL_CONTROLLER_BUTTON_X: Key := SDLK_F4;
       otherwise Result := false;
     end;
   end;
