@@ -1190,7 +1190,7 @@ begin
   begin
     case Axis of
       SDL_CONTROLLER_AXIS_RIGHTX: Key := SDLK_RIGHT;
-      SDL_CONTROLLER_AXIS_RIGHTY: Key := SDLK_UP;
+      SDL_CONTROLLER_AXIS_RIGHTY: Key := SDLK_DOWN;
       otherwise Exit;
     end;
     Result := true;
@@ -1200,7 +1200,7 @@ begin
   begin
     case Axis of
       SDL_CONTROLLER_AXIS_RIGHTX: Key := SDLK_LEFT;
-      SDL_CONTROLLER_AXIS_RIGHTY: Key := SDLK_DOWN;
+      SDL_CONTROLLER_AXIS_RIGHTY: Key := SDLK_UP;
       otherwise Exit;
     end;
     Result := true;
