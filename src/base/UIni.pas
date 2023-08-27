@@ -982,7 +982,7 @@ begin
   BeatClick := ReadArrayIndex(IBeatClick, IniFile, 'Sound', 'BeatClick', 0);
 
   // Background Music
-  MusicVolume := ReadArrayIndex(IBGMusic, IniFile, 'Sound', 'BackgroundMusic', 5);
+  MusicVolume := ReadArrayIndex(IBGMusic, IniFile, 'Sound', 'BackgroundMusic', 4);
 
   // SavePlayback
   SavePlayback := ReadArrayIndex(ISavePlayback, IniFile, 'Sound', 'SavePlayback', 0);
