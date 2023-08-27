@@ -103,19 +103,10 @@ begin
     end;
   end;
 
-{**
- * Actually this one isn't pretty - but it does the trick of
- * turning the background music on/off in "real time"
- * bgm = background music
- * TODO: - Fetching the SelectInteraction via something more descriptive
- *       - Obtaining the current value of a select is imho ugly
- *}
   if (SelInteraction = 1) then
   begin
-    if TBackgroundMusicOption(SelectsS[1].SelectedOption) = bmoOn then
-      SoundLib.StartBgMusic
-    else
       SoundLib.PauseBgMusic;
+      SoundLib.StartBgMusic
   end;
 
 end;
@@ -130,7 +121,7 @@ begin
 
   LoadFromTheme(Theme.OptionsSound);
   AddSelectSlide(Theme.OptionsSound.SelectSlideVoicePassthrough, UIni.Ini.VoicePassthrough, UIni.IVoicePassthrough, 'OPTION_VALUE_');
-  AddSelectSlide(Theme.OptionsSound.SelectBackgroundMusic, UIni.Ini.BackgroundMusicOption, UIni.IBackgroundMusic, 'OPTION_VALUE_');
+  AddSelectSlide(Theme.OptionsSound.SelectBackgroundMusic, UIni.Ini.MusicVolume, UIni.IBGMusic);
   AddSelectSlide(Theme.OptionsSound.SelectClickAssist, UIni.Ini.ClickAssist, UIni.IClickAssist, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsSound.SelectBeatClick, UIni.Ini.BeatClick, UIni.IBeatClick, 'OPTION_VALUE_');
   IMusicAutoGainTranslated := UIni.IMusicAutoGain;
