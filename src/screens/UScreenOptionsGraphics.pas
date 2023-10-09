@@ -48,9 +48,6 @@ type
       ResolutionEmpty:     integer; // not used, only to prevent changing original by-ref passed variable
 
       OldWindowMode:       integer;
-	  
-      FullscreenDesc, ResolutionDesc, ScreenFadeDesc, EffectSingDesc, VisualizerDesc, MovieSizeDesc: integer;
-
       procedure UpdateWindowMode;
       procedure UpdateResolution;
 
@@ -133,14 +130,12 @@ begin
   AddSelectSlide(Theme.OptionsGraphics.SelectVisualizer, UIni.Ini.VisualizerOption, UIni.IVisualizer, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsGraphics.SelectMovieSize, UIni.Ini.MovieSize, ['HALF', 'FULL_VID', 'FULL_VID_BG'], 'OPTION_VALUE_');
   AddButton(Theme.OptionsGraphics.ButtonExit);
-
-  FullscreenDesc := Self.AddText(UThemes.Theme.OptionsGraphics.FullscreenDesc);
-  ResolutionDesc := Self.AddText(UThemes.Theme.OptionsGraphics.ResolutionDesc);
-  EffectSingDesc := Self.AddText(UThemes.Theme.OptionsGraphics.ScreenFadeDesc);
-  EffectSingDesc := Self.AddText(UThemes.Theme.OptionsGraphics.EffectSingDesc);
-  VisualizerDesc := Self.AddText(UThemes.Theme.OptionsGraphics.VisualizerDesc);
-  MovieSizeDesc  := Self.AddText(UThemes.Theme.OptionsGraphics.MovieSizeDesc);
-  
+  Self.AddText(UThemes.Theme.OptionsGraphics.FullscreenDesc);
+  Self.AddText(UThemes.Theme.OptionsGraphics.ResolutionDesc);
+  Self.AddText(UThemes.Theme.OptionsGraphics.ScreenFadeDesc);
+  Self.AddText(UThemes.Theme.OptionsGraphics.EffectSingDesc);
+  Self.AddText(UThemes.Theme.OptionsGraphics.VisualizerDesc);
+  Self.AddText(UThemes.Theme.OptionsGraphics.MovieSizeDesc);
 end;
 
 procedure TScreenOptionsGraphics.OnShow;

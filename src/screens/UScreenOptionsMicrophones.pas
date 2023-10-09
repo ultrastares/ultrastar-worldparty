@@ -83,9 +83,6 @@ type
       // Device source volume
       SourceVolume: single;
       NextVolumePollTime: cardinal;
-
-      SoundCardDesc, InputDesc, ChannelDesc, ThresholdDesc, MicBoostDesc: integer; 
-	
       procedure StartPreview;
       procedure StopPreview;
       procedure UpdateInputDevice;
@@ -258,7 +255,7 @@ begin
 
     // add space for source volume bar
     WidgetYPos := Theme.OptionsMicrophones.SelectSlideChannel.Y;
-				  
+
     // find max. channel count of all devices
     MaxChannelCount := 0;
     for DeviceIndex := 0 to High(AudioInputProcessor.DeviceList) do
@@ -323,14 +320,12 @@ begin
     ExitButtonIID := MaxChannelCount + 4
   else
     ExitButtonIID := 2;
-	
-  SoundCardDesc      := Self.AddText(UThemes.Theme.OptionsMicrophones.SoundCardDesc);
-  InputDesc          := Self.AddText(UThemes.Theme.OptionsMicrophones.InputDesc);
-  ChannelDesc        := Self.AddText(UThemes.Theme.OptionsMicrophones.ChannelDesc);
-  ThresholdDesc      := Self.AddText(UThemes.Theme.OptionsMicrophones.ThresholdDesc);
-  MicBoostDesc       := Self.AddText(UThemes.Theme.OptionsMicrophones.MicBoostDesc);
 
-  // set focus
+  Self.AddText(UThemes.Theme.OptionsMicrophones.SoundCardDesc);
+  Self.AddText(UThemes.Theme.OptionsMicrophones.InputDesc);
+  Self.AddText(UThemes.Theme.OptionsMicrophones.ChannelDesc);
+  Self.AddText(UThemes.Theme.OptionsMicrophones.ThresholdDesc);
+  Self.AddText(UThemes.Theme.OptionsMicrophones.MicBoostDesc);
   Interaction := 0;
 end;
 

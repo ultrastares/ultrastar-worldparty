@@ -42,9 +42,6 @@ uses
 type
 
   TScreenOptionsAdvanced = class(TMenu)
-   protected
-	  DebugDesc, OscilloscopeDesc, OnSongClickDesc, AskBeforeExitDesc, PartyPopupDesc, TopScoresDesc: integer;
-
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -117,15 +114,13 @@ begin
   AddSelectSlide(Theme.OptionsAdvanced.SelectPartyPopup, UIni.Ini.PartyPopup, UIni.IPartyPopup, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsAdvanced.SelectTopScores, UIni.Ini.TopScores, UIni.ITopScores, 'OPTION_VALUE_');
   Self.AddSelectSlide(Theme.OptionsAdvanced.SelectSingTimebarMode, UIni.Ini.SingTimebarMode, UIni.ISingTimebarMode, 'OPTION_VALUE_');
-
   AddButton(Theme.OptionsAdvanced.ButtonExit);
-
-  DebugDesc         := Self.AddText(UThemes.Theme.OptionsAdvanced.DebugDesc);
-  OscilloscopeDesc  := Self.AddText(UThemes.Theme.OptionsAdvanced.OscilloscopeDesc);
-  OnSongClickDesc   := Self.AddText(UThemes.Theme.OptionsAdvanced.OnSongClickDesc);
-  AskBeforeExitDesc := Self.AddText(UThemes.Theme.OptionsAdvanced.AskBeforeExitDesc);
-  PartyPopupDesc    := Self.AddText(UThemes.Theme.OptionsAdvanced.PartyPopupDesc);
-  TopScoresDesc     := Self.AddText(UThemes.Theme.OptionsAdvanced.TopScoresDesc);
+  Self.AddText(UThemes.Theme.OptionsAdvanced.DebugDesc);
+  Self.AddText(UThemes.Theme.OptionsAdvanced.OscilloscopeDesc);
+  Self.AddText(UThemes.Theme.OptionsAdvanced.OnSongClickDesc);
+  Self.AddText(UThemes.Theme.OptionsAdvanced.AskBeforeExitDesc);
+  Self.AddText(UThemes.Theme.OptionsAdvanced.PartyPopupDesc);
+  Self.AddText(UThemes.Theme.OptionsAdvanced.TopScoresDesc);
   Self.AddText(UThemes.Theme.OptionsAdvanced.SingTimebarModeDesc);
 
   Interaction := 0;

@@ -38,7 +38,6 @@ type
   TScreenOptionsGeneral = class(TMenu)
     private
       Language, SongMenu: integer; static;
-      LanguageDesc, SongMenuDesc, DuetsDesc, TabsDesc, SortingDesc, ShowScoresDesc, SingScoresDesc, MedleyCDesc: integer;
       procedure ReloadScreen();
       procedure ReloadScreens();
     public
@@ -114,15 +113,14 @@ begin
   Self.AddSelectSlide(UThemes.Theme.OptionsGeneral.SelectSingScores, UIni.Ini.SingScores, UIni.ISingScores, 'OPTION_VALUE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsGeneral.SelectFindUnsetMedley, UIni.Ini.FindUnsetMedley, UIni.Switch, 'OPTION_VALUE_');
   Self.AddButton(UThemes.Theme.OptionsGeneral.ButtonExit);
-
-  LanguageDesc := Self.AddText(UThemes.Theme.OptionsGeneral.LanguageDesc);
-  SongMenuDesc := Self.AddText(UThemes.Theme.OptionsGeneral.SongMenuDesc);
-  DuetsDesc := Self.AddText(UThemes.Theme.OptionsGeneral.DuetsDesc);
-  TabsDesc := Self.AddText(UThemes.Theme.OptionsGeneral.TabsDesc);
-  SortingDesc := Self.AddText(UThemes.Theme.OptionsGeneral.SortingDesc);
-  ShowScoresDesc := Self.AddText(UThemes.Theme.OptionsGeneral.ShowScoresDesc);
-  SingScoresDesc := Self.AddText(UThemes.Theme.OptionsGeneral.SingScoresDesc);
-  MedleyCDesc := Self.AddText(UThemes.Theme.OptionsGeneral.MedleyCDesc);
+  Self.AddText(UThemes.Theme.OptionsGeneral.LanguageDesc);
+  Self.AddText(UThemes.Theme.OptionsGeneral.SongMenuDesc);
+  Self.AddText(UThemes.Theme.OptionsGeneral.DuetsDesc);
+  Self.AddText(UThemes.Theme.OptionsGeneral.TabsDesc);
+  Self.AddText(UThemes.Theme.OptionsGeneral.SortingDesc);
+  Self.AddText(UThemes.Theme.OptionsGeneral.ShowScoresDesc);
+  Self.AddText(UThemes.Theme.OptionsGeneral.SingScoresDesc);
+  Self.AddText(UThemes.Theme.OptionsGeneral.MedleyCDesc);
 end;
 
 procedure TScreenOptionsGeneral.OnShow;

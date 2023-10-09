@@ -46,7 +46,6 @@ type
     public
       ActualTheme, ActualSkin, ActualColor:  Integer;
       SkinSelect: Integer;
-      ThemeDesc, SkinDesc, ColorDesc: Integer;
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure InteractInc; override;
@@ -142,10 +141,9 @@ begin
   AddSelectSlide(Theme.OptionsThemes.SelectColor, UIni.Ini.Color, UIni.IColor, 'C_COLOR_');
 
   AddButton(Theme.OptionsThemes.ButtonExit);
-
-  ThemeDesc  := Self.AddText(UThemes.Theme.OptionsThemes.ThemeDesc);
-  SkinDesc   := Self.AddText(UThemes.Theme.OptionsThemes.SkinDesc);
-  ColorDesc  := Self.AddText(UThemes.Theme.OptionsThemes.ColorDesc);
+  Self.AddText(UThemes.Theme.OptionsThemes.ThemeDesc);
+  Self.AddText(UThemes.Theme.OptionsThemes.SkinDesc);
+  Self.AddText(UThemes.Theme.OptionsThemes.ColorDesc);
 end;
 
 procedure TScreenOptionsThemes.ReloadTheme();

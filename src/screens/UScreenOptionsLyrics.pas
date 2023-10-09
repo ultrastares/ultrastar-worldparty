@@ -40,7 +40,7 @@ type
       Lyrics: TLyricEngine;
 	  Title: integer;
       SelectModeProperty, SelectFont, SelectEffect, SelectTransparency, SelectLines, SelectProperty, SelectColor, SelectMode: integer;
-      ModePropertyDesc, FontDesc, EffectDesc, TransparencyDesc, LineDesc, PropertyDesc, ColorDesc, ModeDesc, StavesDesc, PositionDesc: integer;      
+      PropertyDesc, StavesDesc, PositionDesc: integer;
       TexColor, Red, Green, Blue: integer;
       PointerStart: integer;
       SingColor: string;
@@ -79,7 +79,7 @@ begin
   inherited Create();
 
   Title := Self.AddText(UThemes.Theme.OptionsLyrics.Title);
-  
+
   Self.LoadFromTheme(UThemes.Theme.OptionsLyrics);
   Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectModeProperty, Self.SelectModeProperty, UIni.Switch, 'PARTY_MODE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsLyrics.SelectFont, Self.SelectFont, UIni.ILyricsFont, 'OPTION_VALUE_');
@@ -98,17 +98,16 @@ begin
   Self.TexColor := Self.AddStatic(UThemes.Theme.OptionsLyrics.TexColor);
   Self.AddButton(UThemes.Theme.OptionsLyrics.ButtonExit);
   Self.SetModeValues();
-
-  ModeDesc            := Self.AddText(UThemes.Theme.OptionsLyrics.ModeDesc);
-  StavesDesc          := Self.AddText(UThemes.Theme.OptionsLyrics.StavesDesc);
-  PositionDesc        := Self.AddText(UThemes.Theme.OptionsLyrics.PositionDesc);
-  FontDesc            := Self.AddText(UThemes.Theme.OptionsLyrics.FontDesc);
-  EffectDesc          := Self.AddText(UThemes.Theme.OptionsLyrics.EffectDesc);
-  TransparencyDesc    := Self.AddText(UThemes.Theme.OptionsLyrics.TransparencyDesc);
-  LineDesc            := Self.AddText(UThemes.Theme.OptionsLyrics.LineDesc);
-  PropertyDesc        := Self.AddText(UThemes.Theme.OptionsLyrics.PropertyDesc);
-  ColorDesc           := Self.AddText(UThemes.Theme.OptionsLyrics.ColorDesc);
-  ModePropertyDesc    := Self.AddText(UThemes.Theme.OptionsLyrics.ModePropertyDesc);
+  Self.AddText(UThemes.Theme.OptionsLyrics.ModeDesc);
+  StavesDesc := Self.AddText(UThemes.Theme.OptionsLyrics.StavesDesc);
+  PositionDesc := Self.AddText(UThemes.Theme.OptionsLyrics.PositionDesc);
+  Self.AddText(UThemes.Theme.OptionsLyrics.FontDesc);
+  Self.AddText(UThemes.Theme.OptionsLyrics.EffectDesc);
+  Self.AddText(UThemes.Theme.OptionsLyrics.TransparencyDesc);
+  Self.AddText(UThemes.Theme.OptionsLyrics.LineDesc);
+  PropertyDesc := Self.AddText(UThemes.Theme.OptionsLyrics.PropertyDesc);
+  Self.AddText(UThemes.Theme.OptionsLyrics.ColorDesc);
+  Self.AddText(UThemes.Theme.OptionsLyrics.ModePropertyDesc);
 
 
   //add lyric lines
@@ -355,7 +354,6 @@ begin
     Self.Text[StavesDesc].Visible     := false;
     Self.Text[PositionDesc].Visible   := true;
     Self.Text[PropertyDesc].Visible   := true;
-	
   end;
   Self.SetColor();
 end;
