@@ -41,9 +41,6 @@ type
       LanguageDesc, SongMenuDesc, DuetsDesc, TabsDesc, SortingDesc, ShowScoresDesc, SingScoresDesc, MedleyCDesc: integer;
       procedure ReloadScreen();
       procedure ReloadScreens();
-    protected
-      // interaction IDs
-      ButtonExitIID: integer;
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -117,7 +114,7 @@ begin
   Self.AddSelectSlide(UThemes.Theme.OptionsGeneral.SelectSingScores, UIni.Ini.SingScores, UIni.ISingScores, 'OPTION_VALUE_');
   Self.AddSelectSlide(UThemes.Theme.OptionsGeneral.SelectFindUnsetMedley, UIni.Ini.FindUnsetMedley, UIni.Switch, 'OPTION_VALUE_');
   Self.AddButton(UThemes.Theme.OptionsGeneral.ButtonExit);
-  
+
   LanguageDesc := Self.AddText(UThemes.Theme.OptionsGeneral.LanguageDesc);
   SongMenuDesc := Self.AddText(UThemes.Theme.OptionsGeneral.SongMenuDesc);
   DuetsDesc := Self.AddText(UThemes.Theme.OptionsGeneral.DuetsDesc);

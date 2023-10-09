@@ -43,8 +43,6 @@ type
 
   TScreenOptionsAdvanced = class(TMenu)
    protected
-      // interaction IDs
-	  ButtonExitIID: integer;
 	  DebugDesc, OscilloscopeDesc, OnSongClickDesc, AskBeforeExitDesc, PartyPopupDesc, TopScoresDesc: integer;
 
     public
