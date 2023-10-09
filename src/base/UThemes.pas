@@ -920,6 +920,7 @@ type
     SelectOnSongClick:    TThemeSelectSlide;
     SelectPartyPopup:     TThemeSelectSlide;
     SelectTopScores:      TThemeSelectSlide;
+    SelectSingTimebarMode: TThemeSelectSlide;
     ButtonExit:           TThemeButton;
 
     DebugDesc:            TThemeText;
@@ -928,6 +929,7 @@ type
     AskBeforeExitDesc:    TThemeText;
     PartyPopupDesc:       TThemeText;
     TopScoresDesc:        TThemeText;
+    SingTimebarModeDesc: TThemeText;
   end;
 
   TThemeOptionsNetwork = class(TThemeBasic)
@@ -1194,7 +1196,7 @@ type
     Player10Name:        TThemeButton;
     Player11Name:        TThemeButton;
     Player12Name:        TThemeButton;
-	
+
 	ButtonContinue:      TThemeButton;
 
   end;
@@ -2240,6 +2242,7 @@ begin
       ThemeLoadSelectSlide(OptionsAdvanced.SelectAskBeforeExit, 'OptionsAdvancedSelectAskBeforeExit');
       ThemeLoadSelectSlide(OptionsAdvanced.SelectPartyPopup,    'OptionsAdvancedSelectPartyPopup');
       ThemeLoadSelectSlide(OptionsAdvanced.SelectTopScores,     'OptionsAdvancedSelectTopScores');
+      ThemeLoadSelectSlide(Self.OptionsAdvanced.SelectSingTimebarMode, 'OptionsAdvancedSelectSingTimebarMode');
       ThemeLoadButton     (OptionsAdvanced.ButtonExit,          'OptionsAdvancedButtonExit');
 
       ThemeLoadText(OptionsAdvanced.DebugDesc,                  'OptionsAdvancedDebugDesc');
@@ -2248,6 +2251,7 @@ begin
       ThemeLoadText(OptionsAdvanced.AskBeforeExitDesc,          'OptionsAdvancedAskBeforeExitDesc');
       ThemeLoadText(OptionsAdvanced.PartyPopupDesc,             'OptionsAdvancedPartyPopupDesc');
       ThemeLoadText(OptionsAdvanced.TopScoresDesc,              'OptionsAdvancedTopScoresDesc');
+      ThemeLoadText(OptionsAdvanced.SingTimebarModeDesc, 'OptionsAdvancedSingTimebarModeDesc');
 
       //Options Network
       ThemeLoadBasic(OptionsNetwork, 'OptionsNetwork');

@@ -118,6 +118,7 @@ begin
   AddSelectSlide(Theme.OptionsAdvanced.SelectAskBeforeExit, UIni.Ini.AskBeforeExit, UIni.IAskBeforeExit, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsAdvanced.SelectPartyPopup, UIni.Ini.PartyPopup, UIni.IPartyPopup, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsAdvanced.SelectTopScores, UIni.Ini.TopScores, UIni.ITopScores, 'OPTION_VALUE_');
+  Self.AddSelectSlide(Theme.OptionsAdvanced.SelectSingTimebarMode, UIni.Ini.SingTimebarMode, UIni.ISingTimebarMode, 'OPTION_VALUE_');
 
   AddButton(Theme.OptionsAdvanced.ButtonExit);
 
@@ -127,6 +128,7 @@ begin
   AskBeforeExitDesc := Self.AddText(UThemes.Theme.OptionsAdvanced.AskBeforeExitDesc);
   PartyPopupDesc    := Self.AddText(UThemes.Theme.OptionsAdvanced.PartyPopupDesc);
   TopScoresDesc     := Self.AddText(UThemes.Theme.OptionsAdvanced.TopScoresDesc);
+  Self.AddText(UThemes.Theme.OptionsAdvanced.SingTimebarModeDesc);
 
   Interaction := 0;
 end;
