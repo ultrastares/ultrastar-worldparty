@@ -1011,9 +1011,9 @@ end;
 
 procedure TSoundLibrary.StartBgMusic();
 begin
-  if (TBackgroundMusicOption(Ini.BackgroundMusicOption) = bmoOn) and
-    (Soundlib.BGMusic <> nil) and not (Soundlib.BGMusic.Status = ssPlaying) then
+  if (TBackgroundMusicOption(Ini.MusicVolume) <> bmoOff) and not (Soundlib.BGMusic.Status = ssPlaying) then
   begin
+    SoundLib.BGMusic.SetVolume(IBGMusicVolumeVals[Ini.MusicVolume]);
     AudioPlayback.PlaySound(Soundlib.BGMusic);
   end;
 end;

@@ -149,6 +149,7 @@ type
       VideoEnabled:         integer;
 
       // Sound
+      MusicVolume:                integer;
       MicBoost:                   integer;
       ClickAssist:                integer;
       BeatClick:                  integer;
@@ -201,7 +202,6 @@ type
       Theme:                 integer;
       Skin:                  integer;
       Color:                 integer;
-      BackgroundMusicOption: integer;
 
       // Record
       InputDeviceConfig: array of TInputDeviceConfig;
@@ -309,8 +309,6 @@ const
   IFullScreen:        array[0..2] of UTF8String  = ('Off', 'On', 'Borderless');
   IVisualizer:        array[0..3] of UTF8String  = ('Off', 'WhenNoVideo', 'WhenNoVideoAndImage', 'On');
 
-  IBackgroundMusic:   array[0..1] of UTF8String  = ('Off', 'On');
-
   ITextureSize:       array[0..3] of UTF8String  = ('64', '128', '256', '512');
   ITextureSizeVals:   array[0..3] of integer     = ( 64,   128,   256,   512);
 
@@ -349,6 +347,9 @@ const
 
   IAudioInputBufferSize:      array[0..9] of UTF8String  = ('Auto', '256', '512', '1024', '2048', '4096', '8192', '16384', '32768', '65536');
   IAudioInputBufferSizeVals:  array[0..9] of integer     = ( 0,      256,   512 ,  1024 ,  2048 ,  4096 ,  8192 ,  16384 ,  32768 ,  65536 );
+
+  IBGMusic:                   array[0..10] of UTF8String = ('Off', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%');
+  IBGMusicVolumeVals:         array[0..10] of single     = ( 0,   0.10,  0.20,  0.30,  0.40,  0.50,  0.60,  0.70,  0.80,  0.90,   1.00  );
 
   //Song Preview
   IPreviewVolume:             array[0..10] of UTF8String = ('Off', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%');
@@ -980,6 +981,9 @@ begin
   // BeatClick
   BeatClick := ReadArrayIndex(IBeatClick, IniFile, 'Sound', 'BeatClick', 0);
 
+  // Background Music
+  MusicVolume := ReadArrayIndex(IBGMusic, IniFile, 'Sound', 'BackgroundMusic', 4);
+
   // SavePlayback
   SavePlayback := ReadArrayIndex(ISavePlayback, IniFile, 'Sound', 'SavePlayback', 0);
 
@@ -1053,11 +1057,6 @@ begin
   //            IniFile.ReadString('Graphics', 'Visualization', 'Off')));
   // || VisualizerOption := TVisualizerOption(GetArrayIndex(IVisualizer, IniFile.ReadString('Graphics', 'Visualization', 'Off')));
   VisualizerOption := ReadArrayIndex(IVisualizer, IniFile, 'Graphics', 'Visualization', IGNORE_INDEX, 'Off');
-
-{**
- * Background music
- *}
-  BackgroundMusicOption := ReadArrayIndex(IBackgroundMusic, IniFile, 'Sound', 'BackgroundMusic', IGNORE_INDEX, 'On');
 
   // EffectSing
   EffectSing := ReadArrayIndex(IEffectSing, IniFile, 'Advanced', 'EffectSing', IGNORE_INDEX, 'On');
@@ -1200,7 +1199,7 @@ begin
   IniFile.WriteString('Sound', 'AudioOutputBufferSize', IAudioOutputBufferSize[AudioOutputBufferSizeIndex]);
 
   // Background music
-  IniFile.WriteString('Sound', 'BackgroundMusic', IBackgroundMusic[BackgroundMusicOption]);
+  IniFile.WriteString('Sound', 'BackgroundMusic', IBGMusic[MusicVolume]);
 
   // Song Preview
   IniFile.WriteString('Sound', 'PreviewVolume', IPreviewVolume[PreviewVolume]);
