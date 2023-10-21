@@ -1408,7 +1408,7 @@ begin
   if Mode = smMedley then
     Mode := smNormal;
 
-  UNote.PlayersPlay := IfThen(UIni.Ini.Players = 4, 6, UIni.Ini.Players + 1);
+  UNote.PlayersPlay := IfThen(UIni.Ini.Players = 3, 6, UIni.Ini.Players + 1);
 
   Visible := not (Self.Mode = smPartyChallenge);
   Self.Statics[Self.SearchIcon].Visible := Visible;
