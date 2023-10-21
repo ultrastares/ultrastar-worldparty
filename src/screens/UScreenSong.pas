@@ -1416,7 +1416,7 @@ begin
   Self.Text[Self.SearchText].Visible := Visible;
   if Visible then
   begin
-    Self.Refresh(UIni.Ini.Sorting, UIni.Ini.Tabs = 1, UIni.Ini.ShowDuets = 1);
+    Self.Refresh(UIni.Ini.Sorting, UIni.Ini.Tabs = 1, (UIni.Ini.Players > 0) and (UIni.Ini.ShowDuets = 1));
     if (UIni.Ini.Tabs = 1) and (CatSongs.CatNumShow = -1) then //fix scroll on show and when enter after on first time with a category selected in the middle of the list
       Self.SetSubselection();
 
