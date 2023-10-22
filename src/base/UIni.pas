@@ -140,10 +140,6 @@ type
       VisualizerOption:     integer;
       FullScreen:           integer;
       TextureSize:          integer;
-      SingWindow:           integer;
-      // not used
-      //Spectrum:           integer;
-      //Spectrograph:       integer;
       MovieSize:            integer;
       VideoPreview:         integer;
       VideoEnabled:         integer;
@@ -311,14 +307,7 @@ const
 
   ITextureSize:       array[0..3] of UTF8String  = ('64', '128', '256', '512');
   ITextureSizeVals:   array[0..3] of integer     = ( 64,   128,   256,   512);
-
-  ISingWindow:        array[0..1] of UTF8String  = ('Small', 'Big');
-
-  //SingBar Mod
   IOscilloscope:      array[0..1] of UTF8String  = ('Off', 'On');
-
-  ISpectrum:          array[0..1] of UTF8String  = ('Off', 'On');
-  ISpectrograph:      array[0..1] of UTF8String  = ('Off', 'On');
   IMovieSize:         array[0..2] of UTF8String  = ('Half', 'Full [Vid]', 'Full [BG+Vid]');
   IVideoPreview:      array[0..1] of UTF8String  = ('Off', 'On');
   IVideoEnabled:      array[0..1] of UTF8String  = ('Off', 'On');
@@ -957,15 +946,6 @@ begin
   // TextureSize (aka CachedCoverSize)
   TextureSize := ReadArrayIndex(ITextureSize, IniFile, 'Graphics', 'TextureSize', IGNORE_INDEX, '256');
 
-  // SingWindow
-  SingWindow := ReadArrayIndex(ISingWindow, IniFile, 'Graphics', 'SingWindow', IGNORE_INDEX, 'Big');
-
-  // Spectrum
-  //Spectrum := ReadArrayIndex(ISpectrum, IniFile, 'Graphics', 'Spectrum', IGNORE_INDEX, 'Off');
-
-  // Spectrograph
-  //Spectrograph := ReadArrayIndex(ISpectrograph, IniFile, 'Graphics', 'Spectrograph', IGNORE_INDEX, 'Off');
-
   // MovieSize
   MovieSize := ReadArrayIndex(IMovieSize, IniFile, 'Graphics', 'MovieSize', 2);
 
@@ -1170,15 +1150,6 @@ begin
 
   // TextureSize
   IniFile.WriteString('Graphics', 'TextureSize', ITextureSize[TextureSize]);
-
-  // Sing Window
-  IniFile.WriteString('Graphics', 'SingWindow', ISingWindow[SingWindow]);
-
-  // Spectrum
-  //IniFile.WriteString('Graphics', 'Spectrum', ISpectrum[Spectrum]);
-
-  // Spectrograph
-  //IniFile.WriteString('Graphics', 'Spectrograph', ISpectrograph[Spectrograph]);
 
   // Movie Size
   IniFile.WriteString('Graphics', 'MovieSize', IMovieSize[MovieSize]);
@@ -1577,12 +1548,12 @@ begin
 
     // Save new Songdirs
     for I := 0 to UPathUtils.SongPaths.Count-1 do
-    begin 
+    begin
       J := I + 1;
       CurrentPath := UPathUtils.SongPaths[I] as IPath;
       IniFile.WriteString('Directories', 'SongDir' + J.ToString(), CurrentPath.GetPath().ToUTF8());
     end;
-    
+
     IniFile.Free;
   end;
 end;

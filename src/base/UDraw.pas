@@ -79,6 +79,7 @@ type
   end;
 
 var
+  NR: TRecR; //lyrics area bounds (NR = NoteRec?)
   NotesW:   array [0..UIni.IMaxPlayerCount-1] of real;
   NotesH:   array [0..UIni.IMaxPlayerCount-1] of real;
   Starfr:   integer;
@@ -1066,21 +1067,7 @@ begin
 end;
 
 procedure SingDrawLines;
-var
-  NR: TRecR;         // lyrics area bounds (NR = NoteRec?)
 begin
-  // positions
-  if Ini.SingWindow = 0 then
-    NR.Left := 120
-  else
-    NR.Left := 20;
-
-  NR.Right := 780;
-
-  NR.Width := NR.Right - NR.Left;
-  NR.WMid  := NR.Width / 2;
-  NR.Mid   := NR.Left + NR.WMid;
-
   // draw note-lines
 
   // to-do : needs fix when party mode works w/ 2 screens
@@ -1167,22 +1154,9 @@ end;
 
 procedure SingDraw;
 var
-  NR: TRecR;         // lyrics area bounds (NR = NoteRec?)
   I: integer;
   Difficulty: integer;
 begin
-  // positions
-  if Ini.SingWindow = 0 then
-    NR.Left := 120
-  else
-    NR.Left := 20;
-
-  NR.Right := 780;
-
-  NR.Width := NR.Right - NR.Left;
-  NR.WMid  := NR.Width / 2;
-  NR.Mid   := NR.Left + NR.WMid;
-
   // draw time-bar
   SingDrawTimeBar();
 
@@ -1770,21 +1744,8 @@ end;
 
 procedure SingDrawJukebox;
 var
-  NR: TRecR;         // lyrics area bounds (NR = NoteRec?)
   LyricEngine: TLyricEngine;
 begin
-  // positions
-  if Ini.SingWindow = 0 then
-    NR.Left := 120
-  else
-    NR.Left := 20;
-
-  NR.Right := 780;
-
-  NR.Width := NR.Right - NR.Left;
-  NR.WMid  := NR.Width / 2;
-  NR.Mid   := NR.Left + NR.WMid;
-
   // FIXME: accessing ScreenJukebox is not that generic
   LyricEngine := ScreenJukebox.Lyrics;
 

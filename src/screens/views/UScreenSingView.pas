@@ -1207,6 +1207,11 @@ begin
   ScreenSing.Statics[StaticP6DuetSixPAvatar].Texture.Z := Theme.Sing.StaticP6DuetSixPAvatar.Z;
   ScreenSing.Statics[StaticP6DuetSixPAvatar].Texture.Alpha := Theme.Sing.StaticP6DuetSixPAvatar.Alpha;
 
+  UDraw.NR.Left := 20;
+  UDraw.NR.Right := 780;
+  UDraw.NR.Width := 760; //NR.Right - NR.Left;
+  UDraw.NR.WMid := 380; //NR.Width / 2;
+  UDraw.NR.Mid := 400; //NR.Left + NR.WMid;
 end;
 
 function TScreenSingView.Draw: boolean;
