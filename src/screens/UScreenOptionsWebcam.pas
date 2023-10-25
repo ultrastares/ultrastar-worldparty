@@ -42,10 +42,7 @@ type
   TScreenOptionsWebcam = class(TMenu)
     private
       PreVisualization: boolean;
-
-      ID, Resolution, FPS, Flip, Brightness, Saturation, Hue, Effect: integer;  
-      IDDesc, ResolutionDesc, FPSDesc, FlipDesc, BrightnessDesc, SaturationDesc, HueDesc, EffectDesc, PrevisualizacionDesc: integer;
-  
+      ID, Resolution, FPS, Flip, Brightness, Saturation, Hue, Effect: integer;
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -183,26 +180,16 @@ begin
   AddButton(Theme.OptionsWebcam.ButtonPreVisualization);
   AddButton(Theme.OptionsWebcam.ButtonExit);
 
-  IDDesc                := Self.AddText(UThemes.Theme.OptionsWebcam.IDDesc);
-  ResolutionDesc        := Self.AddText(UThemes.Theme.OptionsWebcam.ResolutionDesc);
-  FPSDesc               := Self.AddText(UThemes.Theme.OptionsWebcam.FPSDesc);
-  FlipDesc              := Self.AddText(UThemes.Theme.OptionsWebcam.FlipDesc);
-  BrightnessDesc        := Self.AddText(UThemes.Theme.OptionsWebcam.BrightnessDesc);
-  SaturationDesc        := Self.AddText(UThemes.Theme.OptionsWebcam.SaturationDesc);
-  HueDesc               := Self.AddText(UThemes.Theme.OptionsWebcam.HueDesc);
-  EffectDesc            := Self.AddText(UThemes.Theme.OptionsWebcam.EffectDesc);
-  
-  Interaction := 0;
+  Self.AddText(UThemes.Theme.OptionsWebcam.IDDesc);
+  Self.AddText(UThemes.Theme.OptionsWebcam.ResolutionDesc);
+  Self.AddText(UThemes.Theme.OptionsWebcam.FPSDesc);
+  Self.AddText(UThemes.Theme.OptionsWebcam.FlipDesc);
+  Self.AddText(UThemes.Theme.OptionsWebcam.BrightnessDesc);
+  Self.AddText(UThemes.Theme.OptionsWebcam.SaturationDesc);
+  Self.AddText(UThemes.Theme.OptionsWebcam.HueDesc);
+  Self.AddText(UThemes.Theme.OptionsWebcam.EffectDesc);
 
-  // new tests
-  Ini.WebCamSaturation := 100;
-  Ini.WebCamHue := 180;
-  Ini.WebCamEffect := 0;
-  {
-  SelectsS[Saturation].Visible := false;
-  SelectsS[Hue].Visible := false;
-  SelectsS[Effect].Visible := false;
-  }
+  Interaction := 0;
 end;
 
 procedure TScreenOptionsWebcam.OnShow;
