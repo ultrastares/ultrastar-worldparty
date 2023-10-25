@@ -33,6 +33,7 @@ uses
   sdl2,
   UMenu,
   UDisplay,
+  UDraw,
   UMusic,
   UFiles,
   UIni,
@@ -48,7 +49,6 @@ type
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure OnShow; override;
       function Draw: boolean; override;
-      procedure DrawWebCamFrame;
       procedure ChangeElementAlpha;
   end;
 
@@ -206,37 +206,12 @@ begin
 end;
 
 function TScreenOptionsWebcam.Draw: boolean;
-var
-  I: integer;
-  Alpha: real;
 begin
+  Self.DrawBG;
+  if PreVisualization and (Self.SelectsS[Self.ID].SelectedOption > 0) then
+    UDraw.SingDrawWebCamFrame();
 
-  if (PreVisualization) and (SelectsS[ID].SelectOptInt > 0) then
-  begin
-    try
-
-     DrawWebCamFrame;
-    except
-      ;
-    end;
-
-
-    if (PreVisualization) then
-      Alpha := 0.5
-    else
-      Alpha := 1;
-
-    for I := 0 to High(SelectsS) do
-    begin
-      SelectsS[I].Tex_SelectS_ArrowL.Alpha := Alpha;
-      SelectsS[I].Tex_SelectS_ArrowR.Alpha := Alpha;
-    end;
-
-  end
-  else
-    DrawBG;
-
-  Result := DrawFG;
+  Result := Self.DrawFG;
 end;
 
 procedure TScreenOptionsWebcam.ChangeElementAlpha;
@@ -279,41 +254,6 @@ begin
 
   end;
 
-
-end;
-
-procedure TScreenOptionsWebcam.DrawWebCamFrame;
-begin
-
-  Webcam.GetWebcamFrame;
-
-  if (Webcam.TextureCam.TexNum > 0) then
-  begin
-    glColor4f(1, 1, 1, 1);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glEnable(GL_TEXTURE_2D);
-
-    glBindTexture(GL_TEXTURE_2D, Webcam.TextureCam.TexNum);
-    glEnable(GL_BLEND);
-    glBegin(GL_QUADS);
-
-      glTexCoord2f(0, 0);
-      glVertex2f(760, 415);
-      glTexCoord2f(0, Webcam.TextureCam.TexH);
-      glVertex2f(760, 530);
-      glTexCoord2f(Webcam.TextureCam.TexW, Webcam.TextureCam.TexH);
-      glVertex2f(620, 530);
-      glTexCoord2f(Webcam.TextureCam.TexW, 0);
-      glVertex2f(620, 415);
-
-    glEnd;
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_BLEND);
-
-    // reset to default
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-  end;
 
 end;
 
