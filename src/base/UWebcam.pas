@@ -141,19 +141,12 @@ begin
     if (Ini.WebCamFlip = 0) then
       cvFlip(WebcamFrame, nil, 1);
 
-    WebcamFrame := FrameAdjust(WebcamFrame);
-    WebcamFrame := FrameEffect(Ini.WebCamEffect, WebcamFrame);
-
+    WebcamFrame := FrameEffect(Ini.WebCamEffect, FrameAdjust(WebcamFrame));
     TextureCam := Texture.CreateTexture(WebcamFrame.imageData, nil, WebcamFrame.Width, WebcamFrame.Height, WebcamFrame.depth);
-
     WebcamFrame := nil;
     cvReleaseImage(@WebcamFrame);
     cvReleaseImage(@RGBFrame);
-
     LastTickFrame := SDL_GetTicks();
-
-    // wait for a key
-    cvWaitKey(0);
   end;
 
 end;
