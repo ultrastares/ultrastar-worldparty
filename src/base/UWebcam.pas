@@ -172,146 +172,87 @@ end;
 function TWebcam.FrameEffect(Nr_Effect: integer; Frame: PIplImage): PIplImage;
 var
   Size: CvSize;
-  CamEffectParam: integer;
   ImageFrame, EffectFrame, DiffFrame: PIplImage;
 begin
-
-  // params values
-  case Nr_Effect of
-    4: CamEffectParam := 20; // binary image
-    5: CamEffectParam := 2;  // dilate
-    6: CamEffectParam := 60; // threshold
-    7: CamEffectParam := 70; // edges
-    8: CamEffectParam := 11; // gaussian blur
-   10: CamEffectParam := 2; // erode
-   else
-      CamEffectParam := 0;
-  end;
-
   Size  := cvSizeV(Frame.width, Frame.height);
-
   ImageFrame := cvCreateImage(Size, Frame.depth, 1);
   EffectFrame := cvCreateImage(Size, Frame.depth, 1);
   DiffFrame := cvCreateImage (Size, Frame.depth, 1);
-  RGBFrame := cvCreateImage(Size, Frame.depth, 3);
-
+  Self.RGBFrame := cvCreateImage(Size, Frame.depth, 3);
   case Nr_Effect of
-    1: begin // Grayscale
-         cvCvtColor(Frame, EffectFrame, CV_BGR2GRAY);
-         cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
-         Result := RGBFrame;
-       end;
-
-    2: begin // Black & White
-         cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY );
-         cvThreshold(ImageFrame, EffectFrame, 128, 255, CV_THRESH_OTSU);
-         cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
-         Result := RGBFrame;
-       end;
-
-    3: begin // Negative
-         cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
-         cvNot(RGBFrame, RGBFrame);
-         Result := RGBFrame;
-       end;
-
-    4: begin // Binary Image
-
-         //Convert frame to gray and store in image
-         cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
-         cvEqualizeHist(ImageFrame, ImageFrame);
-
-         //Copy Image
-         if(LastFrame = nil) then
-           LastFrame := cvCloneImage(ImageFrame);
-
-         //Differences with actual and last image
-         cvAbsDiff(ImageFrame, LastFrame, DiffFrame);
-
-         //threshold image
-         cvThreshold(DiffFrame, EffectFrame, CamEffectParam, 255, 0);
-
-         cvReleaseImage(@LastFrame);
-
-         //Change datas;
-         LastFrame := cvCloneImage(ImageFrame);
-
-         cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
-         Result := RGBFrame;
-       end;
-
-    5: begin // Dilate
-         cvDilate(Frame, Frame, nil, CamEffectParam);
-         cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
-         Result := RGBFrame;
-       end;
-
-    6: begin //threshold
-         cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
-         cvThreshold(ImageFrame, EffectFrame, CamEffectParam, 100, 3);
-         cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
-         Result := RGBFrame;
-       end;
-
-    7: begin // Edges
-         cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
-         cvCanny(ImageFrame, EffectFrame, CamEffectParam, CamEffectParam, 3);
-         cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
-         Result := RGBFrame;
-       end;
-
-    8: begin // Gaussian Blur
-         cvSmooth(Frame, Frame, CV_BLUR, CamEffectParam, CamEffectParam);
-         cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
-         Result := RGBFrame;
-       end;
-
-    9: begin // Equalized
-         cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
-         cvEqualizeHist(ImageFrame, EffectFrame);
-         cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
-         Result := RGBFrame;
-       end;
-
-    10: begin // Erode
-         cvErode(Frame, Frame, nil, CamEffectParam);
-         cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
-         Result := RGBFrame;
-       end;
-    {
-    11:begin // Color
-         RGBFrame := cvCreateImage(Size, Frame.depth, 3);
-
-         cvAddS(Frame, CV_RGB(255, 0, 0), Frame);
-         cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
-         Result := RGBFrame;
-       end;
-
-    12:begin // Value
-         ImageFrame := cvCreateImage(Size, Frame.depth, 1);
-         RGBFrame := cvCreateImage(Size, Frame.depth, 3);
-
-         // Convert from Red-Green-Blue to Hue-Saturation-Value
-         cvCvtColor(Frame, RGBFrame, CV_BGR2HSV );
-
-         // Split hue, saturation and value of hsv on them
-         cvSplit(RGBFrame, nil, nil, ImageFrame, 0);
-         cvCvtColor(ImageFrame, RGBFrame, CV_GRAY2RGB);
-         Result := RGBFrame;
-       end;
-       }
+    1: //grayscale
+      begin
+        cvCvtColor(Frame, EffectFrame, CV_BGR2GRAY);
+        cvCvtColor(EffectFrame, Self.RGBFrame, CV_GRAY2RGB);
+      end;
+    2: //black & white
+      begin
+        cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY );
+        cvThreshold(ImageFrame, EffectFrame, 128, 255, CV_THRESH_OTSU);
+        cvCvtColor(EffectFrame, Self.RGBFrame, CV_GRAY2RGB);
+      end;
+    3: //negative
+      begin
+        cvCvtColor(Frame, Self.RGBFrame, CV_BGR2RGB);
+        cvNot(Self.RGBFrame, Self.RGBFrame);
+      end;
+    4: //binary image
+      begin
+        //Convert frame to gray and store in image
+        cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
+        cvEqualizeHist(ImageFrame, ImageFrame);
+        //Copy Image
+        if(LastFrame = nil) then
+          LastFrame := cvCloneImage(ImageFrame);
+        //Differences with actual and last image
+        cvAbsDiff(ImageFrame, LastFrame, DiffFrame);
+        //threshold image
+        cvThreshold(DiffFrame, EffectFrame, 20, 255, 0);
+        cvReleaseImage(@LastFrame);
+        //Change datas;
+        LastFrame := cvCloneImage(ImageFrame);
+        cvCvtColor(EffectFrame, Self.RGBFrame, CV_GRAY2RGB);
+      end;
+    5: //dilate
+      begin
+        cvDilate(Frame, Frame, nil, 2);
+        cvCvtColor(Frame, Self.RGBFrame, CV_BGR2RGB);
+      end;
+    6: //threshold
+      begin
+        cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
+        cvThreshold(ImageFrame, EffectFrame, 60, 100, 3);
+        cvCvtColor(EffectFrame, Self.RGBFrame, CV_GRAY2RGB);
+      end;
+    7: //edges
+      begin
+        cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
+        cvCanny(ImageFrame, EffectFrame, 70, 70, 3);
+        cvCvtColor(EffectFrame, Self.RGBFrame, CV_GRAY2RGB);
+      end;
+    8: //gaussian blur
+      begin
+        cvSmooth(Frame, Frame, CV_BLUR, 11, 11);
+        cvCvtColor(Frame, Self.RGBFrame, CV_BGR2RGB);
+      end;
+    9: //equalized
+      begin
+        cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
+        cvEqualizeHist(ImageFrame, EffectFrame);
+        cvCvtColor(EffectFrame, Self.RGBFrame, CV_GRAY2RGB);
+      end;
+    10: //erode
+      begin
+        cvErode(Frame, Frame, nil, 2);
+        cvCvtColor(Frame, Self.RGBFrame, CV_BGR2RGB);
+      end;
     else
-    begin
-      //normal
-      cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
-      Result := RGBFrame;
-    end;
+      cvCvtColor(Frame, Self.RGBFrame, CV_BGR2RGB);
   end;
-
   cvReleaseImage(@ImageFrame);
   cvReleaseImage(@DiffFrame);
   cvReleaseImage(@EffectFrame);
-
+  Result := Self.RGBFrame;
 end;
 
 function TWebcam.FrameAdjust(Frame: PIplImage): PIplImage;
@@ -386,18 +327,6 @@ begin
   cvReleaseImage(@ValueFrame);
 
   Result := Frame;
-
-  {    11:begin // Contrast
-         RGBFrame := cvCreateImage(Size, Frame.depth, 3);
-
-         cvConvertScale(Frame, Frame, CamEffectParam/10);
-         cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
-         Result := RGBFrame;
-       end;
-       }
-
 end;
-
-//----------
 
 end.
