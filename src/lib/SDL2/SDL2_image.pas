@@ -60,8 +60,8 @@ const
 
   {* Printable format: "%d.%d.%d", MAJOR, MINOR, PATCHLEVEL *}
   SDL_IMAGE_MAJOR_VERSION = 2;
-  SDL_IMAGE_MINOR_VERSION = 0;
-  SDL_IMAGE_PATCHLEVEL    = 5;
+  SDL_IMAGE_MINOR_VERSION = 6;
+  SDL_IMAGE_PATCHLEVEL    = 3;
 
   {* This macro can be used to fill a version structure with the compile-time
    * version of the SDL_image library.
