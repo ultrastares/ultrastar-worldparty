@@ -806,7 +806,7 @@ var
 begin
 
   // directly set mouse which switches button simulation for mouse
-  MouseMode := true;
+  MouseMode := false;
 
   DiffTime := SDL_GetTicks() - LastMouseState.Time;
   Speed := (DiffTime / 1000.0) * JOYSTICK_MOUSE_DEFAULTSPEED;
