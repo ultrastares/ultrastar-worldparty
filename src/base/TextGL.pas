@@ -245,7 +245,7 @@ begin
   SetFontZ(0);
   SetFontItalic(False);
   SetFontReflection(False, 0);
-  SetOutlineColor(0,0,0,1);
+  SetOutlineColor(0,0,0,-1);
 end;
 
 procedure SetFontPos(X, Y: real; NewLine: integer = 0);
