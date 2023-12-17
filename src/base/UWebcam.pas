@@ -268,20 +268,16 @@ var
   Size: CvSize;
   BrightValue, SaturationValue, HueValue: integer;
   BrightValueConvt: real;
-  ImageFrame, TmpFrame, HueFrame, SaturationFrame, ValueFrame: PIplImage;
+  ImageFrame, TmpFrame, ValueFrame: PIplImage;
 begin
   Size  := cvSizeV(Frame.width, Frame.height);
 
   ImageFrame := cvCreateImage(Size, Frame.depth, 1);
   TmpFrame := cvCreateImage(Size, Frame.depth, 3);
-
-  HueFrame := cvCreateImage(Size, Frame.depth, 1);
-  SaturationFrame := cvCreateImage(Size, Frame.depth, 1);
   ValueFrame := cvCreateImage(Size, Frame.depth, 1);
 
   BrightValue := Ini.WebcamBrightness;
 
-  // Brightness
   if (BrightValue <> 100) then
   begin
     if (BrightValue > 100) then
@@ -291,49 +287,9 @@ begin
 
     cvAddS(Frame, CV_RGB(BrightValueConvt, BrightValueConvt, BrightValueConvt), Frame);
   end;
-
-  SaturationValue := Ini.WebCamSaturation;
-
-  // Saturation
-  if (SaturationValue <> 100) then
-  begin
-    // Convert from Red-Green-Blue to Hue-Saturation-Value
-//    cvCvtColor(Frame, TmpFrame, CV_BGR2HSV );
-
-    // Split hue, saturation and value of hsv on them
-  //  cvSplit(TmpFrame, nil, ImageFrame, nil, nil);
-    //cvCvtColor(ImageFrame, Frame, CV_GRAY2RGB);
-
-    cvConvertScale(Frame, Frame, 10);
-    //     cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
-
-  end;
-
-  HueValue := Ini.WebCamHue;
-
-  // Hue
-  if (HueValue <> 180) then
-  begin
-    // Convert from Red-Green-Blue to Hue-Saturation-Value
-    cvCvtColor(Frame, TmpFrame, CV_BGR2RGB );
-
-    // Split hue, saturation and value of hsv on them
-    cvSplit(TmpFrame, HueFrame, SaturationFrame, ValueFrame, nil);
-    //cvCvtColor(ImageFrame, Frame, CV_GRAY2RGB);
-
-    cvMerge(SaturationFrame, HueFrame, ValueFrame, nil, Frame);
-
-    // convert back for displaying
-    //cvCvtColor(TmpFrame, Frame, CV_BGR2RGB);
-  end;
-
   cvReleaseImage(@ImageFrame);
   cvReleaseImage(@TmpFrame);
-
-  cvReleaseImage(@HueFrame);
-  cvReleaseImage(@SaturationFrame);
   cvReleaseImage(@ValueFrame);
-
   Result := Frame;
 end;
 

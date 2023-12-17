@@ -218,11 +218,8 @@ type
       // WebCam
       WebCamID:         integer;
       WebcamResolution: integer;
-      WebCamFPS:        integer;
       WebCamFlip:       integer;
       WebCamBrightness: integer;
-      WebCamSaturation: integer;
-      WebCamHue:        integer;
       WebCamEffect:     integer;
 
       // default encoding for texts (lyrics, song-name, ...)
@@ -396,7 +393,6 @@ const
 
   // Webcam
   IWebcamResolution:   array[0..5] of UTF8String = ('160x120', '176x144', '320x240', '352x288', '640x480', '800x600');
-  IWebcamFPS:          array[0..8] of UTF8String = ('10', '12', '15', '18', '20', '22', '25', '28', '30');
   IWebcamFlip:         array[0..1] of UTF8String = ('Off', 'On');
 
 {*
@@ -405,11 +401,7 @@ const
 
 var
   GreyScaleColor:             array[0..9] of UTF8String;
-  // Webcam
   IWebcamBrightness: array [0..200] of UTF8String;
-  IWebcamSaturation: array [0..200] of UTF8String;
-  IWebcamHue:        array [0..360] of UTF8String;
-
   IRed:       array[0..255] of UTF8String;
   IGreen:     array[0..255] of UTF8String;
   IBlue:      array[0..255] of UTF8String;
@@ -478,28 +470,11 @@ var
   I: integer;
 begin
   for I:= 100 downto 1 do
-  begin
     IWebcamBrightness[100 - I]   := '-' + IntToStr(I);
-    IWebcamSaturation[100 - I]   := '-' + IntToStr(I);
-  end;
 
   IWebcamBrightness[100]   := '0';
-  IWebcamSaturation[100]   := '0';
-
   for I:= 1 to 100 do
-  begin
     IWebcamBrightness[I + 100]   := '+' + IntToStr(I);
-    IWebcamSaturation[I + 100]   := '+' + IntToStr(I);
-  end;
-
-  for I:= 180 downto 1 do
-    IWebcamHue[180 - I]   := '-' + IntToStr(I);
-
-  IWebcamHue[180]   := '0';
-
-  for I:= 1 to 180 do
-    IWebcamHue[I + 180]   := '+' + IntToStr(I);
-
 end;
 
 (**
@@ -1070,11 +1045,8 @@ begin
   WebCamResolution := ReadArrayIndex(IWebcamResolution, IniFile, 'Webcam', 'Resolution', IGNORE_INDEX, '320x240');
   if (WebCamResolution = -1) then
     WebcamResolution := 2;
-  WebCamFPS := ReadArrayIndex(IWebcamFPS, IniFile, 'Webcam', 'FPS', 4);
   WebCamFlip := ReadArrayIndex(IWebcamFlip, IniFile, 'Webcam', 'Flip', IGNORE_INDEX, 'On');
   WebCamBrightness := ReadArrayIndex(IWebcamBrightness, IniFile, 'Webcam', 'Brightness', IGNORE_INDEX, '0');
-  WebCamSaturation := ReadArrayIndex(IWebcamSaturation, IniFile, 'Webcam', 'Saturation', IGNORE_INDEX, '0');
-  WebCamHue := ReadArrayIndex(IWebcamHue, IniFile, 'Webcam', 'Hue', IGNORE_INDEX, '0');
   WebCamEffect := IniFile.ReadInteger('Webcam', 'Effect', 0);
 
 //  JukeboxSongMenu := ReadArrayIndex(IJukeboxSongMenu, IniFile, 'Jukebox', 'JukeboxSongMenu', IGNORE_INDEX, 'On');
@@ -1420,18 +1392,11 @@ begin
   if not Filename.IsReadOnly() then
   begin
     IniFile := TIniFile.Create(Filename.ToNative);
-
-    // WebCam
     IniFile.WriteInteger('Webcam', 'ID', WebCamID);
     IniFile.WriteString('Webcam', 'Resolution', IWebcamResolution[WebcamResolution]);
-    IniFile.WriteInteger('Webcam', 'FPS', StrToInt(IWebcamFPS[WebCamFPS]));
-
     IniFile.WriteString('Webcam', 'Flip', IWebcamFlip[WebcamFlip]);
     IniFile.WriteString('Webcam', 'Brightness', IWebcamBrightness[WebcamBrightness]);
-    IniFile.WriteString('Webcam', 'Saturation', IWebcamSaturation[WebcamSaturation]);
-    IniFile.WriteString('Webcam', 'Hue', IWebcamHue[WebcamHue]);
     IniFile.WriteInteger('Webcam', 'Effect', WebcamEffect);
-
     IniFile.Free;
   end;
 

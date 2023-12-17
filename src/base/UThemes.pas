@@ -958,11 +958,8 @@ type
   TThemeOptionsWebcam = class(TThemeBasic)
     SelectWebcam:           TThemeSelectSlide;
     SelectResolution:       TThemeSelectSlide;
-    SelectFPS:              TThemeSelectSlide;
     SelectFlip:             TThemeSelectSlide;
     SelectBrightness:       TThemeSelectSlide;
-    SelectSaturation:       TThemeSelectSlide;
-    SelectHue:              TThemeSelectSlide;
     SelectEffect:           TThemeSelectSlide;
 
     ButtonPreVisualization: TThemeButton;
@@ -970,11 +967,8 @@ type
 
     IDDesc:                 TThemeText;
     ResolutionDesc:         TThemeText;
-    FPSDesc:                TThemeText;
     FlipDesc:               TThemeText;
     BrightnessDesc:         TThemeText;
-    SaturationDesc:         TThemeText;
-    HueDesc:                TThemeText;
     EffectDesc:             TThemeText;
   end;
 
@@ -2279,26 +2273,17 @@ begin
 
       //Options Webcam
       ThemeLoadBasic(OptionsWebcam, 'OptionsWebcam');
-
       ThemeLoadSelectSlide(OptionsWebcam.SelectWebcam,           'OptionsWebcamSelectWebcam');
       ThemeLoadSelectSlide(OptionsWebcam.SelectResolution,       'OptionsWebcamSelectResolution');
-      ThemeLoadSelectSlide(OptionsWebcam.SelectFPS,              'OptionsWebcamSelectFPS');
       ThemeLoadSelectSlide(OptionsWebcam.SelectFlip,             'OptionsWebcamSelectFlip');
       ThemeLoadSelectSlide(OptionsWebcam.SelectBrightness,       'OptionsWebcamSelectBrightness');
-      ThemeLoadSelectSlide(OptionsWebcam.SelectSaturation,       'OptionsWebcamSelectSaturation');
-      ThemeLoadSelectSlide(OptionsWebcam.SelectHue,              'OptionsWebcamSelectHue');
       ThemeLoadSelectSlide(OptionsWebcam.SelectEffect,           'OptionsWebcamSelectEffect');
-
       ThemeLoadButton(OptionsWebcam.ButtonPreVisualization,      'OptionsWebcamButtonPreVisualization');
       ThemeLoadButton(OptionsWebcam.ButtonExit,                  'OptionsWebcamButtonExit');
-
       ThemeLoadText(OptionsWebcam.IDDesc,               'OptionsWebcamIDDesc');
       ThemeLoadText(OptionsWebcam.ResolutionDesc,       'OptionsWebcamResolutionDesc');
-      ThemeLoadText(OptionsWebcam.FPSDesc,              'OptionsWebcamFPSDesc');
       ThemeLoadText(OptionsWebcam.FlipDesc,             'OptionsWebcamFlipDesc');
       ThemeLoadText(OptionsWebcam.BrightnessDesc,       'OptionsWebcamBrightnessDesc');
-      ThemeLoadText(OptionsWebcam.SaturationDesc,       'OptionsWebcamSaturationDesc');
-      ThemeLoadText(OptionsWebcam.HueDesc,              'OptionsWebcamHueDesc');
       ThemeLoadText(OptionsWebcam.EffectDesc,           'OptionsWebcamEffectDesc');
 
       //Options Profiles

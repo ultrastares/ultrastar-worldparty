@@ -43,7 +43,7 @@ type
   TScreenOptionsWebcam = class(TMenu)
     private
       PreVisualization: boolean;
-      ID, Resolution, FPS, Flip, Brightness, Saturation, Hue, Effect: integer;
+      ID, Resolution, Flip, Brightness, Effect: integer;
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -80,7 +80,7 @@ begin
         end;
       SDLK_RETURN:
         begin
-          if SelInteraction = 8 then
+          if SelInteraction = 5 then
           begin
             PreVisualization := not PreVisualization;
 
@@ -109,7 +109,7 @@ begin
               Button[0].Text[0].Text := Language.Translate('SING_OPTIONS_WEBCAM_ENABLE_PREVIEW');
           end;
 
-          if SelInteraction = 9 then
+          if SelInteraction = 6 then
           begin
             AudioPlayback.PlaySound(SoundLib.Back);
             FadeTo(@ScreenOptions);
@@ -123,7 +123,7 @@ begin
         InteractPrev;
       SDLK_RIGHT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 7) then
+          if (SelInteraction >= 0) and (SelInteraction <= 4) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractInc;
@@ -139,7 +139,7 @@ begin
       end;
       SDLK_LEFT:
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 7) then
+          if (SelInteraction >= 0) and (SelInteraction <= 4) then
           begin
             AudioPlayback.PlaySound(SoundLib.Option);
             InteractDec;
@@ -170,11 +170,8 @@ begin
   WebcamsIDs[2] := '1';
   ID          := AddSelectSlide(Theme.OptionsWebcam.SelectWebcam, UIni.Ini.WebCamID, WebcamsIDs);
   Resolution  := AddSelectSlide(Theme.OptionsWebcam.SelectResolution, UIni.Ini.WebcamResolution, IWebcamResolution);
-  FPS         := AddSelectSlide(Theme.OptionsWebcam.SelectFPS, UIni.Ini.WebCamFPS, IWebcamFPS);
   Flip        := AddSelectSlide(Theme.OptionsWebcam.SelectFlip, UIni.Ini.WebCamFlip, IWebcamFlip, 'OPTION_VALUE_');
   Brightness  := AddSelectSlide(Theme.OptionsWebcam.SelectBrightness, UIni.Ini.WebCamBrightness, IWebcamBrightness);
-  Saturation  := AddSelectSlide(Theme.OptionsWebcam.SelectSaturation, UIni.Ini.WebCamSaturation, IWebcamSaturation);
-  Hue         := AddSelectSlide(Theme.OptionsWebcam.SelectHue, UIni.Ini.WebCamHue, IWebcamHue);
   Effect      := AddSelectSlide(Theme.OptionsWebcam.SelectEffect, UIni.Ini.WebCamEffect, IWebcamEffectTranslated, 'SING_OPTIONS_WEBCAM_EFFECT_');
 
   AddButton(Theme.OptionsWebcam.ButtonPreVisualization);
@@ -182,11 +179,8 @@ begin
 
   Self.AddText(UThemes.Theme.OptionsWebcam.IDDesc);
   Self.AddText(UThemes.Theme.OptionsWebcam.ResolutionDesc);
-  Self.AddText(UThemes.Theme.OptionsWebcam.FPSDesc);
   Self.AddText(UThemes.Theme.OptionsWebcam.FlipDesc);
   Self.AddText(UThemes.Theme.OptionsWebcam.BrightnessDesc);
-  Self.AddText(UThemes.Theme.OptionsWebcam.SaturationDesc);
-  Self.AddText(UThemes.Theme.OptionsWebcam.HueDesc);
   Self.AddText(UThemes.Theme.OptionsWebcam.EffectDesc);
 
   Interaction := 0;
