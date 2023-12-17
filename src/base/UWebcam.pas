@@ -31,26 +31,27 @@ interface
 {$I switches.inc}
 
 uses
-  Classes,
-  UTexture,
   opencv_highgui,
-  opencv_core,
-  opencv_imgproc,
-  opencv_types;
+  opencv_types,
+  sdl2,
+  UTexture;
 
 type
 
   TWebcam = class
     private
-      LastTickFrame: integer;
-      LastFrame:     PIplImage;
-      RGBFrame:      PIplImage;
-
+      Enabled: boolean;
+      CurrentFrame: PIplImage;
+      LastFrame: PIplImage;
+      Mutex: PSDL_Mutex;
+      Thread: PSDL_Thread;
+      function CaptureLoop: integer;
+      class function CaptureThread(Data: Pointer): integer; cdecl; static;
     public
       Capture: PCvCapture;
       TextureCam: TTexture;
-
       constructor Create;
+      destructor Destroy(); override;
       procedure Release;
       procedure Restart;
       procedure GetWebcamFrame();
@@ -60,95 +61,108 @@ type
 
 var
   Webcam:    TWebcam;
-  IsEnabled: Boolean;
-
 
 implementation
 
 uses
-  dglOpenGL,
-  SysUtils,
-  sdl2,
-  ULog,
+  opencv_core,
+  opencv_imgproc,
+  UCommon,
   UIni;
 
-//----------
-//Create - Construct Class - Dummy for now
-//----------
 constructor TWebcam.Create;
-var
-  H, W, I: integer;
-  s: string;
 begin
   inherited;
+  Self.Enabled := false;
+  Self.Mutex := SDL_CreateMutex();
+end;
 
-  if (Ini.WebCamID <> 0) then
-  begin
-    try
-      Capture := cvCreateCameraCapture(Ini.WebCamID - 1);
-      IsEnabled := true;
-    except
-      IsEnabled:=false;
-    end;
-
-    if (IsEnabled = true) and (Capture <> nil) then
-    begin
-      S := IWebcamResolution[Ini.WebcamResolution];
-
-      I := Pos('x', S);
-      W := StrToInt(Copy(S, 1, I-1));
-      H := StrToInt(Copy(S, I+1, 1000));
-
-      cvSetCaptureProperty(Capture, CV_CAP_PROP_FRAME_WIDTH, W);
-      cvSetCaptureProperty(Capture, CV_CAP_PROP_FRAME_HEIGHT, H);
-    end;
-  end;
-
+destructor TWebcam.Destroy();
+begin
+  Self.Release();
+  SDL_DestroyMutex(Self.Mutex);
+  inherited;
 end;
 
 procedure TWebcam.Release;
 begin
-  try
-  if (IsEnabled = true) and (Capture <> nil) then
-    cvReleaseCapture(@Capture);
-  except
-    ;
+  if Self.Enabled then
+  begin
+    Self.Enabled := false;
+    SDL_WaitThread(Self.Thread, nil);
+    cvReleaseCapture(@Self.Capture);
   end;
-  IsEnabled:=false;
 end;
 
 procedure TWebcam.Restart;
+var
+  X, Y: integer;
 begin
-  Release;
-  try
-    Webcam := TWebcam.Create;
-  except
-    ;
+  Self.Release();
+  if UIni.Ini.WebCamID <> 0 then
+    try
+      Self.Capture := cvCreateCameraCapture(UIni.Ini.WebCamID - 1);
+      if Self.Capture <> nil then
+      begin
+        UCommon.ParseResolutionString(UIni.IWebcamResolution[UIni.Ini.WebcamResolution], X, Y);
+        cvSetCaptureProperty(Self.Capture, CV_CAP_PROP_FRAME_WIDTH, X);
+        cvSetCaptureProperty(Self.Capture, CV_CAP_PROP_FRAME_HEIGHT, Y);
+        Self.Thread := SDL_CreateThread(@TWebcam.CaptureThread, nil, Self);
+        Self.Enabled := true;
+      end;
+    except
+      Self.Enabled := false;
+    end;
+end;
+
+class function TWebcam.CaptureThread(Data: Pointer): integer; cdecl; static;
+begin
+  Result := TWebcam(Data).CaptureLoop;
+end;
+
+function TWebcam.CaptureLoop: integer;
+var
+  WebcamFrame: PIplImage;
+begin
+  SDL_LockMutex(Self.Mutex);
+  while Self.Enabled do
+  begin
+    SDL_UnlockMutex(Self.Mutex);
+    WebcamFrame := cvCloneImage(cvQueryFrame(Self.Capture));
+    SDL_LockMutex(Self.Mutex);
+    if WebcamFrame <> nil then
+    begin
+      cvReleaseImage(@Self.CurrentFrame);
+      Self.CurrentFrame := WebcamFrame;
+    end;
   end;
+  SDL_UnlockMutex(Self.Mutex);
+  Result := 0;
 end;
 
 procedure TWebcam.GetWebcamFrame();
 var
   WebcamFrame: PIplImage;
 begin
-  if (IsEnabled = true) and((SDL_GetTicks() - LastTickFrame) >= 1000/StrToInt(IWebcamFPS[Ini.WebCamFPS])) then
+  if Self.Enabled then
   begin
-    if TextureCam.TexNum > 0 then
-      UTexture.Texture.UnLoadTexture(TextureCam);
+    SDL_LockMutex(Self.Mutex);
+    WebcamFrame := Self.CurrentFrame;
+    Self.CurrentFrame := nil;
+    SDL_UnlockMutex(Self.Mutex);
+    if WebcamFrame <> nil then
+    begin
+      if Self.TextureCam.TexNum > 0 then
+        UTexture.Texture.UnLoadTexture(Self.TextureCam);
 
-    WebcamFrame := cvQueryFrame(Capture);
+      if UIni.Ini.WebCamFlip = 0 then
+        cvFlip(WebcamFrame, nil, 1);
 
-    if (Ini.WebCamFlip = 0) then
-      cvFlip(WebcamFrame, nil, 1);
-
-    WebcamFrame := FrameEffect(Ini.WebCamEffect, FrameAdjust(WebcamFrame));
-    TextureCam := Texture.CreateTexture(WebcamFrame.imageData, nil, WebcamFrame.Width, WebcamFrame.Height, WebcamFrame.depth);
-    WebcamFrame := nil;
-    cvReleaseImage(@WebcamFrame);
-    cvReleaseImage(@RGBFrame);
-    LastTickFrame := SDL_GetTicks();
+      WebcamFrame := Self.FrameEffect(UIni.Ini.WebCamEffect, Self.FrameAdjust(WebcamFrame));
+      Self.TextureCam := UTexture.Texture.CreateTexture(WebcamFrame.imageData, nil, WebcamFrame.Width, WebcamFrame.Height, WebcamFrame.depth);
+      cvReleaseImage(@WebcamFrame);
+    end;
   end;
-
 end;
 
 // 0  -> NORMAL
@@ -165,29 +179,29 @@ end;
 function TWebcam.FrameEffect(Nr_Effect: integer; Frame: PIplImage): PIplImage;
 var
   Size: CvSize;
-  ImageFrame, EffectFrame, DiffFrame: PIplImage;
+  DiffFrame, EffectFrame, ImageFrame, RGBFrame: PIplImage;
 begin
   Size  := cvSizeV(Frame.width, Frame.height);
   ImageFrame := cvCreateImage(Size, Frame.depth, 1);
   EffectFrame := cvCreateImage(Size, Frame.depth, 1);
   DiffFrame := cvCreateImage (Size, Frame.depth, 1);
-  Self.RGBFrame := cvCreateImage(Size, Frame.depth, 3);
+  RGBFrame := cvCreateImage(Size, Frame.depth, 3);
   case Nr_Effect of
     1: //grayscale
       begin
         cvCvtColor(Frame, EffectFrame, CV_BGR2GRAY);
-        cvCvtColor(EffectFrame, Self.RGBFrame, CV_GRAY2RGB);
+        cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
       end;
     2: //black & white
       begin
         cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY );
         cvThreshold(ImageFrame, EffectFrame, 128, 255, CV_THRESH_OTSU);
-        cvCvtColor(EffectFrame, Self.RGBFrame, CV_GRAY2RGB);
+        cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
       end;
     3: //negative
       begin
-        cvCvtColor(Frame, Self.RGBFrame, CV_BGR2RGB);
-        cvNot(Self.RGBFrame, Self.RGBFrame);
+        cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
+        cvNot(RGBFrame, RGBFrame);
       end;
     4: //binary image
       begin
@@ -204,48 +218,49 @@ begin
         cvReleaseImage(@LastFrame);
         //Change datas;
         LastFrame := cvCloneImage(ImageFrame);
-        cvCvtColor(EffectFrame, Self.RGBFrame, CV_GRAY2RGB);
+        cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
       end;
     5: //dilate
       begin
         cvDilate(Frame, Frame, nil, 2);
-        cvCvtColor(Frame, Self.RGBFrame, CV_BGR2RGB);
+        cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
       end;
     6: //threshold
       begin
         cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
         cvThreshold(ImageFrame, EffectFrame, 60, 100, 3);
-        cvCvtColor(EffectFrame, Self.RGBFrame, CV_GRAY2RGB);
+        cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
       end;
     7: //edges
       begin
         cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
         cvCanny(ImageFrame, EffectFrame, 70, 70, 3);
-        cvCvtColor(EffectFrame, Self.RGBFrame, CV_GRAY2RGB);
+        cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
       end;
     8: //gaussian blur
       begin
         cvSmooth(Frame, Frame, CV_BLUR, 11, 11);
-        cvCvtColor(Frame, Self.RGBFrame, CV_BGR2RGB);
+        cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
       end;
     9: //equalized
       begin
         cvCvtColor(Frame, ImageFrame, CV_BGR2GRAY);
         cvEqualizeHist(ImageFrame, EffectFrame);
-        cvCvtColor(EffectFrame, Self.RGBFrame, CV_GRAY2RGB);
+        cvCvtColor(EffectFrame, RGBFrame, CV_GRAY2RGB);
       end;
     10: //erode
       begin
         cvErode(Frame, Frame, nil, 2);
-        cvCvtColor(Frame, Self.RGBFrame, CV_BGR2RGB);
+        cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
       end;
     else
-      cvCvtColor(Frame, Self.RGBFrame, CV_BGR2RGB);
+      cvCvtColor(Frame, RGBFrame, CV_BGR2RGB);
   end;
-  cvReleaseImage(@ImageFrame);
   cvReleaseImage(@DiffFrame);
   cvReleaseImage(@EffectFrame);
-  Result := Self.RGBFrame;
+  cvReleaseImage(@Frame);
+  cvReleaseImage(@ImageFrame);
+  Result := RGBFrame;
 end;
 
 function TWebcam.FrameAdjust(Frame: PIplImage): PIplImage;
