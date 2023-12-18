@@ -253,7 +253,7 @@ begin
 
     Log.LogStatus('Finalize Media', 'Finalization');
     FinalizeMedia();
-
+    UWebcam.Webcam.Release();
     FinalizeJoyStick;
 
     Log.LogStatus('Uninitialize 3D', 'Finalization');
