@@ -62,7 +62,7 @@ procedure SingDrawJukeboxTimeBar();
 procedure SingDrawLyricHelperJukebox(Left, LyricsMid: real);
 
 // Draw Webcam
-procedure SingDrawWebCamFrame;
+procedure SingDrawWebCamFrame(Position: UThemes.TThemePosition; Preview: boolean = false);
 
 type
   TRecR = record
@@ -115,9 +115,10 @@ uses
   UWebcam;
 
 
-procedure SingDrawWebCamFrame;
+procedure SingDrawWebCamFrame(Position: UThemes.TThemePosition; Preview: boolean = false);
+var
+  Z: Single;
 begin
-
   Webcam.GetWebcamFrame;
 
   if (Webcam.TextureCam.TexNum > 0) then
@@ -127,18 +128,18 @@ begin
     glEnable(GL_TEXTURE_2D);
 
     glBindTexture(GL_TEXTURE_2D, Webcam.TextureCam.TexNum);
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBegin(GL_QUADS);
-
-      glTexCoord2f(0, 0);
-      glVertex2f(800,  0);
-      glTexCoord2f(0, Webcam.TextureCam.TexH);
-      glVertex2f(800,  600);
-      glTexCoord2f( Webcam.TextureCam.TexW, Webcam.TextureCam.TexH);
-      glVertex2f(0, 600);
-      glTexCoord2f( Webcam.TextureCam.TexW, 0);
-      glVertex2f(0, 0);
-
+    glTexCoord2f(0, 0);
+    Z := IfThen(Preview, 1, 0);
+    glVertex3f(Position.W, Position.X, Z);
+    glTexCoord2f(0, Webcam.TextureCam.TexH);
+    glVertex3f(Position.W, Position.H, Z);
+    glTexCoord2f(Webcam.TextureCam.TexW, Webcam.TextureCam.TexH);
+    glVertex3f(Position.Y, Position.H, Z);
+    glTexCoord2f(Webcam.TextureCam.TexW, 0);
+    glVertex3f(Position.Y, Position.X, Z);
     glEnd;
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);

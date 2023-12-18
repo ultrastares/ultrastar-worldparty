@@ -581,7 +581,6 @@ begin
   if (OrderMode) then
     SongListSort(OrderType);
 
-  
   Button[JukeboxFindSong].Text[0].Text := '';
 
   Button[JukeboxLyric].SetSelect(ShowLyrics);
@@ -827,10 +826,10 @@ begin
           begin
             RepeatSongList := not RepeatSongList;
             Button[JukeboxRepeatSongList].SetSelect(RepeatSongList);
-            if (RepeatSongList) then 
-              Ini.JukeboxRepeatSongList := 1 
-            else 
-              Ini.JukeboxRepeatSongList := 0; 
+            if (RepeatSongList) then
+              Ini.JukeboxRepeatSongList := 1
+            else
+              Ini.JukeboxRepeatSongList := 0;
 
             Ini.SaveJukeboxRepeatSongList();
           end;
@@ -853,10 +852,10 @@ begin
           begin
             ShowLyrics := not ShowLyrics;
             Button[JukeboxLyric].SetSelect(ShowLyrics);
-            if (ShowLyrics) then 
-              Ini.JukeboxShowLyrics := 1 
-            else 
-              Ini.JukeboxShowLyrics := 0; 
+            if (ShowLyrics) then
+              Ini.JukeboxShowLyrics := 1
+            else
+              Ini.JukeboxShowLyrics := 0;
 
             Ini.SaveJukeboxShowLyrics();
           end;
@@ -1134,8 +1133,8 @@ begin
 
   RandomMode := true;
   OrderMode := false;
-  
-  Ini.JukeboxRandomMode := 1; 
+
+  Ini.JukeboxRandomMode := 1;
   Ini.SaveJukeboxRandomMode();
 
   for I := 0 to High(JukeboxVisibleSongs) * 2 do
@@ -1176,7 +1175,7 @@ begin
 
   RandomMode := false;
 
-  Ini.JukeboxRandomMode := 0; 
+  Ini.JukeboxRandomMode := 0;
   Ini.SaveJukeboxRandomMode();
 
   case OrderType of
@@ -1479,10 +1478,10 @@ begin
 
             ShowLyrics := not ShowLyrics;
             Button[JukeboxLyric].SetSelect(ShowLyrics);
-            if (ShowLyrics) then 
-              Ini.JukeboxShowLyrics := 1 
-            else 
-              Ini.JukeboxShowLyrics := 0; 
+            if (ShowLyrics) then
+              Ini.JukeboxShowLyrics := 1
+            else
+              Ini.JukeboxShowLyrics := 0;
 
             Ini.SaveJukeboxShowLyrics();
             Exit;
@@ -1520,10 +1519,10 @@ begin
 
             RepeatSongList := not RepeatSongList;
             Button[JukeboxRepeatSongList].SetSelect(RepeatSongList);
-            if (RepeatSongList) then 
-              Ini.JukeboxRepeatSongList := 1 
-            else 
-              Ini.JukeboxRepeatSongList := 0; 
+            if (RepeatSongList) then
+              Ini.JukeboxRepeatSongList := 1
+            else
+              Ini.JukeboxRepeatSongList := 0;
             Ini.SaveJukeboxRepeatSongList();
             Exit;
           end;
@@ -2084,7 +2083,7 @@ begin
     SingDrawJukeboxBackground;
 
   if (fShowWebCam) then
-    SingDrawWebCamFrame;
+    UDraw.SingDrawWebCamFrame(UThemes.Theme.Jukebox.Webcam);
 
 
   // retrieve current lyrics time, we have to store the value to avoid

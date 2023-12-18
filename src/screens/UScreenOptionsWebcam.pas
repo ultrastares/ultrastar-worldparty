@@ -42,14 +42,13 @@ uses
 type
   TScreenOptionsWebcam = class(TMenu)
     private
-      PreVisualization: boolean;
+      Preview: boolean;
       ID, Resolution, Flip, Brightness, Effect: integer;
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure OnShow; override;
       function Draw: boolean; override;
-      procedure ChangeElementAlpha;
   end;
 
 implementation
@@ -66,91 +65,35 @@ function TScreenOptionsWebcam.ParseInput(PressedKey: cardinal; CharCode: UCS4Cha
 begin
   Result := true;
   if (PressedDown) then
-  begin // Key Down
-    // check special keys
+  begin
     case PressedKey of
-      SDLK_ESCAPE,
-      SDLK_BACKSPACE :
+      SDLK_ESCAPE,SDLK_BACKSPACE:
         begin
-          if (PreVisualization) then Webcam.Release;
-          //Ini.Save;
-          AudioPlayback.PlaySound(SoundLib.Back);
-          FadeTo(@ScreenOptions);
-          Ini.SaveWebcamSettings;
+          UWebcam.Webcam.Release();
+          UIni.Ini.SaveWebcamSettings();
+          Self.FadeTo(@UGraphic.ScreenOptions, UMusic.SoundLib.Back);
         end;
       SDLK_RETURN:
-        begin
-          if SelInteraction = 5 then
-          begin
-            PreVisualization := not PreVisualization;
-
-            if (PreVisualization) then
-            begin
-              Ini.SaveWebcamSettings;
-              Webcam.Restart;
-
-              if (Webcam.Capture = nil) then
-              begin
-                PreVisualization := false;
-                ScreenPopupError.ShowPopup(Language.Translate('SING_OPTIONS_WEBCAM_NO_WEBCAM'))
-              end
-            end
-            else
-            begin
-               Webcam.Release;
-               PreVisualization := false;
-            end;
-
-            ChangeElementAlpha;
-
-            if (PreVisualization) then
-              Button[0].Text[0].Text := Language.Translate('SING_OPTIONS_WEBCAM_DISABLE_PREVIEW')
-            else
-              Button[0].Text[0].Text := Language.Translate('SING_OPTIONS_WEBCAM_ENABLE_PREVIEW');
-          end;
-
-          if SelInteraction = 6 then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Back);
-            FadeTo(@ScreenOptions);
-            Ini.SaveWebcamSettings;
-            if (PreVisualization) then Webcam.Release;
-          end;
-        end;
+        if Self.Interaction = 5 then
+          Self.ParseInput(SDLK_ESCAPE, 0, true);
       SDLK_DOWN:
-        InteractNext;
+        Self.InteractNext();
       SDLK_UP :
-        InteractPrev;
-      SDLK_RIGHT:
+        Self.InteractPrev();
+      SDLK_LEFT, SDLK_RIGHT:
+        if Self.Interaction <= 4 then
         begin
-          if (SelInteraction >= 0) and (SelInteraction <= 4) then
+          UMusic.AudioPlayback.PlaySound(UMusic.SoundLib.Option);
+          if PressedKey = SDLK_RIGHT then
+            Self.InteractInc()
+          else
+            Self.InteractDec();
+
+          if Self.Interaction < 2 then
           begin
-            AudioPlayback.PlaySound(SoundLib.Option);
-            InteractInc;
+            UWebcam.Webcam.Restart();
+            Self.Preview := UWebcam.Webcam.Capture <> nil;
           end;
-
-          if (PreVisualization) then
-            Ini.SaveWebcamSettings;
-
-          // refresh webcam config
-          if (SelInteraction = 0) or (SelInteraction = 1) and (PreVisualization) then
-            Webcam.Restart;
-
-      end;
-      SDLK_LEFT:
-        begin
-          if (SelInteraction >= 0) and (SelInteraction <= 4) then
-          begin
-            AudioPlayback.PlaySound(SoundLib.Option);
-            InteractDec;
-          end;
-
-          if (PreVisualization) then
-            Ini.SaveWebcamSettings;
-
-          // refresh webcam config
-          if (SelInteraction = 0) or (SelInteraction = 1) and (PreVisualization) then
-            Webcam.Restart;
         end;
     end;
   end;
@@ -162,9 +105,7 @@ var
   IWebcamEffectTranslated: array [0..10] of UTF8String = ('NORMAL', 'GRAYSCALE', 'BLACK_WHITE', 'NEGATIVE', 'BINARY_IMAGE', 'DILATE', 'THRESHOLD', 'EDGES', 'GAUSSIAN_BLUR', 'EQUALIZED', 'ERODE');
 begin
   inherited Create;
-
   LoadFromTheme(Theme.OptionsWebcam);
-
   WebcamsIDs[0] := Language.Translate('OPTION_VALUE_OFF');
   WebcamsIDs[1] := '0';
   WebcamsIDs[2] := '1';
@@ -173,82 +114,34 @@ begin
   Flip        := AddSelectSlide(Theme.OptionsWebcam.SelectFlip, UIni.Ini.WebCamFlip, IWebcamFlip, 'OPTION_VALUE_');
   Brightness  := AddSelectSlide(Theme.OptionsWebcam.SelectBrightness, UIni.Ini.WebCamBrightness, IWebcamBrightness);
   Effect      := AddSelectSlide(Theme.OptionsWebcam.SelectEffect, UIni.Ini.WebCamEffect, IWebcamEffectTranslated, 'SING_OPTIONS_WEBCAM_EFFECT_');
-
-  AddButton(Theme.OptionsWebcam.ButtonPreVisualization);
   AddButton(Theme.OptionsWebcam.ButtonExit);
-
   Self.AddText(UThemes.Theme.OptionsWebcam.IDDesc);
   Self.AddText(UThemes.Theme.OptionsWebcam.ResolutionDesc);
   Self.AddText(UThemes.Theme.OptionsWebcam.FlipDesc);
   Self.AddText(UThemes.Theme.OptionsWebcam.BrightnessDesc);
   Self.AddText(UThemes.Theme.OptionsWebcam.EffectDesc);
-
   Interaction := 0;
 end;
 
 procedure TScreenOptionsWebcam.OnShow;
 begin
   inherited;
-
-  PreVisualization := false;
-
-  ChangeElementAlpha;
-
-  Button[0].Text[0].Text := Language.Translate('SING_OPTIONS_WEBCAM_ENABLE_PREVIEW');
-
-  Interaction := 0;
+  if UIni.Ini.WebCamID > 0 then
+  begin
+    UWebcam.Webcam.Restart();
+    Self.Preview := UWebcam.Webcam.Capture <> nil;
+  end
+  else
+    Self.Preview := false;
 end;
 
 function TScreenOptionsWebcam.Draw: boolean;
 begin
   Self.DrawBG;
-  if PreVisualization and (Self.SelectsS[Self.ID].SelectedOption > 0) then
-    UDraw.SingDrawWebCamFrame();
+  if Self.Preview then
+    UDraw.SingDrawWebCamFrame(UThemes.Theme.OptionsWebcam.Preview, true);
 
   Result := Self.DrawFG;
-end;
-
-procedure TScreenOptionsWebcam.ChangeElementAlpha;
-var
-  I, J: integer;
-  Alpha: real;
-begin
-
-  if (PreVisualization) then
-    Alpha := 0.5
-  else
-    Alpha := 1;
-
-  for I := 0 to High(Text) do
-    Text[I].Alpha := Alpha;
-
-  for I := 0 to High(Statics) do
-    Statics[I].Texture.Alpha := Alpha;
-
-  for I := 0 to High(Button) do
-  begin
-    Button[I].Texture.Alpha := Alpha;
-
-    for J := 0 to High(Button[I].Text) do
-      Button[I].Text[J].Alpha := Alpha;
-  end;
-
-  for I := 0 to High(SelectsS) do
-  begin
-    SelectsS[I].Texture.Alpha := Alpha;
-    SelectsS[I].TextureSBG.Alpha := Alpha;
-
-    SelectsS[I].Tex_SelectS_ArrowL.Alpha := Alpha;
-    SelectsS[I].Tex_SelectS_ArrowR.Alpha := Alpha;
-
-    SelectsS[I].Text.Alpha := Alpha;
-
-    for J := 0 to High(SelectsS[I].TextOpt) do
-      SelectsS[I].TextOpt[J].Alpha := Alpha;
-
-  end;
-
-
 end;
 
 end.

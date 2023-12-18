@@ -396,6 +396,7 @@ type
     StaticTimeProgress:   TThemeStatic;
     TextTimeText      :   TThemeText;
     //eoa TimeBar mod
+    Webcam: TThemePosition;
 
     StaticP1:         TThemeStatic;
     TextP1:           TThemeText;
@@ -674,7 +675,7 @@ type
     TextCountText:        TThemeText;
     SongCover:            TThemeStatic;
     SongListPlayPause:    TThemeButton;
-
+    Webcam: TThemePosition;
     StaticActualSongStatics:    AThemeStatic;
     StaticActualSongCover:      TThemeStatic;
     TextActualSongArtist:       TThemeText;
@@ -961,15 +962,13 @@ type
     SelectFlip:             TThemeSelectSlide;
     SelectBrightness:       TThemeSelectSlide;
     SelectEffect:           TThemeSelectSlide;
-
-    ButtonPreVisualization: TThemeButton;
     ButtonExit:             TThemeButton;
-
     IDDesc:                 TThemeText;
     ResolutionDesc:         TThemeText;
     FlipDesc:               TThemeText;
     BrightnessDesc:         TThemeText;
     EffectDesc:             TThemeText;
+    Preview: TThemePosition;
   end;
 
   TThemeOptionsProfiles = class(TThemeBasic)
@@ -1747,7 +1746,7 @@ begin
       ThemeLoadText(Jukebox.TextListText, 'JukeboxListText');
       ThemeLoadText(Jukebox.TextCountText, 'JukeboxCountText');
       ThemeLoadStatic(Jukebox.SongCover, 'JukeboxSongCover');
-
+      Self.ThemeLoadPosition(Self.Jukebox.Webcam, 'JukeboxWebcam');
       ThemeLoadStatics(Jukebox.StaticActualSongStatics, 'JukeboxStaticActualSong');
       ThemeLoadStatic(Jukebox.StaticActualSongCover, 'JukeboxStaticActualSongCover');
       ThemeLoadText(Jukebox.TextActualSongArtist, 'JukeboxTextActualSongArtist');
@@ -1805,6 +1804,7 @@ begin
 
       ThemeLoadText (Sing.InfoMessageText, 'SingInfoMessageText');
       ThemeLoadStatic (Sing.InfoMessageBG, 'SingInfoMessageBG');
+      Self.ThemeLoadPosition(Self.Sing.Webcam, 'SingWebcam');
 
     //moveable singbar mod
       ThemeLoadStatic(Sing.StaticP1SingBar, 'SingP1SingBar');
@@ -2278,14 +2278,13 @@ begin
       ThemeLoadSelectSlide(OptionsWebcam.SelectFlip,             'OptionsWebcamSelectFlip');
       ThemeLoadSelectSlide(OptionsWebcam.SelectBrightness,       'OptionsWebcamSelectBrightness');
       ThemeLoadSelectSlide(OptionsWebcam.SelectEffect,           'OptionsWebcamSelectEffect');
-      ThemeLoadButton(OptionsWebcam.ButtonPreVisualization,      'OptionsWebcamButtonPreVisualization');
       ThemeLoadButton(OptionsWebcam.ButtonExit,                  'OptionsWebcamButtonExit');
       ThemeLoadText(OptionsWebcam.IDDesc,               'OptionsWebcamIDDesc');
       ThemeLoadText(OptionsWebcam.ResolutionDesc,       'OptionsWebcamResolutionDesc');
       ThemeLoadText(OptionsWebcam.FlipDesc,             'OptionsWebcamFlipDesc');
       ThemeLoadText(OptionsWebcam.BrightnessDesc,       'OptionsWebcamBrightnessDesc');
       ThemeLoadText(OptionsWebcam.EffectDesc,           'OptionsWebcamEffectDesc');
-
+      Self.ThemeLoadPosition(Self.OptionsWebcam.Preview, 'OptionsWebcamPreview');
       //Options Profiles
 	    ThemeLoadBasic(OptionsProfiles,                   'OptionsProfiles');
 	    ThemeLoadButton(OptionsProfiles.ButtonExit,       'OptionsProfilesButtonExit');

@@ -1252,7 +1252,7 @@ begin
     SingDrawBackground;
 
   if (ScreenSing.fShowWebCam) then
-    SingDrawWebCamFrame;
+    UDraw.SingDrawWebCamFrame(UThemes.Theme.Sing.Webcam);
 
   // set player names (for 2 screens and only singstar skin)
   if ScreenAct = 1 then
