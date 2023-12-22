@@ -392,7 +392,7 @@ const
   IMicBoost:           array[0..3] of UTF8String = ('Off', '+6dB', '+12dB', '+18dB');
 
   // Webcam
-  IWebcamResolution:   array[0..5] of UTF8String = ('160x120', '176x144', '320x240', '352x288', '640x480', '800x600');
+  IWebcamResolution:   array[0..5] of UTF8String = ('640x360', '800x450', '960x540', '1280x720', '1600x900', '1920x1080');
   IWebcamFlip:         array[0..1] of UTF8String = ('Off', 'On');
 
 {*
@@ -1042,9 +1042,9 @@ begin
 
   // WebCam
   WebCamID := IniFile.ReadInteger('Webcam', 'ID', 0);
-  WebCamResolution := ReadArrayIndex(IWebcamResolution, IniFile, 'Webcam', 'Resolution', IGNORE_INDEX, '320x240');
+  WebCamResolution := ReadArrayIndex(IWebcamResolution, IniFile, 'Webcam', 'Resolution', IGNORE_INDEX, '1280x720');
   if (WebCamResolution = -1) then
-    WebcamResolution := 2;
+    WebcamResolution := 0;
   WebCamFlip := ReadArrayIndex(IWebcamFlip, IniFile, 'Webcam', 'Flip', IGNORE_INDEX, 'On');
   WebCamBrightness := ReadArrayIndex(IWebcamBrightness, IniFile, 'Webcam', 'Brightness', IGNORE_INDEX, '0');
   WebCamEffect := IniFile.ReadInteger('Webcam', 'Effect', 0);
