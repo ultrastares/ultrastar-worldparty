@@ -1,5 +1,5 @@
 ﻿UltraStar WorldParty
-Copyright (C) 2010-2023 by the following:
+Copyright (C) 2009-2024 by the following:
 
 "Zup3r_vock"
 "Daniel20"
