@@ -374,7 +374,6 @@ procedure TSongs.Sort(OrderType: TSortingType);
 var
   CompareFunc: TListSortCompare;
 begin
-  // FIXME: what is the difference between artist and artist2, etc.?
   case OrderType of
     sEdition: // by edition
       CompareFunc := @CompareByEdition;
@@ -386,8 +385,6 @@ begin
       CompareFunc := @CompareByArtist;
     sFolder: // by folder
       CompareFunc := @CompareByFolder;
-    sArtist2: // by artist2
-      CompareFunc := @CompareByArtist;
     sLanguage: // by Language
       CompareFunc := @CompareByLanguage;
     sYear: // by Year
@@ -449,11 +446,6 @@ begin
       begin
         Songs.Sort(sTitle);
         Songs.Sort(sArtist);
-      end;
-    sArtist2:
-      begin
-        Songs.Sort(sTitle);
-        Songs.Sort(sArtist2);
       end;
     sYear:
       begin
@@ -573,11 +565,6 @@ begin
             sFolder:
               if (UTF8CompareText(CurCategory, NewSong.Folder) <> 0) then
                 CategoryName := NewSong.Folder;
-            sArtist2:
-              { this new sorting puts all songs by the same artist into
-                a single category }
-              if (UTF8CompareText(CurCategory, NewSong.Artist) <> 0) then
-                CategoryName := NewSong.Artist;
             sYear:
             begin
                tmpCategory := IfThen(NewSong.Year <> 0, IntToStr(NewSong.Year), '-');

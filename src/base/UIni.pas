@@ -286,11 +286,11 @@ var
 const
   IDifficulty: array[0..3] of UTF8String = ('Easy', 'Medium', 'Hard', 'Training');
   Switch:             array[0..1] of UTF8String = ('Off', 'On');
-  ISorting:           array[0..9] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade', 'Recents');
+  ISorting:           array[0..8] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Year', 'Decade', 'Recents');
   ISongMenuMode: array[0..7] of UTF8String = ('Roulette', 'Chessboard', 'Carousel', 'Slot Machine', 'Slide', 'List', 'Compact list', 'Mosaic');
 
 type
-  TSortingType = (sEdition, sGenre, sLanguage, sFolder, sTitle, sArtist, sArtist2, sYear, sDecade, sRecents);
+  TSortingType = (sEdition, sGenre, sLanguage, sFolder, sTitle, sArtist, sYear, sDecade, sRecents);
 
 const
   IShowScores:        array[0..2] of UTF8String  = ('Off', 'When exists', 'On');
@@ -368,7 +368,7 @@ const
   IJukeboxTimebarMode:    array[0..2] of UTF8String = ('Current', 'Remaining', 'Total');
   IJukeboxRepeatSongList: array[0..1] of UTF8String = ('Off', 'On');
   IJukeboxRandomMode:     array[0..1] of UTF8String = ('Off', 'On');
-  IJukeboxOrderMode:      array[0..9] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Artist2', 'Year', 'Decade', 'Recents');
+  IJukeboxOrderMode:      array[0..8] of UTF8String = ('Edition', 'Genre', 'Language', 'Folder', 'Title', 'Artist', 'Year', 'Decade', 'Recents');
   IJukeboxShowLyrics:     array[0..1] of UTF8String = ('Off', 'On');
 
   // Advanced
