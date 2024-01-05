@@ -329,9 +329,14 @@ const
 
 procedure Initialize3D(Title: string);
 begin
-  InitializeScreen(Title);
-  LoadTextures();
 
+  SDL_SetWindowIcon(Screen, UImage.LoadImage(UPathUtils.ResourcesPath.Append(WINDOW_ICON))); //load icon image (must be 32x32 for win32)
+
+  InitializeScreen(Title);
+
+  SDL_SetWindowTitle(Screen, PChar(Title));
+
+    LoadTextures();
   //screen loading
   ScreenLoading := TScreenLoading.Create;
   Display := TDisplay.Create;
@@ -518,8 +523,6 @@ NoDoubledResolution:
   glClear(GL_COLOR_BUFFER_BIT);
   SwapBuffers;}
 
-  SDL_SetWindowTitle(Screen, PChar(Title));
-  SDL_SetWindowIcon(Screen, UImage.LoadImage(UPathUtils.ResourcesPath.Append(WINDOW_ICON))); //load icon image (must be 32x32 for win32)
 end;
 
 function HasWindowState(Flag: integer): boolean;
