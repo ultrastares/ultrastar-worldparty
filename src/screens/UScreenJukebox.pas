@@ -283,6 +283,8 @@ const
 
   MAX_TIME_SONGOPTIONS = 3000; // msec
 
+  MAX_ORDER_TYPE = 6; // 1:Artist, 2:Title, 3:Edition, 4:Genre, 5:Language, 6:Year
+
 procedure TScreenJukebox.DrawLine(X, Y, W, H: real);
 begin
   glEnable(GL_BLEND);
@@ -402,6 +404,12 @@ begin
           Sort(1);
           Sort(5);
         end;
+    6 : begin
+          Button[JukeboxSongListOrder].Text[0].Text := Language.Translate('OPTION_VALUE_YEAR');
+          Sort(2);
+          Sort(1);
+          Sort(6);
+        end;
   end;
 
 end;
@@ -426,6 +434,7 @@ begin
         3 : Comp := UTF8CompareText(CatSongs.Song[X].Edition, CatSongs.Song[JukeboxVisibleSongs[J - 1]].Edition);
         4 : Comp := UTF8CompareText(CatSongs.Song[X].Genre, CatSongs.Song[JukeboxVisibleSongs[J - 1]].Genre);
         5 : Comp := UTF8CompareText(CatSongs.Song[X].Language, CatSongs.Song[JukeboxVisibleSongs[J - 1]].Language);
+        6 : Comp := UTF8CompareText(IntToStr(CatSongs.Song[X].Year), IntToStr(CatSongs.Song[JukeboxVisibleSongs[J - 1]].Year));
         else Comp := 0;
       end;
 
@@ -1165,7 +1174,7 @@ begin
 
   if (OrderMode) then
   begin
-    if (OrderType < 5) then
+    if (OrderType < MAX_ORDER_TYPE) then
     begin
       OrderType := OrderType + 1;
     end
@@ -1184,6 +1193,7 @@ begin
     3 : Ini.JukeboxOrderMode := 0; //Edition
     4 : Ini.JukeboxOrderMode := 1; //Genre
     5 : Ini.JukeboxOrderMode := 2; //Language
+    6 : Ini.JukeboxOrderMode := 6; //Year
     else Ini.JukeboxOrderMode := 5;
   end;
 
