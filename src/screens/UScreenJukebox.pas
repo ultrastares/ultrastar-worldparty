@@ -283,7 +283,7 @@ const
 
   MAX_TIME_SONGOPTIONS = 3000; // msec
 
-  MAX_ORDER_TYPE = 6; // 1:Artist, 2:Title, 3:Edition, 4:Genre, 5:Language, 6:Year
+  MAX_ORDER_TYPE = 7; // 1:Artist, 2:Title, 3:Edition, 4:Genre, 5:Language, 6:Year, 7:Recents
 
 procedure TScreenJukebox.DrawLine(X, Y, W, H: real);
 begin
@@ -410,6 +410,12 @@ begin
           Sort(1);
           Sort(6);
         end;
+    7 : begin
+          Button[JukeboxSongListOrder].Text[0].Text := Language.Translate('OPTION_VALUE_RECENTS');
+          Sort(2);
+          Sort(1);
+          Sort(7);
+        end;
   end;
 
 end;
@@ -435,6 +441,7 @@ begin
         4 : Comp := UTF8CompareText(CatSongs.Song[X].Genre, CatSongs.Song[JukeboxVisibleSongs[J - 1]].Genre);
         5 : Comp := UTF8CompareText(CatSongs.Song[X].Language, CatSongs.Song[JukeboxVisibleSongs[J - 1]].Language);
         6 : Comp := UTF8CompareText(IntToStr(CatSongs.Song[X].Year), IntToStr(CatSongs.Song[JukeboxVisibleSongs[J - 1]].Year));
+        7 : Comp := UTF8CompareText(IntToStr(CatSongs.Song[JukeboxVisibleSongs[J - 1]].Year), IntToStr(CatSongs.Song[X].Year));
         else Comp := 0;
       end;
 
@@ -570,6 +577,14 @@ begin
     2: begin
          OrderType := 5;
          Button[JukeboxSongListOrder].Text[0].Text := Language.Translate('OPTION_VALUE_LANGUAGE');
+       end;
+    6: begin
+         OrderType := 6;
+         Button[JukeboxSongListOrder].Text[0].Text := Language.Translate('OPTION_VALUE_YEAR');
+       end;
+    7: begin
+         OrderType := 7;
+         Button[JukeboxSongListOrder].Text[0].Text := Language.Translate('OPTION_VALUE_RECENTS');
        end;
     else
     begin
@@ -1194,6 +1209,7 @@ begin
     4 : Ini.JukeboxOrderMode := 1; //Genre
     5 : Ini.JukeboxOrderMode := 2; //Language
     6 : Ini.JukeboxOrderMode := 6; //Year
+    7 : Ini.JukeboxOrderMode := 7; //Recents (Year Desc)
     else Ini.JukeboxOrderMode := 5;
   end;
 
