@@ -255,6 +255,7 @@ implementation
 
 uses
   Classes,
+  DateUtils,
   Math,
   UDraw,
   UGraphic,
@@ -283,7 +284,7 @@ const
 
   MAX_TIME_SONGOPTIONS = 3000; // msec
 
-  MAX_ORDER_TYPE = 7; // 1:Artist, 2:Title, 3:Edition, 4:Genre, 5:Language, 6:Year, 7:Recents
+  MAX_ORDER_TYPE = 8; // 1:Artist, 2:Title, 3:Edition, 4:Genre, 5:Language, 6:Year, 7:Recents, 8:DownloadDate
 
 procedure TScreenJukebox.DrawLine(X, Y, W, H: real);
 begin
@@ -416,6 +417,12 @@ begin
           Sort(1);
           Sort(7);
         end;
+    8 : begin
+          Button[JukeboxSongListOrder].Text[0].Text := Language.Translate('OPTION_VALUE_DATE');
+          Sort(2);
+          Sort(1);
+          Sort(8);
+        end;
   end;
 
 end;
@@ -442,6 +449,7 @@ begin
         5 : Comp := UTF8CompareText(CatSongs.Song[X].Language, CatSongs.Song[JukeboxVisibleSongs[J - 1]].Language);
         6 : Comp := UTF8CompareText(IntToStr(CatSongs.Song[X].Year), IntToStr(CatSongs.Song[JukeboxVisibleSongs[J - 1]].Year));
         7 : Comp := UTF8CompareText(IntToStr(CatSongs.Song[JukeboxVisibleSongs[J - 1]].Year), IntToStr(CatSongs.Song[X].Year));
+        8 : Comp := CompareDateTime(CatSongs.Song[JukeboxVisibleSongs[J - 1]].FileDate, CatSongs.Song[X].FileDate);
         else Comp := 0;
       end;
 
@@ -585,6 +593,10 @@ begin
     7: begin
          OrderType := 7;
          Button[JukeboxSongListOrder].Text[0].Text := Language.Translate('OPTION_VALUE_RECENTS');
+       end;
+    8: begin
+         OrderType := 8;
+         Button[JukeboxSongListOrder].Text[0].Text := Language.Translate('OPTION_VALUE_DATE');
        end;
     else
     begin
@@ -1210,6 +1222,7 @@ begin
     5 : Ini.JukeboxOrderMode := 2; //Language
     6 : Ini.JukeboxOrderMode := 6; //Year
     7 : Ini.JukeboxOrderMode := 7; //Recents (Year Desc)
+    8 : Ini.JukeboxOrderMode := 8; //Date (Download)
     else Ini.JukeboxOrderMode := 5;
   end;
 

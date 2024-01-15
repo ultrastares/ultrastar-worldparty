@@ -109,6 +109,7 @@ type
     Edition:    UTF8String;
     Language:   UTF8String;
     Year:       Integer;
+    FileDate:   TDateTime;
 
     Title:      UTF8String;
     Artist:     UTF8String;
@@ -274,7 +275,9 @@ begin
   Self.Edition := 'Unknown';
   Self.Language := 'Unknown';
   Self.Year := 0;
-
+  if (not FileSystem.FileAge(aFileName, Self.FileDate)) then
+    Self.FileDate := 0;
+  
   // set to default encoding
   Self.Encoding := Ini.DefaultEncoding;
 
