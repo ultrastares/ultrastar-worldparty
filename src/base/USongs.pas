@@ -140,6 +140,7 @@ var
 implementation
 
 uses
+  DateUtils,
   FileUtil,
   Math,
   StrUtils,
@@ -370,6 +371,11 @@ begin
     Result := 0;
 end;
 
+function CompareByLastAdded(Song1, Song2: Pointer): integer;
+begin
+  Result := CompareDateTime(TSong(Song2).FileDate, TSong(Song1).FileDate);
+end;
+
 procedure TSongs.Sort(OrderType: TSortingType);
 var
   CompareFunc: TListSortCompare;
@@ -393,6 +399,8 @@ begin
       CompareFunc := @CompareByYear;
     sRecents: // by Recents
       CompareFunc := @CompareByRecents;
+    sLastAdded: // by Recents
+      CompareFunc := @CompareByLastAdded;
     else
       Log.LogCritical('Unsupported comparison', 'TSongs.Sort');
       Exit; // suppress warning
@@ -464,6 +472,12 @@ begin
         Songs.Sort(sTitle);
         Songs.Sort(sArtist);
         Songs.Sort(sRecents);
+      end;
+    sLastAdded:
+      begin
+        Songs.Sort(sTitle);
+        Songs.Sort(sArtist);
+        Songs.Sort(sLastAdded);
       end;
   end; // case
 end;

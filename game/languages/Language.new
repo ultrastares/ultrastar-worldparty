@@ -78,6 +78,8 @@
 ;TODO: OPTION_VALUE_ARTIST2=Artist2
 ;TODO: OPTION_VALUE_YEAR=Year
 ;TODO: OPTION_VALUE_DECADE=Decade
+;TODO: OPTION_VALUE_RECENTS=Recents
+;TODO: OPTION_VALUE_LASTADDED=Last added
 ;TODO: OPTION_VALUE_PLAYLIST=Playlist
 
 ;TODO: OPTION_VALUE_WHEN_EXISTS=When exists
@@ -310,6 +312,10 @@
 ;TODO: SING_OPTIONS_WEBCAM_EFFECT_GAUSSIAN_BLUR=Gaussian blur
 ;TODO: SING_OPTIONS_WEBCAM_EFFECT_EQUALIZED=Equalized
 ;TODO: SING_OPTIONS_WEBCAM_EFFECT_ERODE=Erode
+
+;TODO: SING_OPTIONS_SONGDIRS_DESC=Add alternative paths to load your songs
+;TODO: SING_OPTIONS_SONGDIRS_NOTEXIST_FOLDER=The folder does not exist, do you want to create it?
+;TODO: SING_OPTIONS_SONGDIRS_ENTER_FOLDER_NAME=Write here the path of the songs folder
 
 ;TODO: SING_LEGEND_SELECT=Select
 ;TODO: SING_LEGEND_NAVIGATE=Navigate
@@ -563,6 +569,8 @@
 ;TODO: PARTY_MODE_TOURNAMENT=Tournament
 ;TODO: PARTY_MODE_JUKEBOX=Jukebox
 
+;TODO: PARTY_MODE_DESC=Write the name of your team and players
+							
 ;TODO: PARTY_MODE_TOURNAMENT_PLAYER_DESC=Insert number of players and their names
 ;TODO: PARTY_MODE_TOURNAMENT_NUMBER_PLAYERS=Number of players
 ;TODO: PARTY_MODE_TOURNAMENT_OPTIONS_DESC=Number of rounds
@@ -613,8 +621,6 @@
 ;TODO: MSG_QUESTION_TITLE=Question
 ;TODO: MSG_QUIT_USWP=Really leave UltraStar?
 ;TODO: MSG_END_PARTY=Really leave party mode?
-;TODO: MSG_END_SONGDIRS=Exit without saving?
-
 ;TODO: ERROR_NO_SONGS=No songs loaded
 ;TODO: ERROR_NO_PLUGINS=No plugins loaded
 ;TODO: ERROR_LOADING_SONGS=Wait for loading all the songs
@@ -739,6 +745,7 @@
 ;TODO: C_STATISTICS=Statistics
 ;TODO: C_STATS=Stats
 
+;TODO: C_TEAM=Team
 ;TODO: C_THEME=Theme
 ;TODO: C_THEMES=Themes
 ;TODO: C_TOP=Top

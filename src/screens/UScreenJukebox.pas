@@ -418,7 +418,7 @@ begin
           Sort(7);
         end;
     8 : begin
-          Button[JukeboxSongListOrder].Text[0].Text := Language.Translate('OPTION_VALUE_DATE');
+          Button[JukeboxSongListOrder].Text[0].Text := Language.Translate('OPTION_VALUE_LASTADDED');
           Sort(2);
           Sort(1);
           Sort(8);
