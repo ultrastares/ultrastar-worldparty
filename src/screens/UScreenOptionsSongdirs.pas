@@ -198,12 +198,15 @@ begin
 
       SDLK_RETURN:
         begin
+          // Show folder delete button
           if (Self.CurrentFolderSelected <> Self.FolderName) then
             Self.Button[Self.CurrentFolderSelected + 1].Visible := false;
+          // Hide folder name message
           if (Interaction = Self.FolderName) then
             Self.Button[Self.FolderName].Text[1].Visible := false;
-          //Add Folder to list
-          if (Interaction = Self.AddFolderButton) then
+          // Add Folder to list
+          if (Interaction = Self.AddFolderButton) or
+             (Interaction = Self.FolderName) then
           begin 
             Self.fDirname := Path(Self.Button[Self.FolderName].Text[0].Text);
             if (LengthUTF8(Self.fDirname.ToUTF8()) > 0) and not Self.bMaxDir then
@@ -225,7 +228,7 @@ begin
           else // Click on delete song folder button
           if (Interaction > Self.ExitButton) and ((Interaction mod 3) = 2) then
           begin
-            //Delete selected Folder from list
+            // Delete selected Folder from list
             Self.bChange := true;
             Self.DelFolder();
           end
