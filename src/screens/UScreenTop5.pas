@@ -45,7 +45,7 @@ uses
 type
   TScreenTop5 = class(TMenu)
     public
-      TextLevel:       integer;
+      SelectLevel:     integer;
       TextArtistTitle: integer;
       DifficultyShow:  integer;
 
@@ -59,7 +59,6 @@ type
 
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
-      function ParseMouse(MouseButton: integer; BtnDown: boolean; X, Y: integer): boolean; override;
       procedure OnShow; override;
       procedure DrawScores(difficulty: integer);
       function Draw: boolean; override;
@@ -95,13 +94,13 @@ begin
         end;
       SDLK_RIGHT, SDLK_UP:
         begin
-          inc(DifficultyShow);
-          Self.DrawScores(IfThen(DifficultyShow > Length(UIni.IDifficulty), 0, DifficultyShow));
+          Self.InteractInc();
+          Self.DrawScores(Self.SelectsS[0].SelectedOption);
         end;
       SDLK_LEFT, SDLK_DOWN:
         begin
-          dec(DifficultyShow);
-          Self.DrawScores(IfThen(DifficultyShow < 0, Length(UIni.IDifficulty), DifficultyShow));
+          Self.InteractDec();
+          Self.DrawScores(Self.SelectsS[0].SelectedOption);
         end;
       SDLK_SYSREQ:
         begin
@@ -109,16 +108,6 @@ begin
         end;
     end;
   end;
-end;
-
-function TScreenTop5.ParseMouse(MouseButton: integer;
-                                BtnDown: boolean;
-				X, Y: integer): boolean;
-begin
-  Result := true;
-  if ((MouseButton = SDL_BUTTON_LEFT) or (MouseButton = SDL_BUTTON_RIGHT)) and BtnDown then
-    //left-click anywhere sends return
-    ParseInput(SDLK_RETURN, 0, true);
 end;
 
 constructor TScreenTop5.Create;
@@ -129,7 +118,7 @@ begin
 
   LoadFromTheme(Theme.Top5);
 
-  TextLevel       := AddText(Theme.Top5.TextLevel);
+  Self.AddSelectSlide(UThemes.Theme.Top5.SelectLevel, UIni.Ini.Difficulty, UIni.IDifficulty, 'OPTION_VALUE_');
   TextArtistTitle := AddText(Theme.Top5.TextArtistTitle);
 
   for I := 0 to 4 do
@@ -221,13 +210,14 @@ begin
     Text[TextDate[I]].Visible := false;
   end;
 
-  Text[TextLevel].Text := ULanguage.Language.Translate('OPTION_VALUE_'+IDifficulty[Ini.PlayerLevel[0]]);
+  // TODO: Self.SelectsS[0].SetSelectOpt(Ini.PlayerLevel[0]);
 end;
 
 procedure TScreenTop5.DrawScores(difficulty: integer);
 var
   I:    integer;
 begin
+WriteLn('Diff: '+difficulty.ToString());
   for I := 1 to Length(CurrentSong.Score[difficulty]) do
   begin
     Statics[StaticNumber[I]].Visible := true;
@@ -250,7 +240,6 @@ begin
     Text[TextDate[I]].Visible := false;
   end;
 
-  Text[TextLevel].Text := IDifficulty[difficulty];
 end;
 
 function TScreenTop5.Draw: boolean;

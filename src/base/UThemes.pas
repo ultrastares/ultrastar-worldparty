@@ -766,7 +766,7 @@ type
   end;
 
   TThemeTop5 = class(TThemeBasic)
-    TextLevel:        TThemeText;
+    SelectLevel:      TThemeSelectSlide;
     TextArtistTitle:  TThemeText;
 
     StaticNumber:     AThemeStatic;
@@ -2081,7 +2081,7 @@ begin
       // Top5
       ThemeLoadBasic(Top5, 'Top5');
 
-      ThemeLoadText(Top5.TextLevel,       'Top5TextLevel');
+      ThemeLoadSelectSlide(Top5.SelectLevel, 'Top5SelectLevel');
       ThemeLoadText(Top5.TextArtistTitle, 'Top5TextArtistTitle');
       ThemeLoadStatics(Top5.StaticNumber, 'Top5StaticNumber');
       ThemeLoadTexts(Top5.TextNumber,     'Top5TextNumber');
