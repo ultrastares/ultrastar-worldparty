@@ -988,8 +988,8 @@ begin
   Self.JukeboxSingOutlineColor := IniFile.ReadString('JukeboxLyrics', 'SingOutlineColor', IHexOColor[1]);
   Self.JukeboxCurrentColor := IniFile.ReadString('JukeboxLyrics', 'CurrentColor', IHexGrayColor[2]);
   Self.JukeboxCurrentOutlineColor := IniFile.ReadString('JukeboxLyrics', 'CurrentOutlineColor', IHexOColor[1]);
-  Self.JukeboxNextColor := IniFile.ReadString('JukeboxLyrics', 'NextColor', IHexGrayColor[6]);
-  Self.JukeboxNextOutlineColor := IniFile.ReadString('JukeboxLyrics', 'NextOutlineColor', IHexOColor[0]);
+  Self.JukeboxNextColor := IniFile.ReadString('JukeboxLyrics', 'NextColor', IHexGrayColor[2]);
+  Self.JukeboxNextOutlineColor := IniFile.ReadString('JukeboxLyrics', 'NextOutlineColor', IHexOColor[1]);
 
   // DefaultEncoding
   DefaultEncoding := ParseEncoding(IniFile.ReadString('Lyrics', 'Encoding', ''), encAuto);
