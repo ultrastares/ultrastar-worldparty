@@ -356,7 +356,7 @@ const
   OutlineColor:               array[0..2] of UTF8String = ('Black', 'White', 'Other');
 
   IHexSingColor: array[0..21] of UTF8String = ('0096FF', '3FBF3F', 'FF3FC0', 'DC0000', 'B43FE6', 'FF9000', 'FFFF00', 'D7006F', 'C07F1F', '000000', '00FFE6', 'FF7F66', '99FF66', 'CCCCFF', 'FFE6CC', '339999', '9900CC', '336699', 'FF99FF', '8A5C2E', 'FFCC33', '');
-  IHexGrayColor: array[0..9] of UTF8String = ('000000', '202020', '404040', '606060', '808080', 'A0A0A0', 'C0C0C0', 'D6D6D6', 'FFFFFF', '');
+  IHexGrayColor: array[0..9] of UTF8String = ('000000', '202020', '303030', '606060', '808080', 'A0A0A0', 'C0C0C0', 'D6D6D6', 'FFFFFF', '');
   IHexOColor:    array[0..2] of UTF8String = ('000000', 'FFFFFF', '');
 
   JukeboxOffsetLyric: array [0..100] of UTF8String = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49',
@@ -966,9 +966,9 @@ begin
   Self.LyricsTransparency := ReadArrayIndex(ILyricsAlpha, IniFile, 'Lyrics', 'Transparency', 19);
   Self.LyricsSingColor := IniFile.ReadString('Lyrics', 'SingColor', IHexSingColor[7]);
   Self.LyricsSingOutlineColor := IniFile.ReadString('Lyrics', 'SingOutlineColor', IHexOColor[0]);
-  Self.LyricsCurrentColor := IniFile.ReadString('Lyrics', 'CurrentColor', IHexGrayColor[6]);
+  Self.LyricsCurrentColor := IniFile.ReadString('Lyrics', 'CurrentColor', IHexGrayColor[8]);
   Self.LyricsCurrentOutlineColor := IniFile.ReadString('Lyrics', 'CurrentOutlineColor', IHexOColor[0]);
-  Self.LyricsNextColor := IniFile.ReadString('Lyrics', 'NextColor', IHexGrayColor[5]);
+  Self.LyricsNextColor := IniFile.ReadString('Lyrics', 'NextColor', IHexGrayColor[7]);
   Self.LyricsNextOutlineColor := IniFile.ReadString('Lyrics', 'NextOutlineColor', IHexOColor[0]);
 
   // Jukebox
@@ -986,9 +986,9 @@ begin
   Self.JukeboxTransparency := ReadArrayIndex(ILyricsAlpha, IniFile, 'JukeboxLyrics', 'Transparency', 19);
   Self.JukeboxSingColor := IniFile.ReadString('JukeboxLyrics', 'SingColor', IHexSingColor[7]);
   Self.JukeboxSingOutlineColor := IniFile.ReadString('JukeboxLyrics', 'SingOutlineColor', IHexOColor[1]);
-  Self.JukeboxCurrentColor := IniFile.ReadString('JukeboxLyrics', 'CurrentColor', IHexGrayColor[2]);
+  Self.JukeboxCurrentColor := IniFile.ReadString('JukeboxLyrics', 'CurrentColor', IHexGrayColor[1]);
   Self.JukeboxCurrentOutlineColor := IniFile.ReadString('JukeboxLyrics', 'CurrentOutlineColor', IHexOColor[1]);
-  Self.JukeboxNextColor := IniFile.ReadString('JukeboxLyrics', 'NextColor', IHexGrayColor[2]);
+  Self.JukeboxNextColor := IniFile.ReadString('JukeboxLyrics', 'NextColor', IHexGrayColor[1]);
   Self.JukeboxNextOutlineColor := IniFile.ReadString('JukeboxLyrics', 'NextOutlineColor', IHexOColor[1]);
 
   // DefaultEncoding
