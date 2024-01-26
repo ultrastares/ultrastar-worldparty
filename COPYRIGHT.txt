@@ -9,10 +9,11 @@ Copyright (C) 2009-2024 by the following:
 
 Translations:
 ------------
-Hungarian: Warez^XTS
-Italian:   skream
-French:    ctariel
-German:    ReneSchimmelpfennig
+French:     ctariel
+German:     ReneSchimmelpfennig
+Hungarian:  Warez^XTS
+Italian:    skream
+Portuguese: airBN
 
 If you have contributed to this project then you deserve to be on this
 list.  Contact us and we'll add you.
