@@ -220,7 +220,7 @@ uses
   UPathUtils,
   USkins,
   USong,
-  UScreenTop5,
+  UScreenTop10,
   UScreenPopup,
   UScreenSong,
   UTime,
@@ -357,7 +357,7 @@ begin
             if (CurrentSong.isDuet) or (ScreenSong.Mode = smMedley) then
               FadeTo(@ScreenSong)
             else
-              FadeTo(@ScreenTop5);
+              FadeTo(@ScreenTop10);
             Exit;
           end
           else
@@ -376,7 +376,7 @@ begin
              if (CurrentSong.isDuet) or (ScreenSong.Mode = smMedley) then
                FadeTo(@ScreenSong)
              else
-               FadeTo(@ScreenTop5);
+               FadeTo(@ScreenTop10);
 
           	 Exit;
            end
@@ -1066,7 +1066,7 @@ begin
   if not Assigned(UGraphic.ScreenPopupSendScore) then //load the screens only the first time
   begin
     UGraphic.ScreenPopupSendScore := TScreenPopupSendScore.Create();
-    UGraphic.ScreenTop5 := TScreenTop5.Create();
+    UGraphic.ScreenTop10 := TScreenTop10.Create();
   end;
 
   FinishScreenDraw := false;

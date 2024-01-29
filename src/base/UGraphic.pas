@@ -63,7 +63,7 @@ uses
   UScreenJukeboxOptions,
   UScreenJukeboxPlaylist,
   UScreenScore,
-  UScreenTop5,
+  UScreenTop10,
   UScreenOpen,
   UScreenAbout,
   UScreenDevelopers,
@@ -136,9 +136,9 @@ var
   ScreenJukeboxPlaylist: TScreenJukeboxPlaylist;
 
   ScreenScore:        TScreenScore;
-  ScreenTop5:         TScreenTop5;
+  ScreenTop10:        TScreenTop10;
   ScreenOptions:          TScreenOptions;
-  ScreenOptionsGeneral:      TScreenOptionsGeneral;
+  ScreenOptionsGeneral:   TScreenOptionsGeneral;
   ScreenOptionsGraphics:  TScreenOptionsGraphics;
   ScreenOptionsSound:     TScreenOptionsSound;
   ScreenOptionsLyrics:    TScreenOptionsLyrics;
@@ -727,7 +727,8 @@ begin
   FreeAndNil(ScreenJukebox);
   FreeAndNil(ScreenJukeboxOptions);
   FreeAndNil(ScreenJukeboxPlaylist);
-  FreeAndNil(ScreenTop5);
+//  FreeAndNil(ScreenTop5);
+  FreeAndNil(ScreenTop10);
   FreeAndNil(ScreenOpen);
   FreeAndNil(ScreenAbout);
   FreeAndNil(ScreenDevelopers);

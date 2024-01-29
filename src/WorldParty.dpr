@@ -250,7 +250,7 @@ UVideo                    in 'media\UVideo.pas',
   UScreenOptionsSongdirs  in 'screens\UScreenOptionsSongdirs.pas',
 
   UScreenOpen             in 'screens\UScreenOpen.pas',
-  UScreenTop5             in 'screens\UScreenTop5.pas',
+  UScreenTop10            in 'screens\UScreenTop10.pas',
   UScreenSongMenu         in 'screens\UScreenSongMenu.pas',
   UScreenStatMain         in 'screens\UScreenStatMain.pas',
   UScreenStatDetail       in 'screens\UScreenStatDetail.pas',

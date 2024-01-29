@@ -184,6 +184,7 @@ const
   cUS_Users_Info = 'us_users_info';
   cUS_Webs = 'us_webs';
   cUS_Webs_Stats = 'us_webs_stats';
+  NUM_REC_TO_READ = 10;
 
 (**
  * Open database and create tables if they do not exist
@@ -386,7 +387,7 @@ begin
       // Add one Entry to Array
       Difficulty := TableData.FieldAsInteger(TableData.FieldIndex['Difficulty']);
       if ((Difficulty >= 0) and (Difficulty <= 2)) and
-         (Length(Song.Score[Difficulty]) < 5) then
+         (Length(Song.Score[Difficulty]) < NUM_REC_TO_READ) then
       begin
         //filter player
         PlayerListed:=false;

@@ -217,7 +217,6 @@ procedure TScreenTop5.DrawScores(difficulty: integer);
 var
   I:    integer;
 begin
-WriteLn('Diff: '+difficulty.ToString());
   for I := 1 to Length(CurrentSong.Score[difficulty]) do
   begin
     Statics[StaticNumber[I]].Visible := true;

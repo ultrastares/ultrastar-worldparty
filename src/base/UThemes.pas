@@ -776,6 +776,16 @@ type
     TextDate:         AThemeText;
   end;
 
+  TThemeTop10 = class(TThemeBasic)
+    TextArtistTitle:  TThemeText;
+
+    TextDate:         AThemeText;
+    TextName:         AThemeText;
+    TextScore:        AThemeText;
+
+    ButtonContinue:   TThemeButton;
+  end;
+
   TThemeOptions = class(TThemeBasic)
     ButtonGeneral:     TThemeButton;
     ButtonGraphics:    TThemeButton;
@@ -1326,6 +1336,7 @@ type
     JukeboxPlaylist:  TThemeJukeboxPlaylist;
     Score:            TThemeScore;
     Top5:             TThemeTop5;
+    Top10:            TThemeTop10;
     Options:          TThemeOptions;
     OptionsGeneral:   TThemeOptionsGeneral;
     OptionsGraphics:  TThemeOptionsGraphics;
@@ -2088,6 +2099,16 @@ begin
       ThemeLoadTexts(Top5.TextName,       'Top5TextName');
       ThemeLoadTexts(Top5.TextScore,      'Top5TextScore');
       ThemeLoadTexts(Top5.TextDate,       'Top5TextDate');
+
+      // Top10
+      ThemeLoadBasic(Top10, 'Top10');
+
+      ThemeLoadText(Top10.TextArtistTitle, 'Top10TextArtistTitle');
+      ThemeLoadTexts(Top10.TextDate,       'Top10TextDate');
+      ThemeLoadTexts(Top10.TextName,       'Top10TextName');
+      ThemeLoadTexts(Top10.TextScore,      'Top10TextScore');
+
+      ThemeLoadButton(Top10.ButtonContinue,'Top10ButtonContinue');
 
       // Options
       ThemeLoadBasic(Options, 'Options');
@@ -3909,6 +3930,7 @@ begin
   Self.Developers := TThemeDevelopers.Create();
   Self.Score := TThemeScore.Create();
   Self.Top5 := TThemeTop5.Create();
+  Self.Top10 := TThemeTop10.Create();
   Self.Options := TThemeOptions.Create();
   Self.OptionsGeneral := TThemeOptionsGeneral.Create();
   Self.OptionsGraphics := TThemeOptionsGraphics.Create();
