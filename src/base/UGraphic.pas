@@ -727,7 +727,6 @@ begin
   FreeAndNil(ScreenJukebox);
   FreeAndNil(ScreenJukeboxOptions);
   FreeAndNil(ScreenJukeboxPlaylist);
-//  FreeAndNil(ScreenTop5);
   FreeAndNil(ScreenTop10);
   FreeAndNil(ScreenOpen);
   FreeAndNil(ScreenAbout);
