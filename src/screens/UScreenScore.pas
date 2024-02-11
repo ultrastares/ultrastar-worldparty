@@ -1780,7 +1780,7 @@ var
 begin
   select := 0;
   //When Music Preview is activated -> then change music
-  if (Ini.PreviewVolume <> 0) then
+  if (Ini.SongVolume <> 0) then
   begin
     changed := false;
     if (ScreenSong.Mode = smMedley) then
@@ -1819,14 +1819,14 @@ begin
         if (Ini.PreviewFading = 0) then
         begin
           // music fade disabled: start with full volume
-          AudioPlayback.SetVolume(IPreviewVolumeVals[Ini.PreviewVolume]);
+          AudioPlayback.SetVolume(ISongVolumeVals[Ini.SongVolume]);
           AudioPlayback.Play()
         end
         else
         begin
           // music fade enabled: start muted and fade-in
           AudioPlayback.SetVolume(0);
-          AudioPlayback.FadeIn(Ini.PreviewFading, IPreviewVolumeVals[Ini.PreviewVolume]);
+          AudioPlayback.FadeIn(Ini.PreviewFading, ISongVolumeVals[Ini.SongVolume]);
         end;
       end;
     end;

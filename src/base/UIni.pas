@@ -154,12 +154,12 @@ type
       AudioOutputBufferSizeIndex: integer;
       VoicePassthrough:           integer;
       MusicAutoGain:              integer;
+      SongVolume:                 integer;
       SoundFont:                  string;
 
       SyncTo: integer;
 
       //Song Preview
-      PreviewVolume:  integer;
       PreviewFading:  integer;
 
       //lyrics
@@ -337,9 +337,8 @@ const
   IBGMusic:                   array[0..10] of UTF8String = ('Off', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%');
   IBGMusicVolumeVals:         array[0..10] of single     = ( 0,   0.10,  0.20,  0.30,  0.40,  0.50,  0.60,  0.70,  0.80,  0.90,   1.00  );
 
-  //Song Preview
-  IPreviewVolume:             array[0..10] of UTF8String = ('Off', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%');
-  IPreviewVolumeVals:         array[0..10] of single     = ( 0,   0.10,  0.20,  0.30,  0.40,  0.50,  0.60,  0.70,  0.80,  0.90,   1.00  );
+  ISongVolume:                array[0..10] of UTF8String = ('Off', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%');
+  ISongVolumeVals:            array[0..10] of single     = ( 0,   0.10,  0.20,  0.30,  0.40,  0.50,  0.60,  0.70,  0.80,  0.90,   1.00  );
 
   IPreviewFading:             array[0..5] of UTF8String  = ('Off', '1 Sec', '2 Secs', '3 Secs', '4 Secs', '5 Secs');
   IPreviewFadingVals:         array[0..5] of integer     = ( 0,     1,       2,        3,        4,        5      );
@@ -945,8 +944,8 @@ begin
   // AudioOutputBufferSize
   AudioOutputBufferSizeIndex := ReadArrayIndex(IAudioOutputBufferSize, IniFile, 'Sound', 'AudioOutputBufferSize', 0);
 
-  //Preview Volume
-  PreviewVolume := ReadArrayIndex(IPreviewVolume, IniFile, 'Sound', 'PreviewVolume', 6);
+  // Song Volume
+  SongVolume := ReadArrayIndex(ISongVolume, IniFile, 'Sound', 'SongVolume', 10);
 
   //Preview Fading
   PreviewFading := ReadArrayIndex(IPreviewFading, IniFile, 'Sound', 'PreviewFading', 1);
@@ -1144,8 +1143,8 @@ begin
   // Background music
   IniFile.WriteString('Sound', 'BackgroundMusic', IBGMusic[MusicVolume]);
 
-  // Song Preview
-  IniFile.WriteString('Sound', 'PreviewVolume', IPreviewVolume[PreviewVolume]);
+  // Song Volume
+  IniFile.WriteString('Sound', 'SongVolume', ISongVolume[SongVolume]);
 
   // PreviewFading
   IniFile.WriteString('Sound', 'PreviewFading', IPreviewFading[PreviewFading]);

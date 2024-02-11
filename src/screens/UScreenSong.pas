@@ -910,7 +910,7 @@ begin
   Self.IsScrolling := false;
   Self.CoverTime := 0;
   Self.SongIndex := -1;
-  if Preview and (UIni.Ini.PreviewVolume <> 0) then
+  if Preview and (UIni.Ini.SongVolume <> 0) then
     Self.StartPreview();
 end;
 
@@ -1627,14 +1627,14 @@ begin
     if Ini.PreviewFading = 0 then
     begin
       // music fade disabled: start with full volume
-      AudioPlayback.SetVolume(IPreviewVolumeVals[Ini.PreviewVolume]);
+      AudioPlayback.SetVolume(ISongVolumeVals[Ini.SongVolume]);
       AudioPlayback.Play()
     end
     else
     begin
       // music fade enabled: start muted and fade-in
       AudioPlayback.SetVolume(0);
-      AudioPlayback.FadeIn(Ini.PreviewFading, IPreviewVolumeVals[Ini.PreviewVolume]);
+      AudioPlayback.FadeIn(Ini.PreviewFading, ISongVolumeVals[Ini.SongVolume]);
     end;
 
     if (UIni.Ini.VideoPreview = 1) and Song.Video.IsSet() then

@@ -840,7 +840,7 @@ type
     SelectClickAssist:           TThemeSelectSlide;
     SelectBeatClick:             TThemeSelectSlide;
     SelectSlideMusicAutoGain:    TThemeSelectSlide;
-    SelectSlidePreviewVolume:    TThemeSelectSlide;
+    SelectSlideSongVolume:       TThemeSelectSlide;
     SelectSlidePreviewFading:    TThemeSelectSlide;
     ButtonExit:                  TThemeButton;
 
@@ -849,7 +849,7 @@ type
     ClickAssistDesc:             TThemeText;
     BeatClickDesc:               TThemeText;
     MusicAutoGainDesc:           TThemeText;
-    PreviewVolumeDesc:           TThemeText;
+    SongVolumeDesc:              TThemeText;
     PreviewFadingDesc:           TThemeText;
 
   end;
@@ -968,7 +968,7 @@ type
     FlipDesc:               TThemeText;
     BrightnessDesc:         TThemeText;
     EffectDesc:             TThemeText;
-    Preview: TThemePosition;
+    Preview:                TThemePosition;
   end;
 
   TThemeOptionsProfiles = class(TThemeBasic)
@@ -2152,7 +2152,7 @@ begin
       ThemeLoadSelectSlide(OptionsSound.SelectBackgroundMusic,       'OptionsSoundSelectBackgroundMusic');
       ThemeLoadSelectSlide(OptionsSound.SelectClickAssist,           'OptionsSoundSelectClickAssist');
       ThemeLoadSelectSlide(OptionsSound.SelectBeatClick,             'OptionsSoundSelectBeatClick');
-      ThemeLoadSelectSlide(OptionsSound.SelectSlidePreviewVolume,    'OptionsSoundSelectSlidePreviewVolume');
+      ThemeLoadSelectSlide(OptionsSound.SelectSlideSongVolume,       'OptionsSoundSelectSlideSongVolume');
       ThemeLoadSelectSlide(OptionsSound.SelectSlidePreviewFading,    'OptionsSoundSelectSlidePreviewFading');
       ThemeLoadSelectSlide(OptionsSound.SelectSlideMusicAutoGain,    'OptionsSoundSelectSlideMusicAutoGain');
       ThemeLoadButton(OptionsSound.ButtonExit,                       'OptionsSoundButtonExit');
@@ -2162,7 +2162,7 @@ begin
       ThemeLoadText(OptionsSound.ClickAssistDesc,             'OptionsSoundClickAssistDesc');
       ThemeLoadText(OptionsSound.BeatClickDesc,               'OptionsSoundBeatClickDesc');
       ThemeLoadText(OptionsSound.MusicAutoGainDesc,           'OptionsSoundMusicAutoGainDesc');
-      ThemeLoadText(OptionsSound.PreviewVolumeDesc,           'OptionsSoundPreviewVolumeDesc');
+      ThemeLoadText(OptionsSound.SongVolumeDesc,              'OptionsSoundSongVolumeDesc');
       ThemeLoadText(OptionsSound.PreviewFadingDesc,           'OptionsSoundPreviewFadingDesc');
 
       // Options Lyrics
@@ -2244,7 +2244,7 @@ begin
       ThemeLoadText(OptionsAdvanced.AskBeforeExitDesc,          'OptionsAdvancedAskBeforeExitDesc');
       ThemeLoadText(OptionsAdvanced.PartyPopupDesc,             'OptionsAdvancedPartyPopupDesc');
       ThemeLoadText(OptionsAdvanced.TopScoresDesc,              'OptionsAdvancedTopScoresDesc');
-      ThemeLoadText(OptionsAdvanced.SingTimebarModeDesc, 'OptionsAdvancedSingTimebarModeDesc');
+      ThemeLoadText(OptionsAdvanced.SingTimebarModeDesc,        'OptionsAdvancedSingTimebarModeDesc');
 
       //Options Network
       ThemeLoadBasic(OptionsNetwork, 'OptionsNetwork');
@@ -2278,15 +2278,15 @@ begin
       ThemeLoadSelectSlide(OptionsWebcam.SelectBrightness,       'OptionsWebcamSelectBrightness');
       ThemeLoadSelectSlide(OptionsWebcam.SelectEffect,           'OptionsWebcamSelectEffect');
       ThemeLoadButton(OptionsWebcam.ButtonExit,                  'OptionsWebcamButtonExit');
-      ThemeLoadText(OptionsWebcam.IDDesc,               'OptionsWebcamIDDesc');
-      ThemeLoadText(OptionsWebcam.ResolutionDesc,       'OptionsWebcamResolutionDesc');
-      ThemeLoadText(OptionsWebcam.FlipDesc,             'OptionsWebcamFlipDesc');
-      ThemeLoadText(OptionsWebcam.BrightnessDesc,       'OptionsWebcamBrightnessDesc');
-      ThemeLoadText(OptionsWebcam.EffectDesc,           'OptionsWebcamEffectDesc');
-      Self.ThemeLoadPosition(Self.OptionsWebcam.Preview, 'OptionsWebcamPreview');
+      ThemeLoadText(OptionsWebcam.IDDesc,                        'OptionsWebcamIDDesc');
+      ThemeLoadText(OptionsWebcam.ResolutionDesc,                'OptionsWebcamResolutionDesc');
+      ThemeLoadText(OptionsWebcam.FlipDesc,                      'OptionsWebcamFlipDesc');
+      ThemeLoadText(OptionsWebcam.BrightnessDesc,                'OptionsWebcamBrightnessDesc');
+      ThemeLoadText(OptionsWebcam.EffectDesc,                    'OptionsWebcamEffectDesc');
+      Self.ThemeLoadPosition(Self.OptionsWebcam.Preview,         'OptionsWebcamPreview');
       //Options Profiles
-	    ThemeLoadBasic(OptionsProfiles,                   'OptionsProfiles');
-	    ThemeLoadButton(OptionsProfiles.ButtonExit,       'OptionsProfilesButtonExit');
+	    ThemeLoadBasic(OptionsProfiles,                          'OptionsProfiles');
+	    ThemeLoadButton(OptionsProfiles.ButtonExit,              'OptionsProfilesButtonExit');
 
       //Options Songdirs
 	    ThemeLoadBasic(OptionsSongdirs,                         'OptionsSongdirs');

@@ -1237,8 +1237,8 @@ begin
   end
   else if not(lastVolume=1) and not(lastVolume=0) then
   begin //changing volume is slow, so do not reset volume every frame
-    AudioPlayback.SetVolume(1);
-    lastVolume:=1;
+    AudioPlayback.SetVolume(ISongVolumeVals[Ini.SongVolume]);
+    lastVolume:=ISongVolumeVals[Ini.SongVolume];
   end;
 
   // swap static textures to current screen ones

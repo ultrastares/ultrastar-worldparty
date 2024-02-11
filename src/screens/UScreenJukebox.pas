@@ -2041,7 +2041,7 @@ end;
 procedure TScreenJukebox.Play();
 begin
     AudioPlayback.Open(CurrentSong.Path.Append(CurrentSong.Mp3));
-    AudioPlayback.SetVolume(1.0);
+    AudioPlayback.SetVolume(ISongVolumeVals[Ini.SongVolume]);
 
     //AudioPlayback.Position := CurrentSong.Start;
     AudioPlayback.Position := LyricsState.GetCurrentTime();

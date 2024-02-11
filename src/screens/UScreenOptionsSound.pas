@@ -128,7 +128,7 @@ begin
     IMusicAutoGainTranslated[I] := 'GAIN_'+IMusicAutoGainTranslated[I];
 
   AddSelectSlide(Theme.OptionsSound.SelectSlideMusicAutoGain, UIni.Ini.MusicAutoGain, IMusicAutoGainTranslated, 'OPTION_VALUE_');
-  AddSelectSlide(Theme.OptionsSound.SelectSlidePreviewVolume, UIni.Ini.PreviewVolume, UIni.IPreviewVolume);
+  AddSelectSlide(Theme.OptionsSound.SelectSlideSongVolume, UIni.Ini.SongVolume, UIni.ISongVolume);
   IPreviewFadingTranslated[0] := ULanguage.Language.Translate('OPTION_VALUE_OFF');
   IPreviewFadingTranslated[1] := '1 '+LowerCase(ULanguage.Language.Translate('OPTION_VALUE_SEC'));
   IPreviewFadingTranslated[2] := '2 '+LowerCase(ULanguage.Language.Translate('OPTION_VALUE_SECS'));
@@ -142,7 +142,7 @@ begin
   Self.AddText(UThemes.Theme.OptionsSound.ClickAssistDesc);
   Self.AddText(UThemes.Theme.OptionsSound.BeatClickDesc);
   Self.AddText(UThemes.Theme.OptionsSound.MusicAutoGainDesc);
-  Self.AddText(UThemes.Theme.OptionsSound.PreviewVolumeDesc);
+  Self.AddText(UThemes.Theme.OptionsSound.SongVolumeDesc);
   Self.AddText(UThemes.Theme.OptionsSound.PreviewFadingDesc);
   Interaction := 0;
 end;
