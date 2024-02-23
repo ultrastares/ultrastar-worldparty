@@ -148,7 +148,7 @@ const
   ArrowAlphaOptionsLeft = 1;
   ArrowAlphaNoOptionsLeft = 0;
   MinItemSpacing = 5;
-  MinSideSpacing = 24;
+  MinSideSpacing = 15;
 
 implementation
 
