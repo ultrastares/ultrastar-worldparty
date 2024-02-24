@@ -356,6 +356,7 @@ begin
     begin
       InputSourceNames[SourceIndex] := InputDevice.Source[SourceIndex].Name;
     end;
+	InputSourceNames[0] := ULanguage.Language.Translate('C_DEFAULT');
     UpdateSelectSlideOptions(Theme.OptionsMicrophones.SelectSlideInput, SelectInputSourceID,
         InputSourceNames, InputDeviceCfg.Input);
 
