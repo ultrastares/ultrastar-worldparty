@@ -1001,55 +1001,61 @@ type
 
   //Error- and Check-Popup
   TThemeError = class(TThemeBasic)
-    Button1: TThemeButton;
-    TextError: TThemeText;
+    Button1:                TThemeButton;
+    TextError:              TThemeText;
   end;
 
   TThemeCheck = class(TThemeBasic)
-    Button1: TThemeButton;
-    Button2: TThemeButton;
-    TextCheck: TThemeText;
+    Button1:                TThemeButton;
+    Button2:                TThemeButton;
+    TextCheck:              TThemeText;
   end;
 
   TThemeInsertUser = class(TThemeBasic)
-    TextInsertUser: TThemeText;
-    ButtonUsername: TThemeButton;
-    ButtonPassword: TThemeButton;
-    Button1: TThemeButton;
-    Button2: TThemeButton;
+    TextInsertUser:         TThemeText;
+    ButtonUsername:         TThemeButton;
+    ButtonPassword:         TThemeButton;
+    Button1:                TThemeButton;
+    Button2:                TThemeButton;
   end;
 
   TThemeSendScore = class(TThemeBasic)
-    SelectSlide1: TThemeSelectSlide;
-    SelectSlide2: TThemeSelectSlide;
-    SelectSlide3: TThemeSelectSlide;
-    ButtonUsername: TThemeButton;
-    ButtonPassword: TThemeButton;
-    Button1:  TThemeButton;
-    Button2:  TThemeButton;
+    SelectSlide1:           TThemeSelectSlide;
+    SelectSlide2:           TThemeSelectSlide;
+    SelectSlide3:           TThemeSelectSlide;
+    ButtonUsername:         TThemeButton;
+    ButtonPassword:         TThemeButton;
+    Button1:                TThemeButton;
+    Button2:                TThemeButton;
   end;
 
   TThemeScoreDownload = class(TThemeBasic)
-    Button1: TThemeButton;
+    Button1:               TThemeButton;
     TextSongScoreDownload: TThemeText;
-    TextWebScoreDownload: TThemeText;
-    DownloadProgressSong: TThemeStatic;
-    DownloadProgressWeb: TThemeStatic;
+    TextWebScoreDownload:  TThemeText;
+    DownloadProgressSong:  TThemeStatic;
+    DownloadProgressWeb:   TThemeStatic;
   end;
 
   //ScreenSong Menu
   TThemeSongMenu = class(TThemeBasic)
-    Button1: TThemeButton;
-    Button2: TThemeButton;
-    Button3: TThemeButton;
-    Button4: TThemeButton;
-    Button5: TThemeButton;
-    Button6: TThemeButton;
-    Button7: TThemeButton;
-    SelectSlide1: TThemeSelectSlide;
-    SelectSlide2: TThemeSelectSlide;
-    SelectSlide3: TThemeSelectSlide;
-    TextMenu: TThemeText;
+    Button1:           TThemeButton;
+    Button2:           TThemeButton;
+    Button3:           TThemeButton;
+    Button4:           TThemeButton;
+    Button5:           TThemeButton;
+    Button6:           TThemeButton;
+    Button7:           TThemeButton;
+    SelectSlide1:      TThemeSelectSlide;
+    SelectSlide2:      TThemeSelectSlide;
+    SelectSlide3:      TThemeSelectSlide;
+    StaticSelectSong:  TThemeStatic;
+    StaticSortSongs:   TThemeStatic;
+    StaticUpdateScore: TThemeStatic;
+    StaticRefresh:     TThemeStatic;
+    StaticPlaylist:    TThemeStatic;
+    StaticRemoval:     TThemeStatic;
+    TextMenu:          TThemeText;
   end;
 
   //Party Screens
@@ -1313,60 +1319,63 @@ type
     procedure ReadProperty(const Section: string; const Identifier: string; const Default: UTF8String; var Field: UTF8String; const FieldType: integer = 0);
   public
     Themes:           array of TThemeEntry;
-    Loading:          TThemeLoading;
-    Main:             TThemeMain;
-    PlayerSelector:             TThemePlayerSelector;
-    Song:             TThemeSong;
-    Sing:             TThemeSing;
-    LyricBar:         TThemeLyricBar;
-    LyricBarDuetP1:   TThemeLyricBar;
-    LyricBarDuetP2:   TThemeLyricBar;
-    LyricBarJukebox:  TThemeLyricBar;
-    Jukebox:          TThemeJukebox;
-    JukeboxPlaylist:  TThemeJukeboxPlaylist;
-    Score:            TThemeScore;
-    Top10:            TThemeTop10;
-    Options:          TThemeOptions;
-    OptionsGeneral:   TThemeOptionsGeneral;
-    OptionsGraphics:  TThemeOptionsGraphics;
-    OptionsSound:     TThemeOptionsSound;
-    OptionsLyrics:    TThemeOptionsLyrics;
-    OptionsThemes:    TThemeOptionsThemes;
-    OptionsMicrophones:    TThemeOptionsMicrophones;
-    OptionsAdvanced:  TThemeOptionsAdvanced;
-    OptionsNetwork:   TThemeOptionsNetwork;
-    OptionsWebcam:    TThemeOptionsWebcam;
-  	OptionsProfiles:  TThemeOptionsProfiles;
-  	OptionsSongdirs:  TThemeOptionsSongdirs;
+    Loading:                TThemeLoading;
+    Main:                   TThemeMain;
+    PlayerSelector:         TThemePlayerSelector;
+    Song:                   TThemeSong;
+    Sing:                   TThemeSing;
+    LyricBar:               TThemeLyricBar;
+    LyricBarDuetP1:         TThemeLyricBar;
+    LyricBarDuetP2:         TThemeLyricBar;
+    LyricBarJukebox:        TThemeLyricBar;
+    Jukebox:                TThemeJukebox;
+    JukeboxPlaylist:        TThemeJukeboxPlaylist;
+    Score:                  TThemeScore;
+    Top10:                  TThemeTop10;
+    Options:                TThemeOptions;
+    OptionsGeneral:         TThemeOptionsGeneral;
+    OptionsGraphics:        TThemeOptionsGraphics;
+    OptionsSound:           TThemeOptionsSound;
+    OptionsLyrics:          TThemeOptionsLyrics;
+    OptionsThemes:          TThemeOptionsThemes;
+    OptionsMicrophones:     TThemeOptionsMicrophones;
+    OptionsAdvanced:        TThemeOptionsAdvanced;
+    OptionsNetwork:         TThemeOptionsNetwork;
+    OptionsWebcam:          TThemeOptionsWebcam;
+    OptionsProfiles:        TThemeOptionsProfiles;
+    OptionsSongdirs:        TThemeOptionsSongdirs;
+	
     //error and check popup
-    ErrorPopup:         TThemeError;
-    CheckPopup:         TThemeCheck;
-    InsertUserPopup:    TThemeInsertUser;
-    SendScorePopup:     TThemeSendScore;
-    ScoreDownloadPopup: TThemeScoreDownload;
+    ErrorPopup:             TThemeError;
+    CheckPopup:             TThemeCheck;
+    InsertUserPopup:        TThemeInsertUser;
+    SendScorePopup:         TThemeSendScore;
+    ScoreDownloadPopup:     TThemeScoreDownload;
+	
     //ScreenSong extensions
-    SongMenu:         TThemeSongMenu;
+    SongMenu:               TThemeSongMenu;
+	
     //Party Screens:
-    PartyNewRound:    TThemePartyNewRound;
-    PartyScore:       TThemePartyScore;
-    PartyWin:         TThemePartyWin;
-    PartyOptions:     TThemePartyOptions;
-    PartyPlayer:      TThemePartyPlayer;
-    PartyRounds:      TThemePartyRounds;
+    PartyNewRound:          TThemePartyNewRound;
+    PartyScore:             TThemePartyScore;
+    PartyWin:               TThemePartyWin;
+    PartyOptions:           TThemePartyOptions;
+    PartyPlayer:            TThemePartyPlayer;
+    PartyRounds:            TThemePartyRounds;
 
     //Tournament
-    PartyTournamentPlayer: TThemePartyTournamentPlayer;
+    PartyTournamentPlayer:  TThemePartyTournamentPlayer;
     PartyTournamentOptions: TThemePartyTournamentOptions;
-    PartyTournamentRounds: TThemePartyTournamentRounds;
-    PartyTournamentWin: TThemePartyTournamentWin;
+    PartyTournamentRounds:  TThemePartyTournamentRounds;
+    PartyTournamentWin:     TThemePartyTournamentWin;
 
     // About
-    AboutMain:        TThemeAboutMain;
-	Developers:       TThemeDevelopers;
+    AboutMain:              TThemeAboutMain;
+	Developers:             TThemeDevelopers;
 
     //Stats Screens:
-    StatMain:         TThemeStatMain;
-    StatDetail:       TThemeStatDetail;
+    StatMain:               TThemeStatMain;
+    StatDetail:             TThemeStatDetail;
 
     ILevel: array[0..2] of UTF8String;
     IMode:  array[0..2] of UTF8String;
@@ -2313,95 +2322,101 @@ begin
 	    ThemeLoadButton(OptionsSongdirs.DelFolderButton6,       'OptionsSongdirsDeleteFolderButton6');
 
       //error popup
-      ThemeLoadBasic (ErrorPopup, 'ErrorPopup');
-      ThemeLoadButton(ErrorPopup.Button1, 'ErrorPopupButton1');
-      ThemeLoadText  (ErrorPopup.TextError,'ErrorPopupText');
+      ThemeLoadBasic (ErrorPopup,                               'ErrorPopup');
+      ThemeLoadButton(ErrorPopup.Button1,                       'ErrorPopupButton1');
+      ThemeLoadText  (ErrorPopup.TextError,                     'ErrorPopupText');
 
       //check popup
-      ThemeLoadBasic (CheckPopup, 'CheckPopup');
-      ThemeLoadButton(CheckPopup.Button1, 'CheckPopupButton1');
-      ThemeLoadButton(CheckPopup.Button2, 'CheckPopupButton2');
-      ThemeLoadText(CheckPopup.TextCheck , 'CheckPopupText');
+      ThemeLoadBasic (CheckPopup,                              'CheckPopup');
+      ThemeLoadButton(CheckPopup.Button1,                      'CheckPopupButton1');
+      ThemeLoadButton(CheckPopup.Button2,                      'CheckPopupButton2');
+      ThemeLoadText(CheckPopup.TextCheck ,                     'CheckPopupText');
 
       // insert user popup
-      ThemeLoadBasic (InsertUserPopup, 'InsertUserPopup');
-      ThemeLoadText  (InsertUserPopup.TextInsertUser , 'InsertUserPopupText');
-      ThemeLoadButton(InsertUserPopup.ButtonUsername, 'InsertUserPopupButtonUsername');
-      ThemeLoadButton(InsertUserPopup.ButtonPassword, 'InsertUserPopupButtonPassword');
-      ThemeLoadButton(InsertUserPopup.Button1, 'InsertUserPopupButton1');
-      ThemeLoadButton(InsertUserPopup.Button2, 'InsertUserPopupButton2');
+      ThemeLoadBasic (InsertUserPopup,                         'InsertUserPopup');
+      ThemeLoadText  (InsertUserPopup.TextInsertUser ,         'InsertUserPopupText');
+      ThemeLoadButton(InsertUserPopup.ButtonUsername,          'InsertUserPopupButtonUsername');
+      ThemeLoadButton(InsertUserPopup.ButtonPassword,          'InsertUserPopupButtonPassword');
+      ThemeLoadButton(InsertUserPopup.Button1,                 'InsertUserPopupButton1');
+      ThemeLoadButton(InsertUserPopup.Button2,                 'InsertUserPopupButton2');
 
       // send score popup
-      ThemeLoadBasic (SendScorePopup, 'SendScorePopup');
-      ThemeLoadSelectSlide(SendScorePopup.SelectSlide1, 'SendScorePopupSelectSlide1');
-      ThemeLoadSelectSlide(SendScorePopup.SelectSlide2, 'SendScorePopupSelectSlide2');
-      ThemeLoadSelectSlide(SendScorePopup.SelectSlide3, 'SendScorePopupSelectSlide3');
-      ThemeLoadButton(SendScorePopup.ButtonUsername, 'SendScorePopupButtonUsername');
-      ThemeLoadButton(SendScorePopup.ButtonPassword, 'SendScorePopupButtonPassword');
-      ThemeLoadButton(SendScorePopup.Button1, 'SendScorePopupButton1');
-      ThemeLoadButton(SendScorePopup.Button2, 'SendScorePopupButton2');
+      ThemeLoadBasic (SendScorePopup,                          'SendScorePopup');
+      ThemeLoadSelectSlide(SendScorePopup.SelectSlide1,        'SendScorePopupSelectSlide1');
+      ThemeLoadSelectSlide(SendScorePopup.SelectSlide2,        'SendScorePopupSelectSlide2');
+      ThemeLoadSelectSlide(SendScorePopup.SelectSlide3,        'SendScorePopupSelectSlide3');
+      ThemeLoadButton(SendScorePopup.ButtonUsername,           'SendScorePopupButtonUsername');
+      ThemeLoadButton(SendScorePopup.ButtonPassword,           'SendScorePopupButtonPassword');
+      ThemeLoadButton(SendScorePopup.Button1,                  'SendScorePopupButton1');
+      ThemeLoadButton(SendScorePopup.Button2,                  'SendScorePopupButton2');
 
       // download score popup
-      ThemeLoadBasic (ScoreDownloadPopup, 'ScoreDownloadPopup');
-      ThemeLoadButton(ScoreDownloadPopup.Button1, 'ScoreDownloadPopupButton1');
-      ThemeLoadText(ScoreDownloadPopup.TextSongScoreDownload , 'ScoreDownloadPopupSongText');
-      ThemeLoadText(ScoreDownloadPopup.TextWebScoreDownload , 'ScoreDownloadPopupWebText');
+      ThemeLoadBasic (ScoreDownloadPopup,                      'ScoreDownloadPopup');
+      ThemeLoadButton(ScoreDownloadPopup.Button1,              'ScoreDownloadPopupButton1');
+      ThemeLoadText(ScoreDownloadPopup.TextSongScoreDownload,  'ScoreDownloadPopupSongText');
+      ThemeLoadText(ScoreDownloadPopup.TextWebScoreDownload,   'ScoreDownloadPopupWebText');
       ThemeLoadStatic(ScoreDownloadPopup.DownloadProgressSong, 'ScoreDownloadPopupProgressSong');
-      ThemeLoadStatic(ScoreDownloadPopup.DownloadProgressWeb, 'ScoreDownloadPopupProgressWeb');
+      ThemeLoadStatic(ScoreDownloadPopup.DownloadProgressWeb,  'ScoreDownloadPopupProgressWeb');
 
       //Song Menu
-      ThemeLoadBasic (SongMenu, 'SongMenu');
-      ThemeLoadButton(SongMenu.Button1, 'SongMenuButton1');
-      ThemeLoadButton(SongMenu.Button2, 'SongMenuButton2');
-      ThemeLoadButton(SongMenu.Button3, 'SongMenuButton3');
-      ThemeLoadButton(SongMenu.Button4, 'SongMenuButton4');
-      ThemeLoadButton(SongMenu.Button5, 'SongMenuButton5');
-      ThemeLoadButton(SongMenu.Button6, 'SongMenuButton6');
-      ThemeLoadButton(SongMenu.Button7, 'SongMenuButton7');
-      ThemeLoadSelectSlide(SongMenu.SelectSlide1, 'SongMenuSelectSlide1');
-      ThemeLoadSelectSlide(SongMenu.SelectSlide2, 'SongMenuSelectSlide2');
-      ThemeLoadSelectSlide(SongMenu.SelectSlide3, 'SongMenuSelectSlide3');
+      ThemeLoadBasic(SongMenu,                                 'SongMenu');
+      ThemeLoadButton(SongMenu.Button1,                        'SongMenuButton1');
+      ThemeLoadButton(SongMenu.Button2,                        'SongMenuButton2');
+      ThemeLoadButton(SongMenu.Button3,                        'SongMenuButton3');
+      ThemeLoadButton(SongMenu.Button4,                        'SongMenuButton4');
+      ThemeLoadButton(SongMenu.Button5,                        'SongMenuButton5');
+      ThemeLoadButton(SongMenu.Button6,                        'SongMenuButton6');
+      ThemeLoadButton(SongMenu.Button7,                        'SongMenuButton7');
+      ThemeLoadSelectSlide(SongMenu.SelectSlide1,              'SongMenuSelectSlide1');
+      ThemeLoadSelectSlide(SongMenu.SelectSlide2,              'SongMenuSelectSlide2');
+      ThemeLoadSelectSlide(SongMenu.SelectSlide3,              'SongMenuSelectSlide3');
+      ThemeLoadStatic(SongMenu.StaticSelectSong,               'SongMenuStaticSelectSong');
+      ThemeLoadStatic(SongMenu.StaticSortSongs,                'SongMenuStaticSortSongs');
+      ThemeLoadStatic(SongMenu.StaticUpdateScore,              'SongMenuStaticUpdateScore');
+      ThemeLoadStatic(SongMenu.StaticRefresh,                  'SongMenuStaticRefresh');
+      ThemeLoadStatic(SongMenu.StaticPlaylist,                 'SongMenuStaticPlaylist');
+      ThemeLoadStatic(SongMenu.StaticRemoval,                  'SongMenuStaticRemoval');
 
-      ThemeLoadText(SongMenu.TextMenu, 'SongMenuTextMenu');
+      ThemeLoadText(SongMenu.TextMenu,                         'SongMenuTextMenu');
 
       //Party Options
-      ThemeLoadBasic(PartyOptions, 'PartyOptions');
-	  ThemeLoadButton(PartyOptions.ButtonChallenge, 'PartyOptionsButtonChallenge');
-	  ThemeLoadButton(PartyOptions.ButtonClassic, 'PartyOptionsButtonClassic');
-	  ThemeLoadButton(PartyOptions.ButtonTournament, 'PartyOptionsButtonTournament');
-      ThemeLoadSelectSlide(PartyOptions.SelectLevel, 'PartyOptionsSelectLevel');
-      ThemeLoadSelectSlide(PartyOptions.SelectPlayList, 'PartyOptionsSelectPlayList');
-      ThemeLoadSelectSlide(PartyOptions.SelectPlayListItems, 'PartyOptionsSelectPlayListItems');
+      ThemeLoadBasic(PartyOptions,                             'PartyOptions');
+	  ThemeLoadButton(PartyOptions.ButtonChallenge,            'PartyOptionsButtonChallenge');
+	  ThemeLoadButton(PartyOptions.ButtonClassic,              'PartyOptionsButtonClassic');
+	  ThemeLoadButton(PartyOptions.ButtonTournament,           'PartyOptionsButtonTournament');
+      ThemeLoadSelectSlide(PartyOptions.SelectLevel,           'PartyOptionsSelectLevel');
+      ThemeLoadSelectSlide(PartyOptions.SelectPlayList,        'PartyOptionsSelectPlayList');
+      ThemeLoadSelectSlide(PartyOptions.SelectPlayListItems,   'PartyOptionsSelectPlayListItems');
       {ThemeLoadButton (ButtonNext, 'ButtonNext');
       ThemeLoadButton (ButtonPrev, 'ButtonPrev');}
 
       //Party Player
-      ThemeLoadBasic(PartyPlayer, 'PartyPlayer');
+      ThemeLoadBasic(PartyPlayer,                              'PartyPlayer');
 
-      ThemeLoadSelectSlide(PartyPlayer.SelectTeams, 'PartyPlayerSelectTeams');
-      ThemeLoadSelectSlide(PartyPlayer.SelectPlayers1, 'PartyPlayerSelectPlayers1');
-      ThemeLoadSelectSlide(PartyPlayer.SelectPlayers2, 'PartyPlayerSelectPlayers2');
-      ThemeLoadSelectSlide(PartyPlayer.SelectPlayers3, 'PartyPlayerSelectPlayers3');
+      ThemeLoadSelectSlide(PartyPlayer.SelectTeams,            'PartyPlayerSelectTeams');
+      ThemeLoadSelectSlide(PartyPlayer.SelectPlayers1,         'PartyPlayerSelectPlayers1');
+      ThemeLoadSelectSlide(PartyPlayer.SelectPlayers2,         'PartyPlayerSelectPlayers2');
+      ThemeLoadSelectSlide(PartyPlayer.SelectPlayers3,         'PartyPlayerSelectPlayers3');
 
-      ThemeLoadButton(PartyPlayer.Team1Name, 'PartyPlayerTeam1Name');
-      ThemeLoadButton(PartyPlayer.Player1Name, 'PartyPlayerPlayer1Name');
-      ThemeLoadButton(PartyPlayer.Player2Name, 'PartyPlayerPlayer2Name');
-      ThemeLoadButton(PartyPlayer.Player3Name, 'PartyPlayerPlayer3Name');
-      ThemeLoadButton(PartyPlayer.Player4Name, 'PartyPlayerPlayer4Name');
+      ThemeLoadButton(PartyPlayer.Team1Name,                   'PartyPlayerTeam1Name');
+      ThemeLoadButton(PartyPlayer.Player1Name,                 'PartyPlayerPlayer1Name');
+      ThemeLoadButton(PartyPlayer.Player2Name,                 'PartyPlayerPlayer2Name');
+      ThemeLoadButton(PartyPlayer.Player3Name,                 'PartyPlayerPlayer3Name');
+      ThemeLoadButton(PartyPlayer.Player4Name,                 'PartyPlayerPlayer4Name');
 
-      ThemeLoadButton(PartyPlayer.Team2Name, 'PartyPlayerTeam2Name');
-      ThemeLoadButton(PartyPlayer.Player5Name, 'PartyPlayerPlayer5Name');
-      ThemeLoadButton(PartyPlayer.Player6Name, 'PartyPlayerPlayer6Name');
-      ThemeLoadButton(PartyPlayer.Player7Name, 'PartyPlayerPlayer7Name');
-      ThemeLoadButton(PartyPlayer.Player8Name, 'PartyPlayerPlayer8Name');
+      ThemeLoadButton(PartyPlayer.Team2Name,                   'PartyPlayerTeam2Name');
+      ThemeLoadButton(PartyPlayer.Player5Name,                 'PartyPlayerPlayer5Name');
+      ThemeLoadButton(PartyPlayer.Player6Name,                 'PartyPlayerPlayer6Name');
+      ThemeLoadButton(PartyPlayer.Player7Name,                 'PartyPlayerPlayer7Name');
+      ThemeLoadButton(PartyPlayer.Player8Name,                 'PartyPlayerPlayer8Name');
 
-      ThemeLoadButton(PartyPlayer.Team3Name, 'PartyPlayerTeam3Name');
-      ThemeLoadButton(PartyPlayer.Player9Name, 'PartyPlayerPlayer9Name');
-      ThemeLoadButton(PartyPlayer.Player10Name, 'PartyPlayerPlayer10Name');
-      ThemeLoadButton(PartyPlayer.Player11Name, 'PartyPlayerPlayer11Name');
-      ThemeLoadButton(PartyPlayer.Player12Name, 'PartyPlayerPlayer12Name');
+      ThemeLoadButton(PartyPlayer.Team3Name,                   'PartyPlayerTeam3Name');
+      ThemeLoadButton(PartyPlayer.Player9Name,                 'PartyPlayerPlayer9Name');
+      ThemeLoadButton(PartyPlayer.Player10Name,                'PartyPlayerPlayer10Name');
+      ThemeLoadButton(PartyPlayer.Player11Name,                'PartyPlayerPlayer11Name');
+      ThemeLoadButton(PartyPlayer.Player12Name,                'PartyPlayerPlayer12Name');
 
-      ThemeLoadButton(PartyPlayer.ButtonContinue, 'PartyPlayerButtonContinue');
+      ThemeLoadButton(PartyPlayer.ButtonContinue,              'PartyPlayerButtonContinue');
 
       // Party Rounds
       ThemeLoadBasic(PartyRounds, 'PartyRounds');

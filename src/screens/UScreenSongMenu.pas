@@ -47,6 +47,12 @@ type
       CurMenu: byte; // num of the cur. shown menu
     public
       Visible: boolean; // whether the menu should be drawn
+      SongMenuStaticSelectSong:  integer;
+      SongMenuStaticSortSongs:   integer;
+      SongMenuStaticUpdateScore: integer;
+      SongMenuStaticRefresh:     integer;
+      SongMenuStaticPlaylist:    integer;
+      SongMenuStaticRemoval:     integer;
 
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
@@ -187,14 +193,17 @@ begin
   AddButton(Theme.SongMenu.Button1);
   if (Length(Button[0].Text) = 0) then
     AddButtonText(14, 20, 'Button 1');
+	SongMenuStaticSelectSong := AddStatic(Theme.SongMenu.StaticSelectSong);
 
   AddButton(Theme.SongMenu.Button2);
   if (Length(Button[1].Text) = 0) then
-    AddButtonText(14, 20, 'Button 2');
-
+	AddButtonText(14, 20, 'Button 2');
+     SongMenuStaticSortSongs := AddStatic(Theme.SongMenu.StaticSortSongs);
+	
   AddButton(Theme.SongMenu.Button3);
   if (Length(Button[2].Text) = 0) then
     AddButtonText(14, 20, 'Button 3');
+    SongMenuStaticUpdateScore := AddStatic(Theme.SongMenu.StaticUpdateScore);
 
   AddSelectSlide(Theme.SongMenu.SelectSlide1, SelectValue1, ISelections1);
   AddSelectSlide(Theme.SongMenu.SelectSlide2, SelectValue2, ISelections2);
@@ -203,14 +212,17 @@ begin
   AddButton(Theme.SongMenu.Button4);
   if (Length(Button[3].Text) = 0) then
     AddButtonText(14, 20, 'Button 4');
+    SongMenuStaticRefresh := AddStatic(Theme.SongMenu.StaticRefresh);
 
   AddButton(Theme.SongMenu.Button5);
   if (Length(Button[4].Text) = 0) then
     AddButtonText(14, 20, 'Button 5');
+    SongMenuStaticPlaylist := AddStatic(Theme.SongMenu.StaticPlaylist);
 
   AddButton(Theme.SongMenu.Button6);
   if (Length(Button[5].Text) = 0) then
     AddButtonText(14, 20, 'Button 6');
+    SongMenuStaticRemoval := AddStatic(Theme.SongMenu.StaticRemoval);
 	
   AddButton(Theme.SongMenu.Button7);
   if (Length(Button[6].Text) = 0) then
