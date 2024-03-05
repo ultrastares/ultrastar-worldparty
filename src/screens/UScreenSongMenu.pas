@@ -44,20 +44,22 @@ uses
 type
   TScreenSongMenu = class(TMenu)
     private
-      CurMenu: byte; // num of the cur. shown menu
+      CurMenu:         byte; // num of the cur. shown menu
+      IconSelectSong:  integer;
+      IconSortSongs:   integer;
+      IconUpdateScore: integer;
+      IconRefresh:     integer;
+      IconPlaylist:    integer;
+      IconRemoval:     integer;
     public
       Visible: boolean; // whether the menu should be drawn
-      SongMenuStaticSelectSong:  integer;
-      SongMenuStaticSortSongs:   integer;
-      SongMenuStaticUpdateScore: integer;
-      SongMenuStaticRefresh:     integer;
-      SongMenuStaticPlaylist:    integer;
-      SongMenuStaticRemoval:     integer;
 
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure MenuShow(sMenu: byte);
       procedure HandleReturn;
+      procedure ShowIcons;
+      procedure HideIcons;
       function CountMedleySongs: integer;
   end;
 
@@ -189,21 +191,25 @@ begin
   AddText(Theme.SongMenu.TextMenu);
 
   LoadFromTheme(Theme.SongMenu);
+  
+  IconSelectSong   := AddStatic(Theme.SongMenu.StaticSelectSong);
+  IconSortSongs    := AddStatic(Theme.SongMenu.StaticSortSongs);
+  IconUpdateScore  := AddStatic(Theme.SongMenu.StaticUpdateScore);
+  IconRefresh      := AddStatic(Theme.SongMenu.StaticRefresh);
+  IconPlaylist     := AddStatic(Theme.SongMenu.StaticPlaylist);
+  IconRemoval      := AddStatic(Theme.SongMenu.StaticRemoval);
 
   AddButton(Theme.SongMenu.Button1);
   if (Length(Button[0].Text) = 0) then
     AddButtonText(14, 20, 'Button 1');
-	SongMenuStaticSelectSong := AddStatic(Theme.SongMenu.StaticSelectSong);
 
   AddButton(Theme.SongMenu.Button2);
   if (Length(Button[1].Text) = 0) then
 	AddButtonText(14, 20, 'Button 2');
-     SongMenuStaticSortSongs := AddStatic(Theme.SongMenu.StaticSortSongs);
-	
+
   AddButton(Theme.SongMenu.Button3);
   if (Length(Button[2].Text) = 0) then
     AddButtonText(14, 20, 'Button 3');
-    SongMenuStaticUpdateScore := AddStatic(Theme.SongMenu.StaticUpdateScore);
 
   AddSelectSlide(Theme.SongMenu.SelectSlide1, SelectValue1, ISelections1);
   AddSelectSlide(Theme.SongMenu.SelectSlide2, SelectValue2, ISelections2);
@@ -212,18 +218,15 @@ begin
   AddButton(Theme.SongMenu.Button4);
   if (Length(Button[3].Text) = 0) then
     AddButtonText(14, 20, 'Button 4');
-    SongMenuStaticRefresh := AddStatic(Theme.SongMenu.StaticRefresh);
 
   AddButton(Theme.SongMenu.Button5);
   if (Length(Button[4].Text) = 0) then
     AddButtonText(14, 20, 'Button 5');
-    SongMenuStaticPlaylist := AddStatic(Theme.SongMenu.StaticPlaylist);
 
   AddButton(Theme.SongMenu.Button6);
   if (Length(Button[5].Text) = 0) then
     AddButtonText(14, 20, 'Button 6');
-    SongMenuStaticRemoval := AddStatic(Theme.SongMenu.StaticRemoval);
-	
+
   AddButton(Theme.SongMenu.Button7);
   if (Length(Button[6].Text) = 0) then
     AddButtonText(14, 20, 'Button 7');
@@ -265,6 +268,8 @@ begin
 
         Text[0].Text := Language.Translate('SONG_MENU_NAME_MAIN');
 
+        ShowIcons;
+
         Button[0].Visible := true;
         Button[1].Visible := true;
         Button[2].Visible := true;
@@ -303,13 +308,15 @@ begin
         CurMenu := sMenu;
         Text[0].Text := Language.Translate('SONG_MENU_NAME_SONG');
 
+        HideIcons;
+
         Button[0].Visible := true;
         Button[1].Visible := true;
         Button[2].Visible := true;
         Button[3].Visible := false;
         Button[4].Visible := true;
         Button[5].Visible := false;
-		Button[6].Visible := false;
+        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -327,7 +334,7 @@ begin
         MSongs := CountMedleySongs;
 
         Text[0].Text := Language.Translate('C_MEDLEY');
-
+        HideIcons;
         Self.Button[0].Visible := (Length(UNote.PlaylistMedley.Song) > 0)
           or (USongs.CatSongs.Song[UGraphic.ScreenSong.Interaction].Medley.Source > msNone);
         Button[1].Visible := MSongs > 1;
@@ -335,7 +342,7 @@ begin
         Button[3].Visible := false;
         Button[4].Visible := false;
         Button[5].Visible := false;
-		Button[6].Visible := false;
+        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -349,6 +356,7 @@ begin
     SM_Sorting:
       begin
         CurMenu := sMenu;
+        HideIcons;
         Self.Text[0].Text := Language.Translate('C_SORT_SONGS');
         Self.Button[0].Visible := false;
         Self.Button[1].Visible := false;
@@ -356,7 +364,7 @@ begin
         Self.Button[3].Visible := true;
         Self.Button[4].Visible := true;
         Self.Button[5].Visible := false;
-		Self.Button[6].Visible := false;
+        Self.Button[6].Visible := false;
         Self.SelectsS[0].Visible := true;
         Self.SelectsS[1].Visible := true;
         Self.SelectsS[2].Visible := true;
@@ -391,14 +399,14 @@ begin
       begin
         CurMenu := sMenu;
         Text[0].Text := Language.Translate('SONG_MENU_NAME_PLAYLIST');
-
+        HideIcons;
         Button[0].Visible := true;
         Button[1].Visible := true;
         Button[2].Visible := true;
         Button[3].Visible := false;
         Button[4].Visible := false;
         Button[5].Visible := false;
-		Button[6].Visible := false;
+        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -413,14 +421,14 @@ begin
       begin
         CurMenu := sMenu;
         Text[0].Text := Language.Translate('SONG_MENU_NAME_PLAYLIST_ADD');
-
+        HideIcons;
         Button[0].Visible := true;
         Button[1].Visible := false;
         Button[2].Visible := false;
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
-		Button[6].Visible := false;
+        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -455,14 +463,14 @@ begin
       begin
         CurMenu := sMenu;
         Text[0].Text := Language.Translate('SONG_MENU_NAME_PLAYLIST_NEW');
-
+        HideIcons;
         Button[0].Visible := false;
         Button[1].Visible := true;
         Button[2].Visible := false;
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
-		Button[6].Visible := false;
+        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -486,7 +494,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := false;
         Button[5].Visible := false;
-		Button[6].Visible := false;
+        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -500,7 +508,7 @@ begin
       begin
         CurMenu := sMenu;
         Text[0].Text := Language.Translate('C_PLAYLIST');
-
+        HideIcons;
         // show delete curent playlist button when playlist is opened
         Button[0].Visible := (CatSongs.CatNumShow = -3);
 
@@ -509,7 +517,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
-		Button[6].Visible := false;
+        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -557,7 +565,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := false;
         Button[5].Visible := false;
-		Button[6].Visible := false;
+        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -578,7 +586,7 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := false;
         Button[5].Visible := false;
-		Button[6].Visible := false;
+        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -601,7 +609,7 @@ begin
         Button[3].Visible := True;
         Button[4].Visible := false;
         Button[5].Visible := false;
-		Button[6].Visible := false;
+        Button[6].Visible := false;
 
         SelectsS[0].Visible := False;
         SelectsS[1].Visible := False;
@@ -635,14 +643,14 @@ begin
       begin
         CurMenu := sMenu;
         Text[0].Text := Language.Translate('C_REFRESH_SCORES');
-
+        HideIcons;
         Button[0].Visible := false;
         Button[1].Visible := false;
         Button[2].Visible := false;
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
-		Button[6].Visible := false;
+        Button[6].Visible := false;
 
         SelectsS[0].Visible := true;
         SelectsS[1].Visible := true;
@@ -701,7 +709,7 @@ begin
         Button[3].Visible := false;
         Button[4].Visible := false;
         Button[5].Visible := false;
-		Button[6].Visible := false;
+        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -1040,6 +1048,27 @@ begin
         end;
       end;
   end;
+end;
+
+procedure TScreenSongMenu.ShowIcons;
+begin
+     Statics[IconSelectSong].Visible   := true;
+     Statics[IconSortSongs].Visible    := true;
+     Statics[IconSortSongs].Visible    := true;
+     Statics[IconUpdateScore].Visible  := true;
+     Statics[IconRefresh].Visible      := true;
+     Statics[IconPlaylist].Visible     := true;
+     Statics[IconRemoval].Visible      := true;
+end;
+
+procedure TScreenSongMenu.HideIcons;
+begin
+     Statics[IconSelectSong].Visible   := false;
+     Statics[IconSortSongs].Visible    := false;
+     Statics[IconUpdateScore].Visible  := false;
+     Statics[IconRefresh].Visible      := false;
+     Statics[IconPlaylist].Visible     := false;
+     Statics[IconRemoval].Visible      := false;
 end;
 
 end.
