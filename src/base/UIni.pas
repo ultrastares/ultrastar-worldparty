@@ -936,7 +936,7 @@ begin
   BeatClick := ReadArrayIndex(IBeatClick, IniFile, 'Sound', 'BeatClick', 0);
 
   // Background Music
-  MusicVolume := ReadArrayIndex(IBGMusic, IniFile, 'Sound', 'BackgroundMusic', 4);
+  MusicVolume := ReadArrayIndex(IBGMusic, IniFile, 'Sound', 'BackgroundMusic', 2);
 
   // SavePlayback
   SavePlayback := ReadArrayIndex(ISavePlayback, IniFile, 'Sound', 'SavePlayback', 0);
@@ -945,7 +945,7 @@ begin
   AudioOutputBufferSizeIndex := ReadArrayIndex(IAudioOutputBufferSize, IniFile, 'Sound', 'AudioOutputBufferSize', 0);
 
   // Song Volume
-  SongVolume := ReadArrayIndex(ISongVolume, IniFile, 'Sound', 'SongVolume', 10);
+  SongVolume := ReadArrayIndex(ISongVolume, IniFile, 'Sound', 'SongVolume', 6);
 
   //Preview Fading
   PreviewFading := ReadArrayIndex(IPreviewFading, IniFile, 'Sound', 'PreviewFading', 1);
