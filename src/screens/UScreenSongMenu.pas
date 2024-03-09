@@ -50,6 +50,7 @@ type
       IconUpdateScore: integer;
       IconRefresh:     integer;
       IconPlaylist:    integer;
+      IconMedley:      integer;
       IconRemoval:     integer;
     public
       Visible: boolean; // whether the menu should be drawn
@@ -197,6 +198,7 @@ begin
   IconUpdateScore  := AddStatic(Theme.SongMenu.StaticUpdateScore);
   IconRefresh      := AddStatic(Theme.SongMenu.StaticRefresh);
   IconPlaylist     := AddStatic(Theme.SongMenu.StaticPlaylist);
+  IconMedley       := AddStatic(Theme.SongMenu.StaticMedley);
   IconRemoval      := AddStatic(Theme.SongMenu.StaticRemoval);
 
   AddButton(Theme.SongMenu.Button1);
@@ -275,7 +277,8 @@ begin
         Button[2].Visible := true;
         Button[3].Visible := true;
         Button[4].Visible := true;
-        Button[5].Visible := ((Length(PlaylistMedley.Song) > 0) or (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone));
+        Statics[IconMedley].Visible:=((Length(PlaylistMedley.Song) > 0) or (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone));
+        Button[5].Visible :=((Length(PlaylistMedley.Song) > 0) or (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone));
         Button[6].Visible := true;
 
         SelectsS[0].Visible := false;
@@ -1068,6 +1071,7 @@ begin
      Statics[IconUpdateScore].Visible  := false;
      Statics[IconRefresh].Visible      := false;
      Statics[IconPlaylist].Visible     := false;
+     Statics[IconMedley].Visible       := false;
      Statics[IconRemoval].Visible      := false;
 end;
 
