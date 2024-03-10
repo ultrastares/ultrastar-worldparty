@@ -50,7 +50,6 @@ type
       IconUpdateScore: integer;
       IconRefresh:     integer;
       IconPlaylist:    integer;
-      IconMedley:      integer;
       IconRemoval:     integer;
     public
       Visible: boolean; // whether the menu should be drawn
@@ -198,7 +197,6 @@ begin
   IconUpdateScore  := AddStatic(Theme.SongMenu.StaticUpdateScore);
   IconRefresh      := AddStatic(Theme.SongMenu.StaticRefresh);
   IconPlaylist     := AddStatic(Theme.SongMenu.StaticPlaylist);
-  IconMedley       := AddStatic(Theme.SongMenu.StaticMedley);
   IconRemoval      := AddStatic(Theme.SongMenu.StaticRemoval);
 
   AddButton(Theme.SongMenu.Button1);
@@ -228,10 +226,6 @@ begin
   AddButton(Theme.SongMenu.Button6);
   if (Length(Button[5].Text) = 0) then
     AddButtonText(14, 20, 'Button 6');
-
-  AddButton(Theme.SongMenu.Button7);
-  if (Length(Button[6].Text) = 0) then
-    AddButtonText(14, 20, 'Button 7');
 
   Interaction := 0;
 end;
@@ -277,9 +271,7 @@ begin
         Button[2].Visible := true;
         Button[3].Visible := true;
         Button[4].Visible := true;
-        Statics[IconMedley].Visible:=((Length(PlaylistMedley.Song) > 0) or (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone));
-        Button[5].Visible :=((Length(PlaylistMedley.Song) > 0) or (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone));
-        Button[6].Visible := true;
+        Button[5].Visible := true;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -292,18 +284,16 @@ begin
         Button[3].Selectable := true;
         Button[4].Selectable := true;
         Button[5].Selectable := true;
-        Button[6].Selectable := true;
 
         Button[0].Text[0].Text := Language.Translate('C_SELECT_THIS_SONG');
         Button[1].Text[0].Text := Language.Translate('C_SORT_SONGS');
         Button[2].Text[0].Text := Language.Translate('C_REFRESH_SCORES');
         Button[3].Text[0].Text := Language.Translate('C_SEARCH_NEW_SONGS');
         Button[4].Text[0].Text := Language.Translate('C_OPEN_PLAYLIST');
-        Button[5].Text[0].Text := Language.Translate('C_SING_MEDLEY');
 		If (vocal_remover_activated) then
-           Button[6].Text[0].Text := Language.Translate('SONG_MENU_RESUME_VOICE')
+           Button[5].Text[0].Text := Language.Translate('SONG_MENU_RESUME_VOICE')
 		else
-		   Button[6].Text[0].Text := Language.Translate('SONG_MENU_MUTE_VOICE');
+		   Button[5].Text[0].Text := Language.Translate('SONG_MENU_MUTE_VOICE');
 
       end;
     SM_Song:
@@ -316,10 +306,9 @@ begin
         Button[0].Visible := true;
         Button[1].Visible := true;
         Button[2].Visible := true;
-        Button[3].Visible := false;
+        Button[3].Visible :=((Length(PlaylistMedley.Song) > 0) or (CatSongs.Song[ScreenSong.Interaction].Medley.Source > msNone));
         Button[4].Visible := true;
         Button[5].Visible := false;
-        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -328,6 +317,7 @@ begin
         Button[0].Text[0].Text := Language.Translate('SONG_MENU_PLAY');
         Button[1].Text[0].Text := Language.Translate('SONG_MENU_CHANGEPLAYERS');
         Button[2].Text[0].Text := Language.Translate('SONG_MENU_PLAYLIST_ADD');
+        Button[3].Text[0].Text := Language.Translate('C_SING_MEDLEY');
         Button[4].Text[0].Text := Language.Translate('C_BACK');
       end;
 
@@ -345,7 +335,6 @@ begin
         Button[3].Visible := false;
         Button[4].Visible := false;
         Button[5].Visible := false;
-        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -367,7 +356,6 @@ begin
         Self.Button[3].Visible := true;
         Self.Button[4].Visible := true;
         Self.Button[5].Visible := false;
-        Self.Button[6].Visible := false;
         Self.SelectsS[0].Visible := true;
         Self.SelectsS[1].Visible := true;
         Self.SelectsS[2].Visible := true;
@@ -409,7 +397,6 @@ begin
         Button[3].Visible := false;
         Button[4].Visible := false;
         Button[5].Visible := false;
-        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -431,7 +418,6 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
-        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -473,7 +459,6 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
-        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -497,7 +482,6 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := false;
         Button[5].Visible := false;
-        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -520,7 +504,6 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
-        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -568,7 +551,6 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := false;
         Button[5].Visible := false;
-        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -589,7 +571,6 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := false;
         Button[5].Visible := false;
-        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -612,7 +593,6 @@ begin
         Button[3].Visible := True;
         Button[4].Visible := false;
         Button[5].Visible := false;
-        Button[6].Visible := false;
 
         SelectsS[0].Visible := False;
         SelectsS[1].Visible := False;
@@ -653,7 +633,6 @@ begin
         Button[3].Visible := true;
         Button[4].Visible := true;
         Button[5].Visible := false;
-        Button[6].Visible := false;
 
         SelectsS[0].Visible := true;
         SelectsS[1].Visible := true;
@@ -712,7 +691,6 @@ begin
         Button[3].Visible := false;
         Button[4].Visible := false;
         Button[5].Visible := false;
-        Button[6].Visible := false;
 
         SelectsS[0].Visible := false;
         SelectsS[1].Visible := false;
@@ -746,9 +724,7 @@ begin
               MenuShow(SM_Search_new_songs);
           7: // button 5
               MenuShow(SM_Playlist_Load);
-          8: // button 6
-              MenuShow(SM_Medley);
-          9: //button 7
+          8: //button 7
               begin
                 UAudioPlaybackBase.ToggleVoiceRemoval();
                 Visible := false;
@@ -788,6 +764,11 @@ begin
             begin
               // show add to playlist menu
               MenuShow(SM_Playlist_Add);
+            end;
+          6: // button 4
+            begin
+              // show Medley menu
+              MenuShow(SM_Medley);
             end;
 
           7: // button 5
@@ -1071,7 +1052,6 @@ begin
      Statics[IconUpdateScore].Visible  := false;
      Statics[IconRefresh].Visible      := false;
      Statics[IconPlaylist].Visible     := false;
-     Statics[IconMedley].Visible       := false;
      Statics[IconRemoval].Visible      := false;
 end;
 

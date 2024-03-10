@@ -1054,7 +1054,6 @@ type
     StaticUpdateScore: TThemeStatic;
     StaticRefresh:     TThemeStatic;
     StaticPlaylist:    TThemeStatic;
-    StaticMedley:      TThemeStatic;
     StaticRemoval:     TThemeStatic;
     TextMenu:          TThemeText;
   end;
@@ -2376,7 +2375,6 @@ begin
       ThemeLoadStatic(SongMenu.StaticUpdateScore,              'SongMenuStaticUpdateScore');
       ThemeLoadStatic(SongMenu.StaticRefresh,                  'SongMenuStaticRefresh');
       ThemeLoadStatic(SongMenu.StaticPlaylist,                 'SongMenuStaticPlaylist');
-      ThemeLoadStatic(SongMenu.StaticMedley,                   'SongMenuStaticMedley');
       ThemeLoadStatic(SongMenu.StaticRemoval,                  'SongMenuStaticRemoval');
 
       ThemeLoadText(SongMenu.TextMenu,                         'SongMenuTextMenu');
