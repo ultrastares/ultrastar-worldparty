@@ -4,8 +4,8 @@
 
 ; Product Information:
 
-!define VersionStr "21.02"
-!define FullVersion "21.02"
+!define VersionStr "24.08"
+!define FullVersion "24.08"
 
 !define installername " Installer"
 !define installerexe "WorldParty ${VersionStr} installer"
