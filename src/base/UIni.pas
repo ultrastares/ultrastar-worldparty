@@ -945,7 +945,7 @@ begin
   AudioOutputBufferSizeIndex := ReadArrayIndex(IAudioOutputBufferSize, IniFile, 'Sound', 'AudioOutputBufferSize', 0);
 
   // Song Volume
-  SongVolume := ReadArrayIndex(ISongVolume, IniFile, 'Sound', 'SongVolume', 6);
+  SongVolume := ReadArrayIndex(ISongVolume, IniFile, 'Sound', 'SongVolume', 5);
 
   //Preview Fading
   PreviewFading := ReadArrayIndex(IPreviewFading, IniFile, 'Sound', 'PreviewFading', 1);
