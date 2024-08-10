@@ -1,7 +1,9 @@
-//from "sdl.h"
+// based on "sdl.h"
 
 type
-  TSDL_Init = type UInt32;
+  PPSDL_Init = ^PSDL_Init;
+  PSDL_Init = ^TSDL_Init;
+  TSDL_Init = type cuint32;
 
 const
   SDL_INIT_TIMER          = TSDL_Init($00000001);
@@ -39,20 +41,20 @@ const
  *  Unless the SDL_INIT_NOPARACHUTE flag is set, it will install cleanup
  *  signal handlers for some commonly ignored fatal signals (like SIGSEGV).
  *}
-
-function SDL_Init(flags: TSDL_Init): SInt32 cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_Init' {$ENDIF} {$ENDIF};
+function SDL_Init(flags: TSDL_Init): cint; cdecl;
+  external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_Init' {$ENDIF} {$ENDIF};
 
 {**
  *  This function initializes specific SDL subsystems
  *}
-
-function SDL_InitSubSystem(flags: TSDL_Init): SInt32 cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_InitSubSystem' {$ENDIF} {$ENDIF};
+function SDL_InitSubSystem(flags: TSDL_Init): cint; cdecl;
+  external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_InitSubSystem' {$ENDIF} {$ENDIF};
 
 {**
  *  This function cleans up specific SDL subsystems
  *}
- 
-procedure SDL_QuitSubSystem(flags: TSDL_Init) cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_QuitSubSystem' {$ENDIF} {$ENDIF};
+procedure SDL_QuitSubSystem(flags: TSDL_Init); cdecl;
+  external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_QuitSubSystem' {$ENDIF} {$ENDIF};
 
 {**
  *  This function returns a mask of the specified subsystems which have
@@ -60,13 +62,13 @@ procedure SDL_QuitSubSystem(flags: TSDL_Init) cdecl; external SDL_LibName {$IFDE
  *  
  *  If flags is 0, it returns a mask of all initialized subsystems.
  *}
- 
-function SDL_WasInit(flags: TSDL_Init): UInt32 cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_WasInit' {$ENDIF} {$ENDIF};
+function SDL_WasInit(flags: TSDL_Init): cuint32; cdecl;
+  external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_WasInit' {$ENDIF} {$ENDIF};
 
 {**
  *  This function cleans up all initialized subsystems. You should
  *  call it upon all exit conditions.
  *}
- 
-procedure SDL_Quit() cdecl; external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_Quit' {$ENDIF} {$ENDIF};
+procedure SDL_Quit(); cdecl;
+  external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_Quit' {$ENDIF} {$ENDIF};
 

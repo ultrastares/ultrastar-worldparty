@@ -21,12 +21,17 @@ unit sdl2_mixer;
   3. This notice may not be removed or altered from any source distribution.
 *}
 
-interface
-
 {$I jedi.inc}
 
+interface
+
 uses
+  {$IFDEF FPC}
+  ctypes,
+  {$ENDIF}
   SDL2;
+
+{$I ctypes.inc}
 
 const
   {$IFDEF WINDOWS}
@@ -90,13 +95,15 @@ const
   MIX_INIT_FLUIDSYNTH  = $00000020;
 }
 type
-  TMIX_InitFlags = Integer;
+  PPMIX_InitFlags = ^PMIX_InitFlags;
+  PMIX_InitFlags = ^TMIX_InitFlags;
+  TMIX_InitFlags = cint;
 
   {* Loads dynamic libraries and prepares them for use.  Flags should be
      one or more flags from MIX_InitFlags OR'd together.
      It returns the flags successfully initialized, or 0 on failure.
    *}
-function Mix_Init(flags: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_Init' {$ENDIF} {$ENDIF};
+function Mix_Init(flags: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_Init' {$ENDIF} {$ENDIF};
 
   {* Unloads libraries loaded with Mix_Init *}
 procedure Mix_Quit() cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_Quit' {$ENDIF} {$ENDIF};
@@ -126,18 +133,23 @@ const
 
   {* The internal format for an audio chunk *}
 type
+  PPMix_Chunk = ^PMix_Chunk;
   PMix_Chunk = ^TMix_Chunk;
   TMix_Chunk = record
-    allocated: Integer;
-    abuf: PUInt8;
-    alen: UInt32;
-    volume: UInt8;       {* Per-sample volume, 0-128 *}
+    allocated: cint;
+    abuf: pcuint8;
+    alen: cuint32;
+    volume: cuint8;       {* Per-sample volume, 0-128 *}
   end;
 
   {* The different fading types supported *}
 type
+  PPMix_Fading = ^PMix_Fading;
+  PMix_Fading = ^TMix_Fading;
   TMix_Fading = (MIX_NO_FADING, MIX_FADING_OUT, MIX_FADING_IN);
 
+  PPMix_MusicType = ^PMix_MusicType;
+  PMix_MusicType = ^TMix_MusicType;
   TMix_MusicType = (
     MUS_NONE,
     MUS_CMD,
@@ -153,41 +165,42 @@ type
   );
 
   {* The internal format for a music chunk interpreted via mikmod *}
+  PPMix_Music = ^PMix_Music;
   PMix_Music = ^TMix_Music;
   TMix_Music = record end;
 
   {* Open the mixer with a certain audio format *}
-function Mix_OpenAudio(frequency: Integer; format: UInt16; channels: Integer; chunksize: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_OpenAudio' {$ENDIF} {$ENDIF};
+function Mix_OpenAudio(frequency: cint; format: cuint16; channels: cint; chunksize: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_OpenAudio' {$ENDIF} {$ENDIF};
 
   {* Dynamically change the number of channels managed by the mixer.
      If decreasing the number of channels, the upper channels are
      stopped.
      This function returns the new number of allocated channels.
    *}
-function Mix_AllocateChannels(numchans: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_AllocateChannels' {$ENDIF} {$ENDIF};
+function Mix_AllocateChannels(numchans: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_AllocateChannels' {$ENDIF} {$ENDIF};
 
   {* Find out what the actual audio device parameters are.
      This function returns 1 if the audio has been opened, 0 otherwise.
    *}
-function Mix_QuerySpec(frequency: PInt; format: PUInt16; channels: PInt): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_QuerySpec' {$ENDIF} {$ENDIF};
+function Mix_QuerySpec(frequency: pcint; format: pcuint16; channels: pcint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_QuerySpec' {$ENDIF} {$ENDIF};
 
   {* Load a wave file or a music (.mod .s3m .it .xm) file *}
-function Mix_LoadWAV_RW(src: PSDL_RWops; freesrc: Integer): PMix_Chunk cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_LoadWAV_RW' {$ENDIF} {$ENDIF};
+function Mix_LoadWAV_RW(src: PSDL_RWops; freesrc: cint): PMix_Chunk cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_LoadWAV_RW' {$ENDIF} {$ENDIF};
 function Mix_LoadWAV(_file: PAnsiChar): PMix_Chunk;
 function Mix_LoadMUS(_file: PAnsiChar): PMix_Music cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_LoadMUS' {$ENDIF} {$ENDIF};
 
   {* Load a music file from an SDL_RWop object (Ogg and MikMod specific currently)
      Matt Campbell (matt@campbellhome.dhs.org) April 2000 *}
-function Mix_LoadMUS_RW(src: PSDL_RWops; freesrc: Integer): PMix_Music cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_LoadMUS_RW' {$ENDIF} {$ENDIF};
+function Mix_LoadMUS_RW(src: PSDL_RWops; freesrc: cint): PMix_Music cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_LoadMUS_RW' {$ENDIF} {$ENDIF};
 
   {* Load a music file from an SDL_RWop object assuming a specific format *}
-function Mix_LoadMUSType_RW(src: PSDL_RWops; _type: TMix_MusicType; freesrc: Integer): PMix_Music cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_LoadMUSType_RW' {$ENDIF} {$ENDIF};
+function Mix_LoadMUSType_RW(src: PSDL_RWops; _type: TMix_MusicType; freesrc: cint): PMix_Music cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_LoadMUSType_RW' {$ENDIF} {$ENDIF};
 
   {* Load a wave file of the mixer format from a memory buffer *}
-function Mix_QuickLoad_WAV(mem: PUInt8): PMix_Chunk cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_QuickLoad_WAV' {$ENDIF} {$ENDIF};
+function Mix_QuickLoad_WAV(mem: pcuint8): PMix_Chunk cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_QuickLoad_WAV' {$ENDIF} {$ENDIF};
 
   {* Load raw audio data of the mixer format from a memory buffer *}
-function Mix_QuickLoad_RAW(mem: PUInt8; len: UInt32): PMix_Chunk cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_QuickLoad_RAW' {$ENDIF} {$ENDIF};
+function Mix_QuickLoad_RAW(mem: pcuint8; len: cuint32): PMix_Chunk cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_QuickLoad_RAW' {$ENDIF} {$ENDIF};
 
   {* Free an audio chunk previously loaded *}
 procedure Mix_FreeChunk(chunk: PMix_Chunk) cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FreeChunk' {$ENDIF} {$ENDIF};
@@ -212,15 +225,15 @@ procedure Mix_FreeMusic(music: PMix_Music) cdecl; external MIX_LibName {$IFDEF D
      These return values are static, read-only data; do not modify or free it.
      The pointers remain valid until you call Mix_CloseAudio().
   *}
-function Mix_GetNumChunkDecoders: Integer cdecl;
+function Mix_GetNumChunkDecoders: cint cdecl;
   external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GetNumChunkDecoders' {$ENDIF} {$ENDIF};
-function Mix_GetChunkDecoder(index: Integer): PAnsiChar cdecl;
+function Mix_GetChunkDecoder(index: cint): PAnsiChar cdecl;
   external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GetChunkDecoder' {$ENDIF} {$ENDIF};
 function Mix_HasChunkDecoder(const name: PAnsiChar): TSDL_Bool cdecl;
   external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_HasChunkDecoder' {$ENDIF} {$ENDIF};
-function Mix_GetNumMusicDecoders: Integer cdecl;
+function Mix_GetNumMusicDecoders: cint cdecl;
   external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GetNumMusicDecoders' {$ENDIF} {$ENDIF};
-function Mix_GetMusicDecoder(index: Integer): PAnsiChar cdecl;
+function Mix_GetMusicDecoder(index: cint): PAnsiChar cdecl;
   external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GetMusicDecoder' {$ENDIF} {$ENDIF};
 function Mix_HasMusicDecoder(const name: PAnsiChar): TSDL_Bool cdecl;
   external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_HasMusicDecoder' {$ENDIF} {$ENDIF};
@@ -235,7 +248,9 @@ function Mix_GetMusicType(music: TMix_Music): TMix_MusicType cdecl; external MIX
      or add a custom mixer filter for the stream data.
   *}
 type
-  TMix_Func = procedure(udata: Pointer; stream: PUInt8; len: Integer) cdecl;
+  PPMix_Func = ^PMix_Func;
+  PMix_Func = ^TMix_Func;
+  TMix_Func = procedure(udata: Pointer; stream: pcuint8; len: cint) cdecl;
 
 procedure Mix_SetPostMix(func: TMix_Func; arg: Pointer) cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetPostMix' {$ENDIF} {$ENDIF};
 
@@ -248,6 +263,7 @@ procedure Mix_HookMusic(func: TMix_Func; arg: Pointer) cdecl; external MIX_LibNa
    *  or when it is stopped from a call to Mix_HaltMusic.
    *}
 type
+  PPMix_Music_Finished = ^PMix_Music_Finished;
   PMix_Music_Finished = ^TMix_Music_Finished;
   TMix_Music_Finished = procedure() cdecl;
 
@@ -265,7 +281,9 @@ function Mix_GetMusicHookData: Pointer cdecl; external MIX_LibName {$IFDEF DELPH
    *  before calling your callback.
    *}
 type
-  TMix_Channel_Finished = procedure(channel: Integer) cdecl;
+  PPMix_Channel_Finished = ^PMix_Channel_Finished;
+  PMix_Channel_Finished = ^TMix_Channel_Finished;
+  TMix_Channel_Finished = procedure(channel: cint) cdecl;
 
 procedure Mix_ChannelFinished(channel_finished: TMix_Channel_Finished) cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_ChannelFinished' {$ENDIF} {$ENDIF};
 
@@ -291,7 +309,9 @@ const
    * DO NOT EVER call SDL_LockAudio() from your callback function!
    *}
 type
-  TMix_EffectFunc_t = procedure(chan: Integer; stream: Pointer; len: Integer; udata: Pointer) cdecl;
+  PPMix_EffectFunc_t = ^PMix_EffectFunc_t;
+  PMix_EffectFunc_t = ^TMix_EffectFunc_t;
+  TMix_EffectFunc_t = procedure(chan: cint; stream: Pointer; len: cint; udata: Pointer) cdecl;
 
   {*
    * This is a callback that signifies that a channel has finished all its
@@ -303,7 +323,9 @@ type
    * DO NOT EVER call SDL_LockAudio() from your callback function!
    *}
 type
-  TMix_EffectDone_t = procedure(chan: Integer; udata: Pointer) cdecl;
+  PPMix_EffectDone_t = ^PMix_EffectDone_t;
+  PMix_EffectDone_t = ^TMix_EffectDone_t;
+  TMix_EffectDone_t = procedure(chan: cint; udata: Pointer) cdecl;
 
   {* Register a special effect function. At mixing time, the channel data is
    *  copied into a buffer and passed through each registered effect function.
@@ -351,7 +373,7 @@ type
    * returns zero if error (no such channel), nonzero if added.
    *  Error messages can be retrieved from Mix_GetError().
    *}
-function Mix_RegisterEffect(chan: Integer; f: TMix_EffectFunc_t; d: TMix_EffectDone_t; arg: Pointer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_RegisterEffect' {$ENDIF} {$ENDIF};
+function Mix_RegisterEffect(chan: cint; f: TMix_EffectFunc_t; d: TMix_EffectDone_t; arg: Pointer): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_RegisterEffect' {$ENDIF} {$ENDIF};
 
   {* You may not need to call this explicitly, unless you need to stop an
    *  effect from processing in the middle of a chunk's playback.
@@ -361,7 +383,7 @@ function Mix_RegisterEffect(chan: Integer; f: TMix_EffectFunc_t; d: TMix_EffectD
    * returns zero if error (no such channel or effect), nonzero if removed.
    *  Error messages can be retrieved from Mix_GetError().
    *}
-function Mix_UnregisterEffect(channel: Integer; f: TMix_EffectFunc_t): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_UnregisterEffect' {$ENDIF} {$ENDIF};
+function Mix_UnregisterEffect(channel: cint; f: TMix_EffectFunc_t): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_UnregisterEffect' {$ENDIF} {$ENDIF};
 
   {* You may not need to call this explicitly, unless you need to stop all
    *  effects from processing in the middle of a chunk's playback. Note that
@@ -374,7 +396,7 @@ function Mix_UnregisterEffect(channel: Integer; f: TMix_EffectFunc_t): Integer c
    * returns zero if error (no such channel), nonzero if all effects removed.
    *  Error messages can be retrieved from Mix_GetError().
    *}
-function Mix_UnregisterAllEffects(channel: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_UnregisterEffects' {$ENDIF} {$ENDIF};
+function Mix_UnregisterAllEffects(channel: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_UnregisterEffects' {$ENDIF} {$ENDIF};
 
 const
   MIX_EFFECTSMAXSPEED = 'MIX_EFFECTSMAXSPEED';
@@ -413,7 +435,7 @@ const
    *  mode is a no-op, but this call will return successful in that case.
    *  Error messages can be retrieved from Mix_GetError().
    *}
-function Mix_SetPanning(channel: Integer; left: UInt8; right: UInt8): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetPanning' {$ENDIF} {$ENDIF};
+function Mix_SetPanning(channel: cint; left: cuint8; right: cuint8): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetPanning' {$ENDIF} {$ENDIF};
 
   {* Set the position of a channel. (angle) is an integer from 0 to 360, that
    *  specifies the location of the sound in relation to the listener. (angle)
@@ -452,7 +474,7 @@ function Mix_SetPanning(channel: Integer; left: UInt8; right: UInt8): Integer cd
    *  nonzero if position effect is enabled.
    *  Error messages can be retrieved from Mix_GetError().
    *}
-function Mix_SetPosition(channel: Integer; angle: SInt16; distance: UInt8): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetPosition' {$ENDIF} {$ENDIF};
+function Mix_SetPosition(channel: cint; angle: cint16; distance: cuint8): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetPosition' {$ENDIF} {$ENDIF};
 
   {* Set the "distance" of a channel. (distance) is an integer from 0 to 255
    *  that specifies the location of the sound in relation to the listener.
@@ -481,7 +503,7 @@ function Mix_SetPosition(channel: Integer; angle: SInt16; distance: UInt8): Inte
    *  nonzero if position effect is enabled.
    *  Error messages can be retrieved from Mix_GetError().
    *}
-function Mix_SetDistance(channel: Integer; distance: UInt8): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetDistance' {$ENDIF} {$ENDIF};
+function Mix_SetDistance(channel: cint; distance: cuint8): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetDistance' {$ENDIF} {$ENDIF};
 
 {*
  * !!! FIXME : Haven't implemented, since the effect goes past the
@@ -527,7 +549,7 @@ function Mix_SetDistance(channel: Integer; distance: UInt8): Integer cdecl; exte
    *  mode is a no-op, but this call will return successful in that case.
    *  Error messages can be retrieved from Mix_GetError().
    *}
-function Mix_SetReverseStereo(channel: Integer; flip: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetReverseStereo' {$ENDIF} {$ENDIF};
+function Mix_SetReverseStereo(channel: cint; flip: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetReverseStereo' {$ENDIF} {$ENDIF};
 
   {* end of effects API. --ryan. *}
 
@@ -535,7 +557,7 @@ function Mix_SetReverseStereo(channel: Integer; flip: Integer): Integer cdecl; e
      them dynamically to the next sample if requested with a -1 value below.
      Returns the number of reserved channels.
    *}
-function Mix_ReserveChannels(num: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_ReverseChannels' {$ENDIF} {$ENDIF};
+function Mix_ReserveChannels(num: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_ReverseChannels' {$ENDIF} {$ENDIF};
 
   {* Channel grouping functions *}
 
@@ -545,21 +567,21 @@ function Mix_ReserveChannels(num: Integer): Integer cdecl; external MIX_LibName 
      represent the group of all the channels).
      Returns true if everything was OK.
    *}
-function Mix_GroupChannel(which: Integer; tag: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GroupChannel' {$ENDIF} {$ENDIF};
+function Mix_GroupChannel(which: cint; tag: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GroupChannel' {$ENDIF} {$ENDIF};
   {* Assign several consecutive channels to a group *}
-function Mix_GroupChannels(from: Integer; _to: Integer; tag: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GroupChannels' {$ENDIF} {$ENDIF};
+function Mix_GroupChannels(from: cint; _to: cint; tag: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GroupChannels' {$ENDIF} {$ENDIF};
   {* Finds the first available channel in a group of channels,
      returning -1 if none are available.
    *}
-function Mix_GroupAvailable(tag: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GroupAvailable' {$ENDIF} {$ENDIF};
+function Mix_GroupAvailable(tag: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GroupAvailable' {$ENDIF} {$ENDIF};
   {* Returns the number of channels in a group. This is also a subtle
      way to get the total number of channels when 'tag' is -1
    *}
-function Mix_GroupCount(tag: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GroupCount' {$ENDIF} {$ENDIF};
+function Mix_GroupCount(tag: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GroupCount' {$ENDIF} {$ENDIF};
   {* Finds the "oldest" sample playing in a group of channels *}
-function Mix_GroupOldest(tag: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GroupOldest' {$ENDIF} {$ENDIF};
+function Mix_GroupOldest(tag: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GroupOldest' {$ENDIF} {$ENDIF};
   {* Finds the "most recent" (i.e. last) sample playing in a group of channels *}
-function Mix_GroupNewer(tag: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GroupNewer' {$ENDIF} {$ENDIF};
+function Mix_GroupNewer(tag: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GroupNewer' {$ENDIF} {$ENDIF};
 
   {* Play an audio chunk on a specific channel.
      If the specified channel is -1, play on the first free channel.
@@ -567,59 +589,59 @@ function Mix_GroupNewer(tag: Integer): Integer cdecl; external MIX_LibName {$IFD
      If 'loops' is -1, loop inifinitely (~65000 times).
      Returns which channel was used to play the sound.
   *}
-function Mix_PlayChannel(channel: Integer; chunk: PMix_Chunk; loops: Integer): Integer;
+function Mix_PlayChannel(channel: cint; chunk: PMix_Chunk; loops: cint): cint;
   {* The same as above, but the sound is played at most 'ticks' milliseconds *}
-function Mix_PlayChannelTimed(channel: Integer; chunk: PMix_Chunk; loops: Integer; ticks: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_PlayChannelTimed' {$ENDIF} {$ENDIF};
-function Mix_PlayMusic(music: PMix_Music; loops: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_PlayMusic' {$ENDIF} {$ENDIF};
+function Mix_PlayChannelTimed(channel: cint; chunk: PMix_Chunk; loops: cint; ticks: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_PlayChannelTimed' {$ENDIF} {$ENDIF};
+function Mix_PlayMusic(music: PMix_Music; loops: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_PlayMusic' {$ENDIF} {$ENDIF};
 
   {* Fade in music or a channel over "ms" milliseconds, same semantics as the "Play" functions *}
-function Mix_FadeInMusic(music: PMix_Music; loops: Integer; ms: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadeInMusic' {$ENDIF} {$ENDIF};
-function Mix_FadeInMusicPos(music: PMix_Music; loops: Integer; ms: Integer; position: Double): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadeInMusicPos' {$ENDIF} {$ENDIF};
-function Mix_FadeInChannel(channel: Integer; chunk: PMix_Chunk; loops: Integer; ms: Integer): Integer;
-function Mix_FadeInChannelTimed(channel: Integer; chunk: PMix_Chunk; loops: Integer; ms: Integer; ticks: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadeInChannelTimed' {$ENDIF} {$ENDIF};
+function Mix_FadeInMusic(music: PMix_Music; loops: cint; ms: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadeInMusic' {$ENDIF} {$ENDIF};
+function Mix_FadeInMusicPos(music: PMix_Music; loops: cint; ms: cint; position: Double): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadeInMusicPos' {$ENDIF} {$ENDIF};
+function Mix_FadeInChannel(channel: cint; chunk: PMix_Chunk; loops: cint; ms: cint): cint;
+function Mix_FadeInChannelTimed(channel: cint; chunk: PMix_Chunk; loops: cint; ms: cint; ticks: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadeInChannelTimed' {$ENDIF} {$ENDIF};
 
   {* Set the volume in the range of 0-128 of a specific channel or chunk.
      If the specified channel is -1, set volume for all channels.
      Returns the original volume.
      If the specified volume is -1, just return the current volume.
   *}
-function Mix_Volume(channel: Integer; volume: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_Volume' {$ENDIF} {$ENDIF};
-function Mix_VolumeChunk(chunk: PMix_Chunk; volume: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_VolumeChunk' {$ENDIF} {$ENDIF};
-function Mix_VolumeMusic(volume: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_VolumeMusic' {$ENDIF} {$ENDIF};
+function Mix_Volume(channel: cint; volume: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_Volume' {$ENDIF} {$ENDIF};
+function Mix_VolumeChunk(chunk: PMix_Chunk; volume: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_VolumeChunk' {$ENDIF} {$ENDIF};
+function Mix_VolumeMusic(volume: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_VolumeMusic' {$ENDIF} {$ENDIF};
 
   {* Halt playing of a particular channel *}
-function Mix_HaltChannel(channel: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_HaltChannel' {$ENDIF} {$ENDIF};
-function Mix_HaltGroup(tag: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_HaltGroup' {$ENDIF} {$ENDIF};
-function Mix_HaltMusic: Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_HaltMusic' {$ENDIF} {$ENDIF};
+function Mix_HaltChannel(channel: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_HaltChannel' {$ENDIF} {$ENDIF};
+function Mix_HaltGroup(tag: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_HaltGroup' {$ENDIF} {$ENDIF};
+function Mix_HaltMusic: cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_HaltMusic' {$ENDIF} {$ENDIF};
 
   {* Change the expiration delay for a particular channel.
      The sample will stop playing after the 'ticks' milliseconds have elapsed,
      or remove the expiration if 'ticks' is -1
   *}
-function Mix_ExpireChannel(channel: Integer; ticks: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_ExpireChannel' {$ENDIF} {$ENDIF};
+function Mix_ExpireChannel(channel: cint; ticks: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_ExpireChannel' {$ENDIF} {$ENDIF};
 
   {* Halt a channel, fading it out progressively till it's silent
      The ms parameter indicates the number of milliseconds the fading
      will take.
    *}
-function Mix_FadeOutChannel(which: Integer; ms: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadeOutChannel' {$ENDIF} {$ENDIF};
-function Mix_FadeOutGroup(tag: Integer; ms: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadeOutGroup' {$ENDIF} {$ENDIF};
-function Mix_FadeOutMusic(ms: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadeOutMusic' {$ENDIF} {$ENDIF};
+function Mix_FadeOutChannel(which: cint; ms: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadeOutChannel' {$ENDIF} {$ENDIF};
+function Mix_FadeOutGroup(tag: cint; ms: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadeOutGroup' {$ENDIF} {$ENDIF};
+function Mix_FadeOutMusic(ms: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadeOutMusic' {$ENDIF} {$ENDIF};
 
   {* Query the fading status of a channel *}
 function Mix_FadingMusic: TMix_Fading cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadingMusic' {$ENDIF} {$ENDIF};
-function Mix_FadingChannel(which: Integer): TMix_Fading cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadingChannel' {$ENDIF} {$ENDIF};
+function Mix_FadingChannel(which: cint): TMix_Fading cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_FadingChannel' {$ENDIF} {$ENDIF};
 
   {* Pause/Resume a particular channel *}
-procedure Mix_Pause(channel: Integer) cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_Pause' {$ENDIF} {$ENDIF};
-procedure Mix_Resume(channel: Integer) cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_Resume' {$ENDIF} {$ENDIF};
-function Mix_Paused(channel: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_Paused' {$ENDIF} {$ENDIF};
+procedure Mix_Pause(channel: cint) cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_Pause' {$ENDIF} {$ENDIF};
+procedure Mix_Resume(channel: cint) cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_Resume' {$ENDIF} {$ENDIF};
+function Mix_Paused(channel: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_Paused' {$ENDIF} {$ENDIF};
 
   {* Pause/Resume the music stream *}
 procedure Mix_PauseMusic cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_PauseMusic' {$ENDIF} {$ENDIF};
 procedure Mix_ResumeMusic cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_ResumeMusic' {$ENDIF} {$ENDIF};
 procedure Mix_RewindMusic cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_RewindMusic' {$ENDIF} {$ENDIF};
-function Mix_PausedMusic: Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_PausedMusic' {$ENDIF} {$ENDIF};
+function Mix_PausedMusic: cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_PausedMusic' {$ENDIF} {$ENDIF};
 
   {* Set the current position in the music stream.
      This returns 0 if successful, or -1 if it failed or isn't implemented.
@@ -627,42 +649,50 @@ function Mix_PausedMusic: Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$
      order number) and for OGG, FLAC, MP3_MAD, MP3_MPG and MODPLUG music
      (set position in seconds), at the moment.
   *}
-function Mix_SetMusicPosition(position: Double): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetMusicPosition' {$ENDIF} {$ENDIF};
+function Mix_SetMusicPosition(position: Double): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetMusicPosition' {$ENDIF} {$ENDIF};
 
   {* Check the status of a specific channel.
      If the specified channel is -1, check all channels.
   *}
-function Mix_Playing(channel: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_Playing' {$ENDIF} {$ENDIF};
-function Mix_PlayingMusic: Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_PlayingMusic' {$ENDIF} {$ENDIF};
+function Mix_Playing(channel: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_Playing' {$ENDIF} {$ENDIF};
+function Mix_PlayingMusic: cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_PlayingMusic' {$ENDIF} {$ENDIF};
 
   {* Stop music and set external music playback command *}
-function Mix_SetMusicCMD(command: PAnsiChar): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetMusicCMD' {$ENDIF} {$ENDIF};
+function Mix_SetMusicCMD(command: PAnsiChar): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetMusicCMD' {$ENDIF} {$ENDIF};
 
   {* Synchro value is set by MikMod from modules while playing *}
-function Mix_SetSynchroValue(value: Integer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetSynchroValue' {$ENDIF} {$ENDIF};
-function Mix_GetSynchroValue: Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GetSynchroValue' {$ENDIF} {$ENDIF};
+function Mix_SetSynchroValue(value: cint): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetSynchroValue' {$ENDIF} {$ENDIF};
+function Mix_GetSynchroValue: cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GetSynchroValue' {$ENDIF} {$ENDIF};
 
   {* Set/Get/Iterate SoundFonts paths to use by supported MIDI backends *}
-function Mix_SetSoundFonts(paths: PAnsiChar): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetSoundFonts' {$ENDIF} {$ENDIF};
+function Mix_SetSoundFonts(paths: PAnsiChar): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_SetSoundFonts' {$ENDIF} {$ENDIF};
 function Mix_GetSoundFonts: PAnsiChar cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GetSoundFonts' {$ENDIF} {$ENDIF};
 
 type
-  TMix_SoundFunc = function(c: PAnsiChar; p: Pointer): Integer cdecl;
+  PPMix_SoundFunc = ^PMix_SoundFunc;
+  PMix_SoundFunc = ^TMix_SoundFunc;
+  TMix_SoundFunc = function(c: PAnsiChar; p: Pointer): cint cdecl;
 
-function Mix_EachSoundFont(func: TMix_SoundFunc; data: Pointer): Integer cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_EachSoundFont' {$ENDIF} {$ENDIF};
+function Mix_EachSoundFont(func: TMix_SoundFunc; data: Pointer): cint cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_EachSoundFont' {$ENDIF} {$ENDIF};
 
   {* Get the Mix_Chunk currently associated with a mixer channel
       Returns NULL if it's an invalid channel, or there's no chunk associated.
   *}
-function Mix_GetChunk(channel: Integer): PMix_Chunk cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GetChunk' {$ENDIF} {$ENDIF};
+function Mix_GetChunk(channel: cint): PMix_Chunk cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_GetChunk' {$ENDIF} {$ENDIF};
 
   {* Close the mixer, halting all playing audio *}
 procedure Mix_CloseAudio cdecl; external MIX_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_MIX_CloseAudio' {$ENDIF} {$ENDIF};
 
 {* We'll use SDL for reporting errors *}
-function Mix_SetError(const fmt: PAnsiChar): SInt32; cdecl;
+function Mix_SetError(const fmt: PAnsiChar; args: array of const): cint; cdecl;
+  external SDL_LibName
+  name {$IF DEFINED(DELPHI) AND DEFINED(MACOS)} '_SDL_SetError' {$ELSE} 'SDL_SetError' {$ENDIF};
 function Mix_GetError: PAnsiChar; cdecl;
+  external SDL_LibName
+  name {$IF DEFINED(DELPHI) AND DEFINED(MACOS)} '_SDL_GetError' {$ELSE} 'SDL_GetError' {$ENDIF};
 procedure Mix_ClearError(); cdecl;
+  external SDL_LibName
+  name {$IF DEFINED(DELPHI) AND DEFINED(MACOS)} '_SDL_ClearError' {$ELSE} 'SDL_ClearError' {$ENDIF};
 
 implementation
 
@@ -678,12 +708,12 @@ begin
   SDL_MIXER_VERSION(X);
 end;
 
-function Mix_FadeInChannel(channel: Integer; chunk: PMix_Chunk; loops: Integer; ms: Integer): Integer;
+function Mix_FadeInChannel(channel: cint; chunk: PMix_Chunk; loops: cint; ms: cint): cint;
 begin
   Result := Mix_FadeInChannelTimed(channel, chunk, loops, ms, -1);
 end;
 
-function Mix_PlayChannel(channel: Integer; chunk: PMix_Chunk; loops: Integer): Integer;
+function Mix_PlayChannel(channel: cint; chunk: PMix_Chunk; loops: cint): cint;
 begin
   Result := Mix_PlayChannelTimed(channel, chunk, loops, -1);
 end;
@@ -691,21 +721,6 @@ end;
 function Mix_LoadWAV(_file: PAnsiChar): PMix_Chunk;
 begin
   Result := Mix_LoadWAV_RW(SDL_RWFromFile(_file, 'rb'), 1);
-end;
-
-function Mix_SetError(const fmt: PAnsiChar): SInt32; cdecl;
-begin
-  Result := SDL_SetError(fmt);
-end;
-
-function Mix_GetError: PAnsiChar; cdecl;
-begin
-  Result := SDL_GetError();
-end;
-
-procedure Mix_ClearError; cdecl;
-begin
-  SDL_ClearError()
 end;
 
 end.

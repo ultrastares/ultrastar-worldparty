@@ -9,8 +9,9 @@
  *  for sensors, and load appropriate drivers.
  *}
 type
-	TSDL_Sensor = record end;
+	PPSDL_Sensor = ^PSDL_Sensor;
 	PSDL_Sensor = ^TSDL_Sensor;
+	TSDL_Sensor = record end;
 
 {**
  * This is a unique ID for a sensor for the time it is connected to the system,
@@ -19,7 +20,9 @@ type
  * The ID value starts at 0 and increments from there. The value -1 is an invalid ID.
  *}
 type
-	TSDL_SensorID = type SInt32;
+	PPSDL_SensorID = ^PSDL_SensorID;
+	PSDL_SensorID = ^TSDL_SensorID;
+	TSDL_SensorID = type cint32;
 
 {**
  * The different sensors defined by SDL
@@ -30,13 +33,19 @@ type
  * https://developer.android.com/reference/android/hardware/SensorEvent.html#values
  *}
 type
-	TSDL_SensorType = type SInt32;
+	PPSDL_SensorType = ^PSDL_SensorType;
+	PSDL_SensorType = ^TSDL_SensorType;
+	TSDL_SensorType = type cint;
 
 const
 	SDL_SENSOR_INVALID = TSDL_SensorType(-1);    {**< Returned for an invalid sensor *}
 	SDL_SENSOR_UNKNOWN = TSDL_SensorType(0);     {**< Unknown sensor type *}
 	SDL_SENSOR_ACCEL   = TSDL_SensorType(1);     {**< Accelerometer *}
 	SDL_SENSOR_GYRO    = TSDL_SensorType(2);     {**< Gyroscope *}
+	SDL_SENSOR_ACCEL_L = TSDL_SensorType(3);     {**< Accelerometer for left Joy-Con controller and Wii nunchuk *}
+	SDL_SENSOR_GYRO_L  = TSDL_SensorType(4);     {**< Gyroscope for left Joy-Con controller *}
+	SDL_SENSOR_ACCEL_R = TSDL_SensorType(5);     {**< Accelerometer for right Joy-Con controller *}
+	SDL_SENSOR_GYRO_R  = TSDL_SensorType(6);     {**< Gyroscope for right Joy-Con controller *}
 
 {**
  * Accelerometer sensor
@@ -98,6 +107,8 @@ const
  * In particular, you are guaranteed that the sensor list won't change, so
  * the API functions that take a sensor index will be valid, and sensor
  * events will not be delivered.
+ *
+ * \since This function is available since SDL 2.0.14.
  *}
 procedure SDL_LockSensors(); cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_LockSensors' {$ENDIF} {$ENDIF};
@@ -105,131 +116,181 @@ procedure SDL_UnlockSensors(); cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_UnlockSensors' {$ENDIF} {$ENDIF};
 
 {**
- *  \brief Count the number of sensors attached to the system right now
+ * Count the number of sensors attached to the system right now.
+ *
+ * \returns the number of sensors detected.
+ *
+ * \since This function is available since SDL 2.0.9.
  *}
-function SDL_NumSensors(): SInt32; cdecl;
+function SDL_NumSensors(): cint; cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_NumSensors' {$ENDIF} {$ENDIF};
 
 {**
- *  \brief Get the implementation dependent name of a sensor.
+ * Get the implementation dependent name of a sensor.
  *
- *  This can be called before any sensors are opened.
+ * \param device_index The sensor to obtain name from
+ * \returns the sensor name, or NIL if `device_index` is out of range.
  *
- *  \return The sensor name, or NIL if device_index is out of range.
+ * \since This function is available since SDL 2.0.9.
  *}
-function SDL_SensorGetDeviceName(device_index: SInt32): PChar; cdecl;
+function SDL_SensorGetDeviceName(device_index: cint): PAnsiChar; cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_SensorGetDeviceName' {$ENDIF} {$ENDIF};
 
 {**
- *  \brief Get the type of a sensor.
+ * Get the type of a sensor.
  *
- *  This can be called before any sensors are opened.
+ * \param device_index The sensor to get the type from
+ * \returns the SDL_SensorType, or `SDL_SENSOR_INVALID` if `device_index` is
+ *          out of range.
  *
- *  \return The sensor type, or SDL_SENSOR_INVALID if device_index is out of range.
+ * \since This function is available since SDL 2.0.9.
  *}
-function SDL_SensorGetDeviceType(device_index: SInt32): TSDL_SensorType; cdecl;
+function SDL_SensorGetDeviceType(device_index: cint): TSDL_SensorType; cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_SensorGetDeviceType' {$ENDIF} {$ENDIF};
 
 {**
- *  \brief Get the platform dependent type of a sensor.
+ * Get the platform dependent type of a sensor.
  *
- *  This can be called before any sensors are opened.
+ * \param device_index The sensor to check
+ * \returns the sensor platform dependent type, or -1 if `device_index` is out
+ *          of range.
  *
- *  \return The sensor platform dependent type, or -1 if device_index is out of range.
+ * \since This function is available since SDL 2.0.9.
  *}
-function SDL_SensorGetDeviceNonPortableType(device_index: SInt32): SInt32; cdecl;
+function SDL_SensorGetDeviceNonPortableType(device_index: cint): cint; cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_SensorGetDeviceNonPortableType' {$ENDIF} {$ENDIF};
 
 {**
- *  \brief Get the instance ID of a sensor.
+ * Get the instance ID of a sensor.
  *
- *  This can be called before any sensors are opened.
+ * \param device_index The sensor to get instance id from
+ * \returns the sensor instance ID, or -1 if `device_index` is out of range.
  *
- *  \return The sensor instance ID, or -1 if device_index is out of range.
+ * \since This function is available since SDL 2.0.9.
  *}
-function SDL_SensorGetDeviceInstanceID(device_index: SInt32): TSDL_SensorID; cdecl;
+function SDL_SensorGetDeviceInstanceID(device_index: cint): TSDL_SensorID; cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_SensorGetDeviceInstanceID' {$ENDIF} {$ENDIF};
 
 {**
- *  \brief Open a sensor for use.
+ * Open a sensor for use.
  *
- *  The index passed as an argument refers to the N'th sensor on the system.
+ * \param device_index The sensor to open
+ * \returns an SDL_Sensor sensor object, or NIL if an error occurred.
  *
- *  \return A sensor identifier, or NIL if an error occurred.
+ * \since This function is available since SDL 2.0.9.
  *}
-function SDL_SensorOpen(device_index: SInt32): PSDL_Sensor; cdecl;
+function SDL_SensorOpen(device_index: cint): PSDL_Sensor; cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_SensorOpen' {$ENDIF} {$ENDIF};
 
 {**
  * Return the SDL_Sensor associated with an instance id.
+ *
+ * \param instance_id The sensor from instance id
+ * \returns an SDL_Sensor object.
+ *
+ * \since This function is available since SDL 2.0.9.
  *}
 function SDL_SensorFromInstanceID(instance_id: TSDL_SensorID): PSDL_Sensor; cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_SensorFromInstanceID' {$ENDIF} {$ENDIF};
 
 {**
- *  \brief Get the implementation dependent name of a sensor.
+ * Get the implementation dependent name of a sensor
  *
- *  \return The sensor name, or NIL if the sensor is NIL.
+ * \param sensor The SDL_Sensor object
+ * \returns the sensor name, or NIL if `sensor` is NIL.
+ *
+ * \since This function is available since SDL 2.0.9.
  *}
-function SDL_SensorGetName(sensor: PSDL_Sensor): PChar; cdecl;
+function SDL_SensorGetName(sensor: PSDL_Sensor): PAnsiChar; cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_SensorGetName' {$ENDIF} {$ENDIF};
 
 {**
- *  \brief Get the type of a sensor.
+ * Get the type of a sensor.
  *
- *  This can be called before any sensors are opened.
+ * \param sensor The SDL_Sensor object to inspect
+ * \returns the SDL_SensorType type, or `SDL_SENSOR_INVALID`
+ *          if `sensor` is NIL.
  *
- *  \return The sensor type, or SDL_SENSOR_INVALID if the sensor is NIL.
+ * \since This function is available since SDL 2.0.9.
  *}
 function SDL_SensorGetType(sensor: PSDL_Sensor): TSDL_SensorType; cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_SensorGetType' {$ENDIF} {$ENDIF};
 
 {**
- *  \brief Get the platform dependent type of a sensor.
+ * Get the platform dependent type of a sensor.
  *
- *  This can be called before any sensors are opened.
+ * \param sensor The SDL_Sensor object to inspect
+ * \returns the sensor platform dependent type, or -1 if `sensor` is NIL.
  *
- *  \return The sensor platform dependent type, or -1 if the sensor is NIL.
+ * \since This function is available since SDL 2.0.9.
  *}
-function SDL_SensorGetNonPortableType(sensor: PSDL_Sensor): SInt32; cdecl;
+function SDL_SensorGetNonPortableType(sensor: PSDL_Sensor): cint; cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_SensorGetNonPortableType' {$ENDIF} {$ENDIF};
 
 {**
- *  \brief Get the instance ID of a sensor.
+ * Get the instance ID of a sensor.
  *
- *  This can be called before any sensors are opened.
+ * \param sensor The SDL_Sensor object to inspect
+ * \returns the sensor instance ID, or -1 if `sensor` is NIL.
  *
- *  \return The sensor instance ID, or -1 if the sensor is NIL.
+ * \since This function is available since SDL 2.0.9.
  *}
 function SDL_SensorGetInstanceID(sensor: PSDL_Sensor): TSDL_SensorID; cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_SensorGetInstanceID' {$ENDIF} {$ENDIF};
 
 {**
- *  Get the current state of an opened sensor.
+ * Get the current state of an opened sensor.
  *
- *  The number of values and interpretation of the data is sensor dependent.
+ * The number of values and interpretation of the data is sensor dependent.
  *
- *  \param sensor The sensor to query
- *  \param data A pointer filled with the current sensor state
- *  \param num_values The number of values to write to data
+ * \param sensor The SDL_Sensor object to query
+ * \param data A pointer filled with the current sensor state
+ * \param num_values The number of values to write to data
+ * \returns 0 or -1 if an error occurred.
  *
- *  \return 0 or -1 if an error occurred.
+ * \since This function is available since SDL 2.0.9.
  *}
-function SDL_SensorGetData(sensor: PSDL_Sensor; data: PSingle; num_values: SInt32): SInt32; cdecl;
+function SDL_SensorGetData(sensor: PSDL_Sensor; data: pcfloat; num_values: cint): cint; cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_SensorGetData' {$ENDIF} {$ENDIF};
 
 {**
- *  Close a sensor previously opened with SDL_SensorOpen()
+ * Get the current state of an opened sensor with the timestamp of the last
+ * update.
+ *
+ * The number of values and interpretation of the data is sensor dependent.
+ *
+ * \param sensor The SDL_Sensor object to query
+ * \param timestamp A pointer filled with the timestamp in microseconds of the
+ *                  current sensor reading if available, or 0 if not
+ * \param data A pointer filled with the current sensor state
+ * \param num_values The number of values to write to data
+ * \returns 0 or -1 if an error occurred.
+ *
+ * \since This function is available since SDL 2.26.0.
+ *}
+function SDL_SensorGetDataWithTimestamp(sensor: PSDL_Sensor; timestamp: pcuint64; data: pcfloat; num_values: cint): cint; cdecl;
+	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_SensorGetDataWithTimestamp' {$ENDIF} {$ENDIF};
+
+{**
+ * Close a sensor previously opened with SDL_SensorOpen().
+ *
+ * \param sensor The SDL_Sensor object to close
+ *
+ * \since This function is available since SDL 2.0.9.
  *}
 procedure SDL_SensorClose(sensor: PSDL_Sensor); cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_SensorClose' {$ENDIF} {$ENDIF};
 
 {**
- *  Update the current state of the open sensors.
+ * Update the current state of the open sensors.
  *
- *  This is called automatically by the event loop if sensor events are enabled.
+ * This is called automatically by the event loop if sensor events are
+ * enabled.
  *
- *  This needs to be called from the thread that initialized the sensor subsystem.
+ * This needs to be called from the thread that initialized the sensor
+ * subsystem.
+ *
+ * \since This function is available since SDL 2.0.9.
  *}
 procedure SDL_SensorUpdate(); cdecl;
 	external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_SensorUpdate' {$ENDIF} {$ENDIF};

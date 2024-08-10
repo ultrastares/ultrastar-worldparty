@@ -25,7 +25,13 @@ unit sdl2_net;
 
 interface
 
-uses SDL2;
+uses
+  {$IFDEF FPC}
+  ctypes,
+  {$ENDIF}
+  SDL2;
+
+{$I ctypes.inc}
 
 const
    {$IFDEF WINDOWS}
@@ -53,7 +59,9 @@ const
 
 
 type
-   TSDLNet_Version = TSDL_Version;
+  PPSDLNet_Version = ^PSDLNet_Version;
+  PSDLNet_Version = ^TSDLNet_Version;
+  TSDLNet_Version = TSDL_Version;
 
 const
    {* Printable format: "%d.%d.%d", MAJOR, MINOR, PATCHLEVEL *}
@@ -76,18 +84,19 @@ function SDLNet_Linked_Version: PSDL_Version cdecl; external SDLNet_LibName {$IF
    SDL must be initialized before calls to functions in this library,
    because this library uses utility functions from the SDL library.
 *}
-function SDLNet_Init(): Integer cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_Init' {$ENDIF} {$ENDIF};
+function SDLNet_Init(): cint cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_Init' {$ENDIF} {$ENDIF};
 procedure SDLNet_Quit() cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_Quit' {$ENDIF} {$ENDIF};
 
 type
   {***********************************************************************}
   {* IPv4 hostname resolution API                                        *}
   {***********************************************************************}
-  TIPaddress = record
-    host: UInt32;            {* 32-bit IPv4 host address *}
-    port: UInt16;            {* 16-bit protocol port *}
-  end;
+  PPIPaddress = ^PIPaddress;
   PIPaddress = ^TIPaddress;
+  TIPaddress = record
+    host: cuint32;            {* 32-bit IPv4 host address *}
+    port: cuint16;            {* 16-bit protocol port *}
+  end;
 
 {* Resolve a host name and port to an IP address in network form.
    If the function succeeds, it will return 0.
@@ -101,7 +110,7 @@ const
    INADDR_LOOPBACK  = $7f000001;
    INADDR_BROADCAST = $FFFFFFFF;
 
-function SDLNet_ResolveHost(address: PIPaddress; const host: PAnsiChar; port: UInt16): Integer cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_ResolveHost' {$ENDIF} {$ENDIF};
+function SDLNet_ResolveHost(address: PIPaddress; const host: PAnsiChar; port: cuint16): cint cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_ResolveHost' {$ENDIF} {$ENDIF};
 
 {* Resolve an ip address to a host name in canonical form.
    If the ip couldn't be resolved, this function returns NULL,
@@ -113,7 +122,7 @@ function SDLNet_ResolveIP(const ip: PIPaddress): PAnsiChar cdecl; external SDLNe
 {* Get the addresses of network interfaces on this system.
    This returns the number of addresses saved in 'addresses'
 *}
-function SDLNet_GetLocalAddresses(addresses: PIPaddress; maxcount: Integer): Integer cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_GetLocalAddresses' {$ENDIF} {$ENDIF};
+function SDLNet_GetLocalAddresses(addresses: PIPaddress; maxcount: cint): cint cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_GetLocalAddresses' {$ENDIF} {$ENDIF};
 
 {***********************************************************************}
 {* TCP network API                                                     *}
@@ -148,7 +157,7 @@ function SDLNet_TCP_GetPeerAddress(sock: TTCPSocket): PIPaddress cdecl; external
    is less than the amount of data sent, then either the remote connection was
    closed, or an unknown socket error occurred.
 *}
-function SDLNet_TCP_Send(sock: TTCPSocket; const data: Pointer; len: Integer): Integer cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_TCP_Send' {$ENDIF} {$ENDIF};
+function SDLNet_TCP_Send(sock: TTCPSocket; const data: Pointer; len: cint): cint cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_TCP_Send' {$ENDIF} {$ENDIF};
 
 {* Receive up to 'maxlen' bytes of data over the non-server socket 'sock',
    and store them in the buffer pointed to by 'data'.
@@ -156,7 +165,7 @@ function SDLNet_TCP_Send(sock: TTCPSocket; const data: Pointer; len: Integer): I
    value is less than or equal to zero, then either the remote connection was
    closed, or an unknown socket error occurred.
 *}
-function SDLNet_TCP_Recv(sock: TTCPSocket; data: Pointer; maxlen: Integer): Integer cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_TCP_Recv' {$ENDIF} {$ENDIF};
+function SDLNet_TCP_Recv(sock: TTCPSocket; data: Pointer; maxlen: cint): cint cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_TCP_Recv' {$ENDIF} {$ENDIF};
 
 {* Close a TCP network socket *}
 procedure SDLNet_TCP_Close(sock: TTCPSocket) cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_TCP_Close' {$ENDIF} {$ENDIF};
@@ -172,26 +181,27 @@ const
   SDLNET_MAX_UDPADDRESSES = 4;
 
 type
+  PPUDPSocket = ^PUDPSocket;
+  PUDPSocket = ^TUDPSocket;
   TUDPSocket = record
   end;
-  PUDPSocket = ^TUDPSocket;
 
+  PPUDPPacket = ^PUDPPacket;
+  PUDPPacket = ^TUDPPacket;
   TUDPPacket = record
-    channel: Integer;     {* The src/dst channel of the packet *}
-    data: PUInt8;         {* The packet data *}
-    len: Integer;         {* The length of the packet data *}
-    maxlen: Integer;      {* The size of the data buffer *}
-    status: Integer;      {* packet status after sending *}
+    channel: cint;     {* The src/dst channel of the packet *}
+    data: pcuint8;         {* The packet data *}
+    len: cint;         {* The length of the packet data *}
+    maxlen: cint;      {* The size of the data buffer *}
+    status: cint;      {* packet status after sending *}
     address: TIPaddress;  {* The source/dest address of an incoming/outgoing packet *}
   end;
-  PUDPPacket = ^TUDPPacket;
-  PPUDPPacket = ^PUDPPacket;
 
 {* Allocate/resize/free a single UDP packet 'size' bytes long.
    The new packet is returned, or NULL if the function ran out of memory.
 *}
-function SDLNet_AllocPacket(size: Integer): PUDPPacket cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_AllocPacket' {$ENDIF} {$ENDIF};
-function SDLNet_ResizePacket(packet: PUDPPacket; newsize: Integer): Integer cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_ResizePacket' {$ENDIF} {$ENDIF};
+function SDLNet_AllocPacket(size: cint): PUDPPacket cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_AllocPacket' {$ENDIF} {$ENDIF};
+function SDLNet_ResizePacket(packet: PUDPPacket; newsize: cint): cint cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_ResizePacket' {$ENDIF} {$ENDIF};
 procedure SDLNet_FreePacket(packet: PUDPPacket) cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_FreePacket' {$ENDIF} {$ENDIF};
 
 {* Allocate/Free a UDP packet vector (array of packets) of 'howmany' packets,
@@ -199,7 +209,7 @@ procedure SDLNet_FreePacket(packet: PUDPPacket) cdecl; external SDLNet_LibName {
    A pointer to the first packet in the array is returned, or NULL if the
    function ran out of memory.
 *}
-function SDLNet_AllocPacketV(howmany: Integer; size: Integer): PPUDPPacket cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_AllocPacketV' {$ENDIF} {$ENDIF};
+function SDLNet_AllocPacketV(howmany: cint; size: cint): PPUDPPacket cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_AllocPacketV' {$ENDIF} {$ENDIF};
 procedure SDLNet_FreePacketV(packetV: PPUDPPacket) cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_FreePacketV' {$ENDIF} {$ENDIF};
 
 {* Open a UDP network socket
@@ -208,10 +218,10 @@ procedure SDLNet_FreePacketV(packetV: PPUDPPacket) cdecl; external SDLNet_LibNam
    internally in network (big endian) byte order, in addresses, etc.
    This allows other systems to send to this socket via a known port.
 *}
-function SDLNet_UDP_Open(port: UInt16): TUDPSocket cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_Open' {$ENDIF} {$ENDIF};
+function SDLNet_UDP_Open(port: cuint16): TUDPSocket cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_Open' {$ENDIF} {$ENDIF};
 
 {* Set the percentage of simulated packet loss for packets sent on the socket. *}
-procedure SDLNet_UDP_SetPacketLoss(sock: TUDPSocket; percent: Integer) cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_SetPacketLoss' {$ENDIF} {$ENDIF};
+procedure SDLNet_UDP_SetPacketLoss(sock: TUDPSocket; percent: cint) cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_SetPacketLoss' {$ENDIF} {$ENDIF};
 
 {* Bind the address 'address' to the requested channel on the UDP socket.
    If the channel is -1, then the first unbound channel that has not yet
@@ -223,10 +233,10 @@ procedure SDLNet_UDP_SetPacketLoss(sock: TUDPSocket; percent: Integer) cdecl; ex
    address, to which all outbound packets on the channel are sent.
    This function returns the channel which was bound, or -1 on error.
 *}
-function SDLNet_UDP_Bind(sock: TUDPSocket; channel: Integer; const address: PIPaddress): Integer cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_Bind' {$ENDIF} {$ENDIF};
+function SDLNet_UDP_Bind(sock: TUDPSocket; channel: cint; const address: PIPaddress): cint cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_Bind' {$ENDIF} {$ENDIF};
 
 {* Unbind all addresses from the given channel *}
-procedure SDLNet_UDP_Unbind(sock: TUDPSocket; channel: Integer) cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_Unbind' {$ENDIF} {$ENDIF};
+procedure SDLNet_UDP_Unbind(sock: TUDPSocket; channel: cint) cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_Unbind' {$ENDIF} {$ENDIF};
 
 {* Get the primary IP address of the remote system associated with the
    socket and channel.  If the channel is -1, then the primary IP port
@@ -234,7 +244,7 @@ procedure SDLNet_UDP_Unbind(sock: TUDPSocket; channel: Integer) cdecl; external 
    opened with a specific port.
    If the channel is not bound and not -1, this function returns NULL.
 *}
-function SDLNet_UDP_GetPeerAddress(sock: TUDPSocket; channel: Integer): PIPaddress cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_GetPeerAddress' {$ENDIF} {$ENDIF};
+function SDLNet_UDP_GetPeerAddress(sock: TUDPSocket; channel: cint): PIPaddress cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_GetPeerAddress' {$ENDIF} {$ENDIF};
 
 {* Send a vector of packets to the the channels specified within the packet.
    If the channel specified in the packet is -1, the packet will be sent to
@@ -243,7 +253,7 @@ function SDLNet_UDP_GetPeerAddress(sock: TUDPSocket; channel: Integer): PIPaddre
    been sent, -1 if the packet send failed.
    This function returns the number of packets sent.
 *}
-function SDLNet_UDP_SendV(sock: TUDPSocket; packets: PPUDPPacket; npackets: Integer): Integer cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_SendV' {$ENDIF} {$ENDIF};
+function SDLNet_UDP_SendV(sock: TUDPSocket; packets: PPUDPPacket; npackets: cint): cint cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_SendV' {$ENDIF} {$ENDIF};
 
 {* Send a single packet to the specified channel.
    If the channel specified in the packet is -1, the packet will be sent to
@@ -257,7 +267,7 @@ function SDLNet_UDP_SendV(sock: TUDPSocket; packets: PPUDPPacket; npackets: Inte
    of the transport medium.  It can be as low as 250 bytes for some PPP links,
    and as high as 1500 bytes for ethernet.
 *}
-function SDLNet_UDP_Send(sock: TUDPSocket; channel: Integer; packet: PUDPPacket): Integer cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_Send' {$ENDIF} {$ENDIF};
+function SDLNet_UDP_Send(sock: TUDPSocket; channel: cint; packet: PUDPPacket): cint cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_Send' {$ENDIF} {$ENDIF};
 
 {* Receive a vector of pending packets from the UDP socket.
    The returned packets contain the source address and the channel they arrived
@@ -269,7 +279,7 @@ function SDLNet_UDP_Send(sock: TUDPSocket; channel: Integer; packet: PUDPPacket)
    This function returns the number of packets read from the network, or -1
    on error.  This function does not block, so can return 0 packets pending.
 *}
-function SDLNet_UDP_RecvV(sock: TUDPSocket; packets: PPUDPPacket): Integer cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_RecvV' {$ENDIF} {$ENDIF};
+function SDLNet_UDP_RecvV(sock: TUDPSocket; packets: PPUDPPacket): cint cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_RecvV' {$ENDIF} {$ENDIF};
 
 {* Receive a single packet from the UDP socket.
    The returned packet contains the source address and the channel it arrived
@@ -281,7 +291,7 @@ function SDLNet_UDP_RecvV(sock: TUDPSocket; packets: PPUDPPacket): Integer cdecl
    This function returns the number of packets read from the network, or -1
    on error.  This function does not block, so can return 0 packets pending.
 *}
-function SDLNet_UDP_Recv(sock: TUDPSocket; packet: PUDPPacket): Integer cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_Recv' {$ENDIF} {$ENDIF};
+function SDLNet_UDP_Recv(sock: TUDPSocket; packet: PUDPPacket): cint cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_Recv' {$ENDIF} {$ENDIF};
 
 {* Close a UDP network socket *}
 procedure SDLNet_UDP_Close(sock: TUDPSocket) cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_UDP_Close' {$ENDIF} {$ENDIF};
@@ -291,31 +301,33 @@ procedure SDLNet_UDP_Close(sock: TUDPSocket) cdecl; external SDLNet_LibName {$IF
 {***********************************************************************}
 
 type
+  PPSDLNet_SocketSet = ^PSDLNet_SocketSet;
+  PSDLNet_SocketSet = ^TSDLNet_SocketSet;
   TSDLNet_SocketSet = record
   end;
-  PSDLNet_SocketSet = ^TSDLNet_SocketSet;
 
   {* Any network socket can be safely cast to this socket type *}
-  TSDLNet_GenericSocket = record
-    ready: Integer;
-  end;
+  PPSDLNet_GenericSocket = ^PSDLNet_GenericSocket;
   PSDLNet_GenericSocket = ^TSDLNet_GenericSocket;
+  TSDLNet_GenericSocket = record
+    ready: cint;
+  end;
 
 {* Allocate a socket set for use with SDLNet_CheckSockets()
    This returns a socket set for up to 'maxsockets' sockets, or NULL if
    the function ran out of memory.
 *}
-function SDLNet_AllocSocketSet(maxsockets: Integer): TSDLNet_GenericSocket cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_AllocSocketSet' {$ENDIF} {$ENDIF};
+function SDLNet_AllocSocketSet(maxsockets: cint): TSDLNet_GenericSocket cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_AllocSocketSet' {$ENDIF} {$ENDIF};
 
 {* Add a socket to a set of sockets to be checked for available data *}
-function SDLNet_AddSocket(set_: TSDLNet_SocketSet; sock: TSDLNet_GenericSocket): Integer cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_AddSocket' {$ENDIF} {$ENDIF};
-//function SDLNet_TCP_AddSocket(set_: TSDLNet_SocketSet; sock: TTCPSocket): Integer; inline;
-//function SDLNet_UDP_AddSocket(set_: TSDLNet_SocketSet; sock: TUDPSocket): Integer; inline;
+function SDLNet_AddSocket(set_: TSDLNet_SocketSet; sock: TSDLNet_GenericSocket): cint cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_AddSocket' {$ENDIF} {$ENDIF};
+//function SDLNet_TCP_AddSocket(set_: TSDLNet_SocketSet; sock: TTCPSocket): cint; inline;
+//function SDLNet_UDP_AddSocket(set_: TSDLNet_SocketSet; sock: TUDPSocket): cint; inline;
 
 {* Remove a socket from a set of sockets to be checked for available data *}
-function SDLNet_DelSocket(set_: TSDLNet_SocketSet; sock: TSDLNet_GenericSocket): Integer cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_DelSocket' {$ENDIF} {$ENDIF};
-//function SDLNet_TCP_DelSocket(set_: TSDLNet_SocketSet; sock: TTCPSocket): Integer; inline;
-//function SDLNet_UDP_DelSocket(set_: TSDLNet_SocketSet; sock: TUDPSocket): Integer; inline;
+function SDLNet_DelSocket(set_: TSDLNet_SocketSet; sock: TSDLNet_GenericSocket): cint cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_DelSocket' {$ENDIF} {$ENDIF};
+//function SDLNet_TCP_DelSocket(set_: TSDLNet_SocketSet; sock: TTCPSocket): cint; inline;
+//function SDLNet_UDP_DelSocket(set_: TSDLNet_SocketSet; sock: TUDPSocket): cint; inline;
 
 {* This function checks to see if data is available for reading on the
    given set of sockets.  If 'timeout' is 0, it performs a quick poll,
@@ -324,13 +336,13 @@ function SDLNet_DelSocket(set_: TSDLNet_SocketSet; sock: TSDLNet_GenericSocket):
    first.  This function returns the number of sockets ready for reading,
    or -1 if there was an error with the select() system call.
 *}
-function SDLNet_CheckSockets(set_: TSDLNet_SocketSet; timeout: UInt32): Integer cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_CheckSockets' {$ENDIF} {$ENDIF};
+function SDLNet_CheckSockets(set_: TSDLNet_SocketSet; timeout: cuint32): cint cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_CheckSockets' {$ENDIF} {$ENDIF};
 
 {* After calling SDLNet_CheckSockets(), you can use this function on a
    socket that was in the socket set, to find out if data is available
    for reading.
 *}
-function SDLNet_SocketReady(sock: TSDLNet_GenericSocket): Integer; {$IFNDEF DELPHI} inline; {$ELSE} {$IFDEF DELPHI10UP} inline; {$ENDIF} {$ENDIF}
+function SDLNet_SocketReady(sock: TSDLNet_GenericSocket): cint; {$IFNDEF DELPHI} inline; {$ELSE} {$IFDEF DELPHI10UP} inline; {$ENDIF} {$ENDIF}
 
 {* Free a set of sockets allocated by SDL_NetAllocSocketSet() *}
 procedure SDLNet_FreeSocketSet(set_: TSDLNet_SocketSet) cdecl; external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_FreeSocketSet' {$ENDIF} {$ENDIF};
@@ -339,8 +351,11 @@ procedure SDLNet_FreeSocketSet(set_: TSDLNet_SocketSet) cdecl; external SDLNet_L
 {* Error reporting functions                                           *}
 {***********************************************************************}
 
-procedure SDLNet_SetError(const fmt: PAnsiChar); cdecl;
+procedure SDLNet_SetError(const fmt: PAnsiChar; args: array of const); cdecl;
+external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_SetError' {$ENDIF} {$ENDIF};
+
 function SDLNet_GetError(): PAnsiChar; cdecl;
+external SDLNet_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDLNet_GetError' {$ENDIF} {$ENDIF};
 
 {***********************************************************************}
 {* Inline functions to read/write network data                         *}
@@ -348,12 +363,12 @@ function SDLNet_GetError(): PAnsiChar; cdecl;
 
 {* Write a 16/32-bit value to network packet buffer *}
 
-//procedure SDLNet_Write16(value: UInt16; areap: Pointer); inline;
-//procedure SDLNet_Write32(value: UInt32; areap: Pointer); inline;
+//procedure SDLNet_Write16(value: cuint16; areap: Pointer); inline;
+//procedure SDLNet_Write32(value: cuint32; areap: Pointer); inline;
 
 {* Read a 16/32-bit value from network packet buffer *}
-//function SDLNet_Read16(const areap: Pointer): UInt16; inline;
-//function SDLNet_Read32(const areap: Pointer): UInt32; inline;
+//function SDLNet_Read16(const areap: Pointer): cuint16; inline;
+//function SDLNet_Read32(const areap: Pointer): cuint32; inline;
 
 implementation
 
@@ -365,62 +380,52 @@ begin
 end;
 
 (*
-  function SDLNet_TCP_AddSocket(set_: TSDLNet_SocketSet; sock: TTCPSocket): Integer;
+  function SDLNet_TCP_AddSocket(set_: TSDLNet_SocketSet; sock: TTCPSocket): cint;
   begin
     Result := SDLNet_AddSocket(set_, TSDLNet_GenericSocket(sock));
   end;
 
-  function SDLNet_UDP_AddSocket(set_: TSDLNet_SocketSet; sock: TUDPSocket): Integer;
+  function SDLNet_UDP_AddSocket(set_: TSDLNet_SocketSet; sock: TUDPSocket): cint;
   begin
     Result := SDLNet_AddSocket(set_, TSDLNet_GenericSocket(sock));
   end;
 
-  function SDLNet_TCP_DelSocket(set_: TSDLNet_SocketSet; sock: TTCPSocket): Integer;
+  function SDLNet_TCP_DelSocket(set_: TSDLNet_SocketSet; sock: TTCPSocket): cint;
   begin
     Result := SDLNet_DelSocket(set_, TSDLNet_GenericSocket(sock));
   end;
 
-  function SDLNet_UDP_DelSocket(set_: TSDLNet_SocketSet; sock: TUDPSocket): Integer;
+  function SDLNet_UDP_DelSocket(set_: TSDLNet_SocketSet; sock: TUDPSocket): cint;
   begin
     Result := SDLNet_DelSocket(set_, TSDLNet_GenericSocket(sock));
   end;
 *)
 
-function SDLNet_SocketReady(sock: TSDLNet_GenericSocket): Integer;
+function SDLNet_SocketReady(sock: TSDLNet_GenericSocket): cint;
 begin
   Result := sock.ready;
 end;
 
-procedure SDLNet_SetError(const fmt: PAnsiChar); cdecl;
-begin
-  SDL_SetError(fmt);
-end;
-
-function SDLNet_GetError(): PAnsiChar; cdecl;
-begin
-  Result := SDL_GetError();
-end;
-
 (*
-  procedure SDLNet_Write16(value: UInt16; areap: Pointer);
+  procedure SDLNet_Write16(value: cuint16; areap: Pointer);
   begin
-    PUInt16(areap) := SDL_SwapBE16(value);
+    pcuint16(areap) := SDL_SwapBE16(value);
   end;
 
-  procedure SDLNet_Write32(value: UInt32; areap: Pointer);
+  procedure SDLNet_Write32(value: cuint32; areap: Pointer);
   begin
-    PUInt32(areap) := SDL_SwapBE32(value);
+    pcuint32(areap) := SDL_SwapBE32(value);
   end;
 
   {* Read a 16/32-bit value from network packet buffer *}
-  function SDLNet_Read16(const areap: Pointer): UInt16;
+  function SDLNet_Read16(const areap: Pointer): cuint16;
   begin
-    Result := SDL_SwapBE16(PUInt16(areap));
+    Result := SDL_SwapBE16(pcuint16(areap));
   end;
 
-  function SDLNet_Read32(const areap: Pointer): UInt32;
+  function SDLNet_Read32(const areap: Pointer): cuint32;
   begin
-    Result := SDL_SwapBE32(PUInt32(areap));
+    Result := SDL_SwapBE32(pcuint32(areap));
   end;
 *)
 end.
