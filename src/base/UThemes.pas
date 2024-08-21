@@ -683,6 +683,10 @@ type
 
     SongListUp:   TThemeButton;
     SongListDown: TThemeButton;
+    Volume: TThemeButton;
+    VolumeUp: TThemeButton;
+    VolumeDown: TThemeButton;
+
 
     //Jukebox SongMenu
     StaticSongMenuBackground:     TThemeStatic;
@@ -1763,6 +1767,9 @@ begin
 
       ThemeLoadButton(Jukebox.SongListUp, 'JukeboxSongListUp');
       ThemeLoadButton(Jukebox.SongListDown, 'JukeboxSongListDown');
+      ThemeLoadButton(Jukebox.Volume, 'JukeboxVolume');
+      ThemeLoadButton(Jukebox.VolumeUp, 'JukeboxVolumeUp');
+      ThemeLoadButton(Jukebox.VolumeDown, 'JukeboxVolumeDown');
 
       // Jukebox SongMenu
       ThemeLoadStatic(Jukebox.StaticSongMenuTimeProgress, 'JukeboxSongMenuTimeProgress');

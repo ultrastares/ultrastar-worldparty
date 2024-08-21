@@ -112,6 +112,10 @@ type
 
     JukeboxSongListUp:   integer;
     JukeboxSongListDown: integer;
+    JukeboxSpeaker: integer;
+    JukeboxVolume: integer;
+    JukeboxVolumeUp: integer;
+    JukeboxVolumeDown: integer;
 
     // Jukebox SongMenu items
     JukeboxSongMenuPlayPause:            integer;
@@ -933,6 +937,21 @@ begin
 
           end;
 
+          // set up/down volume
+          if InRegion(X, Y, Button[JukeboxVolumeUp].GetMouseOverArea) then
+          begin
+            if (Self.JukeboxVolume < 10) then
+              Self.JukeboxVolume := Self.JukeboxVolume + 1;
+            AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
+          end;
+
+          if InRegion(X, Y, Button[JukeboxVolumeDown].GetMouseOverArea) then
+          begin
+            if (Self.JukeboxVolume > 0) then
+              Self.JukeboxVolume := Self.JukeboxVolume - 1;
+            AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
+          end;
+
           if InRegion(X, Y, Button[JukeboxOptions].GetMouseOverArea) then
           begin
             SongMenuVisible := false;
@@ -1048,6 +1067,16 @@ begin
         Button[JukeboxFindSong].SetSelect(true)
       else
         Button[JukeboxFindSong].SetSelect(FindSongList);
+
+      if InRegion(X, Y, Button[JukeboxVolumeUp].GetMouseOverArea) then
+        Button[JukeboxVolumeUp].SetSelect(true)
+      else
+        Button[JukeboxVolumeUp].SetSelect(false);
+
+      if InRegion(X, Y, Button[JukeboxVolumeDown].GetMouseOverArea) then
+        Button[JukeboxVolumeDown].SetSelect(true)
+      else
+        Button[JukeboxVolumeDown].SetSelect(false);
 
     end;
   end;
@@ -1652,6 +1681,28 @@ begin
           end;
         end;
 
+        SDLK_MINUS: // set down jukebox volume
+        begin
+          if (SDL_ModState = KMOD_LCTRL) then
+          begin
+            if (Self.JukeboxVolume > 0) then
+              Self.JukeboxVolume := Self.JukeboxVolume - 1;
+            AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
+            Exit;
+          end;
+        end;
+
+        SDLK_PLUS: // set up jukebox volume
+        begin
+          if (SDL_ModState = KMOD_LCTRL) then
+          begin
+            if (Self.JukeboxVolume < 10) then
+              Self.JukeboxVolume := Self.JukeboxVolume + 1;
+            AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
+            Exit;
+          end;
+        end;
+
         SDLK_RETURN:
         begin
           if (SongListVisible) then
@@ -1982,14 +2033,17 @@ begin
 
   JukeboxSongListUp := AddButton(Theme.Jukebox.SongListUp);
   JukeboxSongListDown := AddButton(Theme.Jukebox.SongListDown);
-
+  JukeboxVolumeDown := AddButton(Theme.Jukebox.VolumeDown);
+  JukeboxSpeaker := AddButton(Theme.Jukebox.Volume);
+  JukeboxVolumeUp := AddButton(Theme.Jukebox.VolumeUp);
+  
   // Jukebox SongMenu Items
   JukeboxSongMenuPlayPause := AddButton(Theme.Jukebox.SongMenuPlayPause);
   JukeboxSongMenuNext      := AddButton(Theme.Jukebox.SongMenuNext);
   JukeboxSongMenuPrevious  := AddButton(Theme.Jukebox.SongMenuPrevious);
   JukeboxSongMenuPlaylist  := AddButton(Theme.Jukebox.SongMenuPlaylist);
   JukeboxSongMenuOptions   := AddButton(Theme.Jukebox.SongMenuOptions);
-
+  
   Button[JukeboxSongMenuPlaylist].Selectable := false;
   Button[JukeboxSongMenuNext].Selectable := false;
   Button[JukeboxSongMenuPrevious].Selectable := false;
@@ -2000,6 +2054,8 @@ begin
   JukeboxStaticSongMenuTimeBackground := AddStatic(Theme.Jukebox.StaticSongMenuTimeBackground);
   JukeboxTextSongMenuTimeText         := AddText(Theme.Jukebox.SongMenuTextTime);
   JukeboxStaticSongMenuBackground     := AddStatic(Theme.Jukebox.StaticSongMenuBackground);
+
+  Self.JukeboxVolume := Ini.SongVolume;
 end;
 
 procedure TScreenJukebox.OnShow;
@@ -2041,7 +2097,7 @@ end;
 procedure TScreenJukebox.Play();
 begin
     AudioPlayback.Open(CurrentSong.Path.Append(CurrentSong.Mp3));
-    AudioPlayback.SetVolume(ISongVolumeVals[Ini.SongVolume]);
+    AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
 
     //AudioPlayback.Position := CurrentSong.Start;
     AudioPlayback.Position := LyricsState.GetCurrentTime();
@@ -2634,6 +2690,9 @@ begin
 
     Button[JukeboxSongListUp].Draw;
     Button[JukeboxSongListDown].Draw;
+    Button[JukeboxSpeaker].Draw;
+    Button[JukeboxVolumeUp].Draw;
+    Button[JukeboxVolumeDown].Draw;
 
     Max := 9;
     if (High(JukeboxVisibleSongs) < 9) then
