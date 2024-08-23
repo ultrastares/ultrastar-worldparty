@@ -109,6 +109,7 @@ type
     JukeboxStaticActualSongCover:           integer;
     JukeboxTextActualSongArtist:            integer;
     JukeboxTextActualSongTitle:             integer;
+    JukeboxTextActualSongDescription:       integer;
 
     JukeboxSongListUp:   integer;
     JukeboxSongListDown: integer;
@@ -1979,6 +1980,7 @@ begin
   JukeboxStaticActualSongCover := AddStatic(Theme.Jukebox.StaticActualSongCover);
   JukeboxTextActualSongArtist := AddText(Theme.Jukebox.TextActualSongArtist);
   JukeboxTextActualSongTitle := AddText(Theme.Jukebox.TextActualSongTitle);
+  JukeboxTextActualSongDescription := AddText(Theme.Jukebox.TextActualSongDescription);
 
   JukeboxSongListUp := AddButton(Theme.Jukebox.SongListUp);
   JukeboxSongListDown := AddButton(Theme.Jukebox.SongListDown);
@@ -2725,6 +2727,13 @@ begin
       Button[SongDescription[I]].Text[1].Text := TimeString;
       Button[SongDescription[I]].Draw;
     end;
+
+    if (OrderType = 2) then
+      SongDesc := CurrentSong.Title + ' - ' + CurrentSong.Artist
+    else
+      SongDesc := CurrentSong.Artist + ' - ' + CurrentSong.Title;
+    Text[JukeboxTextActualSongDescription].Text := SongDesc;
+    Text[JukeboxTextActualSongDescription].Draw;
 
     {
     DrawLine(Button[JukeboxSongListUp].X,

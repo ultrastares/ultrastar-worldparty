@@ -680,6 +680,7 @@ type
     StaticActualSongCover:      TThemeStatic;
     TextActualSongArtist:       TThemeText;
     TextActualSongTitle:        TThemeText;
+    TextActualSongDescription:  TThemeText;
 
     SongListUp:   TThemeButton;
     SongListDown: TThemeButton;
@@ -1760,6 +1761,7 @@ begin
       ThemeLoadStatic(Jukebox.StaticActualSongCover, 'JukeboxStaticActualSongCover');
       ThemeLoadText(Jukebox.TextActualSongArtist, 'JukeboxTextActualSongArtist');
       ThemeLoadText(Jukebox.TextActualSongTitle, 'JukeboxTextActualSongTitle');
+      ThemeLoadText(Jukebox.TextActualSongDescription, 'JukeboxTextActualSongDescription');
 
       ThemeLoadButton(Jukebox.SongListUp, 'JukeboxSongListUp');
       ThemeLoadButton(Jukebox.SongListDown, 'JukeboxSongListDown');
