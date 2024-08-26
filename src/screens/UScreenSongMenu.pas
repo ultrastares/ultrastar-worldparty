@@ -564,7 +564,7 @@ begin
       begin
         CurMenu := sMenu;
         Text[0].Text := Language.Translate('SONG_MENU_NAME_PARTY_MAIN');
-
+        HideIcons;
         Button[0].Visible := true;
         Button[1].Visible := false;
         Button[2].Visible := false;
