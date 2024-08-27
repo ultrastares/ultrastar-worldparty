@@ -124,6 +124,9 @@ type
     JukeboxStaticSongMenuTimeBackground: integer;
     JukeboxTextSongMenuTimeText:         integer;
     JukeboxStaticSongMenuBackground:     integer;
+    JukeboxSongMenuVolumeUp: integer;
+    JukeboxSongMenuVolumeDown: integer;
+    JukeboxSongMenuSpeaker: integer;
 
     SelectColR: real;
     SelectColG: real;
@@ -153,6 +156,7 @@ type
     RandomMode:     boolean;
     OrderMode:      boolean;
     OrderType:      integer;
+    JukeboxVolume:  integer;
 
     fShowVisualization: boolean;
     fShowWebcam:        boolean;
@@ -1105,6 +1109,25 @@ begin
 
         LastSongOptionsTick := SDL_GetTicks();
       end;
+
+      // set up/down volume
+      if InRegion(X, Y, Button[JukeboxSongMenuVolumeUp].GetMouseOverArea) then
+      begin
+        if (Self.JukeboxVolume < 10) then
+          Self.JukeboxVolume := Self.JukeboxVolume + 1;
+WriteLn('VolumeJB: '+IntToStr(Self.JukeboxVolume));
+WriteLn('Volume: '+ISongVolumeVals[Self.JukeboxVolume].ToString());
+        AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
+      end;
+
+      if InRegion(X, Y, Button[JukeboxSongMenuVolumeDown].GetMouseOverArea) then
+      begin
+        if (Self.JukeboxVolume > 0) then
+          Self.JukeboxVolume := Self.JukeboxVolume - 1;
+WriteLn('VolumeJB: '+IntToStr(Self.JukeboxVolume));
+WriteLn('Volume: '+ISongVolumeVals[Self.JukeboxVolume].ToString());
+        AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
+      end;
     end
     else
     begin
@@ -1133,6 +1156,16 @@ begin
         Button[JukeboxSongMenuOptions].SetSelect(true)
       else
         Button[JukeboxSongMenuOptions].SetSelect(false);
+
+      if InRegion(X, Y, Button[JukeboxSongMenuVolumeUp].GetMouseOverArea) then
+        Button[JukeboxSongMenuVolumeUp].SetSelect(true)
+      else
+        Button[JukeboxSongMenuVolumeUp].SetSelect(false);
+
+      if InRegion(X, Y, Button[JukeboxSongMenuVolumeDown].GetMouseOverArea) then
+        Button[JukeboxSongMenuVolumeDown].SetSelect(true)
+      else
+        Button[JukeboxSongMenuVolumeDown].SetSelect(false);
     end
   end;
 
@@ -1653,6 +1686,32 @@ begin
           end;
         end;
 
+        SDLK_MINUS: // decrease jukebox volume
+        begin
+          if (SDL_ModState = KMOD_LCTRL) then
+          begin
+            if (Self.JukeboxVolume > 0) then
+              Self.JukeboxVolume := Self.JukeboxVolume - 1;
+WriteLn('VolumeJB: '+IntToStr(Self.JukeboxVolume));
+WriteLn('Volume: '+ISongVolumeVals[Self.JukeboxVolume].ToString());
+            AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
+            Exit;
+          end;
+        end;
+
+        SDLK_PLUS: // increase jukebox volume
+        begin
+          if (SDL_ModState = KMOD_LCTRL) then
+          begin
+            if (Self.JukeboxVolume < 10) then
+              Self.JukeboxVolume := Self.JukeboxVolume + 1;
+WriteLn('VolumeJB: '+IntToStr(Self.JukeboxVolume));
+WriteLn('Volume: '+ISongVolumeVals[Self.JukeboxVolume].ToString());
+            AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
+            Exit;
+          end;
+        end;
+
         SDLK_RETURN:
         begin
           if (SongListVisible) then
@@ -1984,24 +2043,32 @@ begin
 
   JukeboxSongListUp := AddButton(Theme.Jukebox.SongListUp);
   JukeboxSongListDown := AddButton(Theme.Jukebox.SongListDown);
-
+  
   // Jukebox SongMenu Items
   JukeboxSongMenuPlayPause := AddButton(Theme.Jukebox.SongMenuPlayPause);
   JukeboxSongMenuNext      := AddButton(Theme.Jukebox.SongMenuNext);
   JukeboxSongMenuPrevious  := AddButton(Theme.Jukebox.SongMenuPrevious);
   JukeboxSongMenuPlaylist  := AddButton(Theme.Jukebox.SongMenuPlaylist);
   JukeboxSongMenuOptions   := AddButton(Theme.Jukebox.SongMenuOptions);
-
+  JukeboxSongMenuVolumeDown := AddButton(Theme.Jukebox.SongMenuVolumeDown);
+  JukeboxSongMenuSpeaker := AddButton(Theme.Jukebox.SongMenuVolume);
+  JukeboxSongMenuVolumeUp := AddButton(Theme.Jukebox.SongMenuVolumeUp);
+  
   Button[JukeboxSongMenuPlaylist].Selectable := false;
   Button[JukeboxSongMenuNext].Selectable := false;
   Button[JukeboxSongMenuPrevious].Selectable := false;
   Button[JukeboxSongMenuPlaylist].Selectable := false;
   Button[JukeboxSongMenuOptions].Selectable := false;
+  Button[JukeboxSongMenuVolumeDown].Selectable := false;
+  Button[JukeboxSongMenuSpeaker].Selectable := false;
+  Button[JukeboxSongMenuVolumeUp].Selectable := false;
 
   JukeboxStaticSongMenuTimeProgress   := AddStatic(Theme.Jukebox.StaticSongMenuTimeProgress);
   JukeboxStaticSongMenuTimeBackground := AddStatic(Theme.Jukebox.StaticSongMenuTimeBackground);
   JukeboxTextSongMenuTimeText         := AddText(Theme.Jukebox.SongMenuTextTime);
   JukeboxStaticSongMenuBackground     := AddStatic(Theme.Jukebox.StaticSongMenuBackground);
+
+  Self.JukeboxVolume := Ini.SongVolume;
 end;
 
 procedure TScreenJukebox.OnShow;
@@ -2043,7 +2110,7 @@ end;
 procedure TScreenJukebox.Play();
 begin
     AudioPlayback.Open(CurrentSong.Path.Append(CurrentSong.Mp3));
-    AudioPlayback.SetVolume(ISongVolumeVals[Ini.SongVolume]);
+    AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
 
     //AudioPlayback.Position := CurrentSong.Start;
     AudioPlayback.Position := LyricsState.GetCurrentTime();
@@ -2765,6 +2832,9 @@ begin
     Button[JukeboxSongMenuNext].Draw;
     Button[JukeboxSongMenuPrevious].Draw;
     Button[JukeboxSongMenuPlayPause].Draw;
+    Button[JukeboxSongMenuVolumeDown].Draw;
+    Button[JukeboxSongMenuSpeaker].Draw;
+    Button[JukeboxSongMenuVolumeUp].Draw;
   end
   else
     SongMenuVisible := false;

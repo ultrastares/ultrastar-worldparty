@@ -695,6 +695,9 @@ type
     SongMenuPlaylist:      TThemeButton;
     SongMenuTextTime:      TThemeText;
     SongMenuOptions:       TThemeButton;
+    SongMenuVolume: TThemeButton;
+    SongMenuVolumeUp: TThemeButton;
+    SongMenuVolumeDown: TThemeButton;
 
     //Jukebox SongOptions
     StaticSongOptionsBackground: TThemeStatic;
@@ -1778,6 +1781,9 @@ begin
       ThemeLoadButton(Jukebox.SongMenuPrevious, 'JukeboxSongMenuPrevious');
       ThemeLoadButton(Jukebox.SongMenuPlaylist, 'JukeboxSongMenuPlaylist');
       ThemeLoadButton(Jukebox.SongMenuOptions, 'JukeboxSongMenuOptions');
+      ThemeLoadButton(Jukebox.SongMenuVolume, 'JukeboxSongMenuVolume');
+      ThemeLoadButton(Jukebox.SongMenuVolumeUp, 'JukeboxSongMenuVolumeUp');
+      ThemeLoadButton(Jukebox.SongMenuVolumeDown, 'JukeboxSongMenuVolumeDown');
 
       // Jukebox SongOptions
       ThemeLoadStatic(Jukebox.StaticSongOptionsBackground, 'JukeboxSongOptionsBackground');
