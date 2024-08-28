@@ -1518,6 +1518,28 @@ begin
 
           Exit;
         end;
+
+
+        Ord('-'): // decrease jukebox volume
+        begin
+          begin
+            if (Self.JukeboxVolume > 0) then
+              Self.JukeboxVolume := Self.JukeboxVolume - 1;
+            AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
+            Exit;
+          end;
+        end;
+
+        Ord('+'):// increase jukebox volume
+        begin
+          begin
+            if (Self.JukeboxVolume < 10) then
+              Self.JukeboxVolume := Self.JukeboxVolume + 1;
+            AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
+            Exit;
+          end;
+        end;
+
       end;
      end;
 
@@ -1683,32 +1705,6 @@ begin
               Ini.WebCamEffect := Ini.WebCamEffect + 1
             else
               Ini.WebCamEffect := 0;
-          end;
-        end;
-
-        SDLK_MINUS: // decrease jukebox volume
-        begin
-          if (SDL_ModState = KMOD_LCTRL) then
-          begin
-            if (Self.JukeboxVolume > 0) then
-              Self.JukeboxVolume := Self.JukeboxVolume - 1;
-WriteLn('VolumeJB: '+IntToStr(Self.JukeboxVolume));
-WriteLn('Volume: '+ISongVolumeVals[Self.JukeboxVolume].ToString());
-            AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
-            Exit;
-          end;
-        end;
-
-        SDLK_PLUS: // increase jukebox volume
-        begin
-          if (SDL_ModState = KMOD_LCTRL) then
-          begin
-            if (Self.JukeboxVolume < 10) then
-              Self.JukeboxVolume := Self.JukeboxVolume + 1;
-WriteLn('VolumeJB: '+IntToStr(Self.JukeboxVolume));
-WriteLn('Volume: '+ISongVolumeVals[Self.JukeboxVolume].ToString());
-            AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
-            Exit;
           end;
         end;
 
