@@ -126,7 +126,7 @@ type
     JukeboxStaticSongMenuBackground:     integer;
     JukeboxSongMenuVolumeUp: integer;
     JukeboxSongMenuVolumeDown: integer;
-    JukeboxSongMenuSpeaker: integer;
+//    JukeboxSongMenuSpeaker: integer;
 
     SelectColR: real;
     SelectColG: real;
@@ -1115,8 +1115,6 @@ begin
       begin
         if (Self.JukeboxVolume < 10) then
           Self.JukeboxVolume := Self.JukeboxVolume + 1;
-WriteLn('VolumeJB: '+IntToStr(Self.JukeboxVolume));
-WriteLn('Volume: '+ISongVolumeVals[Self.JukeboxVolume].ToString());
         AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
       end;
 
@@ -1124,8 +1122,6 @@ WriteLn('Volume: '+ISongVolumeVals[Self.JukeboxVolume].ToString());
       begin
         if (Self.JukeboxVolume > 0) then
           Self.JukeboxVolume := Self.JukeboxVolume - 1;
-WriteLn('VolumeJB: '+IntToStr(Self.JukeboxVolume));
-WriteLn('Volume: '+ISongVolumeVals[Self.JukeboxVolume].ToString());
         AudioPlayback.SetVolume(ISongVolumeVals[Self.JukeboxVolume]);
       end;
     end
@@ -2047,7 +2043,7 @@ begin
   JukeboxSongMenuPlaylist  := AddButton(Theme.Jukebox.SongMenuPlaylist);
   JukeboxSongMenuOptions   := AddButton(Theme.Jukebox.SongMenuOptions);
   JukeboxSongMenuVolumeDown := AddButton(Theme.Jukebox.SongMenuVolumeDown);
-  JukeboxSongMenuSpeaker := AddButton(Theme.Jukebox.SongMenuVolume);
+//  JukeboxSongMenuSpeaker := AddButton(Theme.Jukebox.SongMenuVolume);
   JukeboxSongMenuVolumeUp := AddButton(Theme.Jukebox.SongMenuVolumeUp);
   
   Button[JukeboxSongMenuPlaylist].Selectable := false;
@@ -2056,7 +2052,7 @@ begin
   Button[JukeboxSongMenuPlaylist].Selectable := false;
   Button[JukeboxSongMenuOptions].Selectable := false;
   Button[JukeboxSongMenuVolumeDown].Selectable := false;
-  Button[JukeboxSongMenuSpeaker].Selectable := false;
+//  Button[JukeboxSongMenuSpeaker].Selectable := false;
   Button[JukeboxSongMenuVolumeUp].Selectable := false;
 
   JukeboxStaticSongMenuTimeProgress   := AddStatic(Theme.Jukebox.StaticSongMenuTimeProgress);
@@ -2829,7 +2825,7 @@ begin
     Button[JukeboxSongMenuPrevious].Draw;
     Button[JukeboxSongMenuPlayPause].Draw;
     Button[JukeboxSongMenuVolumeDown].Draw;
-    Button[JukeboxSongMenuSpeaker].Draw;
+//    Button[JukeboxSongMenuSpeaker].Draw;
     Button[JukeboxSongMenuVolumeUp].Draw;
   end
   else
