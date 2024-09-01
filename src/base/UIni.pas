@@ -684,7 +684,7 @@ var
   CurrentMode, ModeIter, MaxMode: TSDL_DisplayMode;
   CurrentRes, ResString: string;
 begin
-  MaxFramerate := IniFile.ReadInteger('Graphics', 'MaxFramerate', 60);
+  MaxFramerate := IniFile.ReadInteger('Graphics', 'MaxFramerate', 100);
   // Screens
   Screens := ReadArrayIndex(IScreens, IniFile, 'Graphics', 'Screens', 0);
 
