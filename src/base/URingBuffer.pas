@@ -44,7 +44,7 @@ type
     public
       constructor Create(Size: integer);
       destructor Destroy; override;
-      function Read(Buffer: PByteArray; Count: integer): integer;
+      function Read(Buffer: PByte; Count: integer): integer;
       function Write(Buffer: PByteArray; Count: integer): integer;
       function Size(): integer;
       function Available(): integer;
@@ -70,7 +70,7 @@ begin
   FreeMem(RingBuffer);
 end;
 
-function TRingBuffer.Read(Buffer: PByteArray; Count: integer): integer;
+function TRingBuffer.Read(Buffer: PByte; Count: integer): integer;
 var
   PartCount: integer;
 begin

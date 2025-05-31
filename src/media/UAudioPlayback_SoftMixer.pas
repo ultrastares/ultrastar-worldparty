@@ -180,7 +180,7 @@ type
       function Open(ChannelMap: integer; FormatInfo: TAudioFormatInfo): boolean; override;
       procedure Close(); override;
       procedure WriteData(Buffer: PByteArray; BufferSize: integer); override;
-      function ReadData(Buffer: PByteArray; BufferSize: integer): integer; override;
+      function ReadData(Buffer: PByte; BufferSize: integer): integer; override;
       function IsEOF(): boolean; override;
       function IsError(): boolean; override;
   end;
@@ -1068,7 +1068,7 @@ begin
   end;
 end;
 
-function TGenericVoiceStream.ReadData(Buffer: PByteArray; BufferSize: integer): integer;
+function TGenericVoiceStream.ReadData(Buffer: PByte; BufferSize: integer): integer;
 begin
   Result := -1;
 

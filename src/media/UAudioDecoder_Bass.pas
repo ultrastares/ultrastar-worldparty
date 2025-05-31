@@ -63,7 +63,7 @@ type
       function IsEOF(): boolean;             override;
       function IsError(): boolean;           override;
 
-      function ReadData(Buffer: PByteArray; BufSize: integer): integer; override;
+      function ReadData(Buffer: PByte; BufSize: integer): integer; override;
   end;
 
 type
@@ -191,7 +191,7 @@ begin
   Result := Error;
 end;
 
-function TBassDecodeStream.ReadData(Buffer: PByteArray; BufSize: integer): integer;
+function TBassDecodeStream.ReadData(Buffer: PByte; BufSize: integer): integer;
 begin
   Result := BASS_ChannelGetData(Handle, Buffer, BufSize);
   // check error state (do not handle EOF as error)
