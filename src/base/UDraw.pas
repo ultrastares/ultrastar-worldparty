@@ -743,8 +743,8 @@ begin
           begin
             // begin: 14, 20
             // easy: 6, 11
-            W := NotesW[PlayerIndex] * 2 + 2;
-            H := NotesH[PlayerIndex] * 1.5 + 3.5;
+            W := NotesW[PlayerIndex] * 1.25;
+            H := NotesH[PlayerIndex] * 1.2;
 
             {
             X2 := (Start-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR + Left + 0.5 + 10*ScreenX + 4;
@@ -755,7 +755,7 @@ begin
             }
 
             // left
-            Rec.Right := (Start-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR + Left + 0.5 + 10*ScreenX + 4;
+            Rec.Right := (Start-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR + Left + 0.5 + 10*ScreenX + 6;
             Rec.Left  := Rec.Right - W;
             Rec.Top := Top - (Tone-BaseNote)*Space/2 - H;
             Rec.Bottom := Rec.Top + 2 * H;
@@ -777,7 +777,7 @@ begin
 
             // middle part
             Rec.Left  := Rec.Right;
-            Rec.Right := (Start+Length-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR + Left - 0.5 + 10*ScreenX - 4;
+            Rec.Right := (Start+Length-CurrentSong.Lines[NrLines].Line[CurrentSong.Lines[NrLines].Current].Note[0].Start) * TempR + Left - 0.5 + 10*ScreenX - 6;
 
             // the left note is more right than the right note itself, sounds weird - so we fix that xD
             if Rec.Right <= Rec.Left then

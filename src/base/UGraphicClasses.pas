@@ -161,8 +161,8 @@ begin
     GoldenNote:
         begin
           Tex := GoldenRec.Tex_Note_Star.TexNum;
-          W := 20;
-          H := 20;
+          W := 5;
+          H := 8;
           SetLength(Scale,4);
           Scale[1] := 0.8;
           Scale[2] := 0.4;
@@ -187,8 +187,8 @@ begin
     PerfectNote:
         begin
           Tex := GoldenRec.Tex_Note_Perfect_Star.TexNum;
-          W := 8;
-          H := 12;
+          W := 7;
+          H := 10;
           SetLength(Col,1);
           Col[0].r := 1;
           Col[0].g := 1;
@@ -198,8 +198,8 @@ begin
         begin
           Tex := GoldenRec.Tex_Note_Star.TexNum;
           Alpha := (Live/16);  // linear fade-out
-          W := 15;
-          H := 15;
+          W := 5;
+          H := 8;
           Setlength(Col,1);
           Col[0].r := 1;
           Col[0].g := 1;
@@ -208,8 +208,8 @@ begin
     PerfectLineTwinkle:
         begin
           Tex := GoldenRec.Tex_Note_Star.TexNum;
-          W := RandomRange(10,20);
-          H := W;
+          W := RandomRange(3,8);
+          H := W+2;
           SizeMod := (-cos((Frame+1)*5*2*pi/16)*0.5+1.1);
           SurviveSentenceChange := True;
           // assign colours according to player given
@@ -229,8 +229,8 @@ begin
     ColoredStar:
         begin
           Tex := GoldenRec.Tex_Note_Star.TexNum;
-          W := RandomRange(10,20);
-          H := W;
+          W := RandomRange(3,8);
+          H := W+2;
           SizeMod := (-cos((Frame+1)*5*2*pi/16)*0.5+1.1);
           SurviveSentenceChange := True;
           // assign colours according to player given
@@ -245,8 +245,8 @@ begin
     Flare:
         begin
           Tex := GoldenRec.Tex_Note_Star.TexNum;
-          W := 7;
-          H := 7;
+          W := 5;
+          H := 8;
           SizeMod := (-cos((Frame+1)*5*2*pi/16)*0.5+1.1);
           mX := RandomRange(-5,5);
           mY := RandomRange(-5,5);
@@ -276,8 +276,8 @@ begin
         begin
           Tex := GoldenRec.Tex_Note_Star.TexNum;
           Alpha := 1;
-          W := 20;
-          H := 20;
+          W := 5;
+          H := 8;
           SetLength(Col,1);
           Col[0].r := 1;
           Col[0].g := 1;
