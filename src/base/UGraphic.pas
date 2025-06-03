@@ -125,62 +125,62 @@ var
   HasValidPosition:     boolean;
   HasValidSize:         boolean;
 
-  ScreenLoading:      TScreenLoading;
-  ScreenMain:         TScreenMain;
-  ScreenPlayerSelector: TScreenPlayerSelector;
-  ScreenSong:         TScreenSong;
-  ScreenSing:         TScreenSingController;
+  ScreenLoading:            TScreenLoading = nil;
+  ScreenMain:               TScreenMain = nil;
+  ScreenPlayerSelector:     TScreenPlayerSelector = nil;
+  ScreenSong:               TScreenSong = nil;
+  ScreenSing:               TScreenSingController = nil;
 
-  ScreenJukebox:         TScreenJukebox;
-  ScreenJukeboxOptions:  TScreenJukeboxOptions;
-  ScreenJukeboxPlaylist: TScreenJukeboxPlaylist;
+  ScreenJukebox:            TScreenJukebox = nil;
+  ScreenJukeboxOptions:     TScreenJukeboxOptions = nil;
+  ScreenJukeboxPlaylist:    TScreenJukeboxPlaylist = nil;
 
-  ScreenScore:        TScreenScore;
-  ScreenTop10:        TScreenTop10;
-  ScreenOptions:          TScreenOptions;
-  ScreenOptionsGeneral:   TScreenOptionsGeneral;
-  ScreenOptionsGraphics:  TScreenOptionsGraphics;
-  ScreenOptionsSound:     TScreenOptionsSound;
-  ScreenOptionsLyrics:    TScreenOptionsLyrics;
-  ScreenOptionsThemes:    TScreenOptionsThemes;
-  ScreenOptionsMicrophones:    TScreenOptionsMicrophones;
-  ScreenOptionsAdvanced:  TScreenOptionsAdvanced;
-  ScreenOptionsNetwork:   TScreenOptionsNetwork;
-  ScreenOptionsWebcam:    TScreenOptionsWebcam;
-  ScreenOptionsProfiles:  TScreenOptionsProfiles;
-  ScreenOptionsSongdirs:  TScreenOptionsSongdirs;
-  ScreenOpen:         TScreenOpen;
-  ScreenAbout:        TScreenAbout;
-  ScreenDevelopers:   TScreenDevelopers;
+  ScreenScore:              TScreenScore = nil;
+  ScreenTop10:              TScreenTop10 = nil;
+  ScreenOptions:            TScreenOptions = nil;
+  ScreenOptionsGeneral:     TScreenOptionsGeneral = nil;
+  ScreenOptionsGraphics:    TScreenOptionsGraphics = nil;
+  ScreenOptionsSound:       TScreenOptionsSound = nil;
+  ScreenOptionsLyrics:      TScreenOptionsLyrics = nil;
+  ScreenOptionsThemes:      TScreenOptionsThemes = nil;
+  ScreenOptionsMicrophones: TScreenOptionsMicrophones = nil;
+  ScreenOptionsAdvanced:    TScreenOptionsAdvanced = nil;
+  ScreenOptionsNetwork:     TScreenOptionsNetwork = nil;
+  ScreenOptionsWebcam:      TScreenOptionsWebcam = nil;
+  ScreenOptionsProfiles:    TScreenOptionsProfiles = nil;
+  ScreenOptionsSongdirs:    TScreenOptionsSongdirs = nil;
+  ScreenOpen:               TScreenOpen = nil;
+  ScreenAbout:              TScreenAbout = nil;
+  ScreenDevelopers:         TScreenDevelopers = nil;
 
-  ScreenSongMenu:     TScreenSongMenu;
+  ScreenSongMenu:           TScreenSongMenu = nil;
 
   //Party Screens
   //ScreenSingModi:         TScreenSingModi;
-  ScreenPartyNewRound:    TScreenPartyNewRound;
-  ScreenPartyScore:       TScreenPartyScore;
-  ScreenPartyWin:         TScreenPartyWin;
-  ScreenPartyOptions:     TScreenPartyOptions;
-  ScreenPartyPlayer:      TScreenPartyPlayer;
-  ScreenPartyRounds:      TScreenPartyRounds;
+  ScreenPartyNewRound:      TScreenPartyNewRound = nil;
+  ScreenPartyScore:         TScreenPartyScore = nil;
+  ScreenPartyWin:           TScreenPartyWin = nil;
+  ScreenPartyOptions:       TScreenPartyOptions = nil;
+  ScreenPartyPlayer:        TScreenPartyPlayer = nil;
+  ScreenPartyRounds:        TScreenPartyRounds = nil;
 
   // Tournament
-  ScreenPartyTournamentRounds:   TScreenPartyTournamentRounds;
-  ScreenPartyTournamentPlayer:   TScreenPartyTournamentPlayer;
-  ScreenPartyTournamentOptions:  TScreenPartyTournamentOptions;
-  ScreenPartyTournamentWin:      TScreenPartyTournamentWin;
+  ScreenPartyTournamentRounds:   TScreenPartyTournamentRounds = nil;
+  ScreenPartyTournamentPlayer:   TScreenPartyTournamentPlayer = nil;
+  ScreenPartyTournamentOptions:  TScreenPartyTournamentOptions = nil;
+  ScreenPartyTournamentWin:      TScreenPartyTournamentWin = nil;
 
   //StatsScreens
-  ScreenStatMain:         TScreenStatMain;
-  ScreenStatDetail:       TScreenStatDetail;
+  ScreenStatMain:           TScreenStatMain = nil;
+  ScreenStatDetail:         TScreenStatDetail = nil;
 
   //popup mod
-  ScreenPopupCheck: TScreenPopupCheck;
-  ScreenPopupError: TScreenPopupError;
-  ScreenPopupInfo:  TScreenPopupInfo;
-  ScreenPopupInsertUser: TScreenPopupInsertUser;
-  ScreenPopupSendScore:  TScreenPopupSendScore;
-  ScreenPopupScoreDownload: TScreenPopupScoreDownload;
+  ScreenPopupCheck:         TScreenPopupCheck = nil;
+  ScreenPopupError:         TScreenPopupError = nil;
+  ScreenPopupInfo:          TScreenPopupInfo = nil;
+  ScreenPopupInsertUser:    TScreenPopupInsertUser = nil;
+  ScreenPopupSendScore:     TScreenPopupSendScore = nil;
+  ScreenPopupScoreDownload: TScreenPopupScoreDownload = nil;
 
   //Notes
   Tex_Left:        array[1..UIni.IMaxPlayerCount] of TTexture;   //rename to tex_note_left
@@ -362,7 +362,28 @@ end;
 
 procedure Finalize3D;
 begin
+ UnloadScreens;
+
+  if Assigned(Display) then
+    FreeAndNil(Display);
+
+  if Assigned(Texture) then
+    FreeAndNil(Texture);
+
   UnloadFontTextures;
+
+  if (glcontext <> nil) then
+  begin
+    SDL_GL_DeleteContext(glcontext);
+    glcontext := nil;
+  end;
+
+  if (Screen <> nil) then
+  begin
+    SDL_DestroyWindow(Screen);
+    Screen := nil;
+  end;
+
   SDL_QuitSubSystem(SDL_INIT_VIDEO);
 end;
 
@@ -458,7 +479,8 @@ NoDoubledResolution:
 
   if (screen = nil) then
   begin
-    Log.LogCritical('Creating window failed', 'SDL_SetVideoMode');
+    Log.LogCritical('Creating window failed' + SDL_GetError(), 'SDL_SetVideoMode');
+    Exit; // Exit in case of error
   end
   else
   begin
@@ -708,6 +730,7 @@ end;
 { Free screen variables in all cases, with an instance or not }
 procedure UnloadScreens;
 begin
+  FreeAndNil(ScreenLoading);
   FreeAndNil(ScreenMain);
   FreeAndNil(ScreenPlayerSelector);
   FreeAndNil(ScreenSong);
