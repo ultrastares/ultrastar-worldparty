@@ -392,6 +392,7 @@ var
   S:      string;
   W, H:   integer;
   X, Y:   integer; // offset for re-positioning
+  winW, winH: integer;
   Borderless, Fullscreen: boolean;
   Split: boolean;
   Disp: TSDL_DisplayMode;
@@ -485,7 +486,8 @@ NoDoubledResolution:
   else
   begin
     X:=0; Y:=0;
-
+    SDL_GetWindowSize(Screen, @winW, @winH);
+	
     // check if created window has the desired size, otherwise override the config resolution value
     if SDL_GetWindowDisplayMode(screen, @Disp) = 0 then
     begin
@@ -500,8 +502,8 @@ NoDoubledResolution:
         Ini.SetResolution(Disp.w, Disp.h, false, true);
       end;
 
-      X := Disp.w - Screen.w;
-      Y := Disp.h - Screen.h;
+      X := Disp.w - WinW;
+      Y := Disp.h - WinH;
     end;
 
     // if screen is out of the visisble desktop area, move it back
