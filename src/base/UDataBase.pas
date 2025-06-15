@@ -111,6 +111,8 @@ type
       fFilename: IPath;
 
       function GetVersion(): integer;
+      function GetSongID(const Artist, Title: UTF8String): Integer;
+      function PlayerAlreadyListed(Song: TSong; Difficulty: Integer; const PlayerName: UTF8String): Boolean;
       procedure SetVersion(Version: integer);
     public
       // Network
@@ -356,81 +358,50 @@ end;
  *)
 procedure TDataBaseSystem.ReadScore(Song: TSong);
 var
-  TableData:  TSQLiteUniTable;
   Difficulty: integer;
-  I: integer;
-  PlayerListed: boolean;
+  SongID: Integer;
 begin
   if not Assigned(ScoreDB) then
     Exit;
 
-  TableData := nil;
+  SongID := GetSongID(Song.Artist, Song.Title);
+  if SongID = 0 then Exit;
+
+//Difficulty:
+// 0 - Easy
+// 1 - Medium
+// 2 - Hard
+// 3 - Training
+
+  // Reset scores
+  for Difficulty := 0 to 3 do
+    SetLength(Song.Score[Difficulty], 0);
+
+  with ScoreDB.GetUniTable(
+    'SELECT [Difficulty], [Player], [Score], [Date] FROM [' + cUS_Scores + '] ' +
+    'WHERE [SongID] = ? ORDER BY [Score] DESC', [SongID]) do
   try
-    // Search Song in DB
-    TableData := ScoreDB.GetUniTable(
-      'SELECT [Difficulty], [Player], [Score], [Date] FROM [' + cUS_Scores + '] ' +
-      'WHERE [SongID] = (' +
-        'SELECT [ID] FROM [' + cUS_Songs + '] ' +
-        'WHERE [Artist] = ? AND [Title] = ? ' +
-        'LIMIT 1) ' +
-      'ORDER BY [Score] DESC;', //no LIMIT! see filter below!
-      [Song.Artist, Song.Title]);
-
-    // Empty Old Scores
-    SetLength(Song.Score[0], 0); //easy
-    SetLength(Song.Score[1], 0); //medium
-    SetLength(Song.Score[2], 0); //hard
-
-    // Go through all Entrys
-    while (not TableData.EOF) do
+    while not EOF do
     begin
-      // Add one Entry to Array
-      Difficulty := TableData.FieldAsInteger(TableData.FieldIndex['Difficulty']);
-      if ((Difficulty >= 0) and (Difficulty <= 2)) and
-         (Length(Song.Score[Difficulty]) < NUM_REC_TO_READ) then
+      Difficulty := FieldAsInteger(0);
+      if (Difficulty in [0..3]) and (Length(Song.Score[Difficulty]) < NUM_REC_TO_READ) then
       begin
-        //filter player
-        PlayerListed:=false;
-        if (Ini.TopScores = 1) then
-        begin
-          if (Length(Song.Score[Difficulty])>0) then
-          begin
-            for I := 0 to Length(Song.Score[Difficulty]) - 1 do
-            begin
-              if (Song.Score[Difficulty, I].Name = TableData.FieldByName['Player']) then
-              begin
-                PlayerListed:=true;
-                break;
-              end;
-            end;
-          end;
-        end;
-
-        if not PlayerListed then
+        if not PlayerAlreadyListed(Song, Difficulty, FieldByName['Player']) then
         begin
           SetLength(Song.Score[Difficulty], Length(Song.Score[Difficulty]) + 1);
-
-          Song.Score[Difficulty, High(Song.Score[Difficulty])].Name  :=
-            TableData.FieldByName['Player'];
-          Song.Score[Difficulty, High(Song.Score[Difficulty])].Score :=
-            TableData.FieldAsInteger(TableData.FieldIndex['Score']);
-          Song.Score[Difficulty, High(Song.Score[Difficulty])].Date :=
-            FormatDate(TableData.FieldAsInteger(TableData.FieldIndex['Date']));
+          with Song.Score[Difficulty, High(Song.Score[Difficulty])] do
+          begin
+            Name := FieldByName['Player'];
+            Score := FieldAsInteger(2);
+            Date := FormatDate(FieldAsInteger(3));
+          end;
         end;
       end;
-
-      TableData.Next;
-    end; // while
-
-  except
-    for Difficulty := 0 to 2 do
-    begin
-      SetLength(Song.Score[Difficulty], 1);
-      Song.Score[Difficulty, 1].Name := 'Error Reading ScoreDB';
+      Next;
     end;
+  finally
+    Free;
   end;
-
-  TableData.Free;
 end;
 
 (**
@@ -1353,6 +1324,32 @@ end;
 function TDataBaseSystem.GetVersion(): integer;
 begin
   Result := ScoreDB.GetTableValue('PRAGMA user_version');
+end;
+
+function TDataBaseSystem.GetSongID(const Artist, Title: UTF8String): Integer;
+begin
+  Result := ScoreDB.GetTableValue(
+    'SELECT [ID] FROM [' + cUS_Songs + '] ' +
+    'WHERE [Artist] = ? AND [Title] = ?',
+    [Artist, Title]);
+end;
+
+function TDataBaseSystem.PlayerAlreadyListed(Song: TSong; Difficulty: Integer; const PlayerName: UTF8String): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  if (Ini.TopScores = 1) and (Length(Song.Score[Difficulty]) > 0) then
+  begin
+    for I := 0 to Length(Song.Score[Difficulty]) - 1 do
+    begin
+      if (Song.Score[Difficulty, I].Name = PlayerName) then
+      begin
+        Result := True;
+        Break;
+      end;
+    end;
+  end;
 end;
 
 procedure TDataBaseSystem.SetVersion(Version: integer);
