@@ -42,7 +42,7 @@ const
 
   JOYSTICK_MOUSE_REPEAT       = 1;
   JOYSTICK_MOUSE_DEADZONE     = 0.01;
-  JOYSTICK_MOUSE_DEFAULTSPEED = 750;
+  JOYSTICK_MOUSE_DEFAULTSPEED = 850;
 
   JOYSTICK_AXIS_PRESSED_THRESHOLD = 0.5;
   JOYSTICK_AXIS_RELEASED_THRESHOLD = 0.7;
@@ -80,6 +80,13 @@ const
   SDL_HAT_AXIS_Y_pos_X_neg = SDL_HAT_AXIS_Y_pos or SDL_HAT_AXIS_X_neg; // 6  Bottom Left
   SDL_HAT_AXIS_Y_neg_X_neg = SDL_HAT_AXIS_Y_neg or SDL_HAT_AXIS_X_neg; // 10 Top Left
 
+  JOYSTICK_BUTTON_MAPPING: array[0..3] of TSDL_KeyCode = (
+    SDLK_RETURN,  // Button 0
+    SDLK_ESCAPE,  // Button 1
+    SDLK_m,       // Button 2
+    SDLK_r        // Button 3
+  );
+  
 type
   TJoyButtonState = ( bsReleased, bsPressed );
   TJoyControllerType = ( ctJoystick, ctGameController );
@@ -504,15 +511,16 @@ var
   Controller: TJoyController;
 
 begin
-  inherited;
-
-if Assigned(Controllers) then
+  if Assigned(Controllers) then
   begin
     for Key in Controllers.Keys do
-      if Controllers.TryGetValue(Key, Controller) and Assigned(Controller) then
-        Controller.Free;
-    Controllers.Free;
+    begin
+      if Controllers.TryGetValue(Key, Controller) then
+        FreeAndNil(Controller);
+    end;
+    FreeAndNil(Controllers);
   end;
+  inherited;
 end;
 
 function TJoy.AddController(DeviceId: integer; out Error: string): boolean;
@@ -553,7 +561,7 @@ begin
     else
     begin
       Controller := TJoyControllerJoyStick.Create(DeviceId, JoyStick, s);
-      Controllers.Add(Controller.InstanceId, TJoyControllerJoyStick.Create(DeviceId, JoyStick, s));
+      Controllers.Add(Controller.InstanceId, Controller);
     end;
   end;
 
@@ -577,8 +585,6 @@ begin
 end;
 
 function TJoy.GetControllerByInstanceId(Id: integer; out Controller: TJoyController): boolean;
-var
-  index: integer;
 begin
   Result := false;
    if Controllers.TryGetValue(Id, Controller) then
@@ -717,12 +723,17 @@ end;
 
 destructor TJoyController.Destroy();
 begin
+  if Assigned(MouseRepeatThread) then
+  begin
+    MouseRepeatThreadFlag := false;
+    SDL_WaitThread(MouseRepeatThread, nil);
+    MouseRepeatThread := nil;
+  end;
+
+  FreeAndNil(DPadStates);
+  FreeAndNil(AxesStates);
+
   inherited;
-
-  MouseRepeatThread := nil;
-
-  DPadStates.Clear;
-  AxesStates.Free;
 end;
 
 function TJoyController.GetDeviceId(): integer;
@@ -1031,13 +1042,12 @@ end;
 
 destructor TJoyControllerJoyStick.Destroy();
 begin
-  inherited;
-
-  if assigned(JoyStick) then
+  if Assigned(JoyStick) then
   begin
     SDL_JoystickClose(JoyStick);
     JoyStick := nil;
   end;
+  inherited;
 end;
 
 function TJoyControllerJoyStick.GetJoystick(): Pointer;
@@ -1056,13 +1066,12 @@ end;
 
 destructor TJoyControllerGameController.Destroy();
 begin
-  inherited;
-
-  if assigned(GameController) then
+  if Assigned(GameController) then
   begin
     SDL_GameControllerClose(GameController);
     GameController := nil;
   end;
+  inherited;
 end;
 
 function TJoyControllerGameController.GetJoystick(): Pointer;
@@ -1157,16 +1166,10 @@ end;
 
 function TJoyControllerJoyStick.TranslateButtonToKey(ButtonId: integer; State: TJoyButtonState; out Key: TSDL_KeyCode): boolean;
 begin
-  Result := true;
-
-  // default configuration with 4 buttons
-  case ButtonId of
-    0: Key := SDLK_RETURN;
-    1: Key := SDLK_ESCAPE;
-    2: Key := SDLK_m;
-    3: Key := SDLK_r;
-    otherwise Result := false;
-  end;
+  Result := (ButtonId >= Low(JOYSTICK_BUTTON_MAPPING)) and 
+            (ButtonId <= High(JOYSTICK_BUTTON_MAPPING));
+  if Result then
+    Key := JOYSTICK_BUTTON_MAPPING[ButtonId];
 end;
 
 procedure TJoyControllerJoyStick.SwitchMouseModeFor(ButtonId: integer; State: TJoyButtonState);
