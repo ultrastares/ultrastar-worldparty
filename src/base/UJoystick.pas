@@ -34,7 +34,7 @@ uses
   Classes,
   strutils,
   typinfo, // for GetEnumName
-  fgl, // TGFMap
+  Generics.Collections, //(replaced TGFMap by TDictionary)
   math,
   SDL2;
 
@@ -110,8 +110,9 @@ type
     WasRepeat: boolean;
   end;
 
-  TControllerDPadIDStateMap = TFPGMap<integer,TControllerDPadState>;
-  TControllerAxisIDStateMap = TFPGMap<integer,TControllerAxisState>;
+
+  TControllerDPadIDStateMap = TDictionary<integer, TControllerDPadState>;
+  TControllerAxisIDStateMap = TDictionary<integer, TControllerAxisState>;
 
   TJoyController = class
     private
@@ -188,7 +189,7 @@ type
 
   end;
 
-  TControllerIDMap = TFPGMap<integer,TJoyController>;
+  TControllerIDMap = TDictionary<integer, TJoyController>;
 
   TJoyControllerJoyStick = class(TJoyController)
     private
@@ -411,7 +412,6 @@ begin
   inherited;
 
   Controllers := TControllerIDMap.Create;
-  Controllers.Sorted := true;
   Controller := nil;
 
   SDL_InitSubSystem( SDL_INIT_JOYSTICK or SDL_INIT_GAMECONTROLLER );
@@ -434,8 +434,8 @@ begin
   // if only 1 controller, just activate it
   if Controllers.Count = 1 then
   begin
-    Controller := Controllers.Data[0];
-    Log.LogStatus(Format('Using controller: %s', [Controllers.Data[0].Name]), 'TJoy.Create');
+    if Controllers.TryGetValue(0, Controller) then
+    Log.LogStatus(Format('Using controller: %s', [Controllers.Values.ToArray[0].Name]), 'TJoy.Create');
   end;
 
 
@@ -446,11 +446,11 @@ begin
     BestButtonCount := 0;
     for i := 0 to Controllers.Count -1 do
     begin
-      if Controllers.Data[i].ControllerType = ctGameController then
+      if Controllers.Values.ToArray[i].ControllerType = ctGameController then
       begin
-        if Controllers.Data[i].ButtonCount > BestButtonCount then
+        if Controllers.Values.ToArray[i].ButtonCount > BestButtonCount then
         begin
-          BestButtonCount := Controllers.Data[i].ButtonCount;
+          BestButtonCount := Controllers.Values.ToArray[i].ButtonCount;
           BestIndex := i;
         end;
       end;
@@ -458,7 +458,7 @@ begin
 
     if BestIndex >= 0 then
     begin
-      Controller := Controllers.Data[BestIndex];
+      Controller := Controllers.Values.ToArray[BestIndex];
       Log.LogStatus(Format('Using game controller: %s', [Controller.Name]), 'TJoy.Create');
     end;
   end;
@@ -471,11 +471,11 @@ begin
     BestButtonCount := 0;
     for i := 0 to Controllers.Count -1 do
     begin
-      if Controllers.Data[i].ControllerType = ctJoystick then
+      if Controllers.Values.ToArray[i].ControllerType = ctJoystick then
       begin
-        if Controllers.Data[i].ButtonCount > BestButtonCount then
+        if Controllers.Values.ToArray[i].ButtonCount > BestButtonCount then
         begin
-          BestButtonCount := Controllers.Data[i].ButtonCount;
+          BestButtonCount := Controllers.Values.ToArray[i].ButtonCount;
           BestIndex := i;
         end;
       end;
@@ -483,7 +483,7 @@ begin
 
     if BestIndex >= 0 then
     begin
-      Controller := Controllers.Data[BestIndex];
+      Controller := Controllers.Values.ToArray[BestIndex];
       Log.LogStatus(Format('Using legacy Joystick: %s', [Controller.Name]), 'TJoy.Create');
     end;
   end;
@@ -500,21 +500,18 @@ end;
 
 destructor TJoy.Destroy;
 var
-  i, index: integer;
+  key: integer;
   Controller: TJoyController;
+
 begin
   inherited;
 
-  if Controllers <> nil then
+if Assigned(Controllers) then
   begin
-
-    for i := 0 to Controllers.Count - 1 do
-      if Controllers.Find(Controllers.Keys[i], index) and assigned(Controllers.Data[index]) then
-        Controllers.Data[index].Destroy();
-
-    Controllers.Clear;
+    for Key in Controllers.Keys do
+      if Controllers.TryGetValue(Key, Controller) and Assigned(Controller) then
+        Controller.Free;
     Controllers.Free;
-    Controllers := nil;
   end;
 end;
 
@@ -572,7 +569,7 @@ begin
   Result := false;
   if GetControllerByInstanceId(InstanceId, Controller) then
   begin
-    Controllers.Remove(Controller.DeviceId);
+    Controllers.Remove(InstanceId);
     Controller.Destroy;
     Result := true;
   end
@@ -584,24 +581,20 @@ var
   index: integer;
 begin
   Result := false;
-  if Controllers.Find(Id, index) then
-  begin
-    Controller := Controllers.Data[index];
-    Result := true;
-  end;
+   if Controllers.TryGetValue(Id, Controller) then
+      Result := true;
 end;
 
 function TJoy.GetControllerByDeviceId(Id: integer; out Controller: TJoyController): boolean;
 var
-  i: integer;
+  Ctrl: TJoyController;
 begin
   Result := false;
-
-  for i := 0 to Controllers.Count - 1 do
+  for Ctrl in Controllers.Values do
   begin
-    if (Controllers.Data[i] <> nil) and (Id = Controllers.Data[i].DeviceId) then
+    if (Ctrl <> nil) and (Id = Ctrl.DeviceId) then
     begin
-      Controller := Controllers.Data[i];
+      Controller := Ctrl;
       Result := true;
       Exit;
     end;
@@ -697,11 +690,12 @@ end;
 // TODO: implement simulating mouse properly (access to current cached mouse coors)
 procedure TJoy.OnMouseMove(X, Y: integer);
 var
-  i, index: integer;
+  Key: integer;
+  Controller: TJoyController;
 begin
-  for i := 0 to Controllers.Count - 1 do
-    if Controllers.Find(Controllers.Keys[i], index) and Controllers.Data[index].IsEnabled() then
-      Controllers.Data[index].OnMouseMove(X, Y);
+  for Key in Controllers.Keys do
+    if Controllers.TryGetValue(Key, Controller) and Controller.IsEnabled then
+      Controller.OnMouseMove(X, Y);
 end;
 
 
@@ -713,9 +707,7 @@ begin
   //inherited;
 
   DPadStates := TControllerDPadIDStateMap.Create;
-  DPadStates.Sorted := true;
   AxesStates := TControllerAxisIDStateMap.Create;
-  AxesStates.Sorted := true;
 
   MouseMode := false;
 
@@ -729,7 +721,7 @@ begin
 
   MouseRepeatThread := nil;
 
-  DPadStates.Free;
+  DPadStates.Clear;
   AxesStates.Free;
 end;
 
@@ -874,15 +866,16 @@ end;
 
 function TJoyController.HandleControllerDPad(ControllerId: integer; PadId: integer; X, Y: integer): boolean;
 var
-  Index: integer;
   State: TControllerDPadState;
   Key: TSDL_KeyCode;
 begin
   Result := false;
 
   State := Default(TControllerDPadState);
-  if not DPadStates.Find(PadId, index) then DPadStates.Add(PadId, State);
-  State := DPadStates.Data[index];
+  if not DPadStates.TryGetValue(PadId, State) then
+    DPadStates.Add(PadId, State);
+
+  DPadStates.Items[PadId] := State;
 
   if (X <> 0) xor State.X then
   begin
@@ -899,13 +892,12 @@ begin
   State.Y := Y <> 0;
   State.RawX := ifthen(State.X, X, 0);
   State.RawY := ifthen(State.Y, Y, 0);
-  DPadStates.Data[index] := State;
+  DPadStates[PadId] := State;
   Result := true;
 end;
 
 function TJoyController.HandleControllerMotion(ControllerId: integer; Axis: integer; Perc: double; Time: Cardinal): boolean;
 var
-  Index: integer;
   State: TControllerAxisState;
   MouseAxis: Byte;
   Key: TSDL_KeyCode;
@@ -913,8 +905,11 @@ begin
   Result := false;
 
   State := Default(TControllerAxisState);
-  if not AxesStates.Find(Axis, index) then AxesStates.Add(Axis, State);
-  State := AxesStates.Data[index];
+  if not AxesStates.TryGetValue(Axis, State) then
+   begin
+     State := Default(TControllerAxisState);
+      AxesStates.Add(Axis, State);
+   end;
 
   if TranslateAxisToMouseAxis(Axis, Sign(Perc), MouseAxis) then begin
     SimulateMouse(MouseAxis, Perc);
@@ -953,7 +948,7 @@ begin
   end;
 
   State.Perc := Perc;
-  AxesStates.Data[index] := State;
+  AxesStates[Axis] := State;
   Result := true;
 end;
 
