@@ -5,16 +5,34 @@
  *}
 
 type
+  PPSDL_BlendMode = ^PSDL_BlendMode;
   PSDL_BlendMode = ^TSDL_BlendMode;
   TSDL_BlendMode = type DWord;
 
 const
-  SDL_BLENDMODE_NONE  = TSDL_BlendMode($00000000);    {**< No blending *}
-  SDL_BLENDMODE_BLEND = TSDL_BlendMode($00000001);    {**< dst = (src * A) + (dst * (1-A)) *}
-  SDL_BLENDMODE_ADD   = TSDL_BlendMode($00000002);    {**< dst = (src * A) + dst *}
-  SDL_BLENDMODE_MOD   = TSDL_BlendMode($00000004);    {**< dst = src * dst *}
+  SDL_BLENDMODE_NONE    = TSDL_BlendMode($00000000);    {**< no blending
+                                                         dstRGBA = srcRGBA *}
+  SDL_BLENDMODE_BLEND   = TSDL_BlendMode($00000001);    {**< alpha blending
+                                                         dstRGB = (srcRGB * srcA) + (dstRGB * (1-srcA))
+                                                         dstA = srcA + (dstA * (1-srcA)) *}
+  SDL_BLENDMODE_ADD     = TSDL_BlendMode($00000002);    {**< additive blending
+                                                         dstRGB = (srcRGB * srcA) + dstRGB
+                                                         dstA = dstA *}
+  SDL_BLENDMODE_MOD     = TSDL_BlendMode($00000004);    {**< color modulate
+                                                         dstRGB = srcRGB * dstRGB
+                                                         dstA = dstA *}
+  SDL_BLENDMODE_MUL     = TSDL_BlendMode($00000008);    {**< color multiply
+                                                         dstRGB = (srcRGB * dstRGB) + (dstRGB * (1-srcA))
+                                                         dstA = (srcA * dstA) + (dstA * (1-srcA)) *}
+  SDL_BLENDMODE_INVALID = TSDL_BlendMode($7FFFFFFF);    { }
 
+  {* Additional custom blend modes can be returned by SDL_ComposeCustomBlendMode() *}
+
+  {**
+   *  \brief The blend operation used when combining source and destination pixel components
+   *}
 type
+  PPSDL_BlendOperation = ^PSDL_BlendOperation;
   PSDL_BlendOperation = ^TSDL_BlendOperation;
   TSDL_BlendOperation = type DWord;
 
@@ -25,7 +43,11 @@ const
   SDL_BLENDOPERATION_MINIMUM          = TSDL_BlendOperation($4);  {**< min(dst, src) : supported by D3D11 *}
   SDL_BLENDOPERATION_MAXIMUM          = TSDL_BlendOperation($5);  {**< max(dst, src) : supported by D3D11 *}
 
+  {**
+   *  \brief The normalized factor used to multiply pixel components
+   *}
 type
+  PPSDL_BlendFactor = ^PSDL_BlendFactor;
   PSDL_BlendFactor = ^TSDL_BlendFactor;
   TSDL_BlendFactor = type DWord;
 
@@ -56,5 +78,5 @@ const
  *  and
  *      dstA = dstA * dstAlphaFactor alphaOperation srcA * srcAlphaFactor
  *}
-Function SDL_ComposeCustomBlendMode(srcColorFactor, dstColorFactor : TSDL_BlendFactor; colorOperation : TSDL_BlendOperation; srcAlphaFactor, dstAlphaFactor : TSDL_BlendFactor; alphaOperation : TSDL_BlendOperation) : TSDL_BlendMode cdecl;
+function SDL_ComposeCustomBlendMode(srcColorFactor, dstColorFactor: TSDL_BlendFactor; colorOperation: TSDL_BlendOperation; srcAlphaFactor, dstAlphaFactor: TSDL_BlendFactor; alphaOperation: TSDL_BlendOperation): TSDL_BlendMode; cdecl;
   external SDL_LibName {$IFDEF DELPHI} {$IFDEF MACOS} name '_SDL_ComposeCustomBlendMode' {$ENDIF} {$ENDIF};
