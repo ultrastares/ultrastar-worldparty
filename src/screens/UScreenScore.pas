@@ -453,6 +453,7 @@ end;
 function TScreenScore.ParseMouse(MouseButton: Integer; BtnDown: Boolean; X, Y: integer): boolean;
 var
   button_s: integer;
+  WindowW, WindowH: integer;
 begin
   Result := True;
 
@@ -466,10 +467,11 @@ begin
   end;
 
   // transfer mousecords to the 800x600 raster we use to draw
-  X := Round((X / (Screen^.w / Screens)) * RenderW);
+  SDL_GetWindowSize(Screen, @WindowW, @WindowH);
+  X := Round((X / (WindowW / Screens)) * RenderW);
   if (X > RenderW) then
     X := X - RenderW;
-  Y := Round((Y / Screen^.h) * RenderH);
+  Y := Round((Y / WindowH) * RenderH);
 
   if (Button[button_s].Visible) and (InRegion(X, Y, Button[button_s].GetMouseOverArea)) then
     SetInteraction(button_s)

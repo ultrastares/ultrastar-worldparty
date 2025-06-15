@@ -392,7 +392,7 @@ var
   S:      string;
   W, H:   integer;
   X, Y:   integer; // offset for re-positioning
-  winW, winH: integer;
+  winW, winH, winX, winY: integer;
   Borderless, Fullscreen: boolean;
   Split: boolean;
   Disp: TSDL_DisplayMode;
@@ -508,7 +508,8 @@ NoDoubledResolution:
 
     // if screen is out of the visisble desktop area, move it back
     // this likely happens when creating a Window bigger than the possible desktop size
-    if (SDL_GetWindowFlags(screen) and SDL_WINDOW_FULLSCREEN = 0) and ((screen.x < 0) or (screen.Y < 0)) then
+	SDL_GetWindowPosition(screen, @winX, @winY);
+    if (SDL_GetWindowFlags(screen) and SDL_WINDOW_FULLSCREEN = 0) and ((winX < 0) or (winY < 0)) then
     begin
       // TODO: update SDL2
       //SDL_GetWindowBordersSize(screen, w, h, nil, nil);
@@ -536,8 +537,7 @@ NoDoubledResolution:
   // define virtual (Render) and real (Screen) screen size
   RenderW := 800;
   RenderH := 600;
-  ScreenW := Screen.w;
-  ScreenH := Screen.h;
+  SDL_GetWindowSize(Screen, @ScreenW, @ScreenH);
   // Activate Vertical synchronization (Limits FPS to 60, saving power in GPU)
   SDL_GL_SetSwapInterval(1); // VSYNC (currently Windows only)
 
@@ -700,8 +700,9 @@ begin
 
   if CurrentWindowMode = Mode_Fullscreen then
   begin
-    Screen.W := ScreenW;
-    Screen.H := ScreenH;
+    SDL_SetWindowFullscreen(Screen, SDL_WINDOW_FULLSCREEN);
+    SDL_SetWindowSize(Screen, ScreenW, ScreenH);
+    SDL_GetWindowSize(Screen, @ScreenW, @ScreenH);
   end
   else
   begin

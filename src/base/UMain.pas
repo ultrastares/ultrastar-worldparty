@@ -356,7 +356,7 @@ var
   SimKey: LongWord;
   mouseDown: boolean;
   mouseBtn:  integer;
-  mouseX, mouseY: PInt;
+  mouseX, mouseY: ^Integer;
   KeepGoing: boolean;
   SuppressKey: boolean;
   UpdateMouse: boolean;
@@ -473,7 +473,7 @@ begin
           //  Event.key.keysym.unicode := Ord('A') + Event.key.keysym.unicode - 1;
 
           // toggle in-game console if allowed
-          if boolean(Ini.Debug) and ((Event.key.keysym.sym = SInt32('~')) or (Event.key.keysym.sym = SDLK_CARET)) then
+          if boolean(Ini.Debug) and ((Event.key.keysym.sym = Integer('~')) or (Event.key.keysym.sym = SDLK_CARET)) then
           begin
             Display.ToggleConsole;
           end;
@@ -584,8 +584,8 @@ begin
     // the next tick will poll the motion event and handle it just like a real input
     SDL_GetMouseState(@mouseX, @mouseY);
     SimEvent.user.type_ := SDL_MOUSEMOTION;
-    SimEvent.button.x := longint(mouseX);
-    SimEvent.button.y := longint(mouseY);
+    SimEvent.button.x := longint(mouseX^);
+    SimEvent.button.y := longint(mouseY^);
     SDL_PushEvent(@SimEvent);
   end;
 end;
