@@ -419,9 +419,8 @@ begin
   //if (Score <= 0) then
   //  Exit;
 
-  TableData := nil;
-
   try
+    ScoreDB.BeginTransaction; 
 
     ID := ScoreDB.GetTableValue(
         'SELECT [ID] FROM [' + cUS_Songs + '] ' +
@@ -445,11 +444,14 @@ begin
       '(?, ?, ?, ?, ?);',
       [ID, Level, Name, Score, DateTimeToUnix(Now())]);
 
-  except on E: Exception do
-    Log.LogError(E.Message, 'TDataBaseSystem.AddScore');
-  end;
+    ScoreDB.Commit; //if everything is ok -> save score
 
-  TableData.Free;
+  except on E: Exception do
+    begin
+      ScoreDB.Rollback; // Revert in case of error
+      Log.LogError(E.Message, 'TDataBaseSystem.AddScore');
+    end;
+   end;
 end;
 
 (**
