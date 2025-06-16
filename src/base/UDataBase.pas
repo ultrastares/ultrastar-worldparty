@@ -360,9 +360,9 @@ procedure TDataBaseSystem.ReadScore(Song: TSong);
 var
   Difficulty: integer;
   SongID: Integer;
+  Table: TSQLiteUniTable;
 begin
-  if not Assigned(ScoreDB) then
-    Exit;
+  if not Assigned(ScoreDB) then Exit;
 
   SongID := GetSongID(Song.Artist, Song.Title);
   if SongID = 0 then Exit;
@@ -373,35 +373,33 @@ begin
 // 2 - Hard
 // 3 - Training
 
-  // Reset scores
   for Difficulty := 0 to 3 do
     SetLength(Song.Score[Difficulty], 0);
 
-  with ScoreDB.GetUniTable(
+  Table := ScoreDB.GetUniTable(
     'SELECT [Difficulty], [Player], [Score], [Date] FROM [' + cUS_Scores + '] ' +
-    'WHERE [SongID] = ? ORDER BY [Score] DESC', [SongID]) do
+    'WHERE [SongID] = ? ORDER BY [Score] DESC', [SongID]);
   try
-    while not EOF do
+    while not Table.EOF do
     begin
-      Difficulty := FieldAsInteger(0);
-      if (Difficulty in [0..3]) and (Length(Song.Score[Difficulty]) < NUM_REC_TO_READ) then
+      Difficulty := Table.FieldAsInteger(0);
+      if (Difficulty in [0..3]) and (Length(Song.Score[Difficulty]) < NUM_REC_TO_READ) and
+         (not PlayerAlreadyListed(Song, Difficulty, Table.FieldByName['Player'])) then
       begin
-        if not PlayerAlreadyListed(Song, Difficulty, FieldByName['Player']) then
+        SetLength(Song.Score[Difficulty], Length(Song.Score[Difficulty]) + 1);
+        with Song.Score[Difficulty, High(Song.Score[Difficulty])] do
         begin
-          SetLength(Song.Score[Difficulty], Length(Song.Score[Difficulty]) + 1);
-          with Song.Score[Difficulty, High(Song.Score[Difficulty])] do
-          begin
-            Name := FieldByName['Player'];
-            Score := FieldAsInteger(2);
-            Date := FormatDate(FieldAsInteger(3));
-          end;
+          Name := Table.FieldByName['Player'];
+          Score := Table.FieldAsInteger(2);
+          Date := FormatDate(Table.FieldAsInteger(3));
         end;
       end;
-      Next;
+      Table.Next;
     end;
   finally
-    Free;
+    Table.Free;
   end;
+
 end;
 
 (**
@@ -1154,110 +1152,118 @@ end;
  * Free the result-list with FreeStats() after usage to avoid memory leaks.
  *)
 function TDataBaseSystem.GetStats(Typ: TStatType; Count: byte; Page: cardinal; Reversed: boolean): TList;
+const
+  Queries: array[TStatType] of string = (
+    // Best Scores
+    'SELECT [Player], [Difficulty], [Score], [Artist], [Title], [Date] FROM [' + cUS_Scores + '] ' +
+    'INNER JOIN [' + cUS_Songs + '] ON ([SongID] = [ID]) ORDER BY [Score]',
+    // Best Singers
+    'SELECT [Player], ROUND(AVG([Score])) FROM [' + cUS_Scores + '] ' +
+    'GROUP BY [Player] HAVING COUNT(*) > 10 ORDER BY AVG([Score])',  // Added HAVING clause
+    // Most Sung Song
+    'SELECT [Artist], [Title], [TimesPlayed] FROM [' + cUS_Songs + '] ' +
+    'WHERE [TimesPlayed] > 0 ORDER BY [TimesPlayed]',  // Added WHERE clause
+    // Most Popular Band
+    'SELECT [Artist], SUM([TimesPlayed]) FROM [' + cUS_Songs + '] ' +
+    'GROUP BY [Artist] HAVING SUM([TimesPlayed]) > 0 ORDER BY SUM([TimesPlayed])'  // Added HAVING clause
+  );
 var
-  Query:     string;
+  Query: string;
   TableData: TSQLiteUniTable;
-  Stat:      TStatResult;
+  Stat: TStatResult;
 begin
   Result := nil;
+  if not Assigned(ScoreDB) then Exit;
 
-  if not Assigned(ScoreDB) then
-    Exit;
-
-  {Todo:  Add Prevention that only players with more than 5 scores are selected at type 2}
-
-  // Create query
-  case Typ of
-    stBestScores: begin
-      Query := 'SELECT [Player], [Difficulty], [Score], [Artist], [Title], [Date] FROM [' + cUS_Scores + '] ' +
-               'INNER JOIN [' + cUS_Songs + '] ON ([SongID] = [ID]) ORDER BY [Score]';
-    end;
-    stBestSingers: begin
-      Query := 'SELECT [Player], ROUND(AVG([Score])) FROM [' + cUS_Scores + '] ' +
-               'GROUP BY [Player] ORDER BY AVG([Score])';
-    end;
-    stMostSungSong: begin
-      Query := 'SELECT [Artist], [Title], [TimesPlayed] FROM [' + cUS_Songs + '] ' +
-               'ORDER BY [TimesPlayed]';
-    end;
-    stMostPopBand: begin
-      Query := 'SELECT [Artist], SUM([TimesPlayed]) FROM [' + cUS_Songs + '] ' +
-               'GROUP BY [Artist] ORDER BY SUM([TimesPlayed])';
-    end;
-  end;
-
-  // Add order direction
-  Query := Query + IfThen(Reversed, ' ASC', ' DESC');
-
-  // Add limit
-  Query := Query + ' LIMIT ' + InttoStr(Count * Page) + ', ' + InttoStr(Count) + ';';
-
-  // Execute query
   try
+    // Build the query
+    Query := Queries[Typ] + IfThen(Reversed, ' ASC', ' DESC') + 
+             ' LIMIT ' + IntToStr(Count * Page) + ', ' + IntToStr(Count) + ';';
+
+    // Execute query
     TableData := ScoreDB.GetUniTable(Query);
+    
+    // Create result list
+    Result := TList.Create;
+    
+    try
+      // Process results
+      while not TableData.EOF do
+      begin
+        case Typ of
+          stBestScores:
+            begin
+              Stat := TStatResultBestScores.Create;
+              with TStatResultBestScores(Stat) do
+              begin
+                Singer := TableData.Fields[0];
+                Difficulty := TableData.FieldAsInteger(1);
+                Score := TableData.FieldAsInteger(2);
+                SongArtist := TableData.Fields[3];
+                SongTitle := TableData.Fields[4];
+                Date := FormatDate(TableData.FieldAsInteger(5));
+              end;
+            end;
+            
+          stBestSingers:
+            begin
+              Stat := TStatResultBestSingers.Create;
+              with TStatResultBestSingers(Stat) do
+              begin
+                Player := TableData.Fields[0];
+                AverageScore := TableData.FieldAsInteger(1);
+              end;
+            end;
+            
+          stMostSungSong:
+            begin
+              Stat := TStatResultMostSungSong.Create;
+              with TStatResultMostSungSong(Stat) do
+              begin
+                Artist := TableData.Fields[0];
+                Title := TableData.Fields[1];
+                TimesSung := TableData.FieldAsInteger(2);
+              end;
+            end;
+            
+          stMostPopBand:
+            begin
+              Stat := TStatResultMostPopBand.Create;
+              with TStatResultMostPopBand(Stat) do
+              begin
+                ArtistName := TableData.Fields[0];
+                TimesSungTot := TableData.FieldAsInteger(1);
+              end;
+            end;
+        end;
+        
+        Stat.Typ := Typ;
+        Result.Add(Stat);
+        TableData.Next;
+      end;
+    except
+      on E: Exception do
+      begin
+        // Clean up if error occurs during processing
+        FreeStats(Result);
+        Result := nil;
+        raise; // Re-raise the exception
+      end;
+    end;
+    
   except
     on E: Exception do
     begin
       Log.LogError(E.Message, 'TDataBaseSystem.GetStats');
-      Exit;
+      if Assigned(Result) then
+        FreeStats(Result);
+      Result := nil;
     end;
   end;
-
-  Result := TList.Create;
-  Stat := nil;
-
-  // Copy result to stats array
-  while not TableData.EOF do
-  begin
-    case Typ of
-      stBestScores: begin
-        Stat := TStatResultBestScores.Create;
-        with TStatResultBestScores(Stat) do
-        begin
-          Singer := TableData.Fields[0];
-          Difficulty := TableData.FieldAsInteger(1);
-          Score := TableData.FieldAsInteger(2);
-          SongArtist := TableData.Fields[3];
-          SongTitle := TableData.Fields[4];
-          Date := FormatDate(TableData.FieldAsInteger(5));
-        end;
-      end;
-      stBestSingers: begin
-        Stat := TStatResultBestSingers.Create;
-        with TStatResultBestSingers(Stat) do
-        begin
-          Player := TableData.Fields[0];
-          AverageScore := TableData.FieldAsInteger(1);
-        end;
-      end;
-      stMostSungSong: begin
-        Stat := TStatResultMostSungSong.Create;
-        with TStatResultMostSungSong(Stat) do
-        begin
-          Artist := TableData.Fields[0];
-          Title  := TableData.Fields[1];
-          TimesSung  := TableData.FieldAsInteger(2);
-        end;
-      end;
-      stMostPopBand: begin
-        Stat := TStatResultMostPopBand.Create;
-        with TStatResultMostPopBand(Stat) do
-        begin
-          ArtistName := TableData.Fields[0];
-          TimesSungTot := TableData.FieldAsInteger(1);
-        end;
-      end
-      else
-        Log.LogCritical('Unknown stat-type', 'TDataBaseSystem.GetStats');
-    end;
-
-    Stat.Typ := Typ;
-    Result.Add(Stat);
-
-    TableData.Next;
-  end;
-
-  TableData.Free;
+  
+  // Free the table data if assigned
+  if Assigned(TableData) then
+    TableData.Free;
 end;
 
 procedure TDataBaseSystem.FreeStats(StatList: TList);
@@ -1330,10 +1336,11 @@ end;
 
 function TDataBaseSystem.GetSongID(const Artist, Title: UTF8String): Integer;
 begin
-  Result := ScoreDB.GetTableValue(
-    'SELECT [ID] FROM [' + cUS_Songs + '] ' +
-    'WHERE [Artist] = ? AND [Title] = ?',
-    [Artist, Title]);
+  Result := 0;
+  if Assigned(ScoreDB) then
+    Result := ScoreDB.GetTableValue(
+      'SELECT [ID] FROM [' + cUS_Songs + '] WHERE [Artist] = ? AND [Title] = ?',
+      [Artist, Title]);
 end;
 
 function TDataBaseSystem.PlayerAlreadyListed(Song: TSong; Difficulty: Integer; const PlayerName: UTF8String): Boolean;
