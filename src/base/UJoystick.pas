@@ -41,8 +41,8 @@ uses
 const
 
   JOYSTICK_MOUSE_REPEAT       = 1;
-  JOYSTICK_MOUSE_DEADZONE     = 0.01;
-  JOYSTICK_MOUSE_DEFAULTSPEED = 850;
+  JOYSTICK_MOUSE_DEADZONE     = 0.2;
+  JOYSTICK_MOUSE_DEFAULTSPEED = 900;
 
   JOYSTICK_AXIS_PRESSED_THRESHOLD = 0.5;
   JOYSTICK_AXIS_RELEASED_THRESHOLD = 0.7;
@@ -912,8 +912,13 @@ var
   State: TControllerAxisState;
   MouseAxis: Byte;
   Key: TSDL_KeyCode;
+  DeadZone: double;
 begin
   Result := false;
+
+  DeadZone := JOYSTICK_MOUSE_DEADZONE;
+  if Abs(Perc) < DeadZone then
+    Perc := 0.0;
 
   State := Default(TControllerAxisState);
   if not AxesStates.TryGetValue(Axis, State) then
