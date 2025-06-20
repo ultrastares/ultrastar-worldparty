@@ -919,14 +919,15 @@ type
   end;
 
   TThemeOptionsAdvanced = class(TThemeBasic)
-    SelectDebug:          TThemeSelectSlide;
-    SelectOscilloscope:   TThemeSelectSlide;
-    SelectAskBeforeExit:  TThemeSelectSlide;
-    SelectOnSongClick:    TThemeSelectSlide;
-    SelectPartyPopup:     TThemeSelectSlide;
-    SelectTopScores:      TThemeSelectSlide;
+    SelectDebug:           TThemeSelectSlide;
+    SelectOscilloscope:    TThemeSelectSlide;
+    SelectAskBeforeExit:   TThemeSelectSlide;
+    SelectOnSongClick:     TThemeSelectSlide;
+    SelectPartyPopup:      TThemeSelectSlide;
+    SelectTopScores:       TThemeSelectSlide;
     SelectSingTimebarMode: TThemeSelectSlide;
-    ButtonExit:           TThemeButton;
+    ButtonExit:            TThemeButton;
+    ButtonRestoreDefaults: TThemeButton;
 
     DebugDesc:            TThemeText;
     OscilloscopeDesc:     TThemeText;
@@ -2246,14 +2247,15 @@ begin
       //Options Advanced
       ThemeLoadBasic(OptionsAdvanced, 'OptionsAdvanced');
 
-      ThemeLoadSelectSlide(OptionsAdvanced.SelectDebug,      	'OptionsAdvancedSelectDebug');
-      ThemeLoadSelectSlide(OptionsAdvanced.SelectOscilloscope,  'OptionsAdvancedSelectOscilloscope');
-      ThemeLoadSelectSlide(OptionsAdvanced.SelectOnSongClick,   'OptionsAdvancedSelectSlideOnSongClick');
-      ThemeLoadSelectSlide(OptionsAdvanced.SelectAskBeforeExit, 'OptionsAdvancedSelectAskBeforeExit');
-      ThemeLoadSelectSlide(OptionsAdvanced.SelectPartyPopup,    'OptionsAdvancedSelectPartyPopup');
-      ThemeLoadSelectSlide(OptionsAdvanced.SelectTopScores,     'OptionsAdvancedSelectTopScores');
+      ThemeLoadSelectSlide(OptionsAdvanced.SelectDebug,      	       'OptionsAdvancedSelectDebug');
+      ThemeLoadSelectSlide(OptionsAdvanced.SelectOscilloscope,         'OptionsAdvancedSelectOscilloscope');
+      ThemeLoadSelectSlide(OptionsAdvanced.SelectOnSongClick,          'OptionsAdvancedSelectSlideOnSongClick');
+      ThemeLoadSelectSlide(OptionsAdvanced.SelectAskBeforeExit,        'OptionsAdvancedSelectAskBeforeExit');
+      ThemeLoadSelectSlide(OptionsAdvanced.SelectPartyPopup,           'OptionsAdvancedSelectPartyPopup');
+      ThemeLoadSelectSlide(OptionsAdvanced.SelectTopScores,            'OptionsAdvancedSelectTopScores');
       ThemeLoadSelectSlide(Self.OptionsAdvanced.SelectSingTimebarMode, 'OptionsAdvancedSelectSingTimebarMode');
-      ThemeLoadButton     (OptionsAdvanced.ButtonExit,          'OptionsAdvancedButtonExit');
+      ThemeLoadButton     (OptionsAdvanced.ButtonExit,                 'OptionsAdvancedButtonExit');
+      ThemeLoadButton     (OptionsAdvanced.ButtonRestoreDefaults,      'OptionsAdvancedButtonRestoreDefaults');
 
       ThemeLoadText(OptionsAdvanced.DebugDesc,                  'OptionsAdvancedDebugDesc');
       ThemeLoadText(OptionsAdvanced.OscilloscopeDesc,           'OptionsAdvancedOscilloscopeDesc');
