@@ -41,6 +41,7 @@ type
     private
       UseLocalDirs: boolean;
 
+      procedure RestartApplication;
       procedure DetectLocalExecution();
       function GetHomeDir(): IPath;
     public
@@ -67,6 +68,12 @@ procedure TPlatformLinux.Init;
 begin
   inherited Init();
   DetectLocalExecution();
+end;
+
+procedure TPlatformLinux.RestartApplication;
+begin
+  fpSystem(ParamStr(0) + ' &');
+  Halt;
 end;
 
 {**

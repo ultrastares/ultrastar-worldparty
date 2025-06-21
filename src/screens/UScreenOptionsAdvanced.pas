@@ -37,15 +37,19 @@ uses
   UMusic,
   UFiles,
   UIni,
-  UThemes;
+  UThemes,
+  ULanguage,
+  Upath;
 
 type
-
   TScreenOptionsAdvanced = class(TMenu)
     public
       constructor Create; override;
       function ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean; override;
       procedure OnShow; override;
+    private
+      procedure RestoreDefaultConfig;
+      class procedure HandleRestoreConfirmation(Value: boolean; Data: Pointer); static;
   end;
 
 implementation
@@ -53,7 +57,11 @@ implementation
 uses
   UGraphic,
   UUnicodeUtils,
-  SysUtils;
+  SysUtils,
+  UPathUtils,
+  ULog,
+  UPlatform,
+  Classes;
 
 function TScreenOptionsAdvanced.ParseInput(PressedKey: cardinal; CharCode: UCS4Char; PressedDown: boolean): boolean;
 begin
@@ -76,6 +84,10 @@ begin
             UIni.Ini.Save;
             AudioPlayback.PlaySound(SoundLib.Back);
             FadeTo(@ScreenOptions);
+          end
+          else if Self.SelInteraction = 8 then
+          begin
+            RestoreDefaultConfig;
           end;
         end;
       SDLK_DOWN:
@@ -115,6 +127,7 @@ begin
   AddSelectSlide(Theme.OptionsAdvanced.SelectTopScores, UIni.Ini.TopScores, UIni.ITopScores, 'OPTION_VALUE_');
   Self.AddSelectSlide(Theme.OptionsAdvanced.SelectSingTimebarMode, UIni.Ini.SingTimebarMode, UIni.ISingTimebarMode, 'OPTION_VALUE_');
   AddButton(Theme.OptionsAdvanced.ButtonExit);
+  AddButton(Theme.OptionsAdvanced.ButtonRestoreDefaults);
   Self.AddText(UThemes.Theme.OptionsAdvanced.DebugDesc);
   Self.AddText(UThemes.Theme.OptionsAdvanced.OscilloscopeDesc);
   Self.AddText(UThemes.Theme.OptionsAdvanced.OnSongClickDesc);
@@ -131,6 +144,64 @@ begin
   inherited;
 
   Interaction := 0;
+end;
+
+class procedure TScreenOptionsAdvanced.HandleRestoreConfirmation(Value: boolean; Data: Pointer);
+var
+  ConfigPath: IPath;
+begin
+  if Value then // User confirmed
+  begin
+    ConfigPath := GetConfigFileName();
+    
+    try
+      // Delete the configuration file
+      if ConfigPath.IsFile() then
+      begin
+        if not DeleteFile(ConfigPath.ToNative()) then
+        begin
+          ScreenPopupError.ShowPopup(Language.Translate('SING_OPTIONS_ADVANCED_ERROR_DELETING_CONFIG'));
+          Log.LogError('Could not delete config file: ' + ConfigPath.ToNative());
+          Exit;
+        end;
+      end;
+      
+      // Reset configuration
+      Ini.Free;
+      Ini := TIni.Create();
+      
+      // Show success message
+      ScreenPopupInfo.ShowPopup(Language.Translate('CONFIG_RESTORED_SUCCESSFULLY'));
+      
+      // Restart the application
+      try
+        Platform.RestartApplication;
+      except
+        on E: Exception do
+        begin
+          Log.LogError('Failed to restart application: ' + E.Message);
+          Halt; // Fallback if RestartApplication fails
+        end;
+      end;
+    except
+      on E: Exception do
+      begin
+        ScreenPopupError.ShowPopup(Language.Translate('ERROR_RESTORING_CONFIG'));
+        Log.LogError('Error restoring config: ' + E.Message);
+      end;
+    end;
+  end;
+end;
+
+procedure TScreenOptionsAdvanced.RestoreDefaultConfig;
+begin
+  // Show confirmation popup first
+  ScreenPopupCheck.ShowPopup(
+    Language.Translate('SING_OPTIONS_ADVANCED_RESTORE_CONFIRMATION'),
+    @HandleRestoreConfirmation,
+    nil,
+    false
+  );
 end;
 
 end.

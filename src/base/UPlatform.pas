@@ -37,7 +37,14 @@ interface
 
 uses
   Classes,
-  UPath;
+  UPath,
+  {$IFDEF WINDOWS}
+  Windows, ShellAPI,
+  {$ENDIF}
+  {$IFDEF LINUX}
+  BaseUnix,
+  {$ENDIF}
+  SysUtils;
 
 type
   TPlatform = class
@@ -46,6 +53,7 @@ type
 
     function TerminateIfAlreadyRunning(var WndTitle: string): boolean; virtual;
     procedure Halt; virtual;
+    procedure RestartApplication; virtual;
 
     function GetLogPath:        IPath; virtual; abstract;
     function GetGameSharedPath: IPath; virtual; abstract;
@@ -57,7 +65,7 @@ type
 implementation
 
 uses
-  SysUtils,
+
   {$IF Defined(MSWINDOWS)}
   UPlatformWindows,
   {$ELSEIF Defined(DARWIN)}
@@ -95,6 +103,18 @@ procedure TPlatform.Halt;
 begin
   // Note: Application.terminate is NOT the same
   System.Halt;
+end;
+
+procedure TPlatform.RestartApplication;
+begin
+  {$IFDEF WINDOWS}
+    ShellExecute(0, nil, PChar(ParamStr(0)), nil, nil, SW_SHOWNORMAL);
+    System.Halt(0);
+  {$ENDIF}
+  {$IFDEF LINUX}
+    fpSystem(ParamStr(0) + ' &');
+    System.Halt(0);
+  {$ENDIF}
 end;
 
 {**

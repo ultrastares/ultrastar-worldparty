@@ -37,7 +37,8 @@ uses
   Windows,
   Classes,
   UPlatform,
-  UPath;
+  UPath,
+  ShellAPI;
 
 type
   TPlatformWindows = class(TPlatform)
@@ -46,6 +47,7 @@ type
 
       function GetSpecialPath(CSIDL: integer): IPath;
       procedure DetectLocalExecution();
+      procedure RestartApplication;
     public
       procedure Init; override;
       function TerminateIfAlreadyRunning(var WndTitle: String): Boolean; override;
@@ -186,6 +188,12 @@ begin
       UseLocalDirs := true;
     end;
   end;
+end;
+
+procedure TPlatformWindows.RestartApplication;
+begin
+  ShellExecute(0, nil, PChar(ParamStr(0)), nil, nil, SW_SHOWNORMAL);
+  Halt;
 end;
 
 function TPlatformWindows.GetLogPath: IPath;

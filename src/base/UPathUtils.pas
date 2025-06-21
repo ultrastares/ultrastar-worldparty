@@ -55,12 +55,14 @@ var
   WebScoresPath:    IPath;
   SoundFontsPath:   IPath;
   AvatarsPath:      IPath;
+  ConfigPath:       IPath;
 
 function FindPath(out PathResult: IPath; const RequestedPath: IPath; NeedsWritePermission: boolean): boolean;
 procedure InitializePaths();
 procedure InitializeSongPaths();
 procedure AddSongPath(const Path: IPath); overload;
 procedure AddSongPath(const Path: IPath; const bMakeDir: boolean); overload;
+function GetConfigFileName(): IPath;
 
 implementation
 
@@ -127,6 +129,14 @@ end;
 procedure AddCoverPath(const Path: IPath);
 begin
   AddSpecialPath(CoverPaths, Path, true);
+end;
+
+function GetConfigFileName(): IPath;
+begin
+  if (ConfigPath <> nil) and (not ConfigPath.Equals(PATH_NONE)) then
+    Result := ConfigPath.Append('config.ini')
+  else
+    Result := Platform.GetGameUserPath().Append('config.ini');
 end;
 
 (**
