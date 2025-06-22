@@ -20,7 +20,6 @@
 	<http://www.gnu.org/licenses/>.
  *}
 
-
 unit UScreenOptionsAdvanced;
 
 interface
@@ -39,7 +38,8 @@ uses
   UIni,
   UThemes,
   ULanguage,
-  Upath;
+  Upath,
+  UDatabase;
 
 type
   TScreenOptionsAdvanced = class(TMenu)
@@ -49,7 +49,9 @@ type
       procedure OnShow; override;
     private
       procedure RestoreDefaultConfig;
+      procedure RestoreScores;
       class procedure HandleRestoreConfirmation(Value: boolean; Data: Pointer); static;
+      class procedure HandleRestoreScoresConfirmation(Value: boolean; Data: Pointer); static;
   end;
 
 implementation
@@ -81,13 +83,17 @@ begin
         begin
           if Self.SelInteraction = 7 then
           begin
-            UIni.Ini.Save;
-            AudioPlayback.PlaySound(SoundLib.Back);
-            FadeTo(@ScreenOptions);
+            RestoreDefaultConfig;
           end
           else if Self.SelInteraction = 8 then
           begin
-            RestoreDefaultConfig;
+            RestoreScores;
+          end
+          else if Self.SelInteraction = 9 then
+          begin
+            UIni.Ini.Save;
+            AudioPlayback.PlaySound(SoundLib.Back);
+            FadeTo(@ScreenOptions);
           end;
         end;
       SDLK_DOWN:
@@ -126,8 +132,9 @@ begin
   AddSelectSlide(Theme.OptionsAdvanced.SelectPartyPopup, UIni.Ini.PartyPopup, UIni.IPartyPopup, 'OPTION_VALUE_');
   AddSelectSlide(Theme.OptionsAdvanced.SelectTopScores, UIni.Ini.TopScores, UIni.ITopScores, 'OPTION_VALUE_');
   Self.AddSelectSlide(Theme.OptionsAdvanced.SelectSingTimebarMode, UIni.Ini.SingTimebarMode, UIni.ISingTimebarMode, 'OPTION_VALUE_');
+  AddButton(Theme.OptionsAdvanced.ButtonRestoreConfig);
+  AddButton(Theme.OptionsAdvanced.ButtonRestoreScores);
   AddButton(Theme.OptionsAdvanced.ButtonExit);
-  AddButton(Theme.OptionsAdvanced.ButtonRestoreDefaults);
   Self.AddText(UThemes.Theme.OptionsAdvanced.DebugDesc);
   Self.AddText(UThemes.Theme.OptionsAdvanced.OscilloscopeDesc);
   Self.AddText(UThemes.Theme.OptionsAdvanced.OnSongClickDesc);
@@ -169,10 +176,7 @@ begin
       // Reset configuration
       Ini.Free;
       Ini := TIni.Create();
-      
-      // Show success message
-      ScreenPopupInfo.ShowPopup(Language.Translate('CONFIG_RESTORED_SUCCESSFULLY'));
-      
+
       // Restart the application
       try
         Platform.RestartApplication;
@@ -186,8 +190,70 @@ begin
     except
       on E: Exception do
       begin
-        ScreenPopupError.ShowPopup(Language.Translate('ERROR_RESTORING_CONFIG'));
+        ScreenPopupError.ShowPopup(Language.Translate('SING_OPTIONS_ADVANCED_ERROR_RESTORING_CONFIG'));
         Log.LogError('Error restoring config: ' + E.Message);
+      end;
+    end;
+  end;
+end;
+
+class procedure TScreenOptionsAdvanced.HandleRestoreScoresConfirmation(Value: boolean; Data: Pointer);
+var
+  ScoresPath: IPath;
+  RetryCount: Integer;
+  Deleted: Boolean;
+begin
+  if Value then // User confirmed
+  begin
+    ScoresPath := GetDatabaseFileName();
+    
+    try
+      if ScoresPath.IsFile() then
+      begin
+        // Close the database if it is open
+        if Assigned(UDatabase.DataBase) then
+         begin
+          UDatabase.DataBase.Free;
+          UDatabase.DataBase := nil;
+         end;
+          
+        // Attempt to delete with multiple retries
+        RetryCount := 0;
+        Deleted := False;
+        while (RetryCount < 5) and not Deleted do
+        begin
+          if DeleteFile(ScoresPath.ToNative()) then
+            Deleted := True
+          else
+          begin
+            Inc(RetryCount);
+            Sleep(200); // Short pause between attempts
+          end;
+        end;
+        
+        if not Deleted then
+        begin
+          ScreenPopupError.ShowPopup(Language.Translate('SING_OPTIONS_ADVANCED_ERROR_DELETING_SCORES'));
+          Log.LogError('Could not delete scores file after multiple attempts: ' + ScoresPath.ToNative());
+          Exit;
+        end;
+      end;
+
+      // Restart the application
+      try
+        Platform.RestartApplication;
+      except
+        on E: Exception do
+        begin
+          Log.LogError('Failed to restart application: ' + E.Message);
+          Halt;
+        end;
+      end;
+    except
+      on E: Exception do
+      begin
+        ScreenPopupError.ShowPopup(Language.Translate('SING_OPTIONS_ADVANCED_ERROR_RESTORING_SCORES'));
+        Log.LogError('Error restoring scores: ' + E.Message);
       end;
     end;
   end;
@@ -197,8 +263,19 @@ procedure TScreenOptionsAdvanced.RestoreDefaultConfig;
 begin
   // Show confirmation popup first
   ScreenPopupCheck.ShowPopup(
-    Language.Translate('SING_OPTIONS_ADVANCED_RESTORE_CONFIRMATION'),
+    Language.Translate('SING_OPTIONS_ADVANCED_RESTORE_CONFIG_CONFIRMATION'),
     @HandleRestoreConfirmation,
+    nil,
+    false
+  );
+end;
+
+procedure TScreenOptionsAdvanced.RestoreScores;
+begin
+  // Show confirmation popup first
+  ScreenPopupCheck.ShowPopup(
+    Language.Translate('SING_OPTIONS_ADVANCED_RESTORE_SCORES_CONFIRMATION'),
+    @HandleRestoreScoresConfirmation,
     nil,
     false
   );
