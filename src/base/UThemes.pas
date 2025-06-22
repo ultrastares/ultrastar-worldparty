@@ -926,8 +926,9 @@ type
     SelectPartyPopup:      TThemeSelectSlide;
     SelectTopScores:       TThemeSelectSlide;
     SelectSingTimebarMode: TThemeSelectSlide;
+    ButtonRestoreConfig:   TThemeButton;
+    ButtonRestoreScores:   TThemeButton;
     ButtonExit:            TThemeButton;
-    ButtonRestoreDefaults: TThemeButton;
 
     DebugDesc:            TThemeText;
     OscilloscopeDesc:     TThemeText;
@@ -2254,8 +2255,9 @@ begin
       ThemeLoadSelectSlide(OptionsAdvanced.SelectPartyPopup,           'OptionsAdvancedSelectPartyPopup');
       ThemeLoadSelectSlide(OptionsAdvanced.SelectTopScores,            'OptionsAdvancedSelectTopScores');
       ThemeLoadSelectSlide(Self.OptionsAdvanced.SelectSingTimebarMode, 'OptionsAdvancedSelectSingTimebarMode');
+      ThemeLoadButton     (OptionsAdvanced.ButtonRestoreConfig,        'OptionsAdvancedButtonRestoreConfig');
+      ThemeLoadButton     (OptionsAdvanced.ButtonRestoreScores,        'OptionsAdvancedButtonRestoreScores');
       ThemeLoadButton     (OptionsAdvanced.ButtonExit,                 'OptionsAdvancedButtonExit');
-      ThemeLoadButton     (OptionsAdvanced.ButtonRestoreDefaults,      'OptionsAdvancedButtonRestoreDefaults');
 
       ThemeLoadText(OptionsAdvanced.DebugDesc,                  'OptionsAdvancedDebugDesc');
       ThemeLoadText(OptionsAdvanced.OscilloscopeDesc,           'OptionsAdvancedOscilloscopeDesc');
