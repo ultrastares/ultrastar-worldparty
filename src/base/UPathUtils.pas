@@ -56,6 +56,7 @@ var
   SoundFontsPath:   IPath;
   AvatarsPath:      IPath;
   ConfigPath:       IPath;
+  DatabasePath:     IPath;
 
 function FindPath(out PathResult: IPath; const RequestedPath: IPath; NeedsWritePermission: boolean): boolean;
 procedure InitializePaths();
@@ -63,6 +64,7 @@ procedure InitializeSongPaths();
 procedure AddSongPath(const Path: IPath); overload;
 procedure AddSongPath(const Path: IPath; const bMakeDir: boolean); overload;
 function GetConfigFileName(): IPath;
+function GetDatabaseFileName(): IPath;
 
 implementation
 
@@ -137,6 +139,14 @@ begin
     Result := ConfigPath.Append('config.ini')
   else
     Result := Platform.GetGameUserPath().Append('config.ini');
+end;
+
+function GetDatabaseFileName(): IPath;
+begin
+  if (DatabasePath <> nil) and (not DatabasePath.Equals(PATH_NONE)) then
+    Result := DatabasePath.Append('Ultrastar.db')
+  else
+    Result := Platform.GetGameUserPath().Append('Ultrastar.db');
 end;
 
 (**
