@@ -1275,10 +1275,13 @@ begin
   else
   begin
     case ButtonId of
-      SDL_CONTROLLER_BUTTON_A: Key := SDLK_RETURN;
-      SDL_CONTROLLER_BUTTON_B: Key := SDLK_ESCAPE;
-      SDL_CONTROLLER_BUTTON_Y: Key := SDLK_F10;
-      SDL_CONTROLLER_BUTTON_X: Key := SDLK_F4;
+      SDL_CONTROLLER_BUTTON_A:             Key := SDLK_RETURN;
+      SDL_CONTROLLER_BUTTON_B:             Key := SDLK_ESCAPE;
+      SDL_CONTROLLER_BUTTON_Y:             Key := SDLK_F10;
+      SDL_CONTROLLER_BUTTON_X:             Key := SDLK_F4;
+      SDL_CONTROLLER_BUTTON_LEFTSHOULDER:  Key := SDLK_F7;
+      SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: Key := SDLK_F11;
+      SDL_CONTROLLER_BUTTON_BACK:          Key := SDLK_F12;
       otherwise Result := false;
     end;
   end;
