@@ -49,6 +49,7 @@ const
   JOYSTICK_AXIS_REPEAT_THRESHOLD = 0.8;
   JOYSTICK_AXIS_REPEAT_TIME = 150; // milliseconds to ignore repeated input
   JOYSTICK_AXIS_MAX_RANGE = 32767; // SDL ranges -32768 to 32767
+  JOYSTICK_SCROLL_SENSITIVITY = 0.6;
 
   { Missing SDL header constants }
 
@@ -843,8 +844,31 @@ end;
 function TJoyController.SimulateMouse(Axis: byte; Delta: real): boolean;
 var
   mouseX, mouseY: integer;
+  ScrollEvent: TSDL_Event;
+  ScrollThreshold: real;
+  ScrollSpeed: integer;
 begin
   Result := true;
+
+  ScrollThreshold := 0.1;
+  ScrollSpeed := 1;
+
+  if (Axis = 2) then // scroll axis
+  begin
+    if (Abs(Delta) < ScrollThreshold) then
+    begin
+      Exit;
+    end;
+
+    ScrollEvent := Default(TSDL_Event);
+    ScrollEvent.type_ := SDL_MOUSEWHEEL;
+    
+    // adjust scroll intensity according to pressure
+    ScrollEvent.wheel.y := Round(-Delta * ScrollSpeed);
+    
+    SDL_PushEvent(@ScrollEvent);
+    Exit; 
+  end;
 
   if not LastMouseState.IsSet then
   begin
@@ -854,13 +878,15 @@ begin
     LastMouseState.Time := SDL_GetTicks();
   end;
 
-  if Axis = 0 then LastMouseState.DeltaX := Delta
-  else LastMouseState.DeltaY := Delta;
+  if Axis = 0 then 
+    LastMouseState.DeltaX := Delta
+  else 
+    LastMouseState.DeltaY := Delta;
 
   SimulateMouseSend();
 
-  // check whether we should stop the thread or re-create it, in order to send repeated simulated mouse events
-  if (abs(LastMouseState.DeltaX) < JOYSTICK_MOUSE_DEADZONE) and (abs(LastMouseState.DeltaY) < JOYSTICK_MOUSE_DEADZONE) then
+  if (abs(LastMouseState.DeltaX) < JOYSTICK_MOUSE_DEADZONE) and 
+     (abs(LastMouseState.DeltaY) < JOYSTICK_MOUSE_DEADZONE) then
   begin
     if assigned(MouseRepeatThread) then
     begin
@@ -913,6 +939,8 @@ var
   MouseAxis: Byte;
   Key: TSDL_KeyCode;
   DeadZone: double;
+  MouseEvent: TSDL_Event;
+  ScrollAmount: integer;
 begin
   Result := false;
 
@@ -920,14 +948,35 @@ begin
   if Abs(Perc) < DeadZone then
     Perc := 0.0;
 
+  if (Axis = SDL_CONTROLLER_AXIS_TRIGGERRIGHT) or (Axis = SDL_CONTROLLER_AXIS_TRIGGERLEFT) then
+  begin
+    if Perc > DeadZone then
+    begin
+      ScrollAmount := Round(Perc * JOYSTICK_SCROLL_SENSITIVITY);
+      
+      MouseEvent := Default(TSDL_Event);
+      MouseEvent.type_ := SDL_MOUSEWHEEL;
+      
+      if Axis = SDL_CONTROLLER_AXIS_TRIGGERRIGHT then
+        MouseEvent.wheel.y := -ScrollAmount // Scroll down
+      else
+        MouseEvent.wheel.y := ScrollAmount; // Scroll up
+        
+      SDL_PushEvent(@MouseEvent);
+      Result := true;
+      Exit;
+    end;
+  end;
+
   State := Default(TControllerAxisState);
   if not AxesStates.TryGetValue(Axis, State) then
-   begin
-     State := Default(TControllerAxisState);
-      AxesStates.Add(Axis, State);
-   end;
+  begin
+    State := Default(TControllerAxisState);
+    AxesStates.Add(Axis, State);
+  end;
 
-  if TranslateAxisToMouseAxis(Axis, Sign(Perc), MouseAxis) then begin
+  if TranslateAxisToMouseAxis(Axis, Sign(Perc), MouseAxis) then 
+  begin
     SimulateMouse(MouseAxis, Perc);
   end
   else if TranslateAxisToKey(Axis, Sign(Perc), Key) then
@@ -943,19 +992,23 @@ begin
     end
     else if not State.Repeat_ then
     begin
-      if (abs(Perc) < JOYSTICK_AXIS_PRESSED_THRESHOLD) then begin
+      if (abs(Perc) < JOYSTICK_AXIS_PRESSED_THRESHOLD) then 
+      begin
         State.Pressed := false;
         if not State.WasRepeat then SimulateKeyboard(Key, false);
         State.WasRepeat := false;
-      end else if (abs(Perc) > JOYSTICK_AXIS_REPEAT_THRESHOLD) then begin
+      end 
+      else if (abs(Perc) > JOYSTICK_AXIS_REPEAT_THRESHOLD) then 
+      begin
         State.Repeat_ := true;
-
-        if (Time - State.Time > JOYSTICK_AXIS_REPEAT_TIME) then begin
+        if (Time - State.Time > JOYSTICK_AXIS_REPEAT_TIME) then 
+        begin
           State.Pressed := true;
           SimulateKeyboard(Key, true);
         end;
       end;
-    end else if {State.Pressed and} (abs(Perc) < JOYSTICK_AXIS_RELEASED_THRESHOLD) then
+    end 
+    else if (abs(Perc) < JOYSTICK_AXIS_RELEASED_THRESHOLD) then
     begin
       State.Repeat_ := false;
       State.WasRepeat := true;
@@ -1163,8 +1216,6 @@ begin
     0: Button := SDL_BUTTON_LEFT;
     1: Button := SDL_BUTTON_RIGHT;
 
-    // TODO: Mouse wheel
-
     otherwise Result := false;
   end;
 end;
@@ -1236,9 +1287,6 @@ begin
     SDL_CONTROLLER_BUTTON_B: Button := SDL_BUTTON_RIGHT;
     SDL_CONTROLLER_BUTTON_LEFTSTICK,
     SDL_CONTROLLER_BUTTON_RIGHTSTICK: Button := SDL_BUTTON_MIDDLE;
-
-    // TODO: Mouse wheel
-    // Button := SDL_BUTTON_WHEELUP
 
     otherwise Result := false;
   end;
