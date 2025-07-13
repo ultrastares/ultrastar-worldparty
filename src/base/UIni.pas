@@ -917,6 +917,9 @@ begin
   // ScreenFade
   ScreenFade := ReadArrayIndex(IScreenFade, IniFile, 'Graphics', 'ScreenFade', IGNORE_INDEX, 'On');
 
+  // Resolution (Window mode)
+  Resolution := ReadArrayIndex(IResolution, IniFile, 'Graphics', 'Resolution', IGNORE_INDEX, '1280x720');
+
   // TextureSize (aka CachedCoverSize)
   TextureSize := ReadArrayIndex(ITextureSize, IniFile, 'Graphics', 'TextureSize', IGNORE_INDEX, '256');
 
