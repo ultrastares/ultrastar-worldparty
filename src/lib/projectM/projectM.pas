@@ -18,17 +18,13 @@ uses
   UConfig;
 
 type
-  // 16bit non-interleaved data
   TPCM16 = array[0..1, 0..511] of Smallint;
   PPCM16 = ^TPCM16;
-  // 8bit non-interleaved data (512 samples)
   TPCM8_512 = array[0..1, 0..511] of byte;
   PPCM8_512 = ^TPCM8_512;
-  // 8bit non-interleaved data (1024 samples)
   TPCM8_1024 = array[0..1, 0..1023] of byte;
-  PPCM8_1024 = ^TPCM8_512;
+  PPCM8_1024 = ^TPCM8_1024;
 
-{ Event types }
 type
   TProjectMEvent = cint;
 const
@@ -38,7 +34,6 @@ const
   PROJECTM_VIDEOQUIT   = 3;
   PROJECTM_NONE        = 4;
 
-{ Keycodes }
 type
   TProjectMKeycode = cint;
 const
@@ -84,7 +79,6 @@ const
   PROJECTM_K_8         = (PROJECTM_K_0 + 8);
   PROJECTM_K_9         = (PROJECTM_K_0 + 9);
 
-  { Upper case }
   PROJECTM_K_A_UPPERCASE = 65;
   PROJECTM_K_B_UPPERCASE = (PROJECTM_K_A_UPPERCASE +  1);
   PROJECTM_K_C_UPPERCASE = (PROJECTM_K_A_UPPERCASE +  2);
@@ -112,7 +106,6 @@ const
   PROJECTM_K_Y_UPPERCASE = (PROJECTM_K_A_UPPERCASE + 24);
   PROJECTM_K_Z_UPPERCASE = (PROJECTM_K_A_UPPERCASE + 25);
 
-  { Lower case }
   PROJECTM_K_a_LOWERCASE = 97;
   PROJECTM_K_b_LOWERCASE = (PROJECTM_K_a_LOWERCASE +  1);
   PROJECTM_K_c_LOWERCASE = (PROJECTM_K_a_LOWERCASE +  2);
@@ -142,7 +135,6 @@ const
 
   PROJECTM_K_NONE        = (PROJECTM_K_z_LOWERCASE + 1);
 
-{ Modifiers }
 type
   TProjectMModifier = cint;
 const
@@ -170,6 +162,11 @@ type
     aspectCorrection: byte;
     easterEgg: cfloat;
     shuffleEnabled: byte;
+
+    softCutDuration: cfloat;
+    hardCutDuration: cfloat;
+    hardCutEnabled: byte;
+    hardCutSensitivity: cfloat;
   end;
 
 type
@@ -177,8 +174,9 @@ type
   TProjectM = class(TObject)
     private
       data: Pointer;
+      FInitialized: Boolean;
     public
-      {$IF (PROJECTM_VERSION < 1000000) or (PROJECTM_VERSION >= 2000000)} // 0.9x, emulated with 2.x
+      {$IF (PROJECTM_VERSION < 1000000) or (PROJECTM_VERSION >= 2000000)} 
       constructor Create(gx, gy: integer; fps: integer;
         texsize: integer; width, height: integer;
         const presetsDir, fontsDir: string;
@@ -205,18 +203,31 @@ type
       procedure PreviousPreset();
       procedure NextPreset();
       procedure ToggleShowPresetNames();
+      
+      {$IF PROJECTM_VERSION >= 2000000}
+      procedure ToggleFullscreen();
+      {$IFEND}
 
       {$IF PROJECTM_VERSION >= 1000000}
       function InitRenderToTexture(): GLuint;
       {$IFEND}
 
-      procedure KeyHandler(event:    TProjectMEvent;
-                           keycode:  TProjectMKeycode;
-                           modifier: TProjectMModifier);
+      procedure KeyHandler(event: TProjectMEvent;
+                         keycode: TProjectMKeycode;
+                         modifier: TProjectMModifier);
 
       {$IF PROJECTM_VERSION > 1000000} // > 1.01
       procedure Settings(var settings: TSettings);
+      procedure GetSettings(out settings: TSettings);
       {$IFEND}
+
+      {$IF PROJECTM_VERSION >= 2000000}
+      procedure LockPreset(lock: Boolean);
+      function IsPresetLocked: Boolean;
+      procedure SetBeatSensitivity(sensitivity: cfloat);
+      {$IFEND}
+
+      property Initialized: Boolean read FInitialized; 
 
       destructor Destroy(); override;
   end;
@@ -227,6 +238,19 @@ implementation
   {$I projectM-1_0.inc}
 {$ELSE}
   {$I projectM-0_9.inc}
+{$IFEND}
+
+{$IF PROJECTM_VERSION >= 2000000}
+procedure TProjectM.ToggleFullscreen();
+begin
+end;
+{$IFEND}
+
+{$IF PROJECTM_VERSION > 1000000}
+procedure TProjectM.GetSettings(out settings: TSettings);
+begin
+  _projectM_settings(data, @settings);
+end;
 {$IFEND}
 
 end.

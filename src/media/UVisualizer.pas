@@ -72,19 +72,25 @@ uses
 implementation
 
 uses
+  TextGL,
   UGraphic,
   UMain,
   UConfig,
   UPath,
+  UPlatform,
   ULog;
 
-{$IF PROJECTM_VERSION < 1000000} // < 1.0
+{$IF (PROJECTM_VERSION >= 1000000) and ((PROJECTM_VERSION < 2000000) or not Defined(UseLocalProjectMPresets))}
+{$DEFINE UseConfigInp}
+{$IFEND}
+
+{$IFNDEF UseConfigInp}
 // Initialization data used on projectM 0.9x creation.
 // Since projectM 1.0 this data is passed via the config-file.
 const
   meshX = 32;
   meshY = 24;
-  fps   = 30;
+  fps   = 60;
   textureSize = 512;
 {$IFEND}
 
@@ -100,35 +106,31 @@ type
     private
       fPm: TProjectM;
       fProjectMPath : string;
-
       fState: TProjectMState;
-
-      // fScreen:  integer;
-
-      // fVisualTex: GLuint;
+      fScreen: integer;
+      fVisualTex: GLuint;
       fPCMData: TPCMData;
       fRndPCMcount: integer;
-
+      fMatrixStacksInitialized: boolean;
       fModelviewMatrixStack: TGLMatrixStack;
       fProjectionMatrixStack: TGLMatrixStack;
-      fTextureMatrixStack:  TGLMatrixStack;
+      fTextureMatrixStack: TGLMatrixStack;
 
       procedure InitProjectM;
-
-      function  GetRandomPCMData(var Data: TPCMData): Cardinal;
-
+      function GetRandomPCMData(var Data: TPCMData): Cardinal;
       function GetMatrixStackDepth(MatrixMode: GLenum): GLint;
       procedure SaveMatrixStack(MatrixMode: GLenum; var MatrixStack: TGLMatrixStack);
       procedure RestoreMatrixStack(MatrixMode: GLenum; var MatrixStack: TGLMatrixStack);
       procedure SaveOpenGLState();
       procedure RestoreOpenGLState();
+      procedure InitMatrixStacks();
+      procedure FreeMatrixStacks();
 
     public
       constructor Create;
       destructor Destroy; override;
 
       procedure Close;
-
       procedure Play;
       procedure Pause;
       procedure Stop;
@@ -145,10 +147,10 @@ type
       procedure SetScreenPosition(X, Y, Z: double);
       procedure GetScreenPosition(var X, Y, Z: double);
 
-      procedure  SetWidth(Width: double);
+      procedure SetWidth(Width: double);
       function GetWidth(): double;
 
-      procedure  SetHeight(Height: double);
+      procedure SetHeight(Height: double);
       function GetHeight(): double;
 
       procedure SetFrameRange(Range: TRectCoords);
@@ -173,20 +175,16 @@ type
   TVideoPlayback_ProjectM = class( TInterfacedObject, IVideoVisualization )
     private
       fInitialized: boolean;
-
     public
       function GetName: String;
-
       function Init(): boolean;
       function Finalize(): boolean;
-
       function Open(const aFileName: IPath): IVideo;
   end;
 
-
 { TVideoPlayback_ProjectM }
 
-function  TVideoPlayback_ProjectM.GetName: String;
+function TVideoPlayback_ProjectM.GetName: String;
 begin
   Result := 'ProjectM';
 end;
@@ -209,39 +207,72 @@ begin
   Result := TVideo_ProjectM.Create;
 end;
 
-
 { TVideo_ProjectM }
 
 constructor TVideo_ProjectM.Create;
+var
+  ProjectMPath: IPath;
 begin
+  inherited;
+  
   fRndPCMcount := 0;
-
-  fProjectMPath := ProjectM_DataDir + PathDelim;
+  fMatrixStacksInitialized := false;
+  
+  ProjectMPath := Path(ProjectM_DataDir, pdAppend);
+  if not ProjectMPath.IsAbsolute then
+    ProjectMPath := Platform.GetGameSharedPath.Append(ProjectMPath);
+  fProjectMPath := ProjectMPath.ToNative();
 
   fState := pmStop;
 
   {$IFDEF UseTexture}
   glGenTextures(1, PglUint(@fVisualTex));
   glBindTexture(GL_TEXTURE_2D, fVisualTex);
-
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   {$ENDIF}
 
+  InitMatrixStacks();
   InitProjectM();
 end;
 
 destructor TVideo_ProjectM.Destroy;
 begin
   Close();
+  FreeMatrixStacks();
+  
   {$IFDEF UseTexture}
   glDeleteTextures(1, PglUint(@fVisualTex));
   {$ENDIF}
+  
+  inherited;
 end;
 
 procedure TVideo_ProjectM.Close;
 begin
   FreeAndNil(fPm);
+end;
+
+procedure TVideo_ProjectM.InitMatrixStacks;
+begin
+  if not fMatrixStacksInitialized then
+  begin
+    SetLength(fModelviewMatrixStack, 0);
+    SetLength(fProjectionMatrixStack, 0);
+    SetLength(fTextureMatrixStack, 0);
+    fMatrixStacksInitialized := true;
+  end;
+end;
+
+procedure TVideo_ProjectM.FreeMatrixStacks;
+begin
+  if fMatrixStacksInitialized then
+  begin
+    SetLength(fModelviewMatrixStack, 0);
+    SetLength(fProjectionMatrixStack, 0);
+    SetLength(fTextureMatrixStack, 0);
+    fMatrixStacksInitialized := false;
+  end;
 end;
 
 procedure TVideo_ProjectM.Play;
@@ -277,6 +308,7 @@ end;
 
 procedure TVideo_ProjectM.SetLoop(Enable: boolean);
 begin
+  // Not implemented
 end;
 
 function TVideo_ProjectM.GetLoop(): boolean;
@@ -286,26 +318,27 @@ end;
 
 procedure TVideo_ProjectM.SetScreen(Screen: integer);
 begin
+  fScreen := Screen;
 end;
 
 function TVideo_ProjectM.GetScreen(): integer;
 begin
-  Result := 0;
+  Result := fScreen;
 end;
 
 procedure TVideo_ProjectM.SetScreenPosition(X, Y, Z: double);
 begin
+  // Not implemented
 end;
 
 procedure TVideo_ProjectM.GetScreenPosition(var X, Y, Z: double);
 begin
-  X := 0;
-  Y := 0;
-  Z := 0;
+  X := 0; Y := 0; Z := 0;
 end;
 
 procedure TVideo_ProjectM.SetWidth(Width: double);
 begin
+  // Not implemented
 end;
 
 function TVideo_ProjectM.GetWidth(): double;
@@ -315,6 +348,7 @@ end;
 
 procedure TVideo_ProjectM.SetHeight(Height: double);
 begin
+  // Not implemented
 end;
 
 function TVideo_ProjectM.GetHeight(): double;
@@ -324,14 +358,13 @@ end;
 
 procedure TVideo_ProjectM.SetFrameRange(Range: TRectCoords);
 begin
+  // Not implemented
 end;
 
 function TVideo_ProjectM.GetFrameRange(): TRectCoords;
 begin
-  Result.Left := 0;
-  Result.Right := 0;
-  Result.Upper := 0;
-  Result.Lower := 0;
+  Result.Left := 0; Result.Right := 0;
+  Result.Upper := 0; Result.Lower := 0;
 end;
 
 function TVideo_ProjectM.GetFrameAspect(): real;
@@ -341,15 +374,17 @@ end;
 
 procedure TVideo_ProjectM.SetAspectCorrection(AspectCorrection: TAspectCorrection);
 begin
+  // Not implemented
 end;
 
 function TVideo_ProjectM.GetAspectCorrection(): TAspectCorrection;
 begin
-  Result := acoStretch;
+  Result := acoLetterbox;
 end;
 
 procedure TVideo_ProjectM.SetAlpha(Alpha: double);
 begin
+  // Not implemented
 end;
 
 function TVideo_ProjectM.GetAlpha(): double;
@@ -359,6 +394,7 @@ end;
 
 procedure TVideo_ProjectM.SetReflectionSpacing(Spacing: double);
 begin
+  // Not implemented
 end;
 
 function TVideo_ProjectM.GetReflectionSpacing(): double;
@@ -366,91 +402,51 @@ begin
   Result := 0;
 end;
 
-{**
- * Returns the stack depth of the given OpenGL matrix mode stack.
- *}
 function TVideo_ProjectM.GetMatrixStackDepth(MatrixMode: GLenum): GLint;
 begin
-  // get number of matrices on stack
   case (MatrixMode) of
-    GL_PROJECTION:
-      glGetIntegerv(GL_PROJECTION_STACK_DEPTH, @Result);
-    GL_MODELVIEW:
-      glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, @Result);
-    GL_TEXTURE:
-      glGetIntegerv(GL_TEXTURE_STACK_DEPTH, @Result);
-    else
-      Result := 0
+    GL_PROJECTION: glGetIntegerv(GL_PROJECTION_STACK_DEPTH, @Result);
+    GL_MODELVIEW: glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, @Result);
+    GL_TEXTURE: glGetIntegerv(GL_TEXTURE_STACK_DEPTH, @Result);
+    else Result := 0;
   end;
 end;
 
-{**
- * Saves the current matrix stack using MatrixMode
- * (one of GL_PROJECTION/GL_TEXTURE/GL_MODELVIEW)
- *
- * Use this function instead of just saving the current matrix with glPushMatrix().
- * OpenGL specifies the depth of the GL_PROJECTION and GL_TEXTURE stacks to be
- * at least 2 but projectM already uses 2 stack-entries so overflows might be
- * possible on older hardware.
- * In contrast to this the GL_MODELVIEW stack-size is at least 32, but this
- * function should be used for the modelview stack too. We cannot rely on a
- * proper stack management of the underlying visualizer (projectM).
- * For example in the projectM versions 1.0 - 1.01 the modelview- and
- * projection-matrices were popped without being pushed first.
- *
- * By saving the whole stack we are on the safe side, so a nasty bug in the
- * visualizer does not corrupt USDX.
- *}
-procedure TVideo_ProjectM.SaveMatrixStack(MatrixMode: GLenum;
-                var MatrixStack: TGLMatrixStack);
+procedure TVideo_ProjectM.SaveMatrixStack(MatrixMode: GLenum; var MatrixStack: TGLMatrixStack);
 var
   I: integer;
   StackDepth: GLint;
 begin
   glMatrixMode(MatrixMode);
-
   StackDepth := GetMatrixStackDepth(MatrixMode);
   SetLength(MatrixStack, StackDepth);
 
-  // save current matrix stack
   for I := StackDepth-1 downto 0 do
   begin
-    // save current matrix
     case (MatrixMode) of
-      GL_PROJECTION:
-        glGetDoublev(GL_PROJECTION_MATRIX, @MatrixStack[I]);
-      GL_MODELVIEW:
-        glGetDoublev(GL_MODELVIEW_MATRIX, @MatrixStack[I]);
-      GL_TEXTURE:
-        glGetDoublev(GL_TEXTURE_MATRIX, @MatrixStack[I]);
+      GL_PROJECTION: glGetDoublev(GL_PROJECTION_MATRIX, @MatrixStack[I]);
+      GL_MODELVIEW: glGetDoublev(GL_MODELVIEW_MATRIX, @MatrixStack[I]);
+      GL_TEXTURE: glGetDoublev(GL_TEXTURE_MATRIX, @MatrixStack[I]);
     end;
 
-    // remove matrix from stack
     if (I > 0) then
       glPopMatrix();
   end;
 
-  // reset default (first) matrix
   glLoadIdentity();
 end;
 
-{**
- * Restores the OpenGL matrix stack stored with SaveMatrixStack.
- *}
-procedure TVideo_ProjectM.RestoreMatrixStack(MatrixMode: GLenum;
-                var MatrixStack: TGLMatrixStack);
+procedure TVideo_ProjectM.RestoreMatrixStack(MatrixMode: GLenum; var MatrixStack: TGLMatrixStack);
 var
   I: integer;
   StackDepth: GLint;
 begin
   glMatrixMode(MatrixMode);
-
   StackDepth := GetMatrixStackDepth(MatrixMode);
-  // remove all (except the first) matrices from current stack
+
   for I := 1 to StackDepth-1 do
     glPopMatrix();
 
-  // rebuild stack
   for I := 0 to High(MatrixStack) do
   begin
     glLoadMatrixd(@MatrixStack[I]);
@@ -458,24 +454,11 @@ begin
       glPushMatrix();
   end;
 
-  // clean stored stack
   SetLength(MatrixStack, 0);
 end;
 
-{**
- * Saves the current OpenGL state.
- * This is necessary to prevent projectM from corrupting USDX's current
- * OpenGL state.
- *
- * The following steps are performed:
- *   - All attributes are pushed to the attribute-stack
- *   - Projection-/Texture-matrices are saved
- *   - Modelview-matrix is pushed to the Modelview-stack
- *   - the OpenGL error-state (glGetError) is cleared
- *}
 procedure TVideo_ProjectM.SaveOpenGLState();
 begin
-  // save all OpenGL state-machine attributes
   glPushAttrib(GL_ALL_ATTRIB_BITS);
   glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
 
@@ -484,62 +467,48 @@ begin
   SaveMatrixStack(GL_TEXTURE, fTextureMatrixStack);
 
   glMatrixMode(GL_MODELVIEW);
-
-  // reset OpenGL error-state
-  glGetError();
+  glGetError(); // Clear error state
 end;
 
-{**
- * Restores the OpenGL state saved by SaveOpenGLState()
- * and resets the error-state.
- *}
 procedure TVideo_ProjectM.RestoreOpenGLState();
 begin
-  // reset OpenGL error-state
-  glGetError();
+  glGetError(); // Clear error state
 
-  // restore matrix stacks
   RestoreMatrixStack(GL_PROJECTION, fProjectionMatrixStack);
   RestoreMatrixStack(GL_MODELVIEW, fModelviewMatrixStack);
   RestoreMatrixStack(GL_TEXTURE, fTextureMatrixStack);
 
-  // restore all OpenGL state-machine attributes
-  // (also restores the matrix mode)
   glPopClientAttrib();
   glPopAttrib();
 end;
 
 procedure TVideo_ProjectM.InitProjectM;
+{$IFNDEF UseConfigInp}
+var
+  Font: IPath;
+{$IFEND}
 begin
-  // the OpenGL state must be saved before TProjectM.Create is called
   SaveOpenGLState();
   try
-
     try
-      {$IF PROJECTM_VERSION >= 1000000} // >= 1.0
+      {$IFDEF UseConfigInp}
       fPm := TProjectM.Create(fProjectMPath + 'config.inp');
       {$ELSE}
+      Font := TextGL.Fonts[0][0].Font.Filename;
       fPm := TProjectM.Create(
         meshX, meshY, fps, textureSize, ScreenW, ScreenH,
-        fProjectMPath + 'presets', fProjectMPath + 'fonts');
+        fProjectMPath + 'presets', Font.GetDir.ToNative,
+        Font.GetName.ToNative, Font.GetName.ToNative);
       {$IFEND}
     except on E: Exception do
       begin
-        // Create() might fail if the config-file is not found
         Log.LogError('TProjectM.Create: ' + E.Message, 'TVideoPlayback_ProjectM.VisualizerStart');
         Exit;
       end;
     end;
 
-    // initialize OpenGL
     fPm.ResetGL(ScreenW, ScreenH);
-    // skip projectM default-preset
     fPm.RandomPreset();
-    // projectM >= 1.0 uses the OpenGL FramebufferObject (FBO) extension.
-    // Unfortunately it does NOT reset the framebuffer-context after
-    // TProjectM.Create. Either glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0) for
-    // a manual reset or TProjectM.RenderFrame() must be called.
-    // We use the latter so we do not need to load the FBO extension in USDX.
     fPm.RenderFrame();
   finally
     RestoreOpenGLState();
@@ -553,67 +522,48 @@ begin
   if (fState <> pmPlay) then
     Exit;
 
-  // get audio data
   nSamples := AudioPlayback.GetPCMData(fPCMData);
 
-  // generate some data if non is available
   if (nSamples = 0) then
     nSamples := GetRandomPCMData(fPCMData);
 
-  // send audio-data to projectM
   if (nSamples > 0) then
     fPm.AddPCM16Data(PSmallInt(@fPCMData), nSamples);
 
-  // store OpenGL state (might be messed up otherwise)
   SaveOpenGLState();
   try
-    // setup projectM's OpenGL state
     fPm.ResetGL(ScreenW, ScreenH);
-
-    // let projectM render a frame
     fPm.RenderFrame();
 
     {$IFDEF UseTexture}
     glBindTexture(GL_TEXTURE_2D, fVisualTex);
     glFlush();
-    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, fVisualWidth, fVisualHeight, 0);
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, ScreenW, ScreenH, 0);
     {$ENDIF}
   finally
-    // restore USDX OpenGL state
     RestoreOpenGLState();
   end;
 
-  // discard projectM's depth buffer information (avoid overlay)
   glClear(GL_DEPTH_BUFFER_BIT);
 end;
 
-{**
- * Draws the current frame to screen.
- * TODO: this is not used yet. Data is directly drawn on GetFrame().
- *}
 procedure TVideo_ProjectM.Draw();
 begin
   {$IFDEF UseTexture}
-  // have a nice black background to draw on
   if (fScreen = 1) then
   begin
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
   end;
 
-  // exit if there's nothing to draw
   if (fState <> pmPlay) then
     Exit;
 
-  // setup display
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  // Use count of screens instead of 1 for the right corner
-  // otherwise we would draw the visualization streched over both screens
-  // another point is that we draw over the at this time drawn first
-  // screen, if Screen = 2
-  gluOrtho2D(0, Screens, 0, 1);
+  glOrtho(0, Screens, 0, 1, -1, 1);
+  
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
@@ -624,8 +574,6 @@ begin
   glBindTexture(GL_TEXTURE_2D, fVisualTex);
   glColor4f(1, 1, 1, 1);
 
-  // draw projectM frame
-  // Screen is 1 to 2. So current screen is from (Screen - 1) to (Screen)
   glBegin(GL_QUADS);
     glTexCoord2f(0, 0); glVertex2f((fScreen - 1), 0);
     glTexCoord2f(1, 0); glVertex2f(fScreen, 0);
@@ -636,7 +584,6 @@ begin
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_BLEND);
 
-  // restore state
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
@@ -646,33 +593,27 @@ end;
 
 procedure TVideo_ProjectM.DrawReflection();
 begin
+  // Not implemented
 end;
 
-{**
- * Produces random "sound"-data in case no audio-data is available.
- * Otherwise the visualization will look rather boring.
- *}
-function  TVideo_ProjectM.GetRandomPCMData(var Data: TPCMData): Cardinal;
+function TVideo_ProjectM.GetRandomPCMData(var Data: TPCMData): Cardinal;
 var
   i: integer;
 begin
-  // Produce some fake PCM data
   if (fRndPCMcount mod 500 = 0) then
-  begin
-    FillChar(Data, SizeOf(TPCMData), 0);
-  end
+    FillChar(Data, SizeOf(TPCMData), 0)
   else
   begin
-    for i := 0 to 511 do
+    for i := 0 to High(Data) do
     begin
       Data[i][0] := Random(High(Word)) - High(Smallint);
       Data[i][1] := Random(High(Word)) - High(Smallint);
     end;
   end;
+  
   Inc(fRndPCMcount);
-  Result := 512;
+  Result := Length(Data);
 end;
-
 
 initialization
   MediaManager.Add(TVideoPlayback_ProjectM.Create);

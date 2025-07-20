@@ -3,21 +3,10 @@
 #define PM_CLASS(pm) ((projectM*)pm)
 
 #if (PROJECTM_VERSION_INT > 1000000)
-#define	PM_PCM(pm) (PM_CLASS(pm)->pcm())
+#define PM_PCM(pm) (PM_CLASS(pm)->pcm())
 #else
-#define	PM_PCM(pm) (PM_CLASS(pm)->pcm)
+#define PM_PCM(pm) (PM_CLASS(pm)->pcm)
 #endif
-
-// If linking fails with "undefined reference to __dso_handle", check
-// if the directory containing crtbegin.o is in your library search path.
-// For Free Pascal on Unix this is usually configured in /etc/fpc.cfg.
-// In the past there have been Linux distributions where the path
-// mentioned in there became invalid once GCC was updated.
-//
-// The references to __dso_handle are emitted by GCC to register the
-// destructor for the global std::strings PROJECTM_FILE_EXTENSION,
-// MILKDROP_FILE_EXTENSION, and PROJECTM_MODULE_EXTENSION defined (yuck!)
-// by the projectM headers with __cxa_atexit.
 
 projectM_ptr projectM_create1(char* config_file) 
 {
@@ -26,17 +15,16 @@ projectM_ptr projectM_create1(char* config_file)
 
 #if (PROJECTM_VERSION_INT < 1000000)
 projectM_ptr projectM_create2(int gx, int gy, int fps, int texsize, 
-			      int width, int height, char* preset_url, 
-			      char* title_fonturl, char* title_menuurl)
+                  int width, int height, char* preset_url, 
+                  char* title_fonturl, char* title_menuurl)
 {
     return projectM_ptr(new projectM(gx, gy, fps, texsize, width, height, 
-    				     preset_url, title_fonturl, title_menuurl));}
-#endif
-
-#if (PROJECTM_VERSION_INT >= 2000000)
+                         preset_url, title_fonturl, title_menuurl));
+}
+#elif (PROJECTM_VERSION_INT >= 2000000)
 projectM_ptr projectM_create2(int gx, int gy, int fps, int texsize,
-			      int width, int height, char* preset_url,
-			      char* title_fonturl, char* title_menuurl)
+                  int width, int height, char* preset_url,
+                  char* title_fonturl, char* title_menuurl)
 {
     projectM::Settings settings = {};
     settings.meshX = gx;
@@ -56,6 +44,14 @@ projectM_ptr projectM_create2(int gx, int gy, int fps, int texsize,
     settings.shuffleEnabled = true;
     settings.softCutRatingsEnabled = false;
     return projectM_ptr(new projectM(settings));
+}
+#else
+projectM_ptr projectM_create2(int gx, int gy, int fps, int texsize,
+                  int width, int height, char* preset_url,
+                  char* title_fonturl, char* title_menuurl)
+{
+    return projectM_ptr(new projectM(gx, gy, fps, texsize, width, height,
+                         preset_url, title_fonturl, title_menuurl));
 }
 #endif
 
@@ -79,12 +75,12 @@ unsigned projectM_initRenderToTexture(projectM_ptr pm)
     return PM_CLASS(pm)->initRenderToTexture();
 }
 
-void projectM_key_handler(projectM_ptr pm, projectMEvent event, 
-		projectMKeycode keycode, projectMModifier modifier)
+void projectM_key_handler(projectM_ptr pm, projectMEvent event,
+                projectMKeycode keycode, projectMModifier modifier)
 {
     PM_CLASS(pm)->key_handler(event, keycode, modifier);
 }
-	    
+            
 void projectM_free(projectM_ptr pm)
 {
     delete PM_CLASS(pm);
@@ -128,14 +124,20 @@ void projectM_settings(projectM_ptr pm, Settings* settings)
     COPY_FIELD(settings, pmSettings, textureSize);
     COPY_FIELD(settings, pmSettings, windowWidth);
     COPY_FIELD(settings, pmSettings, windowHeight);
-    settings->presetURL    = pmSettings.presetURL.c_str();
-    settings->titleFontURL = pmSettings.titleFontURL.c_str();
-    settings->menuFontURL  = pmSettings.menuFontURL.c_str();
+    
+    settings->presetURL    = pmSettings.presetURL.empty() ? nullptr : pmSettings.presetURL.c_str();
+    settings->titleFontURL = pmSettings.titleFontURL.empty() ? nullptr : pmSettings.titleFontURL.c_str();
+    settings->menuFontURL  = pmSettings.menuFontURL.empty() ? nullptr : pmSettings.menuFontURL.c_str();
+    
     COPY_FIELD(settings, pmSettings, smoothPresetDuration);
     COPY_FIELD(settings, pmSettings, presetDuration);
     COPY_FIELD(settings, pmSettings, beatSensitivity);
     COPY_FIELD(settings, pmSettings, aspectCorrection);
     COPY_FIELD(settings, pmSettings, easterEgg);
     COPY_FIELD(settings, pmSettings, shuffleEnabled);
+    
+    #if (PROJECTM_VERSION_INT >= 2000000)
+    COPY_FIELD(settings, pmSettings, softCutRatingsEnabled);
+    #endif
 }
 #endif
