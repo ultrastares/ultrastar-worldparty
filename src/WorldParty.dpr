@@ -49,67 +49,67 @@ uses
   SQLite3       		 in 'lib\SQLite\SQLite3.pas',
   sdl2                   in 'lib\SDL2\sdl2.pas',
   SDL2_image             in 'lib\SDL2\SDL2_image.pas',
-  //new work on current OpenGL implementation
   dglOpenGL              in 'lib\dglOpenGL\dglOpenGL.pas',
   UMediaCore_SDL         in 'media\UMediaCore_SDL.pas',
 
   zlib                   in 'lib\zlib\zlib.pas',
   freetype               in 'lib\freetype\freetype.pas',
 
-  avcodec in 'lib\'+FFMPEG_DIR+'\avcodec.pas',
-  avformat in 'lib\'+FFMPEG_DIR+'\avformat.pas',
-  avutil in 'lib\'+FFMPEG_DIR+'\avutil.pas',
-  rational in 'lib\'+FFMPEG_DIR+'\rational.pas',
-  avio in 'lib\'+FFMPEG_DIR+'\avio.pas',
-  swresample in 'lib\'+FFMPEG_DIR+'\swresample.pas',
-  swscale in 'lib\'+FFMPEG_DIR+'\swscale.pas',
-  UMediaCore_FFmpeg in 'media\UMediaCore_FFmpeg.pas',
+  avcodec                in 'lib\'+FFMPEG_DIR+'\avcodec.pas',
+  avformat               in 'lib\'+FFMPEG_DIR+'\avformat.pas',
+  avutil                 in 'lib\'+FFMPEG_DIR+'\avutil.pas',
+  rational               in 'lib\'+FFMPEG_DIR+'\rational.pas',
+  avio                   in 'lib\'+FFMPEG_DIR+'\avio.pas',
+  swresample             in 'lib\'+FFMPEG_DIR+'\swresample.pas',
+  swscale                in 'lib\'+FFMPEG_DIR+'\swscale.pas',
+  UMediaCore_FFmpeg      in 'media\UMediaCore_FFmpeg.pas',
 
   {$IFDEF UseProjectM}
-  projectM      in 'lib\projectM\projectM.pas',
+  projectM               in 'lib\projectM\projectM.pas',
   {$ENDIF}
 
   {$IFDEF UseMIDIPort}
-  MidiCons      in 'lib\midi\MidiCons.pas',
-
-  CircBuf       in 'lib\midi\CircBuf.pas',
-  DelphiMcb     in 'lib\midi\DelphiMcb.pas',
-  MidiDefs      in 'lib\midi\MidiDefs.pas',
-  MidiFile      in 'lib\midi\MidiFile.pas',
-  MidiOut       in 'lib\midi\MidiOut.pas',
-  MidiType      in 'lib\midi\MidiType.pas',
+  MidiCons               in 'lib\midi\MidiCons.pas',
+  CircBuf                in 'lib\midi\CircBuf.pas',
+  DelphiMcb              in 'lib\midi\DelphiMcb.pas',
+  MidiDefs               in 'lib\midi\MidiDefs.pas',
+  MidiFile               in 'lib\midi\MidiFile.pas',
+  MidiOut                in 'lib\midi\MidiOut.pas',
+  MidiType               in 'lib\midi\MidiType.pas',
   {$ENDIF}
 
   {$IFDEF FPC}
-  FileUtil in 'lib\Lazarus\components\lazutils\fileutil.pas',
-  FPCAdds in 'lib\Lazarus\components\lazutils\fpcadds.pas',
-  LazUtilsStrConsts in 'lib\Lazarus\components\lazutils\lazutilsstrconsts.pas',
-  LazFileUtils in 'lib\Lazarus\components\lazutils\lazfileutils.pas',
-  LazUTF8 in 'lib\Lazarus\components\lazutils\lazutf8.pas',
-  LazUTF8Classes in 'lib\Lazarus\components\lazutils\lazutf8classes.pas',
-  Masks in 'lib\Lazarus\components\lazutils\masks.pas',
+  FileUtil              in 'lib\Lazarus\components\lazutils\fileutil.pas',
+  FPCAdds               in 'lib\Lazarus\components\lazutils\fpcadds.pas',
+  LazUtilsStrConsts     in 'lib\Lazarus\components\lazutils\lazutilsstrconsts.pas',
+  LazFileUtils          in 'lib\Lazarus\components\lazutils\lazfileutils.pas',
+  LazUTF8               in 'lib\Lazarus\components\lazutils\lazutf8.pas',
+  LazUTF8Classes        in 'lib\Lazarus\components\lazutils\lazutf8classes.pas',
+  Masks                 in 'lib\Lazarus\components\lazutils\masks.pas',
   {$ENDIF}
-  CpuCount in 'lib\other\cpucount.pas',
+  
+  CpuCount              in 'lib\other\cpucount.pas',
+  
   {$IFDEF MSWINDOWS}
   // FPC compatibility file for Allocate/DeallocateHWnd
-  WinAllocation in 'lib\other\WinAllocation.pas',
+  WinAllocation         in 'lib\other\WinAllocation.pas',
   Windows,
   {$ENDIF}
 
   //------------------------------
   //Includes - Lua Support
   //------------------------------
-  ULua           in 'lib\Lua\ULua.pas',
-  ULuaUtils      in 'lua\ULuaUtils.pas',
-  ULuaGl         in 'lua\ULuaGl.pas',
-  ULuaLog        in 'lua\ULuaLog.pas',
-  ULuaTextGL     in 'lua\ULuaTextGL.pas',
-  ULuaTexture    in 'lua\ULuaTexture.pas',
-  UHookableEvent in 'lua\UHookableEvent.pas',
-  ULuaCore       in 'lua\ULuaCore.pas',
-  ULuaUsdx       in 'lua\ULuaUsdx.pas',
-  ULuaParty      in 'lua\ULuaParty.pas',
-  ULuaScreenSing in 'lua\ULuaScreenSing.pas',
+  ULua                   in 'lib\Lua\ULua.pas',
+  ULuaUtils              in 'lua\ULuaUtils.pas',
+  ULuaGl                 in 'lua\ULuaGl.pas',
+  ULuaLog                in 'lua\ULuaLog.pas',
+  ULuaTextGL             in 'lua\ULuaTextGL.pas',
+  ULuaTexture            in 'lua\ULuaTexture.pas',
+  UHookableEvent         in 'lua\UHookableEvent.pas',
+  ULuaCore               in 'lua\ULuaCore.pas',
+  ULuaUsdx               in 'lua\ULuaUsdx.pas',
+  ULuaParty              in 'lua\ULuaParty.pas',
+  ULuaScreenSing         in 'lua\ULuaScreenSing.pas',
 
   //------------------------------
   //Includes - Menu System
@@ -135,44 +135,44 @@ uses
   //------------------------------
   //Includes - base
   //------------------------------
-  UConfig           in 'base\UConfig.pas',
+  UConfig                in 'base\UConfig.pas',
 
-  UCommon           in 'base\UCommon.pas',
-  UGraphic          in 'base\UGraphic.pas',
-  UTexture          in 'base\UTexture.pas',
-  ULanguage         in 'base\ULanguage.pas',
-  UMain             in 'base\UMain.pas',
-  UDraw             in 'base\UDraw.pas',
-  URecord           in 'base\URecord.pas',
-  UTime             in 'base\UTime.pas',
-  USong             in 'base\USong.pas',
-  USongs            in 'base\USongs.pas',
-  UIni              in 'base\UIni.pas',
-  UImage            in 'base\UImage.pas',
-  ULyrics           in 'base\ULyrics.pas',
-  USkins            in 'base\USkins.pas',
-  UThemes           in 'base\UThemes.pas',
-  ULog              in 'base\ULog.pas',
-  UJoystick         in 'base\UJoystick.pas',
-  UDataBase         in 'base\UDataBase.pas',
-  UCatCovers        in 'base\UCatCovers.pas',
-  UFiles            in 'base\UFiles.pas',
-  UGraphicClasses   in 'base\UGraphicClasses.pas',
-  UPlaylist         in 'base\UPlaylist.pas',
-  UCommandLine      in 'base\UCommandLine.pas',
-  URingBuffer       in 'base\URingBuffer.pas',
-  USingScores       in 'base\USingScores.pas',
-  UPathUtils        in 'base\UPathUtils.pas',
-  UNote             in 'base\UNote.pas',
-  UBeatTimer        in 'base\UBeatTimer.pas',
+  UCommon                in 'base\UCommon.pas',
+  UGraphic               in 'base\UGraphic.pas',
+  UTexture               in 'base\UTexture.pas',
+  ULanguage              in 'base\ULanguage.pas',
+  UMain                  in 'base\UMain.pas',
+  UDraw                  in 'base\UDraw.pas',
+  URecord                in 'base\URecord.pas',
+  UTime                  in 'base\UTime.pas',
+  USong                  in 'base\USong.pas',
+  USongs                 in 'base\USongs.pas',
+  UIni                   in 'base\UIni.pas',
+  UImage                 in 'base\UImage.pas',
+  ULyrics                in 'base\ULyrics.pas',
+  USkins                 in 'base\USkins.pas',
+  UThemes                in 'base\UThemes.pas',
+  ULog                   in 'base\ULog.pas',
+  UJoystick              in 'base\UJoystick.pas',
+  UDataBase              in 'base\UDataBase.pas',
+  UCatCovers             in 'base\UCatCovers.pas',
+  UFiles                 in 'base\UFiles.pas',
+  UGraphicClasses        in 'base\UGraphicClasses.pas',
+  UPlaylist              in 'base\UPlaylist.pas',
+  UCommandLine           in 'base\UCommandLine.pas',
+  URingBuffer            in 'base\URingBuffer.pas',
+  USingScores            in 'base\USingScores.pas',
+  UPathUtils             in 'base\UPathUtils.pas',
+  UNote                  in 'base\UNote.pas',
+  UBeatTimer             in 'base\UBeatTimer.pas',
 
-  TextGL            in 'base\TextGL.pas',
-  UUnicodeUtils     in 'base\UUnicodeUtils.pas',
-  UFont             in 'base\UFont.pas',
-  UTextEncoding     in 'base\UTextEncoding.pas',
+  TextGL                 in 'base\TextGL.pas',
+  UUnicodeUtils          in 'base\UUnicodeUtils.pas',
+  UFont                  in 'base\UFont.pas',
+  UTextEncoding          in 'base\UTextEncoding.pas',
 
-  UPath             in 'base\UPath.pas',
-  UFilesystem       in 'base\UFilesystem.pas',
+  UPath                  in 'base\UPath.pas',
+  UFilesystem            in 'base\UFilesystem.pas',
 
   //------------------------------
   //Includes - Plugin Support
@@ -183,24 +183,24 @@ uses
   //Includes - Platform
   //------------------------------
 
-  UPlatform         in 'base\UPlatform.pas',
+  UPlatform                  in 'base\UPlatform.pas',
 {$IF Defined(MSWINDOWS)}
-  UPlatformWindows  in 'base\UPlatformWindows.pas',
+  UPlatformWindows           in 'base\UPlatformWindows.pas',
 {$ELSEIF Defined(DARWIN)}
-  UPlatformMacOSX   in 'base\UPlatformMacOSX.pas',
+  UPlatformMacOSX            in 'base\UPlatformMacOSX.pas',
 {$ELSEIF Defined(UNIX)}
-  UPlatformLinux    in 'base\UPlatformLinux.pas',
-{$IFEND}
+  UPlatformLinux             in 'base\UPlatformLinux.pas',
+{$ENDIF}
 
   //------------------------------
   //Includes - Media
   //------------------------------
 
-  UMusic in 'base\UMusic.pas',
-  UAudioPlaybackBase in 'media\UAudioPlaybackBase.pas',
-  UFFT in 'lib\fft\UFFT.pas',
-  UAudioPlayback_SoftMixer in 'media\UAudioPlayback_SoftMixer.pas',
-  UAudioConverter in 'media\UAudioConverter.pas',
+  UMusic                     in 'base\UMusic.pas',
+  UAudioPlaybackBase         in 'media\UAudioPlaybackBase.pas',
+  UFFT                       in 'lib\fft\UFFT.pas',
+  UAudioPlayback_SoftMixer   in 'media\UAudioPlayback_SoftMixer.pas',
+  UAudioConverter            in 'media\UAudioConverter.pas',
 
   //******************************
   //Pluggable media modules
@@ -208,73 +208,74 @@ uses
   // This means the first entry has highest priority, the last lowest.
   //******************************
 
-UVideo                    in 'media\UVideo.pas',
+UVideo                       in 'media\UVideo.pas',
 {$IFDEF UseProjectM}
   // must be after UVideo, so it will not be the default video module
-  UVisualizer               in 'media\UVisualizer.pas',
-{$ENDIF}
-  {$IFDEF UseBASS}
-  BASS in 'lib\bass\bass.pas',
-  BASS_FX in 'lib\bass_fx\bass_fx.pas',
-  UAudioCore_Bass in 'media\UAudioCore_Bass.pas',
-  UAudioInput_Bass in 'media\UAudioInput_Bass.pas',
-  UAudioPlayback_Bass in 'media\UAudioPlayback_Bass.pas',
-  UAudioDecoder_Bass in 'media\UAudioDecoder_Bass.pas',
-  {$ELSE}
-  UAudioInput_SDL in 'media\UAudioInput_SDL.pas',
-  UAudioPlayback_SDL in 'media\UAudioPlayback_SDL.pas',
-  UAudioDecoder_FFmpeg in 'media\UAudioDecoder_FFmpeg.pas',
+  UVisualizer                in 'media\UVisualizer.pas',
   {$ENDIF}
+
+
+  BASS                       in 'lib\bass\bass.pas',
+  BASS_FX                    in 'lib\bass_fx\bass_fx.pas',
+  UAudioCore_Bass            in 'media\UAudioCore_Bass.pas',
+  UAudioInput_Bass           in 'media\UAudioInput_Bass.pas',
+  UAudioPlayback_Bass        in 'media\UAudioPlayback_Bass.pas',
+
+  
+  UAudioInput_SDL            in 'media\UAudioInput_SDL.pas',
+  UAudioPlayback_SDL         in 'media\UAudioPlayback_SDL.pas',
+  UAudioDecoder_FFmpeg       in 'media\UAudioDecoder_FFmpeg.pas',
+
   //------------------------------
   //Includes - Screens
   //------------------------------
-  UScreenLoading          in 'screens\UScreenLoading.pas',
-  UScreenMain             in 'screens\UScreenMain.pas',
-  UScreenPlayerSelector in 'screens\UScreenPlayerSelector.pas',
-  UScreenSong             in 'screens\UScreenSong.pas',
-  UScreenSingController   in 'screens\controllers\UScreenSingController.pas',
-  UScreenSingView         in 'screens\views\UScreenSingView.pas',
-  UScreenScore            in 'screens\UScreenScore.pas',
-  UScreenJukebox          in 'screens\UScreenJukebox.pas',
-  UScreenOptions          in 'screens\UScreenOptions.pas',
+  UScreenLoading             in 'screens\UScreenLoading.pas',
+  UScreenMain                in 'screens\UScreenMain.pas',
+  UScreenPlayerSelector      in 'screens\UScreenPlayerSelector.pas',
+  UScreenSong                in 'screens\UScreenSong.pas',
+  UScreenSingController      in 'screens\controllers\UScreenSingController.pas',
+  UScreenSingView            in 'screens\views\UScreenSingView.pas',
+  UScreenScore               in 'screens\UScreenScore.pas',
+  UScreenJukebox             in 'screens\UScreenJukebox.pas',
+  UScreenOptions             in 'screens\UScreenOptions.pas',
   UScreenOptionsGeneral      in 'screens\UScreenOptionsGeneral.pas',
-  UScreenOptionsGraphics  in 'screens\UScreenOptionsGraphics.pas',
-  UScreenOptionsSound     in 'screens\UScreenOptionsSound.pas',
-  UScreenOptionsLyrics    in 'screens\UScreenOptionsLyrics.pas',
-  UScreenOptionsThemes    in 'screens\UScreenOptionsThemes.pas',
-  UScreenOptionsMicrophones    in 'screens\UScreenOptionsMicrophones.pas',
-  UScreenOptionsAdvanced  in 'screens\UScreenOptionsAdvanced.pas',
-  UScreenOptionsNetwork in 'screens\UScreenOptionsNetwork.pas',
-  UScreenOptionsWebcam  in 'screens\UScreenOptionsWebcam.pas',
-  UScreenOptionsProfiles  in 'screens\UScreenOptionsProfiles.pas',
-  UScreenOptionsSongdirs  in 'screens\UScreenOptionsSongdirs.pas',
+  UScreenOptionsGraphics     in 'screens\UScreenOptionsGraphics.pas',
+  UScreenOptionsSound        in 'screens\UScreenOptionsSound.pas',
+  UScreenOptionsLyrics       in 'screens\UScreenOptionsLyrics.pas',
+  UScreenOptionsThemes       in 'screens\UScreenOptionsThemes.pas',
+  UScreenOptionsMicrophones  in 'screens\UScreenOptionsMicrophones.pas',
+  UScreenOptionsAdvanced     in 'screens\UScreenOptionsAdvanced.pas',
+  UScreenOptionsNetwork      in 'screens\UScreenOptionsNetwork.pas',
+  UScreenOptionsWebcam       in 'screens\UScreenOptionsWebcam.pas',
+  UScreenOptionsProfiles     in 'screens\UScreenOptionsProfiles.pas',
+  UScreenOptionsSongdirs     in 'screens\UScreenOptionsSongdirs.pas',
 
-  UScreenOpen             in 'screens\UScreenOpen.pas',
-  UScreenTop10            in 'screens\UScreenTop10.pas',
-  UScreenSongMenu         in 'screens\UScreenSongMenu.pas',
-  UScreenStatMain         in 'screens\UScreenStatMain.pas',
-  UScreenStatDetail       in 'screens\UScreenStatDetail.pas',
-  UScreenPopup            in 'screens\UScreenPopup.pas',
+  UScreenOpen                in 'screens\UScreenOpen.pas',
+  UScreenTop10               in 'screens\UScreenTop10.pas',
+  UScreenSongMenu            in 'screens\UScreenSongMenu.pas',
+  UScreenStatMain            in 'screens\UScreenStatMain.pas',
+  UScreenStatDetail          in 'screens\UScreenStatDetail.pas',
+  UScreenPopup               in 'screens\UScreenPopup.pas',
 
   //Includes - Screens PartyMode
-  UScreenPartyNewRound    in 'screens\UScreenPartyNewRound.pas',
-  UScreenPartyScore       in 'screens\UScreenPartyScore.pas',
-  UScreenPartyPlayer      in 'screens\UScreenPartyPlayer.pas',
-  UScreenPartyOptions     in 'screens\UScreenPartyOptions.pas',
-  UScreenPartyRounds      in 'screens\UScreenPartyRounds.pas',
-  UScreenPartyWin         in 'screens\UScreenPartyWin.pas',
+  UScreenPartyNewRound       in 'screens\UScreenPartyNewRound.pas',
+  UScreenPartyScore          in 'screens\UScreenPartyScore.pas',
+  UScreenPartyPlayer         in 'screens\UScreenPartyPlayer.pas',
+  UScreenPartyOptions        in 'screens\UScreenPartyOptions.pas',
+  UScreenPartyRounds         in 'screens\UScreenPartyRounds.pas',
+  UScreenPartyWin            in 'screens\UScreenPartyWin.pas',
 
-  UWebSDK                 in 'webSDK\UWebSDK.pas',
-  //curlobj                 in 'webSDK\cURL\src\curlobj.pas',
+  UWebSDK                    in 'webSDK\UWebSDK.pas',
+  //curlobj                  in 'webSDK\cURL\src\curlobj.pas',
 
-  opencv_highgui          in 'lib\openCV\opencv_highgui.pas',
-  opencv_core             in 'lib\openCV\opencv_core.pas',
-  opencv_imgproc          in 'lib\openCV\opencv_imgproc.pas',
-  opencv_types            in 'lib\openCV\opencv_types.pas',
+  opencv_highgui             in 'lib\openCV\opencv_highgui.pas',
+  opencv_core                in 'lib\openCV\opencv_core.pas',
+  opencv_imgproc             in 'lib\openCV\opencv_imgproc.pas',
+  opencv_types               in 'lib\openCV\opencv_types.pas',
 
-  UWebcam                 in 'base\UWebcam.pas',
+  UWebcam                    in 'base\UWebcam.pas',
 
-  UDLLManager             in 'base\UDLLManager.pas',
+  UDLLManager                in 'base\UDLLManager.pas',
 
   UPartyTournament              in 'base\UPartyTournament.pas',
   UScreenPartyTournamentRounds  in 'screens\UScreenPartyTournamentRounds.pas',
@@ -285,14 +286,14 @@ UVideo                    in 'media\UVideo.pas',
   UScreenJukeboxPlaylist        in 'screens\UScreenJukeboxPlaylist.pas',
 
 
-  UAvatars                in 'base\UAvatars.pas',
-  UScreenAbout            in 'screens\UScreenAbout.pas',
-  UScreenDevelopers       in 'screens\UScreenDevelopers.pas',
+  UAvatars                   in 'base\UAvatars.pas',
+  UScreenAbout               in 'screens\UScreenAbout.pas',
+  UScreenDevelopers          in 'screens\UScreenDevelopers.pas',
 
   SysUtils;
 
 const
-  sLineBreakWin = AnsiString(#13#10);//Windows-Style Linebreak. Older USDX versions don't support other formats.
+  sLineBreakWin = AnsiString(#13#10);//Windows-Style Linebreak. Older USWP versions don't support other formats.
 var
   I: Integer;
   Report: string;
@@ -301,7 +302,7 @@ begin
   try
     {$IF DEFINED(MSWINDOWS) AND NOT DEFINED(DEBUG)}
     FreeConsole(); //hacky workaround to get a working GUI-only experience on windows 10 when using fpc 3.0.0 on windows
-    {$IFEND}
+    {$ENDIF}
     UMain.Main();
   except
     on E : Exception do
