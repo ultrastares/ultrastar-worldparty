@@ -1,8 +1,8 @@
 {*
     UltraStar WorldParty - Karaoke Game
-	
-	UltraStar WorldParty is the legal property of its developers, 
-	whose names	are too numerous to list here. Please refer to the 
+
+	UltraStar WorldParty is the legal property of its developers,
+	whose names	are too numerous to list here. Please refer to the
 	COPYRIGHT file distributed with this source distribution.
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. Check "LICENSE" file. If not, see 
+    along with this program. Check "LICENSE" file. If not, see
 	<http://www.gnu.org/licenses/>.
  *}
 
@@ -61,6 +61,7 @@ type
       function GetName: string; virtual; abstract;
 
       function Open(const Filename: IPath): boolean; // true if succeed
+      function OpenWithInstrum(const Filename: IPath; const InstrumFilename: IPath): boolean; // true if succeed
       procedure Close;
 
       procedure Play;
@@ -164,6 +165,33 @@ begin
   end;
 
   if doVoiceRemoval then MusicStream.AddSoundEffect(TVoiceRemoval.Create());
+  if assigned(IReplayGain) and IReplayGain.CanEnable then MusicStream.AddSoundFX(IReplayGain.Create());
+
+  Result := true;
+end;
+
+function TAudioPlaybackBase.OpenWithInstrum(const Filename: IPath; const InstrumFilename: IPath): boolean;
+var
+  customInstrum: boolean;
+begin
+  // free old MusicStream
+  MusicStream.Free;
+
+  customInstrum := doVoiceRemoval and InstrumFilename.IsSet();
+  if customInstrum then
+	MusicStream := OpenStream(InstrumFilename);
+  if not customInstrum or not assigned(MusicStream) then
+  begin
+	MusicStream := OpenStream(Filename);
+	customInstrum := false;
+  end;
+  if not assigned(MusicStream) then
+  begin
+    Result := false;
+    Exit;
+  end;
+
+  if doVoiceRemoval and not customInstrum then MusicStream.AddSoundEffect(TVoiceRemoval.Create());
   if assigned(IReplayGain) and IReplayGain.CanEnable then MusicStream.AddSoundFX(IReplayGain.Create());
 
   Result := true;

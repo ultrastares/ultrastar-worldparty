@@ -736,7 +736,7 @@ begin
   PlayMidi := false;
   MidiFadeIn := false;
 
-  AudioPlayback.Open(CurrentSong.Path.Append(CurrentSong.Mp3));
+  AudioPlayback.OpenWithInstrum(CurrentSong.Path.Append(CurrentSong.Mp3),CurrentSong.Path.Append(CurrentSong.Instrum));
   if ScreenSong.Mode = smMedley then
     AudioPlayback.SetVolume(0.1)
   else

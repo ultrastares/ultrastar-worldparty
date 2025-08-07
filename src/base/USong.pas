@@ -101,6 +101,7 @@ type
     // filenames
     Cover:      IPath;
     Mp3:        IPath;
+    Instrum:    IPath;
     Background: IPath;
     Video:      IPath;
 
@@ -215,6 +216,7 @@ begin
   Self.FileName := PATH_NONE();
   Self.Cover    := PATH_NONE();
   Self.Mp3      := PATH_NONE();
+  Self.Instrum  := PATH_NONE();
   Self.Background:= PATH_NONE();
   Self.Video    := PATH_NONE();
 end;
@@ -277,12 +279,13 @@ begin
   Self.Year := 0;
   if (not FileSystem.FileAge(aFileName, Self.FileDate)) then
     Self.FileDate := 0;
-  
+
   // set to default encoding
   Self.Encoding := Ini.DefaultEncoding;
 
   //Required Information
   Self.Mp3 := PATH_NONE;
+  Self.Instrum := PATH_NONE;
   Self.BPM := 0;
   Self.GAP := 0;
   Self.Start := 0;
@@ -671,6 +674,14 @@ begin
           end
           else
             Log.LogError('Can''t find audio file in song: '+Self.FullPath);
+        end;
+        'INSTRUM': //sound source file
+        begin
+          EncFile := DecodeFilename(Value);
+          if (Self.Path.Append(EncFile).IsFile()) then
+          begin
+            Self.Instrum := EncFile;
+          end
         end;
         'BPM': //beats per minute
         begin

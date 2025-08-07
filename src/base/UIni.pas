@@ -74,6 +74,7 @@ const
   DEFAULT_RESOLUTION = '800x600';
   IMaxPlayerCount = 6;
   IPlayers: array[0..4] of UTF8String = ('1', '2', '3', '4', '6');
+  IPlayersVals: array[0..4] of integer = (1, 2, 3, 4, 6);
 
 type
 
@@ -101,13 +102,13 @@ type
       procedure LoadWebcamSettings(IniFile: TCustomIniFile);
     public
       // Players or Teams colors
-      SingColor:      array[0..(IMaxPlayerCount-1)] of integer; //FIXME remove this variable in all files
+      SingColor:      array[0..(IMaxPlayerCount-1)] of integer;
 
       Name: array[0..(IMaxPlayerCount-1)] of UTF8String;
       PlayerColor:    array[0..(IMaxPlayerCount-1)] of integer;
       TeamColor:      array[0..2] of integer;
 
-      PlayerAvatar:   array[0..(IMaxPlayerCount-1)] of string;
+      PlayerAvatar:   array[0..(IMaxPlayerCount-1)] of UTF8String;
       PlayerLevel:    array[0..(IMaxPlayerCount-1)] of integer;
 
       // Templates for Names Mod
@@ -229,19 +230,15 @@ type
       procedure Save();
       procedure SaveNames();
       procedure SaveLevel();
-      procedure SavePlayers(
-        TotalNumber: integer;
-        Names: array of UTF8String;
-        Colors: array of integer;
-        Levels: array of integer;
-        AvatarButtonsMd5: array of string;
-        Avatars: array of integer
-      );
+      procedure SavePlayerColors();
+      procedure SavePlayerAvatars();
+      procedure SavePlayerLevels();
       procedure SaveTeamColors();
       procedure SaveShowWebScore();
       procedure SaveJukeboxSongMenu();
       procedure SaveSoundFont(Name: string);
       procedure SaveWebcamSettings();
+      procedure SaveNumberOfPlayers();
       procedure SaveSingTimebarMode();
       procedure SaveJukeboxTimebarMode();
       procedure SaveJukeboxRepeatSongList();
@@ -846,10 +843,13 @@ begin
 
   for I := 0 to IMaxPlayerCount-1 do
   begin
+    // Name
     Name[I] := IniFile.ReadString('Name', 'P'+IntToStr(I+1), 'Player'+IntToStr(I+1));
+    // Color Player
     PlayerColor[I] := IniFile.ReadInteger('PlayerColor', 'P'+IntToStr(I+1), I + 1);
-    Self.SingColor[I] := Self.PlayerColor[I];
+    // Avatar Player
     PlayerAvatar[I] := IniFile.ReadString('PlayerAvatar', 'P'+IntToStr(I+1), '');
+    // Level Player
     PlayerLevel[I] := IniFile.ReadInteger('PlayerLevel', 'P'+IntToStr(I+1), 0);
   end;
 
@@ -1320,39 +1320,54 @@ begin
 end;
 
 
-procedure TIni.SavePlayers(
-  TotalNumber: integer;
-  Names: array of UTF8String;
-  Colors: array of integer;
-  Levels: array of integer;
-  AvatarButtonsMd5: array of string;
-  Avatars: array of integer
-);
+procedure TIni.SavePlayerColors;
+
 var
   IniFile: TIniFile;
-  I, J: integer;
-  PlayerNumber: string;
+  I: integer;
 begin
   if not Filename.IsReadOnly() then
   begin
-    Self.Players := TotalNumber;
     IniFile := TIniFile.Create(Filename.ToNative);
-    IniFile.WriteString('Game', 'Players', IPlayers[Players]);
+
+    //Colors for Names Mod
     for I := 1 to IMaxPlayerCount do
-    begin
-      J := I - 1;
-      Self.Name[J] := Names[J];
-      Self.PlayerAvatar[J] := AvatarButtonsMd5[Avatars[J]];
-      Self.PlayerColor[J] := Colors[J];
-      Self.PlayerLevel[J] := Levels[J];
-      Self.SingColor[J] := Colors[J];
-      PlayerNumber := 'P' + IntToStr(I);
-      IniFile.WriteString('Name', PlayerNumber, Self.Name[J]);
-      IniFile.WriteString('PlayerAvatar', PlayerNumber, Self.PlayerAvatar[J]);
-      IniFile.WriteString('PlayerColor', PlayerNumber, IntToStr(Self.PlayerColor[J]));
-      IniFile.WriteInteger('PlayerLevel', PlayerNumber, Levels[J]);
-    end;
-    IniFile.Free();
+      IniFile.WriteString('PlayerColor', 'P' + IntToStr(I), IntToStr(PlayerColor[I-1]));
+
+    IniFile.Free;
+  end;
+end;
+
+procedure TIni.SavePlayerAvatars;
+var
+  IniFile: TIniFile;
+  I: integer;
+begin
+  if not Filename.IsReadOnly() then
+  begin
+    IniFile := TIniFile.Create(Filename.ToNative);
+
+    //Colors for Names Mod
+    for I := 1 to IMaxPlayerCount do
+      IniFile.WriteString('PlayerAvatar', 'P' + IntToStr(I), PlayerAvatar[I-1]);
+
+    IniFile.Free;
+  end;
+end;
+
+procedure TIni.SavePlayerLevels;
+var
+  IniFile: TIniFile;
+  I: integer;
+begin
+  if not Filename.IsReadOnly() then
+  begin
+    IniFile := TIniFile.Create(Filename.ToNative);
+
+    for I := 1 to IMaxPlayerCount do
+      IniFile.WriteInteger('PlayerLevel', 'P' + IntToStr(I), PlayerLevel[I-1]);
+
+    IniFile.Free;
   end;
 end;
 
@@ -1402,6 +1417,21 @@ begin
     IniFile.Free;
   end;
 
+end;
+
+procedure TIni.SaveNumberOfPlayers;
+var
+  IniFile: TIniFile;
+begin
+  if not Filename.IsReadOnly() then
+  begin
+    IniFile := TIniFile.Create(Filename.ToNative);
+
+    // Players
+    IniFile.WriteString('Game', 'Players', IPlayers[Players]);
+
+    IniFile.Free;
+  end;
 end;
 
 procedure TIni.SaveSingTimebarMode;

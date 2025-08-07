@@ -800,7 +800,6 @@ var
   R, G, B: real;
   Col2: integer;
   ArrayStartModifier: integer;
-  AvatarPlayerTextures: UAvatars.TAvatarPlayerTextures;
 begin
   inherited Create;
 
@@ -844,7 +843,7 @@ begin
     StaticLevel[Player]          := AddStatic(Theme.Score.StaticLevel[Player]);
     StaticLevelRound[Player]     := AddStatic(Theme.Score.StaticLevelRound[Player]);
 
-    AddButton(Theme.Score.ButtonContinue); 
+    AddButton(Theme.Score.ButtonContinue);
 
     // ######################
     // Score screen textures
@@ -905,7 +904,7 @@ begin
     else
       ArrayStartModifier := 0; //this should never happen
   end;
-  AvatarPlayerTextures := UAvatars.GetAvatarsList().GetPlayers();
+
   for I := 1 to PlayersPlay do
   begin
     if((Screens = 2) and (PlayersPlay > 3) and (I > Trunc(PlayersPlay/2))) then
@@ -1810,7 +1809,7 @@ begin
     begin
       AudioPlayback.Close;
 
-      if AudioPlayback.Open(CatSongs.Song[select].Path.Append(CatSongs.Song[select].Mp3)) then
+      if AudioPlayback.OpenWithInstrum(CatSongs.Song[select].Path.Append(CatSongs.Song[select].Mp3),CatSongs.Song[select].Path.Append(CatSongs.Song[select].Instrum)) then
       begin
         if (CatSongs.Song[select].PreviewStart > 0) then
           AudioPlayback.Position := CatSongs.Song[select].PreviewStart

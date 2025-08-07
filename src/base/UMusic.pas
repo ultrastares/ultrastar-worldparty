@@ -486,6 +486,7 @@ type
       function  Length: real;
 
       function Open(const Filename: IPath): boolean; // true if succeed
+      function OpenWithInstrum(const Filename: IPath; const InstrumFilename: IPath): boolean; // true if succeed
       procedure Close;
 
       procedure Play;
